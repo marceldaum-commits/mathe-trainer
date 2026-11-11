@@ -1,24 +1,29 @@
 # Mathe-Trainer – Plan
 
-Stand: 11.11.2026 · Status: **nur Planung – gebaut wird erst nach Marcels „los"**
-(sobald sein normaler Server wieder läuft).
+Stand: 11.11.2026 · Status: **nur Planung – gebaut wird erst nach Marcels „los"**.
+
+**Richtungswechsel (Marcel, 11.11.2026):** Handy zuerst. Jugendliche nutzen kaum noch PCs.
+Statt eines Windows-Programms bauen wir eine **Web-App auf dem Server, als Lernspiel**.
+Windows ist nur noch ein optionaler Zusatz für später.
 
 ## Ziel
 
-Ein kostenloses Windows-Programm zum Herunterladen, mit dem Schüler der **Oberstufe**
-(zuerst **Bayern und Hessen**) Mathe üben und lernen. Es läuft ohne Internet und ohne Konto,
-aktualisiert sich selbst und wirbt dezent für die Nachhilfe-Firma mathenachhilfe-online.com
-(Seite ist aktuell offline, kommt wieder).
+Ein kostenloses Mathe-Lernspiel für Schüler der **Oberstufe** (zuerst **Bayern und Hessen**),
+das im Browser auf Android, iPhone, Tablet und PC läuft. Es lässt sich wie eine App auf den
+Startbildschirm legen, aktualisiert sich von selbst und wirbt dezent für die Nachhilfe-Firma
+mathenachhilfe-online.com (Seite ist aktuell offline, kommt wieder).
 
 ## Leitbild (Marcel, 11.11.2026): interaktiv, pädagogisch wertvoll, modern
 
-Kein digitales Arbeitsblatt. Der Schüler **tut** etwas und **versteht**, statt nur Ergebnisse einzutippen.
+Kein digitales Arbeitsblatt. Der Schüler **tut** etwas und **versteht**, statt nur Ergebnisse
+einzutippen. Das Spielerische ist die Verpackung, das Verstehen der Kern.
 
-**Interaktiv**
+**Interaktiv (für den Finger gebaut)**
 - Graphen anfassen: Punkte ziehen, Schieberegler, Tangente an der Kurve entlangschieben und
   die Steigung live sehen.
 - Selbst skizzieren: z. B. den Graphen der Ableitung zeichnen, das Programm vergleicht.
-- Rechenweg Zeile für Zeile eingeben; das Programm prüft jede Zeile und zeigt die erste falsche.
+- Rechenschritte sortieren, Lücken füllen, passende Antwort antippen – statt Formeln zu tippen.
+- Rechenweg Zeile für Zeile; das Programm zeigt die erste falsche Zeile.
 - Geometrie in 3D: Geraden und Ebenen drehen und von allen Seiten ansehen.
 - Stochastik als Experiment: 1000-mal würfeln lassen und sehen, wie die Verteilung entsteht.
 
@@ -34,14 +39,22 @@ Kein digitales Arbeitsblatt. Der Schüler **tut** etwas und **versteht**, statt 
 
 **Modern**
 - Aufgeräumte Oberfläche, Hell/Dunkel, flüssige Animationen.
-- Formel-Eingabe mit Mathe-Tastatur (Brüche, Wurzeln, Potenzen) statt Tipp-Kürzeln.
-- Kurze Einheiten von 10–15 Minuten mit klarem Tagesziel.
+- Kurze Runden: 5 Aufgaben in etwa 3 Minuten (Bus, Pause), klares Tagesziel.
+- Mathe-Tastatur nur dort, wo eine Formel-Eingabe wirklich nötig ist.
 - Optional später: KI-Tutor für Rückfragen (braucht Internet und verursacht laufende Kosten –
   Entscheidung offen).
 
+## Spiel-Elemente
+
+- Level, Punkte, Tages-Serie, Abzeichen, freischaltbare Themen.
+- **Tages-Aufgabe:** jeden Tag eine neue Aufgabe für alle.
+- **Duell:** zwei Schüler, dieselben Aufgaben, per Link an einen Mitschüler.
+- **Bestenliste** (mit Spitznamen).
+- Abi-Modus auf Zeit mit Punkte-Prognose (0–15 Punkte).
+
 ## Design: orientiert an der Website (Marcel, 11.11.2026)
 
-Das Programm soll aussehen wie mathenachhilfe-online.com, damit Schüler und Eltern die Firma
+Das Spiel soll aussehen wie mathenachhilfe-online.com, damit Schüler und Eltern die Firma
 wiedererkennen. Werte aus dem Theme der Website übernommen:
 
 | Element | Wert |
@@ -63,67 +76,63 @@ wiedererkennen. Werte aus dem Theme der Website übernommen:
 4. Mit Sicherheit weiterlernen (Wiederholung, nächstes Thema)
 
 Ton wie auf der Website: ruhig, ohne Druck, Fehler als Hinweise.
+
 **Logo** (von Marcel, 11.11.2026) liegt in `assets/logo/` – **nur Schwarz/Weiß, nicht einfärben**:
-Original (weiß auf schwarz), invertiert, sowie freigestellt in Weiß und Schwarz – als PNG und als SVG (aus dem Bild nachgezeichnet; `logo.svg` übernimmt die Textfarbe, `logo-symbol-schwarz.svg` / `logo-symbol-weiss.svg` haben einen Hintergrund).
-Einsatz: Weiß auf Schwarz als Programm-Symbol und auf dunklen Flächen, Schwarz auf Weiß auf hellen.
+Original (weiß auf schwarz), invertiert, sowie freigestellt in Weiß und Schwarz – als PNG und
+als SVG (aus dem Bild nachgezeichnet; `logo.svg` übernimmt die Textfarbe,
+`logo-symbol-schwarz.svg` / `logo-symbol-weiss.svg` haben einen Hintergrund).
+Einsatz: Weiß auf Schwarz als App-Symbol und auf dunklen Flächen, Schwarz auf Weiß auf hellen.
 
 ## Grundsätze
 
-- **Aufgaben erzeugt das Programm selbst** (Zufallszahlen, eigener Lösungsweg). Marcels
+- **Handy zuerst:** jede Ansicht wird für den kleinen Bildschirm und den Finger entworfen;
+  am PC sieht sie dann ebenfalls gut aus.
+- **Aufgaben erzeugt das Spiel selbst** (Zufallszahlen, eigener Lösungsweg). Marcels
   Drive-Ordner „Mathe" dient nur als Orientierung für Themen und Stufen.
 - **Keine fremden Aufgaben kopieren.** In dem Ordner liegt auch Material anderer Anbieter;
-  das darf nicht in ein öffentliches Programm. Marcels eigene Aufgaben dürfen 1:1 hinein,
+  das darf nicht in ein öffentliches Angebot. Marcels eigene Aufgaben dürfen 1:1 hinein,
   wenn er die Dateien benennt.
-- **Lernfortschritt bleibt lokal** auf dem PC (kein Konto, kein Datenschutz-Thema bei Schülern).
-- **Selbst-einrichtend:** Bauen, Verteilen und Updates laufen automatisch über GitHub.
+- **Ohne Anmeldung spielbar.** Lernfortschritt liegt zuerst nur auf dem Gerät; für Duell und
+  Bestenliste genügt ein Spitzname (einfachster Weg beim Datenschutz für Minderjährige).
+- **Selbst-einrichtend:** Bauen, Ausliefern und Updates laufen automatisch.
 - **Klein anfangen:** erst Analysis, dann erweitern.
 - Dieses Projekt ist **getrennt vom Nachtfalter Hacklab**.
 
 ## Technik
 
-- **Bauart:** Web-Technik (HTML/JS) in einem Windows-Fenster, verpackt mit Tauri
-  (kleine Datei, eingebautes Auto-Update). Derselbe Code kann später im Browser/Handy laufen.
-- **Bauen und Verteilen:** GitHub Actions baut die `.exe` bei jedem Release; Download über
-  GitHub Releases.
-- **Updates:**
-  - Programm prüft beim Start auf eine neue Version, lädt sie im Hintergrund und fragt nach
-    einem Neustart. Ohne Internet läuft die alte Version weiter.
-  - Neue Aufgaben/Themen kommen als kleine Datendatei – ohne Neuinstallation.
-- **Signatur-Schlüssel** für das Auto-Update: einmaliger Schritt von Marcel
-  (als GitHub-Geheimnis hinterlegen, Anleitung folgt beim Start).
+- **Bauart:** Web-App (HTML/JS), installierbar auf dem Startbildschirm (PWA), läuft nach dem
+  ersten Laden auch ohne Internet.
+- **Ausliefern:** Die Grundversion besteht nur aus Dateien. Sie kann kostenlos bei GitHub
+  liegen (kein Warten auf Marcels Server nötig) oder später auf seinem Server unter eigener
+  Adresse.
+- **Updates:** Push ins Repo → automatisch gebaut und ausgeliefert → alle haben beim nächsten
+  Öffnen die neue Version. Kein Signatur-Schlüssel, keine Windows-Warnung.
+- **Server-Teil (erst ab Phase 3):** kleine Datenbank für Duell, Bestenliste und Tages-Aufgabe
+  (z. B. Supabase wie beim Hacklab). Antworten für Wertungen werden serverseitig geprüft.
+- **Stores (später):** Android/Play Store aus der Web-App heraus (Play-Konto einmalig ca. 25 $).
+  iOS/App Store aufwendiger (Apple-Konto 99 $/Jahr). Windows-Programm nur bei Bedarf.
 
 ## Phasen
 
 | Phase | Inhalt | Ergebnis |
 | --- | --- | --- |
-| 0 – Gerüst | Leeres Programm, automatischer Bau, Auto-Update, Formel-Anzeige | `.exe`, die startet und sich aktualisiert |
-| 1 – Erste Version (Analysis) | Ableiten, Tangente/Normale, Kurvendiskussion, Integrale und Flächen, Extremwertaufgaben. 3 Stufen, Lösungsweg Schritt für Schritt, Punkte und Tages-Serie, Fehler-Kartei, Logo und Probestunden-Knopf | Erste Version zum Verteilen |
-| 2 – Abi-Funktionen | Bundesland-Schalter (Bayern, Hessen Grundkurs/Leistungskurs), Teil ohne und mit Hilfsmitteln, Test auf Zeit mit Punkte-Prognose, Eltern-Bericht zum Drucken | Abi-Trainer |
-| 3 – Weitere Gebiete | Analytische Geometrie, dann Stochastik, Graphen mit Schiebereglern | Alle drei Abi-Gebiete |
-| 4 – Extras | Operatoren-Training, Abi-Countdown mit Lernplan, Gutschein-Code, Weiterempfehlen | Feinschliff und Werbung |
-| 5 – Später | Grundlagen-Auffrischung (Algebra, Funktionen), Browser-/Handy-Version, optionales Konto | Nach Bedarf |
+| 0 – Gerüst | Leere Web-App im Website-Design, installierbar, automatisches Ausliefern, Formel-Anzeige | Ein Link, der auf jedem Handy läuft |
+| 1 – Erste Version (Analysis) | Ableiten, Tangente/Normale, Kurvendiskussion, Integrale und Flächen, Extremwertaufgaben. Lernablauf in 4 Schritten, 3 Stufen, gestufte Hilfen, kurze Runden, Punkte und Tages-Serie, Fehler-Kartei, Logo und Probestunden-Knopf | Erste Version zum Verteilen (Link/QR-Code) |
+| 2 – Abi-Funktionen | Bundesland-Schalter (Bayern, Hessen Grundkurs/Leistungskurs), Teil ohne und mit Hilfsmitteln, Abi-Modus auf Zeit mit Punkte-Prognose, Eltern-Bericht | Abi-Trainer |
+| 3 – Gemeinsam spielen | Spitzname, Tages-Aufgabe, Duell per Link, Bestenliste (Server-Teil) | Lernspiel mit Mitschülern |
+| 4 – Weitere Gebiete | Analytische Geometrie (3D), dann Stochastik (Experimente) | Alle drei Abi-Gebiete |
+| 5 – Extras | Operatoren-Training, Abi-Countdown mit Lernplan, Gutschein-Code, Weiterempfehlen | Feinschliff und Werbung |
+| 6 – Später | Play Store, evtl. App Store, Grundlagen-Auffrischung (Algebra, Funktionen), optionales Konto, evtl. Windows-Programm | Nach Bedarf |
 
-## Funktionen im Detail
+## Werbung (dezent)
 
-**Lernen**
-- Üben nach Thema und Stufe, Aufgaben gehen nie aus.
-- Lösungsweg Schritt für Schritt bei Fehlern.
-- Schwächen-Erkennung: was nicht sitzt, kommt häufiger.
-- Fehler-Kartei: falsche Aufgaben kommen nach ein paar Tagen wieder.
-- Klassenarbeits-/Abi-Modus auf Zeit, mit Punkte-Prognose (0–15 Punkte).
-- Zwei Prüfungsteile wie im Abi: ohne und mit Hilfsmitteln.
-- Operatoren-Training („bestimmen", „zeigen", „begründen", „skizzieren" …).
-- Abi-Countdown mit täglichem Lernplan.
-- Graphen mit Schiebereglern.
-- Motivation: Punkte, Tages-Serie, Abzeichen.
-
-**Werbung (dezent)**
-- Logo und „von mathenachhilfe-online.com" im Programm.
+- Logo und „von mathenachhilfe-online.com" im Spiel.
 - Hinweis auf kostenlose Probestunde, wenn ein Thema mehrfach schiefgeht; die Anfrage
   nennt das Problem-Thema.
-- Eltern-Bericht zum Ausdrucken (was geübt wurde, was klappt, wo es hakt) mit Firmenadresse.
+- Eltern-Bericht (was geübt wurde, was klappt, wo es hakt) zum Teilen oder Drucken,
+  mit Firmenadresse.
 - Gutschein-Code, z. B. nach 7 Tagen Lern-Serie (macht messbar, wie viele Kunden kommen).
-- „Schick das Programm einem Mitschüler".
+- „Schick das Spiel einem Mitschüler" – Link oder QR-Code; das Duell wirbt von selbst.
 
 ## Themen-Landkarte (aus Marcels Ordner, als Orientierung)
 
@@ -136,14 +145,13 @@ Stufen in der Vorlage: Grundlagen → Fortgeschritten → Expert (→ Universit�
 
 ## Offen – braucht Marcel (erst beim Start)
 
-1. Logo und Farben der Firma (sonst neutraler Vorschlag).
-2. Ziel des Probestunden-Knopfs, solange die Seite offline ist (E-Mail oder Telefon).
-3. Signatur-Schlüssel bei GitHub hinterlegen (mit Anleitung).
-4. Dateinamen der eigenen Aufgaben, falls welche 1:1 hinein sollen.
+1. Ziel des Probestunden-Knopfs, solange die Seite offline ist (E-Mail oder Telefon).
+2. Dateinamen der eigenen Aufgaben, falls welche 1:1 hinein sollen.
+3. Unter welcher Adresse das Spiel laufen soll (zuerst GitHub-Adresse oder gleich eine eigene).
 
 ## Offene Entscheidungen
 
-- **Windows-Warnung „unbekannter Herausgeber":** Vorschlag – ohne Zertifikat starten,
-  später kaufen, wenn das Programm ankommt (Alternative: Microsoft Store).
+- **Start ohne Marcels Server?** Die Grundversion könnte sofort kostenlos bei GitHub laufen.
 - **Name:** „Mathe-Trainer" ist Arbeitstitel.
 - **Lehrplan:** Themen für Bayern und Hessen beim Start gegen die offiziellen Vorgaben prüfen.
+- **KI-Tutor:** später prüfen (laufende Kosten).
