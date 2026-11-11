@@ -39,6 +39,32 @@ Kein digitales Arbeitsblatt. Der Schüler **tut** etwas und **versteht**, statt 
 - Optional später: KI-Tutor für Rückfragen (braucht Internet und verursacht laufende Kosten –
   Entscheidung offen).
 
+## Design: orientiert an der Website (Marcel, 11.11.2026)
+
+Das Programm soll aussehen wie mathenachhilfe-online.com, damit Schüler und Eltern die Firma
+wiedererkennen. Werte aus dem Theme der Website übernommen:
+
+| Element | Wert |
+| --- | --- |
+| Hauptfarbe (Knöpfe, Akzente) | Orange `#ff7418`, dunkler `#df5e0c` |
+| Dunkle Flächen, Überschriften | Navy `#101b43` / `#0d1733`, Blau `#173a74` |
+| Erfolg / „richtig" | Mint `#73e0a9` |
+| Text | `#1f2b3e`, gedämpft `#61718a` |
+| Hintergrund | Weiß, weiche Flächen `#f7f9fd`, Linien `#dbe4ef` |
+| Schrift | Inter, große fette Überschriften mit engem Buchstabenabstand |
+| Formen | Karten mit 20–30 px Rundung, Knöpfe 12 px, weiche Schatten |
+| Bausteine | Kleine orange Überzeile in Großbuchstaben, nummerierte Schritt-Karten, dunkle „Tafel"-Karte, oranger Abschluss-Kasten mit Knopf |
+| Bewegung | Sanftes Einblenden; aus bei „Bewegung reduzieren" |
+
+**Lernablauf wie das pädagogische Konzept der Website** („Verstehen schafft Sicherheit"):
+1. Lernstand klären (kurzer Einstiegstest je Thema)
+2. Verständnislücke schließen (erklären, entdecken, vorrechnen)
+3. Mit Übungen festigen
+4. Mit Sicherheit weiterlernen (Wiederholung, nächstes Thema)
+
+Ton wie auf der Website: ruhig, ohne Druck, Fehler als Hinweise.
+Logo und Bilder kommen beim Start von Marcel bzw. aus dem Website-Theme.
+
 ## Grundsätze
 
 - **Aufgaben erzeugt das Programm selbst** (Zufallszahlen, eigener Lösungsweg). Marcels
