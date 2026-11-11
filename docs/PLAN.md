@@ -63,7 +63,9 @@ wiedererkennen. Werte aus dem Theme der Website übernommen:
 4. Mit Sicherheit weiterlernen (Wiederholung, nächstes Thema)
 
 Ton wie auf der Website: ruhig, ohne Druck, Fehler als Hinweise.
-Logo und Bilder kommen beim Start von Marcel bzw. aus dem Website-Theme.
+**Logo** (von Marcel, 11.11.2026; darf invertiert werden) liegt in `assets/logo/`:
+Original (weiß auf schwarz), invertiert, sowie freigestellt in Weiß, Navy und Orange.
+Einsatz: Weiß auf Navy für dunkle Flächen, Navy auf Weiß für helle; daraus entsteht auch das Programm-Symbol.
 
 ## Grundsätze
 
