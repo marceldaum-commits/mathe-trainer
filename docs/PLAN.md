@@ -64,7 +64,7 @@ wiedererkennen. Werte aus dem Theme der Website übernommen:
 
 Ton wie auf der Website: ruhig, ohne Druck, Fehler als Hinweise.
 **Logo** (von Marcel, 11.11.2026; darf invertiert werden) liegt in `assets/logo/`:
-Original (weiß auf schwarz), invertiert, sowie freigestellt in Weiß, Navy und Orange.
+Original (weiß auf schwarz), invertiert, sowie freigestellt in Weiß, Navy und Orange – als PNG und als SVG (aus dem Bild nachgezeichnet; `logo.svg` übernimmt die Textfarbe, `logo-symbol-navy.svg` ist das Symbol mit Navy-Hintergrund).
 Einsatz: Weiß auf Navy für dunkle Flächen, Navy auf Weiß für helle; daraus entsteht auch das Programm-Symbol.
 
 ## Grundsätze
