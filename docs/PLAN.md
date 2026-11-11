@@ -10,6 +10,35 @@ Ein kostenloses Windows-Programm zum Herunterladen, mit dem Schüler der **Obers
 aktualisiert sich selbst und wirbt dezent für die Nachhilfe-Firma mathenachhilfe-online.com
 (Seite ist aktuell offline, kommt wieder).
 
+## Leitbild (Marcel, 11.11.2026): interaktiv, pädagogisch wertvoll, modern
+
+Kein digitales Arbeitsblatt. Der Schüler **tut** etwas und **versteht**, statt nur Ergebnisse einzutippen.
+
+**Interaktiv**
+- Graphen anfassen: Punkte ziehen, Schieberegler, Tangente an der Kurve entlangschieben und
+  die Steigung live sehen.
+- Selbst skizzieren: z. B. den Graphen der Ableitung zeichnen, das Programm vergleicht.
+- Rechenweg Zeile für Zeile eingeben; das Programm prüft jede Zeile und zeigt die erste falsche.
+- Geometrie in 3D: Geraden und Ebenen drehen und von allen Seiten ansehen.
+- Stochastik als Experiment: 1000-mal würfeln lassen und sehen, wie die Verteilung entsteht.
+
+**Pädagogisch wertvoll**
+- Erst entdecken, dann Regel: kurze Erkundung vor der Formel.
+- Gestufte Hilfen (Tipp 1 → Tipp 2 → Tipp 3 → Lösung) statt sofort die Lösung.
+- Fehler-Diagnose: typische Fehler erkennen und benennen
+  (z. B. „innere Ableitung vergessen – Kettenregel").
+- Verständnis-Fragen neben Rechenaufgaben (z. B. „Welcher Graph gehört zur Ableitung?").
+- Vom Beispiel zur eigenen Lösung: erst vorgerechnet, dann mit Lücken, dann allein.
+- Wiederholen in wachsenden Abständen; Themen gemischt statt blockweise.
+- Selbsteinschätzung („Wie sicher warst du?") und ehrliche Rückmeldung zum Stand.
+
+**Modern**
+- Aufgeräumte Oberfläche, Hell/Dunkel, flüssige Animationen.
+- Formel-Eingabe mit Mathe-Tastatur (Brüche, Wurzeln, Potenzen) statt Tipp-Kürzeln.
+- Kurze Einheiten von 10–15 Minuten mit klarem Tagesziel.
+- Optional später: KI-Tutor für Rückfragen (braucht Internet und verursacht laufende Kosten –
+  Entscheidung offen).
+
 ## Grundsätze
 
 - **Aufgaben erzeugt das Programm selbst** (Zufallszahlen, eigener Lösungsweg). Marcels
