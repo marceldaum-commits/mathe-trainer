@@ -44,6 +44,17 @@ einzutippen. Das Spielerische ist die Verpackung, das Verstehen der Kern.
 - Optional später: KI-Tutor für Rückfragen (braucht Internet und verursacht laufende Kosten –
   Entscheidung offen).
 
+## Kein Rechenspiel (Marcel, 11.11.2026) – Ergebnis der Recherche
+
+Ausführlich in `docs/RECHERCHE.md`. Kurz:
+- **Die Spielmechanik ist die Mathematik.** Kein Quiz mit aufgeklebten Punkten.
+- **Bauplan jeder Einheit:** spielen/entdecken → benennen (Regel) → Brücke zur
+  Prüfungs-Schreibweise → festigen.
+- **Spielideen Analysis:** Murmelbahn, Ableitung zeichnen, Tangenten-Surfer, Graphen-Paare,
+  Fläche füllen, Steckbrief, Extremwert-Werkstatt, Rechenweg-Puzzle.
+- **Technik:** JSXGraph für alles zum Anfassen; GeoGebra und Desmos nicht einbetten (Lizenz).
+- **Serien ohne Druck:** mit „Luft" (Wochenende, Einfrieren).
+
 ## Spiel-Elemente
 
 - Level, Punkte, Tages-Serie, Abzeichen, freischaltbare Themen.
