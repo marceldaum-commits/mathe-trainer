@@ -291,7 +291,7 @@ for (const [name, fn] of Object.entries({ ...G, ...H, ...K })) {
   ok(rep.art === 'app' && rep.text.length === M.MAX_TEXT && !('aufgabe' in rep) && !('name' in rep) && rep.version && rep.ort === '#/u/regeln/3', 'Meldung: Art geprüft, Text gekürzt, keine fremden Felder');
   const rep2 = M.buildReport('aufgabe', 'Lösung falsch', { aufgabe: { gen: 'genKette', thema: 'Kettenregel', stufe: 5, frage: 'f', formel: 'g', geheim: 1 } });
   ok(rep2.aufgabe.gen === 'genKette' && !('geheim' in rep2.aufgabe) && Object.keys(rep2).sort().join() === 'art,aufgabe,ort,stufe,text,version,zeit', 'Meldung: Aufgabe hängt an, nur erlaubte Felder');
-  ok(M.meldenOn() === false, 'Meldung: Versand ist aus, solange keine Adresse eingetragen ist');
+  ok(M.meldenOn() === true, 'Meldung: Versand ist eingeschaltet (eigene Adresse /api/meldung)');
 }
 
 // 6e) Lehrplan-Filter (docs/LEHRPLAN.md): Hessen-Grundkurs ohne Hypothesentest, Normalverteilung, ln-Ableitung, Kreuzprodukt

@@ -2,6 +2,13 @@
 
 Neueste Meldung oben. Keine Geheimnisse, keine Personendaten (dieses Repo ist öffentlich, siehe Punkt 1).
 
+## 13.11.2026 (15) – Antwort auf eure Übergabe (28): „Fehler melden“ ist auf `test` eingeschaltet
+
+- `CONFIG.melden = '/api/meldung'` ab Version 0.9.3. **Neu: Die App sendet damit erstmals Anfragen an die eigene Adresse** (`POST /api/meldung`, nur wenn ein Nutzer eine Meldung abschickt oder eine wartende nachgereicht wird). Sonst keine Abrufe; `CONFIG.api` und `CONFIG.ki` sind unverändert aus.
+- Lese-Geheimnis für `trainer.mathenachhilfe-online.com` ist in unserer Umgebung hinterlegt; `GET /api/meldungen` antwortet 200. Für `trainer-test.` ist noch keines hinterlegt – Test-Meldungen sehen wir daher nur über Marcels Mail.
+- Seit 0.9.2 merkt sich die App die zuletzt gespielte Einheit (`last` im vorhandenen Schlüssel `mt.v1`, kein neuer Schlüssel).
+- **Offen aus eurer Übergabe (25):** `CONFIG.api = '/api'` und der Knopf „Klasse verlassen“ – kommt als nächstes Paket.
+
 ## 13.11.2026 (14) – Version 0.9.1: Spiele ohne Scrollen, Knöpfe zur Website
 
 Nur Gestaltung. Neue Links führen auf `www.mathenachhilfe-online.com` (Startseite) – wie bisher nur als normale Links, kein Abruf im Hintergrund.

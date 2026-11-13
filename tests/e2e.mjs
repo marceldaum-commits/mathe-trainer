@@ -281,11 +281,16 @@ if (LEVEL < 3 && getippt) fail('Freie Eingabe darf auf leichter Stufe nicht von 
 // Im Spiel: Hilfe-Knopf sichtbar, verdeckt aber keinen Knopf der Aufgabe; Meldung nimmt die Aufgabe mit
 await page.goto(`${BASE}#/u/regeln/3`); await page.waitForSelector('#stage .q');
 if (await page.locator('#fab').isVisible()) fail('Im Spiel darf der schwebende Hilfe-Knopf nichts verdecken (er sitzt oben)');
+// Jetzt antwortet ein nachgestellter Server: Die wartende und die neue Meldung müssen ankommen, die Warteschlange wird leer.
+const gesendet = [];
+await page.route('**/api/meldung', (r) => { gesendet.push(JSON.parse(r.request().postData())); r.fulfill({ status: 200, contentType: 'application/json', body: '{"ok":true}' }); });
 await page.click('.stephead .help-x'); await page.click('#hp-menu button[data-art="aufgabe"]');
 if (!(await page.textContent('#hp-ctx')).includes('Zuletzt gezeigte Aufgabe')) fail('Meldung: Aufgabe wird nicht mitgenommen');
 await page.fill('#hp-text', 'Diese Aufgabe prüfen'); await page.click('#hp-form button[type="submit"]'); await page.waitForSelector('#help', { state: 'hidden' });
-const w2 = await page.evaluate(() => JSON.parse(localStorage.getItem('mt.v1')).meldungen);
-if (w2.length !== 2 || !w2[1].aufgabe?.gen || !w2[1].ort.startsWith('#/u/regeln')) fail('Meldung zur Aufgabe unvollständig');
+await page.waitForFunction(() => JSON.parse(localStorage.getItem('mt.v1')).meldungen.length === 0, null, { timeout: 5000 }).catch(() => fail('Meldungen wurden nicht gesendet'));
+if (gesendet.length !== 2 || gesendet[0].art !== 'idee' || !gesendet[1].aufgabe?.gen || !gesendet[1].ort.startsWith('#/u/regeln') || Object.keys(gesendet[1]).some((k) => !['art', 'text', 'version', 'ort', 'stufe', 'zeit', 'aufgabe'].includes(k))) fail('Gesendete Meldungen unvollständig oder mit fremden Feldern');
+if (!(await page.textContent('#toast')).includes('angekommen')) fail('Meldung: Bestätigung fehlt');
+await page.unroute('**/api/meldung');
 
 /* ───────────── Grundlagen stehen vorn, freies Üben ───────────── */
 for (const a of ['analysis', 'stochastik', 'geometrie']) {
