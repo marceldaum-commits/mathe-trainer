@@ -62,6 +62,7 @@ async function solveQuestion() {
   } else for (let i = 0; i < 4; i++) { if (await page.locator('#q-next').isVisible()) break; await page.locator('.opt').nth(i).click(); }
   if (!(await page.locator('#q-next').isVisible())) fail('Quiz: keine Antwort wurde als richtig erkannt');
   if (await page.locator('.weg').count()) wegGesehen = true;
+  if (await page.locator('.ki').count()) fail('KI-Knopf darf ohne eingeschaltete KI nicht erscheinen');
   await page.click('#q-next'); await page.waitForTimeout(50);
 }
 async function quiz(endSel = '#sheet') {
@@ -347,6 +348,7 @@ await shot('74-zertifikat');
 
 /* ───────────── Einstellungen, Countdown, Farben ───────────── */
 await page.goto(`${BASE}#/einstellungen`); await page.waitForSelector('#st-land');
+if (await page.locator('#st-push').count()) fail('Erinnerung darf ohne Server-Schlüssel nicht angeboten werden');
 await page.click('#st-land [data-k="HE-GK"]');   // Grundkurs: Zusatz-Stoff wird markiert und ans Ende gestellt
 await page.click('a[href="#/lehrplan"]'); await page.waitForSelector('h1'); if (!(await page.textContent('#view')).includes('Hessen – Grundkurs')) fail('Lehrplan-Seite fehlt'); await shot('69-lehrplan');
 await page.goto(`${BASE}#/g/stochastik`); await page.waitForSelector('a.unit');
@@ -486,10 +488,12 @@ const ctx2 = await browser.newContext({ ...devices['Pixel 7'], serviceWorkers: '
 const p2 = await ctx2.newPage();
 p2.on('pageerror', (e) => errors.push(`Klasse: ${e}`));
 const calls = [];
-await p2.route('**/js/config.js', async (route) => { const r = await route.fetch(); await route.fulfill({ response: r, body: (await r.text()).replace("api: ''", "api: '/api'") }); });
+await p2.route('**/js/config.js', async (route) => { const r = await route.fetch(); await route.fulfill({ response: r, body: (await r.text()).replace("api: ''", "api: '/api'").replace('ki: false', 'ki: true') }); });
+let kiRufe = 0;
 await p2.route('**/api/**', async (route) => {
   const u = new URL(route.request().url()), body = route.request().postDataJSON?.() ?? null; calls.push([u.pathname, body]);
   if (u.pathname === '/api/klasse/beitreten') return route.fulfill({ json: body.code === 'K7M2QX' ? { klasse: 'Q12 Mathe', spieler: 'p-123' } : { error: 'Diesen Code gibt es nicht.' }, status: body.code === 'K7M2QX' ? 200 : 404 });
+  if (u.pathname === '/api/ki/erklaer') { kiRufe++; return kiRufe === 1 ? route.fulfill({ json: { text: 'Stell dir vor: <b>fett</b> erst außen, dann innen.' } }) : route.fulfill({ status: 429, json: { error: 'Limit' } }); }
   if (u.pathname === '/api/klasse') return route.fulfill({ json: body.name?.length >= 2 ? { code: 'K7M2QX' } : { error: 'Name fehlt.' } });
   if (u.pathname.endsWith('/rangliste')) return route.fulfill({ json: { woche: '2026-11-09', liste: [{ name: 'Mia', punkte: 540 }, { name: 'Testfuchs', punkte: 480, ich: true }, { name: '<b>Frech</b>', punkte: 10 }] } });
   return route.fulfill({ json: { ok: true } });
@@ -508,6 +512,19 @@ for (let g = 0; g < 40 && !(await p2.locator('#rd-score').count()); g++) { await
 await p2.waitForTimeout(300);
 const meld = calls.find(([path]) => path === '/api/ergebnis');
 if (!meld || meld[1].code !== 'K7M2QX' || meld[1].spieler !== 'p-123' || !Array.isArray(meld[1].antworten) || meld[1].antworten.length !== 6 || !Number.isInteger(meld[1].tag)) fail('Ergebnis wird dem Server nicht richtig gemeldet');
+// „Erklär's mir anders“ (KI eingeschaltet, Server nachgestellt): erscheint erst nach Fehlversuchen, zeigt Text ohne HTML, meldet das Tageslimit
+await p2.goto(`${BASE}#/u/regeln/4`); await p2.waitForSelector('#stage .q');
+for (let g = 0; g < 8 && !(await p2.locator('.ki').count()); g++) {
+  for (let i = 0; i < 4 && !(await p2.locator('.ki').count()) && !(await p2.locator('#q-next').isVisible()); i++) await p2.locator('.opt').nth(i).click();
+  if (!(await p2.locator('.ki').count())) await p2.click('#q-next');
+}
+if (!(await p2.locator('.ki').count())) fail('KI: „Erklär\'s mir anders“ erscheint nach Fehlversuchen nicht');
+await p2.locator('.ki .pick').first().click(); await p2.waitForSelector('.ki-out .note.ok');
+if (!(await p2.textContent('.ki-out')).includes('Stell dir vor') || await p2.locator('.ki-out b').count()) fail('KI: Erklärung muss als reiner Text erscheinen');
+const kiAnfrage = calls.find(([path]) => path === '/api/ki/erklaer')[1];
+if (Object.keys(kiAnfrage).sort().join() !== 'art,formel,frage,gewaehlt,richtig') fail(`KI: Anfrage enthält andere Felder: ${Object.keys(kiAnfrage)}`);
+if (shots) await p2.screenshot({ path: `${shots}/76-ki-erklaerung.png` });
+await p2.locator('.ki .pick').nth(1).click(); await p2.waitForFunction(() => document.querySelector('.ki-out')?.textContent.includes('aufgebraucht'));
 p2.on('dialog', (d) => d.accept());
 await p2.goto(`${BASE}#/klasse`); await p2.waitForSelector('#kl-leave'); await p2.click('#kl-leave'); await p2.waitForSelector('#kl-code');
 const raus = calls.find(([path]) => path === '/api/klasse/verlassen');

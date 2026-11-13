@@ -34,6 +34,7 @@ const ASSETS = [
   "js/gen.js",
   "js/gen2.js",
   "js/gen3.js",
+  "js/gen4.js",
   "js/ki/expr.js",
   "js/ki/verify.js",
   "js/look.js",

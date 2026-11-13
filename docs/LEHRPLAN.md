@@ -45,6 +45,24 @@ Runden und freiem Üben. Alles bleibt spielbar. Tages-Runde und Duell bleiben f�
 | operatoren | unsicher (keine amtliche Liste gefunden) | ja (Liste Landesabitur 2027) | ja | |
 | Grundlagen | Vorwissen | Vorwissen | Vorwissen | nicht gegen die Mittelstufen-Lehrpläne geprüft |
 
+## Nachtrag 13.11.2026 (Version 0.11.0): fünf Einheiten aus der Fehl-Liste gebaut
+
+| Einheit | Bayern | Hessen GK | Hessen LK | Anmerkung |
+| --- | --- | --- | --- | --- |
+| a-gebrochen (Polstellen, Asymptoten, Quotientenregel) | ja (M11 2, M12 4.1) | **nein** | **nein** (Hessen: nur 1/xⁿ) | Quotientenregel in Hessen nicht belegt – als „unsicher“ behandelt und mit ausgenommen |
+| a-trig (Sinus/Kosinus ableiten und integrieren) | ja (M12 1.3, M13 1) | ja (E.5, Q1.1) | ja | |
+| a-rotation (Rotationsvolumen, uneigentliche Integrale) | ja (M13 1) | **nein** | ja (Q1.2) | |
+| s-zufall (Unabhängigkeit, Erwartungswert/Varianz, hypergeometrisch) | ja (M11 3, M12 2) | ja (Q3.1, Q3.2) | ja | |
+| g-kugel (Kugel, Abstand Punkt–Gerade, Lage Ebene–Ebene) | ja (M13 3) | **nein** | Kugel **nein**, Rest ja (Q2.3) | Abstand Punkt–Gerade im LK nach Wortlaut „zwischen Punkten, Geraden und Ebenen“ |
+
+Damit aus der Liste unten erledigt: gebrochen-rationale Funktionen, Quotientenregel, Ableitung und Integration
+von Sinus und Kosinus, Rotationsvolumen, uneigentliche Integrale, stochastische Unabhängigkeit, Zufallsgröße und
+Varianz, hypergeometrische Aufgaben, Kugeln, Abstand Punkt–Gerade, Lage Ebene–Ebene. **Weiter offen:** Wurzel- und
+Umkehrfunktion, begrenztes/logistisches Wachstum, Integralfunktion, Newton-Verfahren, stetige Zufallsgrößen,
+zweiseitiger Test und Gütefunktion, Histogramme, Fragen rückwärts nach n/p/k, Normalenform und Hesse-Form,
+Schnittgerade zweier Ebenen, Abstand windschiefer Geraden, Spurpunkte, Parameterform der Ebene, Spiegelungen,
+Bewegungen mit Geschwindigkeitsvektor, Ortskurven, Mengenschreibweise.
+
 ## Was noch fehlt (Vorrang im täglichen Ausbau)
 
 **Bayern:** gebrochen-rationale Funktionen mit Polstellen und Asymptoten, Quotientenregel · Wurzel- und

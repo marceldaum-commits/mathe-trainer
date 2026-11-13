@@ -20,6 +20,9 @@ import {
   genPythagoras, genTrig, genFlaeche, genMittelpunkt, genVektorRechnen,
 } from './gen3.js';
 import {
+  genPolstelle, genAsymptote, genQuotient, genTrigAbl, genTrigInt, genRotation, genUneigentlich, genUnabhaengig, genVarianz, genHyper, genKugel, genAbstandPG, genEbenenLage,
+} from './gen4.js';
+import {
   genWendestelle, genMonotonie, genSymmetrie, genGrenzwert, genTangente, genSteckbrief, genSchar, genExtremwert, genLn, genWachstum, genFlaecheZwischen,
   genVierfelder, genBedingt, genKumuliert, genSigma, genHypothese, genNormal, genKombinatorik,
   genGeradePunkt, genEbene, genLage, genSchnittpunkt, genAbstand, genWinkel, genKreuz, genOperator,
@@ -36,8 +39,11 @@ const T = (s) => `<div class="big">${tex(s, true)}</div>`;
  * Lehrplan-Abgleich (docs/LEHRPLAN.md): Diese Aufgaben-Arten sind im hessischen Grundkurs kein Prüfungsstoff.
  * Bayern und Hessen-Leistungskurs: alles gilt.
  */
-const NICHT = { 'HE-GK': [genLn, genSigma, genNormal, genKreuz, genHypothese] };
-export const NICHT_TEXT = { 'HE-GK': 'nicht im Grundkurs' };
+const NICHT = {
+  'HE-GK': [genLn, genSigma, genNormal, genKreuz, genHypothese, genPolstelle, genAsymptote, genQuotient, genRotation, genUneigentlich, genKugel, genAbstandPG, genEbenenLage],
+  'HE-LK': [genPolstelle, genAsymptote, genQuotient, genKugel],
+};
+export const NICHT_TEXT = { 'HE-GK': 'nicht im Grundkurs', 'HE-LK': 'in Hessen kein Prüfungsstoff' };
 /** Gilt die Aufgaben-Art im gewählten Land/Kurs? */
 export const landOk = (fn, land = store.land) => !(NICHT[land] || []).includes(fn);
 /** Liste nach Land filtern – bleibt nichts übrig, gilt die ganze Liste (die Einheit ist dann ohnehin als Zusatz markiert). */
@@ -388,11 +394,74 @@ export const UNITS = [
       { id: 'mix', kind: 'Festigen', title: 'Grundlagen gemischt', run: quiz(Array(6).fill(mixOf([GRUND.geometrie]))) },
     ],
   },
+  /* ───────────── Lehrplan-Ergänzungen (docs/LEHRPLAN.md, „Was noch fehlt") ───────────── */
+  {
+    id: 'a-gebrochen', area: 'analysis', nicht: ['HE-GK', 'HE-LK'], title: 'Gebrochen-rationale Funktionen', sub: 'Polstellen, Asymptoten, Quotientenregel',
+    steps: [
+      { id: 'regel', kind: 'Benennen', title: 'Brüche mit x im Nenner', run: info([
+        { title: 'Polstelle und Lücke', html: `${T('f(x)=\\dfrac{z(x)}{n(x)}')}<p>Wo der <b>Nenner null</b> wird, ist die Funktion nicht definiert. Ist der Zähler dort nicht null, schießt der Graph ins Unendliche: eine <b>Polstelle</b> mit senkrechter Asymptote.</p><p class="muted">Werden Zähler und Nenner an derselben Stelle null, lässt sich kürzen – dann bleibt nur eine Lücke.</p>` },
+        { title: 'Verhalten für große x', html: `<p>Vergleiche die Grade: <b>Nennergrad größer</b> → der Graph nähert sich der x-Achse. <b>Gleicher Grad</b> → waagerechte Asymptote beim Verhältnis der Vorfaktoren. <b>Zählergrad um 1 größer</b> → schräge Asymptote (Polynomdivision).</p>${T('\\dfrac{6x+1}{2x+4}\\ \\to\\ 3')}` },
+        { title: 'Quotientenregel', html: `${T("\\left(\\dfrac uv\\right)'=\\dfrac{u'v-uv'}{v^2}")}<p>Reihenfolge und Minus im Zähler beachten, der Nenner wird quadriert.</p>` },
+      ]) },
+      { id: 'pol', kind: 'Brücke', title: 'Polstellen finden', run: quiz([genPolstelle, genPolstelle, genPolstelle]) },
+      { id: 'asym', kind: 'Brücke', title: 'Asymptoten', run: quiz([genAsymptote, genAsymptote, genAsymptote]) },
+      { id: 'quot', kind: 'Brücke', title: 'Quotientenregel', run: quiz([genQuotient, genQuotient, genQuotient]) },
+    ],
+  },
+  {
+    id: 'a-trig', area: 'analysis', title: 'Sinus und Kosinus', sub: 'Ableiten und integrieren',
+    steps: [
+      { id: 'regel', kind: 'Benennen', title: 'Der Kreis der Ableitungen', run: info([
+        { title: 'Ableiten', html: `${T("\\sin x\\ \\to\\ \\cos x\\ \\to\\ -\\sin x\\ \\to\\ -\\cos x\\ \\to\\ \\sin x")}<p>Jeder Pfeil ist eine Ableitung. Nach vier Schritten ist man wieder am Anfang.</p><p class="muted">Mit innerer Funktion gilt die Kettenregel: ${tex("(\\sin(bx))'=b\\cos(bx)")}.</p>` },
+        { title: 'Aufleiten', html: `${T('\\int\\sin x\\,dx=-\\cos x+C\\qquad\\int\\cos x\\,dx=\\sin x+C')}<p>Der Kreis rückwärts. Bei ${tex('\\sin(bx)')} wird durch ${tex('b')} geteilt.</p>` },
+        { title: 'Ein Bogen', html: `${T('\\int_0^{\\pi}\\sin x\\,dx=2')}<p>Die Fläche unter einem Sinus-Bogen ist genau 2 – ein Wert zum Merken.</p>` },
+      ]) },
+      { id: 'abl', kind: 'Brücke', title: 'Sinus und Kosinus ableiten', run: quiz([genTrigAbl, genTrigAbl, genTrigAbl, genTrigAbl]) },
+      { id: 'int', kind: 'Brücke', title: 'Integrale mit Sinus und Kosinus', run: quiz([genTrigInt, genTrigInt, genTrigInt]) },
+    ],
+  },
+  {
+    id: 'a-rotation', area: 'analysis', nicht: ['HE-GK'], title: 'Rotationskörper und Flächen ins Unendliche', sub: 'Rotationsvolumen, uneigentliche Integrale',
+    steps: [
+      { id: 'regel', kind: 'Benennen', title: 'Drehen und ins Unendliche gehen', run: info([
+        { title: 'Rotationsvolumen', html: `${T('V=\\pi\\int_a^b f(x)^2\\,dx')}<p>Dreht sich der Graph um die x-Achse, entsteht ein Körper aus lauter dünnen Kreisscheiben mit Radius ${tex('f(x)')}. Jede hat die Fläche ${tex('\\pi\\,f(x)^2')}.</p>` },
+        { title: 'Uneigentliches Integral', html: `${T('\\int_1^{\\infty}\\dfrac{1}{x^2}\\,dx=\\lim_{b\\to\\infty}\\left[-\\dfrac1x\\right]_1^b=1')}<p>Eine Fläche, die unendlich weit reicht, kann trotzdem endlich groß sein – wenn die Funktion schnell genug fällt.</p>` },
+      ]) },
+      { id: 'rot', kind: 'Brücke', title: 'Rotationsvolumen', run: quiz([genRotation, genRotation, genRotation]) },
+      { id: 'uneig', kind: 'Brücke', title: 'Uneigentliche Integrale', run: quiz([genUneigentlich, genUneigentlich, genUneigentlich]) },
+    ],
+  },
+  {
+    id: 's-zufall', area: 'stochastik', title: 'Zufallsgrößen und Unabhängigkeit', sub: 'Erwartungswert, Varianz, Ziehen ohne Zurücklegen',
+    steps: [
+      { id: 'regel', kind: 'Benennen', title: 'Drei Werkzeuge', run: info([
+        { title: 'Unabhängigkeit', html: `${T('P(A\\cap B)=P(A)\\cdot P(B)')}<p>Gilt das, beeinflussen sich ${tex('A')} und ${tex('B')} nicht. Gilt es nicht, sind sie abhängig.</p><p class="muted">Nicht verwechseln mit „unvereinbar" – das heißt, beide können nicht zugleich eintreten.</p>` },
+        { title: 'Erwartungswert und Varianz', html: `${T('\\mu=\\sum x_i\\,p_i\\qquad V(X)=\\sum x_i^2\\,p_i-\\mu^2\\qquad\\sigma=\\sqrt{V(X)}')}<p>Der Erwartungswert ist der Durchschnitt auf lange Sicht, die Standardabweichung die typische Abweichung davon.</p>` },
+        { title: 'Ziehen ohne Zurücklegen', html: `${T('P(X=k)=\\dfrac{\\binom{K}{k}\\binom{N-K}{n-k}}{\\binom{N}{n}}')}<p>Günstige durch mögliche Auswahlen. So rechnet man Lotto – die Bernoulli-Formel gilt hier nicht, weil sich die Wahrscheinlichkeit mit jedem Zug ändert.</p>` },
+      ]) },
+      { id: 'unab', kind: 'Brücke', title: 'Unabhängig oder nicht?', run: quiz([genUnabhaengig, genUnabhaengig, genUnabhaengig]) },
+      { id: 'var', kind: 'Brücke', title: 'Erwartungswert und Varianz', run: quiz([genVarianz, genVarianz, genVarianz]) },
+      { id: 'hyper', kind: 'Brücke', title: 'Ziehen ohne Zurücklegen', run: quiz([genHyper, genHyper, genHyper]) },
+    ],
+  },
+  {
+    id: 'g-kugel', area: 'geometrie', nicht: ['HE-GK'], title: 'Kugeln, Abstände, Ebenen', sub: 'Kugelgleichung, Abstand Punkt–Gerade, Lage zweier Ebenen',
+    steps: [
+      { id: 'regel', kind: 'Benennen', title: 'Weiter messen im Raum', run: info([
+        { title: 'Kugel', html: `${T('(x_1-m_1)^2+(x_2-m_2)^2+(x_3-m_3)^2=r^2')}<p>Alle Punkte mit Abstand ${tex('r')} vom Mittelpunkt ${tex('M')}. Punkt einsetzen: kleiner als ${tex('r^2')} → innerhalb, größer → außerhalb.</p>` },
+        { title: 'Abstand Punkt–Gerade', html: `<p>Gesucht ist der <b>Lotfußpunkt</b> ${tex('F')} auf der Geraden: Der Vektor von ${tex('F')} zum Punkt steht senkrecht auf dem Richtungsvektor.</p>${T('\\overrightarrow{FP}\\cdot\\vec u=0')}` },
+        { title: 'Zwei Ebenen', html: `<p>Vergleiche die <b>Normalenvektoren</b>: keine Vielfachen → die Ebenen schneiden sich in einer Geraden. Vielfache → parallel oder sogar identisch (dann passt auch die rechte Seite).</p>` },
+      ]) },
+      { id: 'kugel', kind: 'Brücke', nicht: ['HE-GK', 'HE-LK'], title: 'Kugeln', run: quiz([genKugel, genKugel, genKugel]) },
+      { id: 'pg', kind: 'Brücke', title: 'Abstand Punkt–Gerade', run: quiz([genAbstandPG, genAbstandPG, genAbstandPG]) },
+      { id: 'lage', kind: 'Brücke', title: 'Lage zweier Ebenen', run: quiz([genEbenenLage, genEbenenLage, genEbenenLage]) },
+    ],
+  },
 ];
 export const AREAS = [
-  { id: 'analysis', title: 'Analysis', soon: ['Kurvenscharen vertieft', 'Rotationskörper', 'Integrationsverfahren', 'Trigonometrische Funktionen'] },
-  { id: 'stochastik', title: 'Stochastik', soon: ['Zweiseitige Tests', 'Konfidenzintervalle', 'Zufallsgrößen und Erwartungswert allgemein'] },
-  { id: 'geometrie', title: 'Analytische Geometrie', soon: ['Ebenen in Parameterform', 'Spiegelungen', 'Kugeln', 'Abstand windschiefer Geraden'] },
+  { id: 'analysis', title: 'Analysis', soon: ['Wurzel- und Umkehrfunktion', 'Begrenztes und logistisches Wachstum', 'Integralfunktion', 'Newton-Verfahren'] },
+  { id: 'stochastik', title: 'Stochastik', soon: ['Zweiseitige Tests', 'Histogramme lesen', 'Rückwärts nach n und p fragen'] },
+  { id: 'geometrie', title: 'Analytische Geometrie', soon: ['Ebenen in Parameterform', 'Spiegelungen', 'Spurpunkte', 'Abstand windschiefer Geraden'] },
   { id: 'pruefung', title: 'Prüfung', soon: ['Musterlösungen lesen', 'Zeit einteilen'] },
 ];
 
@@ -446,6 +515,16 @@ const META = {
     formeln: [['Prozentwert', 'W=G\\cdot\\dfrac{p}{100}'], ['Laplace', 'P(E)=\\dfrac{\\text{günstige}}{\\text{mögliche}}'], ['Gegenereignis', 'P(\\overline{E})=1-P(E)']] },
   'g-grund': { boss: ['Pythagoras-Phantom', '△', GRUND.geometrie], why: 'Handwerker prüfen rechte Winkel mit dem 3-4-5-Dreieck, Vermesser bestimmen Höhen mit dem Tangens. Dieselben Ideen stecken später in Vektorlänge und Winkel.',
     formeln: [['Pythagoras', 'a^2+b^2=c^2'], ['Sinus, Kosinus, Tangens', '\\sin\\alpha=\\tfrac GH,\\quad \\cos\\alpha=\\tfrac AH,\\quad \\tan\\alpha=\\tfrac GA'], ['Volumen', 'V_{\\text{Zyl}}=\\pi r^2h,\\quad V_{\\text{Pyr}}=\\tfrac13\\,G\\,h'], ['Mittelpunkt', 'M=\\tfrac12\\,(A+B)']] },
+  'a-gebrochen': { boss: ['Bruch-Basilisk', '÷', [genPolstelle, genAsymptote, genQuotient]], why: 'Kosten pro Stück, Konzentration eines Medikaments im Blut, Linsengleichung in der Physik: Überall, wo durch eine veränderliche Größe geteilt wird, entstehen gebrochen-rationale Funktionen.',
+    formeln: [['Polstelle', 'n(x_0)=0\\ \\text{und}\\ z(x_0)\\neq 0'], ['Quotientenregel', "\\left(\\dfrac uv\\right)'=\\dfrac{u'v-uv'}{v^2}"]] },
+  'a-trig': { boss: ['Wellen-Wächter', '∿', [genTrigAbl, genTrigInt]], why: 'Wechselstrom, Schall, Gezeiten, Pendel: Schwingungen sind Sinus-Kurven. Ihre Ableitung sagt, wie schnell sich etwas gerade ändert.',
+    formeln: [['Ableitungen', "(\\sin x)'=\\cos x,\\quad(\\cos x)'=-\\sin x"], ['Stammfunktionen', '\\int\\sin x\\,dx=-\\cos x,\\quad\\int\\cos x\\,dx=\\sin x']] },
+  'a-rotation': { boss: ['Dreh-Dämon', '↻', [genRotation, genUneigentlich]], why: 'Vasen, Flaschen, Düsen und Tanks sind Rotationskörper – ihr Volumen berechnet man genau so. Uneigentliche Integrale braucht man für alles, was „nie ganz aufhört", etwa radioaktiven Zerfall.',
+    formeln: [['Rotationsvolumen', 'V=\\pi\\int_a^b f(x)^2\\,dx'], ['Uneigentliches Integral', '\\int_a^{\\infty}f(x)\\,dx=\\lim_{b\\to\\infty}\\int_a^b f(x)\\,dx']] },
+  's-zufall': { boss: ['Los-Lord', 'σ²', [genUnabhaengig, genVarianz, genHyper]], why: 'Ob ein Glücksspiel fair ist, sagt der Erwartungswert. Wie riskant es ist, sagt die Varianz. Und Lotto ist nichts anderes als Ziehen ohne Zurücklegen.',
+    formeln: [['Unabhängigkeit', 'P(A\\cap B)=P(A)\\cdot P(B)'], ['Varianz', 'V(X)=\\sum x_i^2\\,p_i-\\mu^2'], ['Ohne Zurücklegen', 'P(X=k)=\\dfrac{\\binom{K}{k}\\binom{N-K}{n-k}}{\\binom{N}{n}}']] },
+  'g-kugel': { boss: ['Kugel-Koloss', '◯', [genKugel, genAbstandPG, genEbenenLage]], why: 'GPS bestimmt deinen Standort als Schnittpunkt von Kugeln um Satelliten. Abstände zu Geraden braucht jede Flugsicherung.',
+    formeln: [['Kugel', '(x_1-m_1)^2+(x_2-m_2)^2+(x_3-m_3)^2=r^2'], ['Lotfußpunkt', '\\overrightarrow{FP}\\cdot\\vec u=0']] },
   operatoren: { boss: ['Operator-Orakel', '!', [genOperator]], why: 'Wer den Operator genau liest, schreibt in der Prüfung weder zu wenig noch zu viel.', formeln: [] },
 };
 for (const u of UNITS) {

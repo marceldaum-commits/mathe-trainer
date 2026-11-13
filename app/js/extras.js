@@ -279,8 +279,8 @@ export function klasseView() {
 /* ───────────── Lehrplan: Was gilt wo? ───────────── */
 export const LEHRPLAN = [
   ['Bayern', 'LehrplanPLUS Gymnasium, Jahrgangsstufen 11–13. In Mathematik gibt es nur das erhöhte Anforderungsniveau.', 'Alle Einheiten der App gehören zum Prüfungsstoff. Der Hypothesentest wird nur einseitig verlangt.'],
-  ['Hessen – Leistungskurs', 'Kerncurriculum gymnasiale Oberstufe (Ausgabe 2024) und Abiturerlasse 2027/2028.', 'Alle Einheiten der App gehören zum Prüfungsstoff.'],
-  ['Hessen – Grundkurs', 'Kerncurriculum gymnasiale Oberstufe (Ausgabe 2024) und Abiturerlasse 2027/2028.', 'Kein Prüfungsstoff: Hypothesentests, Normalverteilung und Sigma-Regeln, Ableiten der ln-Funktion, Kreuzprodukt. Diese Teile sind in der App mit „nicht im Grundkurs“ markiert und kommen im Abi-Modus, im Boss und im freien Üben nicht vor.'],
+  ['Hessen – Leistungskurs', 'Kerncurriculum gymnasiale Oberstufe (Ausgabe 2024) und Abiturerlasse 2027/2028.', 'Fast alles gehört zum Prüfungsstoff. Kein Prüfungsstoff in Hessen: gebrochen-rationale Funktionen mit Polstellen und Asymptoten (dort nur 1/xⁿ) und Kugeln – in der App als „in Hessen kein Prüfungsstoff“ markiert.'],
+  ['Hessen – Grundkurs', 'Kerncurriculum gymnasiale Oberstufe (Ausgabe 2024) und Abiturerlasse 2027/2028.', 'Kein Prüfungsstoff: Hypothesentests, Normalverteilung und Sigma-Regeln, Ableiten der ln-Funktion, Kreuzprodukt, gebrochen-rationale Funktionen, Rotationskörper und uneigentliche Integrale, Kugeln, Abstand Punkt–Gerade, Lage zweier Ebenen. Diese Teile sind in der App mit „nicht im Grundkurs“ markiert und kommen im Abi-Modus, im Boss und im freien Üben nicht vor.'],
 ];
 export function lehrplanView() {
   const el = h(`<div class="view stack">

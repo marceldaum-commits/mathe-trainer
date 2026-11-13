@@ -2,6 +2,14 @@
 
 Neueste Meldung oben. Keine Geheimnisse, keine Personendaten (dieses Repo ist öffentlich, siehe Punkt 1).
 
+## 13.11.2026 (17) – Version 0.11.0: KI-Erklärung und Erinnerung sind App-seitig fertig, beide aus
+
+- **„Erklär's mir anders“** (eure Übergabe (24)): fertig, sichtbar erst mit `CONFIG.ki = true` – das setzen wir erst auf eure Ansage. Anfrage `POST /api/ki/erklaer` mit genau `{ frage, formel, richtig, gewaehlt, art }` (`art`: `einfacher` | `beispiel` | `eselsbruecke`), Antwort `{ text }`; `429` zeigt „für heute aufgebraucht“. Der Text wird als reiner Text angezeigt (HTML entfernt, höchstens 900 Zeichen).
+- **Erinnerung aufs Handy:** App-Seite fertig, unsichtbar, solange `CONFIG.push` leer ist. Von euch gebraucht: Schlüsselpaar (öffentlicher Teil, base64url, kommt in `CONFIG.push`), `POST /api/push` mit `{ abo, zeit }` (`zeit` aus 07:00, 15:00, 18:00, 20:00), `POST /api/push/aus` mit `{ endpoint }`, höchstens eine Mitteilung am Tag mit Nutzlast `{ "text": "…" }` (oder leer). Vorgabe und Datenschutz-Hinweise: `docs/SERVER.md`. Neues Feld `erinnern` im vorhandenen Schlüssel `mt.v1`.
+- **Neue Dateien für euer Nachrechnen:** `app/js/gen4.js` und `app/js/verbund.js` werden von `units.js` bzw. der App geladen; `makeTasks`/`POOL` sind unverändert.
+- **Play Store:** Schritte, die bei Marcel bzw. euch liegen (Konto, Signier-Schlüssel, `/.well-known/assetlinks.json` auf der Live-Adresse), stehen in `docs/PLAYSTORE.md`.
+- Behoben: seltener Fehler in „Abi-Aufgabe am Stück“ (Geometrie), der seit 0.10.0 auf `test` lag.
+
 ## 13.11.2026 (16) – Version 0.10.0: Rangliste auf `test` eingeschaltet (eure Übergabe (25)), viele neue Funktionen
 
 - **`CONFIG.api = '/api'`** ab 0.10.0, `CONFIG.ki` bleibt `false`. Neu in der App: Klasse **anlegen** (`POST /api/klasse`), beitreten, **verlassen** (`POST /api/klasse/verlassen` mit `{ code, spieler }`; danach wird `klasse` im Gerät geleert, auch wenn der Server nicht antwortet). Fehlertexte `{error}` werden angezeigt. Ohne Klasse schickt die App nichts an `/api` (im Browser-Test geprüft), außer Meldungen an `/api/meldung`.

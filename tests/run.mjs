@@ -3,6 +3,7 @@ globalThis.window = { katex: { renderToString: (s) => s } };
 const G = await import('../app/js/gen.js');
 const H = await import('../app/js/gen2.js');
 const K = await import('../app/js/gen3.js');
+const K4 = await import('../app/js/gen4.js');
 const { nDeriv, polyTex, vertexTex, lineTex, fmt } = await import('../app/js/math.js');
 const all = (m) => [1, 2, 3, 4, 5].flatMap((lv) => m.levelsFor(lv));
 const GAMES = {};
@@ -201,7 +202,7 @@ for (const lv of LV) for (let i = 0; i < REP; i++) {
 for (const fn of [...Object.values(G), ...Object.values(H)]) if (typeof fn === 'function' && /^gen/.test(fn.name) && !/Mix$/.test(fn.name)) ok(typeof fn.topic === 'string', `${fn.name}: hat einen Themen-Namen`);
 
 // 6b) Schwierigkeit wirkt: Stufe 5 stellt andere Aufgaben als Stufe 1 und Stufe 3
-for (const [name, fn] of Object.entries({ ...G, ...H, ...K })) {
+for (const [name, fn] of Object.entries({ ...G, ...H, ...K, ...K4 })) {
   if (typeof fn !== 'function' || !/^gen[A-Z]/.test(name) || ['genScheitel', 'genOperator'].includes(name)) continue;   // Graph- bzw. Begriffs-Aufgaben
   const sample = (lv) => { const s = new Set(); for (let i = 0; i < 150; i++) { const q = fn(lv); s.add(`${q.prompt}|${q.formula ?? ''}`); } return s; };
   const a = sample(1), b = sample(3), c = sample(5), share = (x, y) => [...x].filter((k) => y.has(k)).length / x.size;
@@ -272,7 +273,7 @@ for (const [name, fn] of Object.entries({ ...G, ...H, ...K })) {
   ok([' ', 'abc', '1/0', '3,5,1', '2x', '--2', '1e5'].every((s) => E.parseInput(s) === null), 'Eingabe: Unsinn wird abgelehnt');
   ok(E.isRight(3.14, Math.PI, '3,14') && !E.isRight(3.2, Math.PI, '3,14') && E.isRight(0.75, 0.75, '3/4') && E.isRight(0.667, 2 / 3, '2/3') && !E.isRight(0.6, 2 / 3, '2/3') && !E.isRight(12.4, 12, '12'), 'Eingabe: Rundung auf gezeigte Stellen');
   const able = new Set();
-  for (const [name, fn] of Object.entries({ ...G, ...H, ...K })) {
+  for (const [name, fn] of Object.entries({ ...G, ...H, ...K, ...K4 })) {
     if (typeof fn !== 'function' || !/^gen[A-Z]/.test(name)) continue;
     for (const lv of LV) for (let i = 0; i < 40; i++) {
       const q = fn(lv), spec = E.inputSpec(q); if (!spec) continue;
@@ -297,6 +298,7 @@ for (const [name, fn] of Object.entries({ ...G, ...H, ...K })) {
 // 6e) Lehrplan-Filter (docs/LEHRPLAN.md): Hessen-Grundkurs ohne Hypothesentest, Normalverteilung, ln-Ableitung, Kreuzprodukt
 { const GK = 'HE-GK', raus = [H.genLn, H.genSigma, H.genNormal, H.genKreuz, H.genHypothese];
   ok(raus.every((f) => !landOk(f, GK) && landOk(f, 'BY') && landOk(f, 'HE-LK') && landOk(f, '')), 'Lehrplan: fünf Aufgaben-Arten gelten nur im Grundkurs nicht');
+  ok([K4.genPolstelle, K4.genAsymptote, K4.genQuotient, K4.genKugel].every((f) => !landOk(f, 'HE-LK') && !landOk(f, GK) && landOk(f, 'BY')) && [K4.genRotation, K4.genUneigentlich, K4.genAbstandPG, K4.genEbenenLage].every((f) => landOk(f, 'HE-LK') && !landOk(f, GK)) && [K4.genTrigAbl, K4.genTrigInt, K4.genUnabhaengig, K4.genVarianz, K4.genHyper].every((f) => landOk(f, GK)), 'Lehrplan: neue Themen je Land richtig zugeordnet');
   ok(landOk(H.genKumuliert, GK) && landOk(H.genWachstum, GK) && landOk(H.genEbene, GK) && landOk(H.genVierfelder, GK), 'Lehrplan: der übrige Stoff gilt auch im Grundkurs');
   for (const a of ['analysis', 'stochastik', 'geometrie']) ok(practiceGens(a, false, GK).every((f) => landOk(f, GK)) && practiceGens(a, false, GK).length >= 8 && practiceGens(a, false, 'BY').length > practiceGens(a, false, GK).length, `Lehrplan: freies Üben ${a} ohne Grundkurs-fremden Stoff`);
   const ex = await import('../app/js/exam.js');
@@ -305,7 +307,8 @@ for (const [name, fn] of Object.entries({ ...G, ...H, ...K })) {
   const test = UNITS.find((u) => u.id === 's-test');
   ok(unitExtra(test, GK) && !unitExtra(test, 'BY') && landList(test.bossGens, GK).length === test.bossGens.length, 'Lehrplan: Hypothesentests im Grundkurs als Zusatz markiert, bleiben spielbar');
   const extra = UNITS.flatMap((u) => u.steps.filter((s) => stepExtra(s, GK)).map((s) => `${u.id}/${s.id}`));
-  ok(extra.join() === 'expln/ln,s-verteilung/sigma,g-ebene/kreuz' && UNITS.every((u) => u.steps.every((s) => !stepExtra(s, 'BY') && !stepExtra(s, 'HE-LK'))), `Lehrplan: markierte Schritte (${extra.join()})`);
+  ok(extra.join() === 'expln/ln,s-verteilung/sigma,g-ebene/kreuz,g-kugel/kugel' && UNITS.every((u) => !unitExtra(u, 'BY') && u.steps.every((s) => !stepExtra(s, 'BY'))), `Lehrplan: markierte Schritte (${extra.join()})`);
+  ok(UNITS.filter((u) => unitExtra(u, GK)).map((u) => u.id).join() === 's-test,a-gebrochen,a-rotation,g-kugel' && UNITS.filter((u) => unitExtra(u, 'HE-LK')).map((u) => u.id).join() === 'a-gebrochen', 'Lehrplan: Zusatz-Einheiten je Kurs');
 }
 
 // 6f) Abi-Aufgaben am Stück: jede Teilaufgabe unabhängig nachgerechnet
@@ -345,6 +348,39 @@ for (const [name, fn] of Object.entries({ ...G, ...H, ...K })) {
   { const u = Array.from({ length: 10 }, (_, i) => ({ id: i })), t0 = new Date(2026, 10, 13);
     const w = PL.planWeeks(u, 21, t0); ok(w.length === 3 && w.flatMap((x) => x.units).map((x) => x.id).join() === '0,1,2,3,4,5,6,7,8,9' && w.every((x) => x.units.length >= 3) && w[1].start.getDate() === 20, 'Lernplan: 10 Einheiten in 3 Wochen, jede genau einmal, in Reihenfolge');
     ok(PL.planWeeks(u.slice(0, 2), 70, t0).length === 2 && PL.planWeeks(u, 0, t0).length === 1 && PL.planWeeks(u, 0, t0)[0].units.length === 10 && PL.planWeeks([], 30, t0)[0].units.length === 0, 'Lernplan: wenig Stoff, kein Tag mehr, nichts offen'); }
+}
+
+// 6g) Lehrplan-Ergänzungen (gen4): jede Lösung unabhängig nachgerechnet
+{ const R = (q) => q.options.find((o) => o.correct), W = (q) => q.options.filter((o) => !o.correct), PX = [0.6, 1.3, 2.2];
+  const lC = (n, k) => { let s = 0; for (let i = 1; i <= k; i++) s += Math.log(n - k + i) - Math.log(i); return s; };
+  const cr = (a, b) => [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]];
+  for (const lv of LV) for (let i = 0; i < REP; i++) {
+    { const q = K4.genPolstelle(lv), t = `genPolstelle (Stufe ${lv})`; basics('genPolstelle', q, lv); const pol = (x) => Math.abs(q.N(x)) < 1e-9 && Math.abs(q.Z(x)) > 1e-9;
+      ok(pol(R(q).num) && W(q).every((o) => !pol(o.num)), `${t}: nur die richtige Antwort ist eine Polstelle (${q.formula})`); }
+    { const q = K4.genAsymptote(lv), t = `genAsymptote (Stufe ${lv})`; basics('genAsymptote', q, lv); const X = 1e6, nah = (o) => Math.abs(q.f(X) - o.val(X)) < 1e-3 && Math.abs(q.f(-X) - o.val(-X)) < 1e-3;
+      ok(nah(R(q)) && W(q).every((o) => !nah(o)), `${t}: Graph nähert sich nur der richtigen Geraden (${q.formula})`); }
+    for (const [name, xs] of [['genQuotient', PX], ['genTrigAbl', XS]]) { const q = K4[name](lv); basics(name, q, lv);
+      ok(xs.every((x) => close(R(q).val(x), nDeriv(q.f, x))) && W(q).every((o) => xs.some((x) => !close(o.val(x), nDeriv(q.f, x)))), `${name} (Stufe ${lv}): Ableitung stimmt (${q.formula})`); }
+    { const q = K4.genTrigInt(lv); basics('genTrigInt', q, lv); const I = simpson(q.f, q.a, q.b); ok(close(R(q).num, I) && W(q).every((o) => !close(o.num, I)), `genTrigInt (Stufe ${lv}): Integral stimmt (${q.formula})`); }
+    { const q = K4.genRotation(lv); basics('genRotation', q, lv); const V = Math.PI * simpson((x) => q.f(x) ** 2, q.a, q.b, 2000); ok(Math.abs(R(q).num - V) < 2e-3 * V && W(q).every((o) => Math.abs(o.num - V) > 1e-2 * V), `genRotation (Stufe ${lv}): Volumen stimmt (${q.formula}, bis ${q.b})`); }
+    { const q = K4.genUneigentlich(lv); basics('genUneigentlich', q, lv);
+      const I = q.a === 0 ? simpson(q.f, 0, 60, 60000) : simpson((u) => (u < 1e-12 ? 0 : q.f(1 / u) / (u * u)), 0, 1 / q.a, 4000);
+      ok(Math.abs(R(q).num - I) < 2e-3 * (1 + I) && W(q).every((o) => Math.abs(o.num - I) > 1e-2), `genUneigentlich (Stufe ${lv}): Wert stimmt (${q.formula} = ${I.toFixed(4)})`); }
+    { const q = K4.genUnabhaengig(lv); basics('genUnabhaengig', q, lv); ok(R(q).key === (q.A * q.B === q.AB * q.n ? 'u' : 'a') && q.AB < Math.min(q.A, q.B), `genUnabhaengig (Stufe ${lv}): Entscheidung stimmt (${q.A}, ${q.B}, ${q.AB} von ${q.n})`); }
+    { const q = K4.genVarianz(lv); basics('genVarianz', q, lv); const mu = q.xs.reduce((s, x, j) => s + x * q.P[j], 0), va = q.xs.reduce((s, x, j) => s + (x - mu) ** 2 * q.P[j], 0), w = { mu, var: va, sigma: Math.sqrt(va) }[q.ask];
+      ok(close(q.P.reduce((s, p) => s + p, 0), 1) && close(R(q).num, w) && W(q).every((o) => !close(o.num, w)), `genVarianz (Stufe ${lv}): ${q.ask} stimmt`); }
+    { const q = K4.genHyper(lv); basics('genHyper', q, lv); const w = Math.exp(lC(q.K, q.k) + lC(q.N - q.K, q.n - q.k) - lC(q.N, q.n));
+      ok(Math.abs(R(q).num - w) < 1e-9 * w && w > 0 && w <= 1 && W(q).every((o) => Math.abs(o.num - w) > 1e-6 * w), `genHyper (Stufe ${lv}): Term stimmt (N=${q.N}, K=${q.K}, n=${q.n}, k=${q.k})`); }
+    { const q = K4.genKugel(lv); basics('genKugel', q, lv);
+      if (q.kind === 'lage') { const d2 = q.P.reduce((s, x, j) => s + (x - q.M[j]) ** 2, 0); ok(R(q).key === (d2 === q.r ** 2 ? 'auf' : d2 < q.r ** 2 ? 'innen' : 'aussen'), `genKugel (Stufe ${lv}): Lage stimmt`); }
+      else if (q.kind === 'mr') ok(R(q).M.every((x, j) => x === q.M[j]) && R(q).r === q.r && q.formula.endsWith(`=${q.r ** 2}`), `genKugel (Stufe ${lv}): Mittelpunkt und Radius stimmen`);
+      else { const w = Math.hypot(...q.P.map((x, j) => x - q.M[j])) - q.r; ok(close(R(q).num, w) && w > 0 && W(q).every((o) => !close(o.num, w)), `genKugel (Stufe ${lv}): Abstand zur Oberfläche stimmt`); } }
+    { const q = K4.genAbstandPG(lv); basics('genAbstandPG', q, lv); const w = Math.hypot(...cr(q.P.map((x, j) => x - q.A[j]), q.u)) / Math.hypot(...q.u);
+      ok(close(R(q).num, w) && W(q).every((o) => !close(o.num, w)), `genAbstandPG (Stufe ${lv}): Abstand stimmt`); }
+    { const q = K4.genEbenenLage(lv); basics('genEbenenLage', q, lv); const par = cr(q.n1, q.n2).every((c) => c === 0), j = q.n1.findIndex((c) => c !== 0), k = q.n2[j] / q.n1[j];
+      ok(R(q).key === (!par ? 'schnitt' : close(q.d2, k * q.d1) ? 'identisch' : 'parallel'), `genEbenenLage (Stufe ${lv}): Lage stimmt (${q.formula})`); }
+  }
+  for (const fn of Object.values(K4)) if (typeof fn === 'function' && /^gen/.test(fn.name)) ok(typeof fn.topic === 'string', `${fn.name}: hat einen Themen-Namen`);
 }
 
 // 7) Murmelbahn: Ziel-Parameter sind einstellbar und gewinnen; die Startwerte gewinnen nicht.
