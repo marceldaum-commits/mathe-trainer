@@ -534,9 +534,9 @@ await p2.locator('.ki .pick').nth(1).click(); await p2.waitForFunction(() => doc
 for (const erlaubnis of ['granted', 'denied']) {
   const p3 = await ctx2.newPage(); p3.on('pageerror', (e) => errors.push(`Erinnerung: ${e}`));
   await p3.addInitScript((perm) => {
-    const abo = { endpoint: 'https://fcm.googleapis.com/fcm/send/test', toJSON() { return { endpoint: this.endpoint, keys: { p256dh: 'p', auth: 'a' } }; }, unsubscribe: async () => true };
-    let aktiv = null;
-    const reg = { waiting: null, installing: null, addEventListener() {}, pushManager: { getSubscription: async () => aktiv, subscribe: async () => (aktiv = abo) } };
+    const abo = { endpoint: 'https://fcm.googleapis.com/fcm/send/test', toJSON() { return { endpoint: this.endpoint, keys: { p256dh: 'p', auth: 'a' } }; }, unsubscribe: async () => { sessionStorage.removeItem('test-abo'); return true; } };
+    // die Anmeldung übersteht das Neuladen – wie im echten Browser
+    const reg = { waiting: null, installing: null, addEventListener() {}, pushManager: { getSubscription: async () => (sessionStorage.getItem('test-abo') ? abo : null), subscribe: async () => { sessionStorage.setItem('test-abo', '1'); return abo; } } };
     Object.defineProperty(navigator, 'serviceWorker', { value: { ready: Promise.resolve(reg), register: async () => reg, addEventListener() {}, controller: null } });
     window.PushManager = function PushManager() {};
     window.Notification = { permission: perm === 'denied' ? 'denied' : 'default', requestPermission: async () => { window.Notification.permission = perm; return perm; } };
