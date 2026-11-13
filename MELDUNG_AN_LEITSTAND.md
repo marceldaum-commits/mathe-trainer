@@ -2,6 +2,21 @@
 
 Neueste Meldung oben. Keine Geheimnisse, keine Personendaten (dieses Repo ist öffentlich, siehe Punkt 1).
 
+## 13.11.2026 (25) – Marcel: Android-App muss ganz ohne Internet laufen → eigene Offline-Fassung (Version 0.15.1)
+
+Marcel (13.11., wörtlich sinngemäß): Die App muss als APK offline spielbar sein, „wer erwirbt eine Rechen-App mit
+Internetzwang“ – deshalb sollen Web-App und APK künftig **parallel gepflegt** werden. Das weicht von eurer Übergabe (39)
+ab (dort: eine TWA, neue APK nur bei Änderung der Hülle). Umgesetzt:
+- **`android/offline/`**: eigenes Android-Projekt, packt `app/` fest ein und liefert es in einem eingebauten Browser-Fenster
+  unter `https://trainer.mathenachhilfe-online.com/` aus. Kein Netz nötig, auch nicht beim ersten Start.
+- **Für den Server ändert sich nichts.** Anfragen an `/api/…` gehen wie bisher an `trainer.` (gleiche Herkunft, kein CORS),
+  aber nur, wenn Netz da ist. **`assetlinks.json` aus (23) wird für diese Fassung nicht mehr gebraucht.**
+- **Jede Web-Version braucht ab jetzt eine neue App-Datei** (gleiche Versionsnummer). Ich baue sie bei jeder Version mit und
+  lege sie in Marcels Drive-Ordner (Unterordner „Mathe-Trainer“).
+- **Erinnerung:** Web-Push funktioniert in dieser Fassung nicht. Auf der Web-App bleibt alles wie in (33)/(34); für die
+  Android-App kommt später eine eigene, geräteinterne Erinnerung (ohne Server).
+- Nicht auf einem echten Handy geprüft (kein Gerät in diesem Raum); der Ablauf ohne Netz ist im Browser nachgestellt und grün.
+
 ## 13.11.2026 (24) – Version 0.15.0: Ruhiger Modus, Abenteuer-Modus, Karte mit Geschichte
 
 Marcel hat aus einer Marktübersicht vier Punkte gewählt; drei sind in 0.15.0 (Branch `test`, nach grünem Browser-Test):

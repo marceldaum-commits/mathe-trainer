@@ -170,3 +170,23 @@ android/widget/einbauen.sh <Ordner des erzeugten Projekts>
 Danach in `app/build.gradle` `versionCode` und `versionName` erhöhen und `bubblewrap build` ausführen.
 Stand 13.11.2026: App-Datei 1.1.0 (versionCode 2) mit Widget gebaut, gleicher Signier-Schlüssel wie 1.0.0.
 **Noch nicht auf einem echten Handy geprüft** – hier gibt es kein Android-Gerät.
+
+## Offline-Fassung (ab 0.15.1) – das ist die App, die ausgeliefert wird
+
+Marcels Vorgabe (13.11.2026): Die Android-App muss **ganz ohne Internet** spielbar sein. Die TWA-Hülle oben kann das
+erst nach dem ersten Start mit Netz. Deshalb gibt es `android/offline/`: ein eigenes kleines Android-Projekt.
+
+- Beim Bauen wird der Ordner `app/` in die App-Datei kopiert (`www`). `LauncherActivity` zeigt ihn in einem eingebauten
+  Browser-Fenster unter der echten Adresse an. Der Lernstand liegt wie in der Web-App im Gerät.
+- Nur `/api/…` geht ins Netz (Rangliste, Fehler melden) – wenn es eines gibt. Links zur Website öffnen den Browser.
+- Versionsname = `VERSION` aus `app/js/config.js`, Versionsnummer = `Haupt·10000 + Neben·100 + Patch`.
+- Widget (`android/widget/`) und Kurzbefehle sind eingebaut.
+
+Bauen (JDK 17, Android-SDK; Schlüssel und Passwort nur über die Umgebung, nie im Repo):
+
+```bash
+MT_KEYSTORE=/pfad/android.keystore MT_KEYSTORE_PASS=… android/offline/bauen.sh
+```
+
+**Regel: Web-App und App-Datei haben immer dieselbe Version.** Nach jeder neuen Web-Version die App-Datei neu bauen.
+Noch offen: Erinnerung (eigene Android-Erinnerung statt Web-Push), Drucken/Teilen, Prüfung auf einem echten Handy.
