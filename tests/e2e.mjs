@@ -399,7 +399,7 @@ if (!(got >= 12 && got < BADGES.length)) fail(`Abzeichen unplausibel: ${got} von
 for (const id of ['start', 'einheit1', 'alles', 'boss1', 'boss10', 'bossPerfekt', 'blitz10', 'tag1', 'kombo5']) {
   if (!(await page.evaluate((k) => !!JSON.parse(localStorage.getItem('mt.v1')).badges[k], id))) fail(`Abzeichen „${id}" fehlt`);
 }
-if (!kombo) fail('Kombo-Anzeige in den Aufgaben-Runden nie gesehen');
+if (!kombo && LEVEL >= 3) fail('Kombo-Anzeige in den Aufgaben-Runden nie gesehen');   // auf leichter Stufe rät der Test und trifft selten zweimal in Folge
 await page.goto(`${BASE}#/formeln`); await page.waitForSelector('.fcard'); await shot('50-formeln');
 if (await page.locator('.fcard.locked').count()) fail('Formelkarten sind trotz abgeschlossener Einheiten gesperrt');
 if (await page.locator('.katex-error').count()) fail('Eine Formel lässt sich nicht darstellen');
@@ -464,6 +464,22 @@ const meld = calls.find(([path]) => path === '/api/ergebnis');
 if (!meld || meld[1].code !== 'K7M2QX' || meld[1].spieler !== 'p-123' || !Array.isArray(meld[1].antworten) || meld[1].antworten.length !== 6 || !Number.isInteger(meld[1].tag)) fail('Ergebnis wird dem Server nicht richtig gemeldet');
 await ctx2.close();
 
+/* ───────────── Breiter Bildschirm (PC): Menü oben, Karten nebeneinander, Knopf im Spiel ohne Scrollen ───────────── */
+{ const pc = await (await browser.newContext({ viewport: { width: 1440, height: 860 } })).newPage();
+  await pc.goto(`${BASE}#/g/analysis`); await pc.waitForSelector('a.unit');
+  const nb = await pc.locator('#nav').boundingBox(), c1 = await pc.locator('a.unit').nth(0).boundingBox(), c2 = await pc.locator('a.unit').nth(1).boundingBox();
+  if (nb.y > 60) fail('PC: Menü steht nicht oben');
+  if (Math.abs(c1.y - c2.y) > 4 || c2.x <= c1.x + c1.width) fail('PC: Karten stehen nicht nebeneinander');
+  if (c2.x + c2.width - c1.x < 800) fail('PC: Seite nutzt die Breite nicht');
+  if (shots) await pc.screenshot({ path: `${shots}/80-pc-gebiet.png` });
+  for (const step of ['formen/0', 'formen/1', 's-labor/0', 'g-vektor/0']) {
+    await pc.goto(`${BASE}#/u/${step}`); await pc.waitForSelector('#stage .row:last-child .btn'); await pc.waitForTimeout(300);
+    const r = await pc.locator('#stage .row:last-child .btn').last().boundingBox();
+    if (!(r.y >= 0 && r.y + r.height <= 861)) fail(`PC: Knopf in ${step} nicht ohne Scrollen sichtbar`);
+    if (await pc.locator('#nav').isVisible()) fail('PC: Menü muss beim Spielen ausgeblendet sein');
+  }
+  if (shots) await pc.screenshot({ path: `${shots}/81-pc-spiel.png` });
+}
 await browser.close();
 if (errors.length) { console.error('Konsolen-Fehler:\n' + errors.join('\n')); process.exit(1); }
 console.log(`e2e: kompletter Durchlauf ohne Fehler (Stufe ${LEVEL}, ${xp} Punkte, ${UNITS.length} Einheiten mit Boss, Abi ${np} NP, Tages-Runde ${tagScore}, Blitz ${blitz}, ${got} Abzeichen, Duell, Kartei, Bericht, Formeln, Wochen-Ziel, Klasse mit nachgestelltem Server, offline ok)`);

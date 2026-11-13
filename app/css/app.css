@@ -401,3 +401,36 @@ textarea.field{width:100%;border-radius:14px;border:1.5px solid var(--line);padd
 .extra{display:inline-block;padding:1px 7px;border-radius:8px;background:var(--soft);border:1px solid var(--line);color:var(--muted);font-size:11.5px;font-weight:750;letter-spacing:0;text-transform:none}
 /* Kleine Bildschirme: Zeichenfläche niedriger, damit Regler und Knopf auf eine Seite passen */
 #stage .stage canvas{max-height:max(190px,calc(100dvh - 480px))}
+
+/* ───────────── Breite Bildschirme (PC, Tablet quer): Menü oben, breite Seite, Karten nebeneinander ───────────── */
+@media (min-width:900px){
+  body{background:var(--soft)}
+  .top{padding-inline:max(24px,calc(50% - 500px));background:color-mix(in srgb,var(--bg) 92%,transparent)}
+  .brand-logo{width:42px;height:42px}
+  .brand-text b{font-size:19px}
+  .chip{padding:8px 13px;font-size:14px}
+  main{width:min(100%,1000px);padding:34px 24px 64px}
+  .nav{top:9px;bottom:auto;left:50%;right:auto;transform:translateX(-50%);display:flex;gap:6px;max-width:none;margin:0;padding:0;background:none;backdrop-filter:none;border:0}
+  .nav a{display:flex;align-items:center;gap:8px;min-height:44px;padding:8px 16px;font-size:14.5px;border-radius:13px}
+  .nav a:hover{background:var(--card);color:var(--head)}
+  .nav a.on:hover{background:var(--orange-soft);color:var(--orange)}
+  .nav svg{width:20px;height:20px}
+  .view.stack>section.stack,.steps{display:grid;grid-template-columns:1fr 1fr;gap:14px;align-items:stretch}
+  .view.stack>section.stack>.soon{grid-column:1/-1}
+  .areas{grid-template-columns:repeat(4,1fr);gap:14px}
+  .card{transition:transform .15s ease,box-shadow .15s ease}
+  a.card:hover,button.card:hover{transform:translateY(-2px);box-shadow:0 18px 40px rgba(16,27,67,.12)}
+  h1{font-size:44px}
+  .board{padding:30px 34px}
+  /* Spielen: mittige, etwas breitere Bühne */
+  main:has(.stephead){width:min(100%,620px);padding-top:20px;padding-bottom:28px}
+  #stage .stage canvas{max-height:max(240px,calc(100dvh - 500px))}
+  .opt:hover{border-color:var(--orange)}
+  .btn:hover{filter:brightness(1.05)}
+  .fab{right:max(24px,calc(50% - 560px));bottom:28px;width:52px;height:52px}
+  .toast{top:76px}
+  .foot{justify-content:center}
+  /* Einstellungen, Bericht, Formular-Seiten: lesbare Breite */
+  .view.stack>section.card,.view.stack>details.card{max-width:760px}
+}
+@media (min-width:900px) and (max-width:1180px){.brand-text small{display:none}}
