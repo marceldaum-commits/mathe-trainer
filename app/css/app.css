@@ -538,3 +538,9 @@ main{overflow-x:clip}
 .kopf .katex-display,.formula .katex-display{max-width:100%;overflow-x:auto;overflow-y:hidden;padding-bottom:2px}
 .kopf{font-size:13.5px}
 .opt>span:last-child{min-width:0;flex:1}
+
+/* Erinnerung: freie Uhrzeit */
+.push-stand{font-weight:750;color:var(--muted)}
+.push-stand.on{color:var(--mint-ink)}
+.push-row{align-items:center;gap:10px;flex-wrap:wrap}
+.push-row input[type=time]{flex:1;min-width:120px;height:48px;border-radius:var(--r-ctl);border:1.5px solid var(--line);padding:0 12px;color:var(--head);font:800 18px Inter,sans-serif;font-variant-numeric:tabular-nums}

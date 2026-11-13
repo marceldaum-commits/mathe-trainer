@@ -351,7 +351,7 @@ await shot('74-zertifikat');
 
 /* ───────────── Einstellungen, Countdown, Farben ───────────── */
 await page.goto(`${BASE}#/einstellungen`); await page.waitForSelector('#st-land');
-if ((await page.locator('#st-push-zeit .pick').count()) !== 5 || !(await page.locator('#st-push-zeit .pick[data-k="aus"].sel').count())) fail('Erinnerung: Auswahl der Uhrzeit fehlt oder ist nicht „Aus“');
+if ((await page.inputValue('#st-push-time')) !== '18:00' || !(await page.textContent('#st-push-stand')).includes('ist aus') || await page.locator('#st-push-aus').isVisible()) fail('Erinnerung: Uhrzeitfeld (Vorgabe 18:00) fehlt oder Zustand ist nicht „aus“');
 await page.click('#st-land [data-k="HE-GK"]');   // Grundkurs: Zusatz-Stoff wird markiert und ans Ende gestellt
 await page.click('a[href="#/lehrplan"]'); await page.waitForSelector('h1'); if (!(await page.textContent('#view')).includes('Hessen – Grundkurs')) fail('Lehrplan-Seite fehlt'); await shot('69-lehrplan');
 await page.goto(`${BASE}#/g/stochastik`); await page.waitForSelector('a.unit');
@@ -529,11 +529,38 @@ const kiAnfrage = calls.find(([path]) => path === '/api/ki/erklaer')[1];
 if (Object.keys(kiAnfrage).sort().join() !== 'art,formel,frage,gewaehlt,richtig') fail(`KI: Anfrage enthält andere Felder: ${Object.keys(kiAnfrage)}`);
 if (shots) await p2.screenshot({ path: `${shots}/76-ki-erklaerung.png` });
 await p2.locator('.ki .pick').nth(1).click(); await p2.waitForFunction(() => document.querySelector('.ki-out')?.textContent.includes('aufgebraucht'));
-await ctx2.grantPermissions(['notifications']);
-await p2.goto(`${BASE}#/einstellungen`); await p2.waitForSelector('#st-push-zeit'); await p2.click('#st-push-zeit .pick[data-k="18:00"]');
-await p2.waitForFunction(() => document.querySelector('#st-push-zeit .pick.sel') && (document.querySelector('#st-push-note').textContent.length > 0 || document.querySelector('#st-push-zeit .pick[data-k="18:00"].sel')), null, { timeout: 15000 });
-const pushStand = await p2.evaluate(() => ({ note: document.querySelector('#st-push-note').textContent, an: !!document.querySelector('#st-push-zeit .pick[data-k="18:00"].sel'), mem: JSON.parse(localStorage.getItem('mt.v1')).erinnern }));
-if (pushStand.an !== !!pushStand.mem || (!pushStand.an && !pushStand.note)) fail(`Erinnerung: Anzeige und Speicher passen nicht zusammen (${JSON.stringify(pushStand)})`);
+// Erinnerung: freie Uhrzeit wird gesendet, ändern überschreibt, ausschalten meldet ab; gesperrte Erlaubnis wird erklärt.
+// Der Testbrowser hat keinen Mitteilungs-Dienst – Erlaubnis und Anmeldung des Geräts sind deshalb nachgestellt.
+for (const erlaubnis of ['granted', 'denied']) {
+  const p3 = await ctx2.newPage(); p3.on('pageerror', (e) => errors.push(`Erinnerung: ${e}`));
+  await p3.addInitScript((perm) => {
+    const abo = { endpoint: 'https://fcm.googleapis.com/fcm/send/test', toJSON() { return { endpoint: this.endpoint, keys: { p256dh: 'p', auth: 'a' } }; }, unsubscribe: async () => true };
+    let aktiv = null;
+    const reg = { waiting: null, installing: null, addEventListener() {}, pushManager: { getSubscription: async () => aktiv, subscribe: async () => (aktiv = abo) } };
+    Object.defineProperty(navigator, 'serviceWorker', { value: { ready: Promise.resolve(reg), register: async () => reg, addEventListener() {}, controller: null } });
+    window.PushManager = function PushManager() {};
+    window.Notification = { permission: perm === 'denied' ? 'denied' : 'default', requestPermission: async () => { window.Notification.permission = perm; return perm; } };
+  }, erlaubnis);
+  await p3.goto(`${BASE}#/einstellungen`); await p3.waitForSelector('#st-push-time');
+  if (erlaubnis === 'denied') {
+    if (!(await p3.textContent('#st-push-sperre')).includes('Berechtigungen')) fail('Erinnerung: Hinweis bei gesperrten Mitteilungen fehlt');
+    await p3.fill('#st-push-time', '06:45'); await p3.click('#st-push-an'); await p3.waitForSelector('#st-push-sperre');
+    if (!(await p3.textContent('#st-push-stand')).includes('ist aus') || calls.some(([path, body]) => path === '/api/push' && body.zeit === '06:45')) fail('Erinnerung: bei gesperrter Erlaubnis darf nichts gesendet werden');
+    if (await p3.locator('#st-push-time').isDisabled()) fail('Erinnerung: Uhrzeitfeld muss bedienbar bleiben');
+    if (shots) { await p3.locator('#st-push').scrollIntoViewIfNeeded(); await p3.screenshot({ path: `${shots}/77-erinnerung-gesperrt.png` }); }
+  } else {
+    await p3.fill('#st-push-time', '17:35'); await p3.click('#st-push-an'); await p3.waitForSelector('#st-push-note .note.ok');
+    if (!(await p3.textContent('#st-push-stand')).includes('17:35 Uhr (deutsche Zeit)')) fail('Erinnerung: gewählte Uhrzeit wird nicht angezeigt');
+    await p3.fill('#st-push-time', '21:10'); await p3.click('#st-push-an'); await p3.waitForFunction(() => document.querySelector('#st-push-stand').textContent.includes('21:10'));
+    const gesendet = calls.filter(([path]) => path === '/api/push').map(([, body]) => body);
+    if (gesendet.length !== 2 || gesendet[0].zeit !== '17:35' || gesendet[1].zeit !== '21:10' || !gesendet[1].abo?.endpoint || Object.keys(gesendet[1]).sort().join() !== 'abo,zeit') fail(`Erinnerung: freie Uhrzeit wird nicht richtig gesendet (${JSON.stringify(gesendet)})`);
+    if (shots) { await p3.locator('#st-push').scrollIntoViewIfNeeded(); await p3.screenshot({ path: `${shots}/78-erinnerung-an.png` }); }
+    await p3.reload(); await p3.waitForSelector('#st-push-time'); if ((await p3.inputValue('#st-push-time')) !== '21:10') fail('Erinnerung: Uhrzeit nach Neuladen vergessen');
+    await p3.click('#st-push-aus'); await p3.waitForFunction(() => document.querySelector('#st-push-stand').textContent.includes('ist aus'));
+    if (!calls.some(([path, body]) => path === '/api/push/aus' && body.endpoint)) fail('Erinnerung: Ausschalten meldet nicht beim Server ab');
+  }
+  await p3.close();
+}
 p2.on('dialog', (d) => d.accept());
 await p2.goto(`${BASE}#/klasse`); await p2.waitForSelector('#kl-leave'); await p2.click('#kl-leave'); await p2.waitForSelector('#kl-code');
 const raus = calls.find(([path]) => path === '/api/klasse/verlassen');

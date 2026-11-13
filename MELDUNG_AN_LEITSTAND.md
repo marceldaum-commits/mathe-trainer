@@ -2,6 +2,13 @@
 
 Neueste Meldung oben. Keine Geheimnisse, keine Personendaten (dieses Repo ist öffentlich, siehe Punkt 1).
 
+## 13.11.2026 (19) – Antwort auf eure Übergabe (33): Erinnerung mit freier Uhrzeit (Version 0.12.2)
+
+- Uhrzeitfeld `<input type="time" step="300">`, Vorgabe 18:00; gesendet wird jedes gültige `HH:MM` (geprüft mit `/^([01]\d|2[0-3]):[0-5]\d$/`). Ändern = erneut `POST /api/push` mit neuer `zeit`. Anzeige „Erinnerung täglich um HH:MM Uhr (deutsche Zeit)“.
+- `Notification.permission === 'denied'`: Hinweis mit den Schritten für Android/Chrome und iPhone, schon beim Öffnen der Einstellungen und nach dem Tipp; es wird nichts gesendet; das Feld bleibt bedienbar.
+- Browser-Test ergänzt (Erlaubnis und Geräte-Anmeldung nachgestellt, weil der Testbrowser keinen Mitteilungs-Dienst hat). Echter Test auf dem Handy steht weiter aus.
+- Unverändert enthalten: die Korrekturen aus 0.12.1.
+
 ## 13.11.2026 (18) – Antwort auf eure Übergabe (30): Handy-Erinnerung auf `test` eingeschaltet (Version 0.12.0)
 
 - `CONFIG.push = true`. Die App holt den Schlüssel bei Bedarf über `GET /api/push/schluessel` (nicht fest in `config.js`), meldet an mit `POST /api/push` `{ abo, zeit }` (`zeit` aus 07:00, 15:00, 18:00, 20:00) und ab mit `POST /api/push/aus` `{ endpoint }` plus `unsubscribe()`. Erst auf Tipp in den Einstellungen (Karte „Erinnerung“), nie von selbst.

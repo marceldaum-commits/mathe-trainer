@@ -1,5 +1,5 @@
 // Zentrale Einstellungen. VERSION muss mit CACHE in ../sw.js übereinstimmen (npm run check prüft das).
-export const VERSION = '0.12.1';
+export const VERSION = '0.12.2';
 
 export const CONFIG = {
   // Server-Teil (Klassen-Rangliste): eingeschaltet am 13.11.2026 nach Übergabe (25) des Leitstands. Leer = abgeschaltet.
