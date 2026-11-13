@@ -541,7 +541,8 @@ for (const erlaubnis of ['granted', 'denied']) {
     const reg = { waiting: null, installing: null, addEventListener() {}, pushManager: { getSubscription: async () => (sessionStorage.getItem('test-abo') ? abo : null), subscribe: async () => { sessionStorage.setItem('test-abo', '1'); return abo; } } };
     Object.defineProperty(navigator, 'serviceWorker', { value: { ready: Promise.resolve(reg), register: async () => reg, addEventListener() {}, controller: null } });
     window.PushManager = function PushManager() {};
-    window.Notification = { permission: perm === 'denied' ? 'denied' : 'default', requestPermission: async () => { window.Notification.permission = perm; return perm; } };
+    // die erteilte Erlaubnis übersteht das Neuladen – wie im echten Browser
+    window.Notification = { permission: perm === 'denied' ? 'denied' : (sessionStorage.getItem('test-erlaubt') ? 'granted' : 'default'), requestPermission: async () => { if (perm === 'granted') sessionStorage.setItem('test-erlaubt', '1'); window.Notification.permission = perm; return perm; } };
   }, erlaubnis);
   await p3.goto(`${BASE}#/einstellungen`); await p3.waitForSelector('#st-push-schalter');
   const schalter = () => p3.getAttribute('#st-push-schalter', 'aria-checked');
