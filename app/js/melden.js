@@ -38,6 +38,7 @@ function open() {
       <button class="card unit" type="button" data-art="aufgabe"><span class="num">!</span><span><h3>Fehler melden</h3><small>Eine Aufgabe stimmt nicht oder etwas funktioniert nicht.</small></span><span></span></button>
       <button class="card unit" type="button" data-art="idee"><span class="num">+</span><span><h3>Idee oder Wunsch</h3><small>Was fehlt dir? Welches Thema soll dazukommen?</small></span><span></span></button>
       <a class="card unit" href="${CONFIG.probestunde}" target="_blank" rel="noopener"><span class="num">?</span><span><h3>Hilfe von einem Menschen</h3><small>Kostenlose Probestunde bei ${esc(CONFIG.firma)}.</small></span><span></span></a>
+      <a class="card unit site" href="${CONFIG.website}" target="_blank" rel="noopener"><span class="num">↗</span><span><h3>Zur Website</h3><small>${esc(CONFIG.website.replace(/^https?:\/\/(www\.)?|\/$/g, ''))} – Nachhilfe, Preise, Kontakt.</small></span><span></span></a>
     </div>
     <form id="hp-form" class="stack" hidden novalidate>
       <div class="picks col" id="hp-art" role="radiogroup" aria-label="Worum geht es?"></div>

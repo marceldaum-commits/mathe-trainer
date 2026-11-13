@@ -243,6 +243,7 @@ await page.click('#look');
 
 /* ───────────── Hilfe-Knopf: Menü, Fehler melden (Versand aus → Meldung wartet im Gerät) ───────────── */
 if (!(await page.locator('#fab').isVisible())) fail('Hilfe-Knopf fehlt');
+if ((await page.locator('a.site[href^="https://www.mathenachhilfe-online.com"]').count()) < 2) fail('Knopf zur Website fehlt auf der Seite');
 await page.click('#fab'); await page.waitForSelector('#help:not([hidden]) #hp-menu'); await shot('67-hilfe-menue');
 await page.click('#hp-menu button[data-art="idee"]'); await page.waitForSelector('#hp-form:not([hidden])');
 await page.click('#hp-form button[type="submit"]'); await page.waitForSelector('#hp-note .note.tip');   // leerer Text wird abgelehnt
@@ -469,6 +470,7 @@ await ctx2.close();
   await pc.goto(`${BASE}#/g/analysis`); await pc.waitForSelector('a.unit');
   const nb = await pc.locator('#nav').boundingBox(), c1 = await pc.locator('a.unit').nth(0).boundingBox(), c2 = await pc.locator('a.unit').nth(1).boundingBox();
   if (nb.y > 60) fail('PC: Menü steht nicht oben');
+  if (!(await pc.locator('.site-top').isVisible())) fail('PC: Knopf zur Website fehlt in der Kopfzeile');
   if (Math.abs(c1.y - c2.y) > 4 || c2.x <= c1.x + c1.width) fail('PC: Karten stehen nicht nebeneinander');
   if (c2.x + c2.width - c1.x < 800) fail('PC: Seite nutzt die Breite nicht');
   if (shots) await pc.screenshot({ path: `${shots}/80-pc-gebiet.png` });

@@ -68,7 +68,7 @@ const unitCard = (u, k) => {
 };
 const linkCard = (href, num, title, sub) => `<a class="card unit" href="${href}"><span class="num">${num}</span><span><h3>${esc(title)}</h3><small>${sub}</small></span><span class="go">${ICON.right}</span></a>`;
 const footer = () => `<footer class="foot">
-    <a href="${CONFIG.website}" target="_blank" rel="noopener">${esc(CONFIG.firma)}</a>
+    <a class="site" href="${CONFIG.website}" target="_blank" rel="noopener">${esc(CONFIG.firma)}</a>
     <a href="${CONFIG.impressum}" target="_blank" rel="noopener">Impressum</a>
     <a href="${CONFIG.datenschutz}" target="_blank" rel="noopener">Datenschutz</a>
     <span>Version ${VERSION}</span></footer>`;
@@ -96,6 +96,7 @@ function home() {
       <h2>Hängt es an einer Stelle?</h2>
       <p>In einer kostenlosen Probestunde klären wir gemeinsam, was gerade hilft.</p>
       <a class="btn" href="${CONFIG.probestunde}" target="_blank" rel="noopener">Gratis Probestunde ${ICON.right}</a>
+      <a class="btn line site" href="${CONFIG.website}" target="_blank" rel="noopener">Zur Website von ${esc(CONFIG.firma)}</a>
     </section>
     ${footer()}
   </div>`);
@@ -174,6 +175,7 @@ function mehrView() {
       <h2>Persönliche Nachhilfe</h2>
       <p>Wenn es an einem Thema länger hakt: In einer kostenlosen Probestunde klären wir gemeinsam, was hilft.</p>
       <a class="btn" href="${CONFIG.probestunde}" target="_blank" rel="noopener">Gratis Probestunde ${ICON.right}</a>
+      <a class="btn line site" href="${CONFIG.website}" target="_blank" rel="noopener">Zur Website von ${esc(CONFIG.firma)}</a>
     </section>
     ${footer()}
   </div>`);
