@@ -40,6 +40,9 @@ export function settingsView() {
     <div id="st-level"></div>
     <section class="card stack"><h3>Bundesland und Kurs</h3><div class="picks col" id="st-land" role="radiogroup" aria-label="Bundesland und Kurs"></div>
       <small class="muted">Die Auswahl steuert Umfang und Stoff im Abi-Modus und kennzeichnet, was in deinem Kurs kein Prüfungsstoff ist. Alle Lernpfade bleiben offen. <a href="#/lehrplan">Was gilt wo?</a></small></section>
+    <section class="card stack"><h3>Ruhiger Modus</h3>
+      <button class="schalter" id="st-ruhig" type="button" role="switch" aria-checked="false"><span class="knopf" aria-hidden="true"></span><span>Ohne Druck lernen</span></button>
+      <small class="muted">Keine Lernserie, kein Wochen-Ziel, keine Herzen beim Boss, Abi-Modus ohne Uhr. Du lernst in deinem Tempo – Punkte und Fortschritt bleiben. Tages-Runde, Duell und Blitz-Runde sind weiter auf Zeit, weil dort alle dieselben Bedingungen brauchen.</small></section>
     <section class="card stack"><h3>Ergebnis selbst eintippen</h3><div class="picks" id="st-tipp" role="radiogroup" aria-label="Ergebnis selbst eintippen"></div>
       <small class="muted">Bei Rechenaufgaben tippst du das Ergebnis ein, statt aus vier Antworten zu wählen. „Automatisch“ schaltet das ab Schwierigkeit 4 ein.</small></section>
     <section class="card stack"><h3>Abi-Termin Mathe</h3>
@@ -102,6 +105,8 @@ export function settingsView() {
     }
     paintP(); sync();
   }
+  { const rb = $('#st-ruhig', el), paintR = () => { rb.setAttribute('aria-checked', store.ruhig); rb.classList.toggle('an', store.ruhig); };
+    rb.onclick = () => { store.ruhig = !store.ruhig; paintR(); sfx('tap'); window.dispatchEvent(new Event('mt-ruhig')); }; paintR(); }
   const tb = $('#st-tipp', el);
   const paintT = () => tb.querySelectorAll('button').forEach((b) => { const on = b.dataset.k === store.tippenWahl; b.classList.toggle('sel', on); b.setAttribute('aria-checked', on); });
   [['auto', 'Automatisch'], ['an', 'Immer'], ['aus', 'Nie']].forEach(([k, name]) => { const b = h(`<button class="pick" type="button" role="radio" data-k="${k}">${name}</button>`); b.onclick = () => { store.tippenWahl = k; paintT(); sfx('tap'); }; tb.append(b); });

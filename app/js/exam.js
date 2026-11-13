@@ -46,7 +46,7 @@ export const scoreOf = (correct, total, answered, secsLeft) => correct * 100 + (
 const clock = (s) => `${Math.floor(s / 60)}:${String(Math.max(0, Math.floor(s % 60))).padStart(2, '0')}`;
 
 /** Spielt eine Runde: eine Antwort je Aufgabe, keine Tipps, Zeit läuft. */
-export function round(el, { tasks, seconds, onEnd }) {
+export function round(el, { tasks, seconds, onEnd, ohneZeit = false }) {
   let i = 0, correct = 0, answered = 0, left = seconds, lock = false, ended = false, combo = 0;
   const wrong = [], answers = [];
   const t0 = performance.now();
@@ -56,6 +56,7 @@ export function round(el, { tasks, seconds, onEnd }) {
   const tick = () => {
     left = seconds - (performance.now() - t0) / 1000;
     const tm = $('#ex-t', el); if (!tm) return;
+    if (ohneZeit) { tm.hidden = true; return; }   // ruhiger Modus: keine Uhr, kein Abbruch
     tm.textContent = clock(left); tm.classList.toggle('low', left < 30);
     if (left <= 0) end();
   };
@@ -108,7 +109,7 @@ export function abiView(part, opts_onEnd) {
     el.innerHTML = `<a class="back" href="#/pruefung">${ICON.left} Prüfung</a>
       <div><span class="eyebrow">Prüfung</span><h1 style="margin-top:8px">Abi-Modus</h1><p class="lead" style="margin-top:8px">Gemischte Aufgaben auf Zeit, eine Antwort je Aufgabe, keine Tipps. Am Ende gibt es eine Punkte-Prognose.</p></div>
       <small class="muted">Einstellung: ${esc(LAENDER[store.land])} · ${store.land ? '' : '<a href="#/einstellungen">Bundesland wählen</a> · '}Schwierigkeit ${LEVELS[store.level - 1]}</small>
-      ${['A', 'B'].map((p) => { const pl = abiPlan(p); return `<a class="card unit" href="#/abi/${p}"><span class="num">${p}</span><span><h3>${pl.title}</h3><small>${pl.n} Aufgaben · ${pl.seconds / 60} Minuten · ${p === 'A' ? 'Zahlen, die im Kopf gehen' : 'größere Zahlen und mehr Regeln gemischt'}</small></span><span class="go">${ICON.right}</span></a>`; }).join('')}
+      ${['A', 'B'].map((p) => { const pl = abiPlan(p); return `<a class="card unit" href="#/abi/${p}"><span class="num">${p}</span><span><h3>${pl.title}</h3><small>${pl.n} Aufgaben · ${store.ruhig ? 'ohne Uhr (ruhiger Modus)' : `${pl.seconds / 60} Minuten`} · ${p === 'A' ? 'Zahlen, die im Kopf gehen' : 'größere Zahlen und mehr Regeln gemischt'}</small></span><span class="go">${ICON.right}</span></a>`; }).join('')}
       ${last.length ? `<h3>Letzte Ergebnisse</h3>${last.map((e) => `<div class="card row"><span class="grow">Teil ${esc(e.part)} · ${esc(e.date)}<br><small class="muted">${e.correct}/${e.total} richtig</small></span><b class="np">${e.np}</b></div>`).join('')}` : ''}
       <small class="muted">Die Prognose ist eine Orientierung aus Auswahl-Aufgaben. Im echten Abitur zählen auch Rechenweg und Begründung.</small>`;
     return { el };
@@ -116,7 +117,7 @@ export function abiView(part, opts_onEnd) {
   const plan = abiPlan(part);
   el.innerHTML = `<div class="stephead"><a class="x" href="#/abi" aria-label="Abbrechen">${ICON.close}</a><b>${plan.title}</b></div><div id="stage"></div>`;
   queueMicrotask(() => {
-    stop = round($('#stage', el), { tasks: makeTasks(plan.n, plan.lv, null, store.land), seconds: plan.seconds, onEnd: (r) => {
+    stop = round($('#stage', el), { tasks: makeTasks(plan.n, plan.lv, null, store.land), seconds: plan.seconds, ohneZeit: store.ruhig, onEnd: (r) => {
       const pct = Math.round((r.correct / r.total) * 100), np = notenpunkte(pct);
       store.addExam({ part, pct, np, correct: r.correct, total: r.total, xp: r.correct * 3 });
       sfx('win'); if (np >= 8) confetti(np >= 12 ? 60 : 30);

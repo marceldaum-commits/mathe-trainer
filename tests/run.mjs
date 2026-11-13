@@ -616,6 +616,53 @@ for (const u of UNITS) {
   ok(new Set(u.steps.map((s) => s.id)).size === u.steps.length && u.steps.every((s) => typeof s.run === 'function' && s.title && s.kind), `Einheit ${u.id}: Schritte vollständig`);
 }
 
+// 14b) Ruhiger Modus, Abenteuer, Karte, Figuren
+{ store.reset(); ok(store.ruhig === false, 'Ruhiger Modus: anfangs aus'); store.ruhig = 1; ok(store.ruhig === true, 'Ruhiger Modus: lässt sich einschalten'); store.ruhig = false;
+  const A = await import('../app/js/abenteuer.js'), F = await import('../app/js/figuren.js'), Ka = await import('../app/js/karte.js');
+  ok(new Set(A.UPGRADES.map((u) => u.id)).size === A.UPGRADES.length && A.UPGRADES.every((u) => u.name && u.text && u.zeichen && typeof u.use === 'function'), 'Abenteuer: Belohnungen vollständig und eindeutig');
+  for (let i = 0; i < 400; i++) {
+    const s = A.neuerLauf(['gemischt', 'analysis', 'stochastik', 'geometrie'][i % 4], 1 + (i % 5), i % 7 === 0);
+    // eine ganze Reise durchspielen: zufällige Türen, zufällige Belohnungen, zufällige Treffer und Fehler
+    let schritte = 0, tuer = { art: 'kampf', gebiet: s.gebiet === 'gemischt' ? 'analysis' : s.gebiet }, aus = false;
+    while (s.raum < A.RAEUME && !aus && schritte++ < 200) {
+      if (tuer.art === 'rast') { s.leben = Math.min(s.max, s.leben + 2); s.raum++; }
+      else if (tuer.art === 'schatz') { s.raum++; const k = A.ziehe(s); ok(k.length === 3 && new Set(k.map((u) => u.id)).size === 3, 'Abenteuer: drei verschiedene Belohnungen'); A.nimm(s, k[0].id); }
+      else {
+        const g = A.gegner(tuer.art, tuer.gebiet, s.raum, s.lv); let hp = A.funke(s, g), erster = true; ok(hp >= 1 && hp >= g.hp - 1 && s.funke >= 0, 'Abenteuer: Funken-Stein zieht höchstens einen Punkt ab');
+        ok(g.hp >= 2 && g.lv >= s.lv && g.lv <= 5 && g.name && (tuer.art !== 'boss' || g.name === A.DRACHE[0]), 'Abenteuer: Gegner sinnvoll');
+        ok(practiceGens(tuer.gebiet).length >= 5, 'Abenteuer: genug Aufgabenarten im Gebiet');
+        while (hp > 0 && !aus) {
+          if ((i + schritte + hp) % 3) { const d = A.treffer(s, erster); erster = false; ok(d === 1 || d === 2, 'Abenteuer: Schaden 1 oder 2'); hp -= d; }
+          else { const vor = s.leben, was = A.patzer(s); ok(s.kombo === 0 && (was === 'leben' ? s.leben === vor - 1 : s.leben === vor) && (!s.ruhig || was === 'ruhig'), 'Abenteuer: Fehler kostet höchstens ein Leben, im ruhigen Modus keins'); if (s.leben <= 0) aus = true; }
+          if (schritte++ > 400) break;
+        }
+        if (!aus) { s.punkte += A.RAUM_PUNKTE[g.art] * s.faktor; s.raum++; if (g.art !== 'boss') for (let r = 0; r < (g.art === 'elite' ? 2 : 1); r++) { const k = A.ziehe(s); ok(k.length === 3 && k.every((u) => !(u.einmal && s.hat.includes(u.id)) && !(s.ruhig && u.leben)), 'Abenteuer: Belohnungen passen zum Stand'); A.nimm(s, k[r % 3].id); } }
+      }
+      ok(s.leben <= s.max && s.schild >= 0 && s.kristall >= 0 && s.punkte >= 0 && s.faktor >= 1 && s.faktor <= 1.5, 'Abenteuer: Stand bleibt gültig');
+      if (s.raum < A.RAEUME && !aus) {
+        const ts = A.tueren(s);
+        ok(s.raum + 1 >= A.RAEUME ? ts.length === 1 && ts[0].art === 'boss' : ts.length === 2 && ts.some((t) => t.art === 'kampf') && ts.every((t) => t.art in A.TUER_TEXT && t.art !== 'boss' && t.gebiet in A.GEGNER), 'Abenteuer: Türen stimmen (am Ende nur das Drachentor)');
+        ok(!(s.ruhig && ts.some((t) => t.art === 'rast')), 'Abenteuer: kein Rastplatz im ruhigen Modus');
+        ok(ts.length === 1 || !(ts[0].art === ts[1].art && ts[0].gebiet === ts[1].gebiet), 'Abenteuer: zwei verschiedene Türen');
+        tuer = ts[(i + s.raum) % ts.length];
+      }
+    }
+    ok(aus || s.raum === A.RAEUME, 'Abenteuer: Reise endet nach sieben Räumen oder ohne Leben');
+  }
+  ok(F.figur({ zeichen: '<b>' }).includes('&lt;b&gt;') && !F.figur({ zeichen: '<b>' }).includes('<b>'), 'Figuren: Zeichen wird entschärft');
+  ok(F.figurFor('Parabel-Golem', 'x²').replace(/fg\d+/g, '') === F.figurFor('Parabel-Golem', 'x²').replace(/fg\d+/g, ''), 'Figuren: gleicher Name, gleiche Figur');
+  ok(new Set(UNITS.filter((u) => u.bossName).map((u) => F.streu(u.bossName))).size === UNITS.filter((u) => u.bossName).length, 'Figuren: jeder Boss hat eine eigene Streuzahl');
+  for (const u of UNITS) if (u.bossName) ok(typeof u.bossSymbol === 'string' && F.figurFor(u.bossName, u.bossSymbol).startsWith('<svg'), `Einheit ${u.id}: Boss-Figur zeichenbar`);
+  store.reset();
+  const alle = Ka.LAENDER_KARTE.flatMap((l) => Ka.stationen(l.id));
+  ok(Ka.LAENDER_KARTE.length === 3 && alle.length === UNITS.filter((u) => u.area !== 'pruefung').length && new Set(alle).size === alle.length, 'Karte: jede Lern-Einheit ist genau eine Station');
+  ok(Ka.standort() === Ka.stationen('analysis')[0].id && Ka.stationen('analysis')[0].grund, 'Karte: Pi startet an der ersten Station (Grundlagen)');
+  for (const st of Ka.stationen('analysis')[0].steps) store.complete(Ka.stationen('analysis')[0].id, st.id, 3);
+  ok(Ka.standort() === Ka.stationen('analysis')[1].id, 'Karte: Pi zieht weiter, wenn eine Station frei ist');
+  for (const land of ['', 'BY', 'HE-GK', 'HE-LK']) { const st = Ka.stationen('analysis', land), ex = st.map((u) => unitExtra(u, land)); ok(ex.indexOf(true) === -1 || !ex.slice(ex.indexOf(true)).includes(false), `Karte ${land || 'ohne Land'}: Zusatz-Stationen stehen am Ende`); }
+  { const p = Array.from({ length: 14 }, (_, i) => Ka.punkt(i)); ok(p.every((q, i) => q.x >= 60 && q.x <= 260 && (i === 0 || q.y - p[i - 1].y >= 100)) && Ka.hoehe(14) > p[13].y + 60, 'Karte: Stationen liegen im Feld und überlappen nicht'); }
+  store.reset(); }
+
 // 15) Schwierigkeit und Serie
 store.level = 9; ok(store.level === 5, 'Schwierigkeit: nach oben begrenzt');
 store.level = 0; ok(store.level === 1, 'Schwierigkeit: nach unten begrenzt');

@@ -576,3 +576,55 @@ a.count{text-decoration:none}
 .schalter.an .knopf::after{transform:translateX(22px)}
 .schalter:disabled{opacity:.6}
 #st-push-sperre ol{margin:8px 0 0;padding-left:20px;display:grid;gap:6px}
+
+/* ───────────── Figuren, Abenteuer, Karte ───────────── */
+.figur{display:block;width:100%;height:100%;overflow:visible}
+.figur.grau{filter:grayscale(1);opacity:.45}
+.mini-fig{display:block;width:30px;height:30px}
+.ab-face{background:rgba(255,255,255,.08);box-shadow:none;padding:6px}
+.ab-face.down{filter:grayscale(1);opacity:.5;transform:rotate(-14deg)}
+.ab-gegner .boss-info small{color:#c4d0e9;font-size:12px}
+.ab-bar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:0 0 10px;font-size:13px;font-weight:800;color:var(--head)}
+.ab-bar .ab-pkt{margin-left:auto}
+.ab-bar .hearts{color:var(--line);font-size:17px}
+.ab-ding{padding:3px 9px;border-radius:99px;background:var(--soft);border:1px solid var(--line);font-size:12.5px}
+.ab-held{width:104px;height:104px;margin:2px auto 0}
+.ab-start{text-align:center}
+.ab-ups{display:grid;gap:10px}
+.ab-up{display:grid;grid-template-columns:auto 1fr;gap:12px;align-items:center;text-align:left;padding:14px;cursor:pointer;font:inherit;color:inherit;width:100%}
+.ab-up .num{display:grid;place-items:center;min-width:46px;height:46px;padding:0 6px;border-radius:14px;background:var(--orange-soft);color:var(--orange-dark);font-weight:900;font-size:15px}
+.ab-up h3{font-size:15.5px}
+.ab-up small{color:var(--muted);font-size:13px;line-height:1.35}
+.ab-up:active{transform:scale(.98)}
+.ab-tuer.elite .num,.ab-tuer.boss .num{background:var(--red-soft);color:var(--red)}
+.ab-tuer.rast .num,.ab-tuer.schatz .num{background:var(--mint-soft);color:var(--mint-ink)}
+.opt.weg{opacity:.35;text-decoration:line-through}
+#ab-kristall{justify-self:start}
+.k-erz{display:grid;grid-template-columns:auto 1fr;gap:14px;align-items:center}
+.k-erz p{font-size:14px;line-height:1.5}
+.k-pi.gross{display:block;width:72px;height:72px}
+.k-land{display:grid;gap:8px}
+.k-kopf{display:grid;gap:6px}
+.k-kopf .eyebrow{color:var(--k2)}
+.k-kopf .eyebrow:before{box-shadow:none}
+.k-kopf p{color:var(--muted);font-size:14.5px;line-height:1.5}
+.k-feld{position:relative;width:100%;max-width:440px;margin:0 auto;border-radius:26px;border:1px solid var(--line);
+  background:radial-gradient(circle at 20% 12%,color-mix(in srgb,var(--k1) 16%,transparent),transparent 42%),radial-gradient(circle at 82% 70%,color-mix(in srgb,var(--k2) 14%,transparent),transparent 46%),var(--soft)}
+.k-feld svg{position:absolute;inset:0;width:100%;height:100%}
+.k-weg{fill:none;stroke:var(--k1);stroke-width:5;stroke-linecap:round;stroke-dasharray:2 13;opacity:.6;vector-effect:non-scaling-stroke}
+.k-st{position:absolute;transform:translate(-50%,-50%);display:grid;justify-items:center;gap:3px;width:128px;text-decoration:none;text-align:center}
+.k-fig{position:relative;display:block;width:60px;height:60px;padding:6px;border-radius:50%;background:var(--card);border:3px solid var(--line);box-shadow:var(--shadow)}
+.k-st.begonnen .k-fig{border-color:var(--k1)}
+.k-st.fertig .k-fig{border-color:var(--mint-ink);background:var(--mint-soft)}
+.k-st.zusatz .k-fig{border-style:dashed}
+.k-st.hier .k-fig{border-color:var(--orange);box-shadow:0 0 0 6px rgba(255,116,24,.18)}
+.k-st .k-pi{position:absolute;right:-18px;bottom:-10px;width:34px;height:34px;animation:hopp 1.6s ease-in-out infinite}
+@keyframes hopp{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+@media (prefers-reduced-motion:reduce){.k-st .k-pi{animation:none}}
+.k-txt{display:grid;gap:1px;padding:3px 7px;border-radius:10px;background:color-mix(in srgb,var(--card) 88%,transparent)}
+.k-txt b{font-size:12.5px;line-height:1.2;color:var(--head)}
+.k-txt small{font-size:10.5px;line-height:1.25;color:var(--muted)}
+.k-tor{display:grid;grid-template-columns:auto 1fr;gap:14px;align-items:center}
+.k-tor .k-fig{width:72px;height:72px}
+.k-tor small{color:var(--muted)}
+@media (min-width:900px){.karte .k-feld{max-width:520px}.k-st{width:150px}.k-txt b{font-size:13.5px}.k-txt small{font-size:11.5px}}

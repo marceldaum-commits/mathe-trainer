@@ -14,7 +14,8 @@ export const bossLevel = (lv) => Math.min(5, lv + 1);
 export function boss(gens, name, symbol) {
   return (el, ctx) => {
     const lv = bossLevel(store.level), hpMax = bossHp(store.level);
-    let hp = hpMax, hearts = HEARTS, lock = false, plot = null, bag = [], combo = 0;
+    const ruhig = store.ruhig;   // ruhiger Modus: keine Herzen, beliebig viele Versuche
+    let hp = hpMax, hearts = HEARTS, lock = false, plot = null, bag = [], combo = 0, fehler = 0;
     const nextGen = () => { if (!bag.length) bag = shuffle(gens); return bag.pop(); };
 
     el.innerHTML = `<div class="stack">
@@ -29,7 +30,7 @@ export function boss(gens, name, symbol) {
     function status() {
       el.querySelector('#bs-hp i').style.width = `${(hp / hpMax) * 100}%`;
       el.querySelector('#bs-hp').setAttribute('aria-label', `Boss: ${hp} von ${hpMax} Lebenspunkten`);
-      const hb = el.querySelector('#bs-hearts');
+      const hb = el.querySelector('#bs-hearts'); hb.hidden = ruhig;
       hb.innerHTML = Array.from({ length: HEARTS }, (_, i) => `<span class="${i < hearts ? 'on' : ''}">♥</span>`).join('');
       hb.setAttribute('aria-label', `${hearts} von ${HEARTS} Herzen`);
       ctx.progress(1 - hp / hpMax);
@@ -38,14 +39,14 @@ export function boss(gens, name, symbol) {
       plot?.destroy(); plot = null;
       const box = el.querySelector('#bs-q');
       if (won) {
-        store.bump('boss'); if (hearts === HEARTS) store.bump('bossPerfekt');
+        store.bump('boss'); if (fehler === 0) store.bump('bossPerfekt');
         face.classList.add('down');
-        box.innerHTML = `<div class="note ok"><b>${esc(name)} ist besiegt!</b> ${hearts === HEARTS ? 'Ohne ein einziges Herz zu verlieren.' : `Mit ${hearts} ${hearts === 1 ? 'Herz' : 'Herzen'} Rest.`}</div><button class="btn block" id="bs-done" type="button">Weiter</button>`;
-        box.querySelector('#bs-done').onclick = () => ctx.done({ stars: hearts, mistakes: HEARTS - hearts });
+        box.innerHTML = `<div class="note ok"><b>${esc(name)} ist besiegt!</b> ${ruhig ? (fehler ? `Mit ${fehler} ${fehler === 1 ? 'Fehlversuch' : 'Fehlversuchen'} – in Ruhe geschafft.` : 'Ohne einen einzigen Fehler.') : hearts === HEARTS ? 'Ohne ein einziges Herz zu verlieren.' : `Mit ${hearts} ${hearts === 1 ? 'Herz' : 'Herzen'} Rest.`}</div><button class="btn block" id="bs-done" type="button">Weiter</button>`;
+        box.querySelector('#bs-done').onclick = () => ctx.done({ stars: ruhig ? Math.max(1, 3 - fehler) : hearts, mistakes: fehler });
       } else {
         box.innerHTML = `<div class="note tip"><b>${esc(name)} hat gewonnen – diesmal.</b> Schau dir die Erklärungen oben in der Einheit noch einmal an und versuch es erneut. Die Aufgaben sind beim nächsten Mal andere.</div>
           <button class="btn block" id="bs-again" type="button">Noch einmal</button>`;
-        box.querySelector('#bs-again').onclick = () => { hp = hpMax; hearts = HEARTS; combo = 0; face.classList.remove('down'); status(); show(); };
+        box.querySelector('#bs-again').onclick = () => { hp = hpMax; hearts = HEARTS; combo = 0; fehler = 0; face.classList.remove('down'); status(); show(); };
       }
     }
     function show() {
@@ -69,7 +70,7 @@ export function boss(gens, name, symbol) {
             hp--; combo++; b.classList.add('right'); sfx(hp === 0 ? 'ok' : 'pling'); store.record(q.topic, true); store.max('komboMax', combo);
             face.classList.remove('hit'); void face.offsetWidth; face.classList.add('hit');
           } else {
-            hearts--; combo = 0; b.classList.add('wrong'); sfx('bad'); store.record(q.topic, false); store.kartePut(q.gen, q.topic);
+            if (!ruhig) hearts--; fehler++; combo = 0; b.classList.add('wrong'); sfx('bad'); store.record(q.topic, false); store.kartePut(q.gen, q.topic);
             box.querySelectorAll('.opt').forEach((n, j) => { if (q.options[j].correct) n.classList.add('right'); });
             note.innerHTML = `<div class="note bad">${o.why || ''}</div>`;
           }

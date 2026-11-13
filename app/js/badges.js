@@ -32,6 +32,7 @@ export const BADGES = [
   { id: 'alles', icon: '∞', name: 'Alles geschafft', text: 'Jede Einheit in jedem Gebiet abgeschlossen.', ok: () => AREAS.every((a) => areaAll(a.id)) },
   { id: 'boss1', icon: 'B', name: 'Boss-Bezwinger', text: 'Den ersten Boss besiegt.', ok: () => store.n('boss') >= 1 },
   { id: 'boss10', icon: 'B10', name: 'Boss-Jäger', text: '10 Bosse besiegt.', ok: () => store.n('boss') >= 10 },
+  { id: 'drache', icon: '▲', name: 'Drachenbezwinger', text: 'Im Abenteuer-Modus den Abi-Drachen besiegt.', ok: () => store.n('abenteuerSieg') >= 1 },
   { id: 'bossPerfekt', icon: '♥', name: 'Ohne Kratzer', text: 'Einen Boss besiegt, ohne ein Herz zu verlieren.', ok: () => store.n('bossPerfekt') >= 1 },
   { id: 'blitz10', icon: '10', name: 'Blitzmerker', text: '10 richtige Antworten in einer Blitz-Runde.', ok: () => store.n('blitzBest') >= 10 },
   { id: 'blitz20', icon: '20', name: 'Gedankenblitz', text: '20 richtige Antworten in einer Blitz-Runde.', ok: () => store.n('blitzBest') >= 20 },

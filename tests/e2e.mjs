@@ -355,6 +355,50 @@ await page.fill('#zt-name', 'Test Person'); if ((await page.textContent('#zt-out
 if (await page.evaluate(() => localStorage.getItem('mt.v1').includes('Test Person'))) fail('Zertifikat: Name darf nicht gespeichert werden');
 await shot('74-zertifikat');
 
+/* ───────────── Karte mit Geschichte, Abenteuer-Modus, ruhiger Modus ───────────── */
+await page.goto(`${BASE}#/karte`); await page.waitForSelector('.k-land');
+{ const k = await page.evaluate(() => ({ laender: document.querySelectorAll('.k-land').length, st: document.querySelectorAll('.k-st').length, fig: document.querySelectorAll('.k-st svg.figur').length, breit: document.documentElement.scrollWidth - innerWidth,
+    raus: [...document.querySelectorAll('.k-st')].filter((n) => { const r = n.getBoundingClientRect(), f = n.parentElement.getBoundingClientRect(); return r.left < f.left - 2 || r.right > f.right + 2; }).length }));
+  const soll = UNITS.filter((u) => u.area !== 'pruefung').length;
+  if (k.laender !== 3 || k.st !== soll || k.fig < soll) fail(`Karte: ${k.laender} Länder, ${k.st} Stationen, ${k.fig} Figuren (erwartet 3/${soll})`);
+  if (k.breit > 1) fail(`Karte: Seite ist ${k.breit}px zu breit`);
+  if (k.raus) fail(`Karte: ${k.raus} Stationen ragen aus dem Feld`); }
+await shot('75-karte');
+await page.locator('.k-st').first().click(); await page.waitForSelector('.steps'); if (!/#\/u\//.test(page.url())) fail('Karte: Station führt nicht zur Einheit');
+await page.goto(`${BASE}#/pruefung`); await page.click('a[href="#/abenteuer"]'); await page.waitForSelector('#ab-start');
+await page.click('.ab-geb [data-g="analysis"]'); await page.click('#ab-start'); await page.waitForSelector('#ab-q .opt');
+{ const herzen = () => page.locator('.ab-leben .on').count(), vor = await herzen();
+  await page.locator('#ab-q .opt[data-ok="0"]').first().click(); await page.waitForSelector('#ab-next');
+  if ((await herzen()) !== vor - 1) fail('Abenteuer: Fehler kostet kein Leben');
+  let raeume = 0, wahl = 0;
+  for (let i = 0; i < 120 && !(await page.$('#ab-ende')); i++) {
+    if (await page.$('.ab-tuer')) { raeume++; await page.locator('.ab-tuer').first().click(); continue; }
+    if (await page.$('.ab-up')) { wahl++; if ((await page.locator('.ab-up').count()) !== 3) fail('Abenteuer: nicht drei Belohnungen zur Wahl'); await page.locator('.ab-up').first().click(); continue; }
+    if (await page.$('#ab-weiter')) { await page.click('#ab-weiter'); continue; }
+    if (await page.$('#ab-next')) {
+      const r = await page.locator('#ab-next').boundingBox(), vh = page.viewportSize().height;
+      if (!r || r.y < 0 || r.y + r.height > vh + 1) fail('Abenteuer: Weiter-Knopf nicht ohne Scrollen sichtbar');
+      if (await page.evaluate(() => document.documentElement.scrollWidth - innerWidth > 1)) fail('Abenteuer: Seite zu breit');
+      await page.click('#ab-next'); continue; }
+    if (await page.$('#ab-kristall')) { const n = await page.locator('#ab-q .opt:not([disabled])').count(); await page.click('#ab-kristall'); if ((await page.locator('#ab-q .opt:not([disabled])').count()) !== n - 1) fail('Abenteuer: Tipp-Kristall streicht keine Antwort'); }
+    await page.locator('#ab-q .opt[data-ok="1"]').first().click();
+  }
+  if (!/besiegt/.test(await page.textContent('#ab-ende'))) fail('Abenteuer: Reise mit lauter richtigen Antworten nicht gewonnen');
+  if (raeume < 5 || wahl < 4) fail(`Abenteuer: zu wenig Türen (${raeume}) oder Belohnungen (${wahl})`);
+  const c = await page.evaluate(() => JSON.parse(localStorage.getItem('mt.v1')).count);
+  if (!(c.abenteuerSieg >= 1 && c.abenteuerRekord > 20 && c.abenteuerRaum === 7)) fail('Abenteuer: Sieg oder Rekord nicht gespeichert'); }
+await shot('76-abenteuer');
+await page.goto(`${BASE}#/einstellungen`); await page.waitForSelector('#st-ruhig');
+if (!(await page.$('.chip.fire'))) fail('Lernserie fehlt im normalen Modus');
+await page.click('#st-ruhig'); if ((await page.getAttribute('#st-ruhig', 'aria-checked')) !== 'true') fail('Ruhiger Modus: Schalter geht nicht an');
+if (await page.$('.chip.fire')) fail('Ruhiger Modus: Lernserie noch zu sehen');
+await page.reload(); await page.waitForSelector('#st-ruhig.an'); if (await page.$('.chip.fire')) fail('Ruhiger Modus: nach Neuladen vergessen');
+await page.goto(`${BASE}#/abi`); await page.waitForSelector('a[href="#/abi/A"]'); if (!/ohne Uhr/.test(await page.textContent('a[href="#/abi/A"]'))) fail('Ruhiger Modus: Abi-Modus zeigt noch Minuten');
+await page.click('a[href="#/abi/A"]'); await page.waitForSelector('#ex-q .opt'); await page.waitForTimeout(400); if (await page.locator('#ex-t').isVisible()) fail('Ruhiger Modus: Uhr im Abi-Modus sichtbar');
+await page.goto(`${BASE}#/abenteuer`); await page.click('#ab-start'); await page.waitForSelector('#ab-q .opt'); if (await page.$('.ab-leben')) fail('Ruhiger Modus: Abenteuer zeigt Leben');
+await page.goto(`${BASE}#/`); await page.waitForSelector('#home'); if (await page.$('.week')) fail('Ruhiger Modus: Wochen-Ziel noch auf der Startseite');
+await page.goto(`${BASE}#/einstellungen`); await page.click('#st-ruhig'); if (!(await page.$('.chip.fire'))) fail('Ruhiger Modus: lässt sich nicht ausschalten');
+
 /* ───────────── Einstellungen, Countdown, Farben ───────────── */
 await page.goto(`${BASE}#/einstellungen`); await page.waitForSelector('#st-land');
 if ((await page.getAttribute('#st-push-schalter', 'aria-checked')) !== 'false' || (await page.getAttribute('#st-push-schalter', 'role')) !== 'switch' || await page.locator('#st-push-zeile').isVisible()) fail('Erinnerung: Schalter fehlt oder steht nicht auf „aus“ (Uhrzeit darf erst sichtbar sein, wenn an)');

@@ -177,6 +177,9 @@ export const store = {
   /** Ergebnis des Einstufungstests: { tag, res: { gebiet: [grund, kern] }, stufe } oder null. */
   get einstufung() { return mem.einstufung && typeof mem.einstufung === 'object' ? mem.einstufung : null; },
   set einstufung(v) { mem.einstufung = v; save(); },
+  /** Ruhiger Modus: keine Lernserie, kein Wochen-Ziel, keine Herzen beim Boss, Abi-Modus ohne Uhr. */
+  get ruhig() { return mem.ruhig === true; },
+  set ruhig(v) { mem.ruhig = !!v; save(); },
   /** Erinnerung aufs Handy: { zeit } oder null. */
   get erinnern() { return mem.erinnern && typeof mem.erinnern === 'object' ? mem.erinnern : null; },
   set erinnern(v) { mem.erinnern = v; save(); },

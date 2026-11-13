@@ -529,7 +529,7 @@ const META = {
 };
 for (const u of UNITS) {
   const m = META[u.id]; if (!m) continue;
-  u.why = m.why; u.formeln = m.formeln; u.bossName = m.boss[0]; u.bossGens = m.boss[2];
+  u.why = m.why; u.formeln = m.formeln; u.bossName = m.boss[0]; u.bossSymbol = m.boss[1]; u.bossGens = m.boss[2];
   u.steps.push({ id: 'boss', kind: 'Boss', title: `Boss: ${m.boss[0]}`, run: (el, ctx) => boss(landList(m.boss[2]), m.boss[0], m.boss[1])(el, ctx) });
 }
 
