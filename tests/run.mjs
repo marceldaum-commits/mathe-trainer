@@ -3,13 +3,16 @@ globalThis.window = { katex: { renderToString: (s) => s } };
 const G = await import('../app/js/gen.js');
 const H = await import('../app/js/gen2.js');
 const { nDeriv, polyTex, vertexTex, lineTex, fmt } = await import('../app/js/math.js');
-const { LEVELS: MB, simulate } = await import('../app/js/games/murmelbahn.js');
-const { LEVELS: TG, hit } = await import('../app/js/games/tangente.js');
-const { ROUNDS: ZR, grade, colX } = await import('../app/js/games/zeichnen.js');
-const { POOL } = await import('../app/js/games/paare.js');
-const { LEVELS: FL, sums, gap } = await import('../app/js/games/flaeche.js');
-const { MISSIONS: LB, solved } = await import('../app/js/games/labor.js');
-const { MISSIONS: LO, goal, endPoint } = await import('../app/js/games/lotse.js');
+const all = (m) => [1, 3, 5].flatMap((lv) => m.levelsFor(lv));
+const GAMES = {};
+for (const g of ['murmelbahn', 'tangente', 'zeichnen', 'paare', 'flaeche', 'labor', 'lotse', 'werkstatt', 'raum', 'flug']) GAMES[g] = await import(`../app/js/games/${g}.js`);
+const { simulate } = GAMES.murmelbahn, MB = all(GAMES.murmelbahn);
+const { hit } = GAMES.tangente, TG = all(GAMES.tangente);
+const { grade, colX } = GAMES.zeichnen, ZR = all(GAMES.zeichnen);
+const POOLS = [1, 3, 5].map((lv) => GAMES.paare.levelsFor(lv));
+const { sums, gap } = GAMES.flaeche, FL = all(GAMES.flaeche);
+const { solved } = GAMES.labor, LB = all(GAMES.labor);
+const { goal, endPoint } = GAMES.lotse, LO = all(GAMES.lotse);
 const { nextStreak, store } = await import('../app/js/store.js');
 const { UNITS, AREAS } = await import('../app/js/units.js');
 
@@ -196,6 +199,15 @@ for (const lv of LV) for (let i = 0; i < REP; i++) {
 }
 for (const fn of [...Object.values(G), ...Object.values(H)]) if (typeof fn === 'function' && /^gen/.test(fn.name) && !/Mix$/.test(fn.name)) ok(typeof fn.topic === 'string', `${fn.name}: hat einen Themen-Namen`);
 
+// 6b) Schwierigkeit wirkt: Stufe 5 stellt andere Aufgaben als Stufe 1 und Stufe 3
+for (const [name, fn] of Object.entries({ ...G, ...H })) {
+  if (typeof fn !== 'function' || !/^gen[A-Z]/.test(name) || ['genScheitel', 'genOperator'].includes(name)) continue;   // Graph- bzw. Begriffs-Aufgaben
+  const sample = (lv) => { const s = new Set(); for (let i = 0; i < 150; i++) { const q = fn(lv); s.add(`${q.prompt}|${q.formula ?? ''}`); } return s; };
+  const a = sample(1), b = sample(3), c = sample(5), share = (x, y) => [...x].filter((k) => y.has(k)).length / x.size;
+  ok(share(c, a) <= 0.25, `${name}: Stufe 5 unterscheidet sich von Stufe 1 (${Math.round(share(c, a) * 100)} % gleich)`);
+  ok(share(c, b) <= 0.6, `${name}: Stufe 5 unterscheidet sich von Stufe 3 (${Math.round(share(c, b) * 100)} % gleich)`);
+}
+
 // 7) Murmelbahn: Ziel-Parameter sind einstellbar und gewinnen; die Startwerte gewinnen nicht.
 MB.forEach((L, i) => {
   const K = { line: (p, x) => p.m * x + p.b, par: (p, x) => p.a * (x - p.d) ** 2 + p.e }[L.kind];
@@ -235,9 +247,28 @@ ZR.forEach((R, i) => {
 });
 
 // 10) Graphen-Paare
-POOL.forEach((P, i) => ok([-2, -0.7, 0.4, 1.8].every((x) => close(P.d(x), nDeriv(P.f, x))), `Paare ${i + 1}: Ableitung stimmt`));
-for (let i = 0; i < POOL.length; i++) for (let j = i + 1; j < POOL.length; j++)
-  ok([-2, -0.7, 0.4, 1.8].some((x) => Math.abs(POOL[i].d(x) - POOL[j].d(x)) > 0.3), `Paare ${i + 1}/${j + 1}: Ableitungen unterscheidbar`);
+POOLS.forEach((POOL, t) => {
+  ok(POOL.length >= 6, `Paare (Satz ${t + 1}): genug Graphen für zwei Runden`);
+  POOL.forEach((P, i) => ok([-2, -0.7, 0.4, 1.8].every((x) => close(P.d(x), nDeriv(P.f, x))) && P.why.length > 20, `Paare ${t + 1}.${i + 1}: Ableitung stimmt`));
+  for (let i = 0; i < POOL.length; i++) for (let j = i + 1; j < POOL.length; j++)
+    ok([-2, -0.7, 0.4, 1.8].some((x) => Math.abs(POOL[i].d(x) - POOL[j].d(x)) > 0.3), `Paare ${t + 1}: ${i + 1}/${j + 1} Ableitungen unterscheidbar`);
+});
+
+// 10b) Jede Schwierigkeit hat eigene Spiel-Level: leicht, mittel und schwer teilen sich nichts
+for (const [name, m] of Object.entries(GAMES)) {
+  const [a, b, c] = [1, 3, 5].map((lv) => m.levelsFor(lv));
+  ok(m.levelsFor(1) === m.levelsFor(2) && m.levelsFor(4) === m.levelsFor(5) && a.length >= 2 && b.length >= 2 && c.length >= 2, `${name}: Level-Sätze je Schwierigkeit vorhanden`);
+  ok(!a.some((x) => b.includes(x) || c.includes(x)) && !b.some((x) => c.includes(x)), `${name}: leicht, mittel, schwer haben verschiedene Level`);
+}
+// 10c) Kurven-Flug: Ziel einstellbar, Tore im Bild, Zielkurve fliegt durch, Startwerte nicht
+all(GAMES.flug).forEach((L, i) => {
+  const { f, passed } = GAMES.flug;
+  for (const q of L.params) { const t = L.target[q.k]; ok(t >= q.min && t <= q.max && Math.abs((t - q.min) / q.step - Math.round((t - q.min) / q.step)) < 1e-9 && q.init !== undefined, `Flug ${i + 1}: Ziel ${q.k}=${t} mit dem Regler erreichbar`); }
+  ok(L.gatesX.length >= 3 && L.gatesX.every((x) => x > 0.3 && x < 12.6 && Math.abs(f(L.target, x)) <= 4.3), `Flug ${i + 1}: Tore im Bild`);
+  const init = { ...L.fixed }; L.params.forEach((q) => { init[q.k] = q.init; });
+  for (const lv of LV) ok(passed(L, L.target, lv).every(Boolean) && !passed(L, init, lv).every(Boolean), `Flug ${i + 1}: Ziel fliegt durch, Start nicht (Stufe ${lv})`);
+  ok(Object.keys(L.target).every((k) => k in init), `Flug ${i + 1}: alle Größen belegt`);
+});
 
 // 11) Fläche füllen: Fläche stimmt, liegt zwischen den Summen, Ziel ist mit dem Regler erreichbar
 FL.forEach((L, i) => {
@@ -267,7 +298,7 @@ LO.forEach((M, i) => {
 });
 
 // 13b) Extremwert-Werkstatt: Lösung ist das Maximum auf dem Regler und einstellbar
-const { LEVELS: WK } = await import('../app/js/games/werkstatt.js');
+const WK = all(GAMES.werkstatt);
 WK.forEach((L, i) => {
   let best = null, bv = -Infinity;
   for (let x = L.min; x <= L.max + 1e-9; x += L.step) if (L.obj(x) > bv + 1e-9) { bv = L.obj(x); best = +x.toFixed(6); }
@@ -276,7 +307,7 @@ WK.forEach((L, i) => {
 });
 
 // 13c) Raum-Blick: Blickrichtung berechenbar, Antworten rechnerisch richtig
-const { MISSIONS: RM, lookAlong, alignment } = await import('../app/js/games/raum.js');
+const { lookAlong, alignment } = GAMES.raum, RM = all(GAMES.raum);
 RM.forEach((M, i) => {
   if (M.type === 'look') { const a = lookAlong(M.lines[0].u); ok(alignment(M.lines[0].u, a.yaw, a.pitch) > 0.9999 && alignment(M.lines[0].u, -0.9, 0.45) < 0.985, `Raum ${i + 1}: Blick entlang der Geraden erkennbar, Start löst nicht`); }
   else { const [g1, g2] = M.lines, n = crossp(g1.u, g2.u), PQ = g2.P.map((c, j) => c - g1.P[j]);

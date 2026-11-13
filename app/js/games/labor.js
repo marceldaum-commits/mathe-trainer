@@ -1,6 +1,7 @@
 // Zufalls-Labor: Viele Versuchsreihen laufen lassen und sehen, wo der „Berg" der Verteilung liegt.
 import { h, tex, cssVar, buzz, sfx, onLook } from '../ui.js';
 import { fmt, ft } from '../math.js';
+import { store } from '../store.js';
 
 export const MISSIONS = [
   { text: 'Stell die Trefferwahrscheinlichkeit so ein, dass der Berg bei 3 Treffern liegt.', sub: 'Es wird 10-mal gedreht.', fix: { n: 10 }, init: { p: 0.6 }, target: 3, sol: { n: 10, p: 0.3 } },
@@ -21,7 +22,23 @@ function simulate(n, p) {
   return counts;
 }
 
+const LEICHT = [
+  { text: 'Stell die Trefferwahrscheinlichkeit so ein, dass der Berg bei 5 Treffern liegt.', sub: 'Es wird 10-mal gedreht.', fix: { n: 10 }, init: { p: 0.2 }, target: 5, sol: { n: 10, p: 0.5 } },
+  { text: 'Jetzt soll der Berg bei 4 Treffern liegen.', sub: 'Es wird 20-mal gedreht.', fix: { n: 20 }, init: { p: 0.6 }, target: 4, sol: { n: 20, p: 0.2 } },
+  { text: 'Wie oft muss gedreht werden, damit der Berg bei 6 Treffern liegt?', sub: 'Die Trefferwahrscheinlichkeit ist 0,5 – jede zweite Drehung trifft.', fix: { p: 0.5 }, init: { n: 6 }, target: 6, sol: { n: 12, p: 0.5 } },
+];
+const SCHWER = [
+  { text: 'Wie oft muss gedreht werden, damit der Berg bei 6 Treffern liegt?', sub: 'Die Trefferwahrscheinlichkeit ist 0,4.', fix: { p: 0.4 }, init: { n: 8 }, target: 6, sol: { n: 15, p: 0.4 } },
+  { text: 'Der Berg soll bei 12 Treffern liegen.', sub: 'Es wird 16-mal gedreht.', fix: { n: 16 }, init: { p: 0.3 }, target: 12, sol: { n: 16, p: 0.75 } },
+  { text: 'Beide Regler frei: Der Berg soll bei 3 liegen – mit genau 20 Drehungen.', sub: 'Welche Trefferwahrscheinlichkeit gehört dazu?', fix: {}, init: { n: 10, p: 0.5 }, target: 3, needN: 20, sol: { n: 20, p: 0.15 } },
+  { text: 'Beide Regler frei: Der Berg soll bei 9 liegen – mit genau 12 Drehungen.', sub: 'Rechne erst, dann stell ein.', fix: {}, init: { n: 18, p: 0.5 }, target: 9, needN: 12, sol: { n: 12, p: 0.75 } },
+  { text: 'Der Berg soll bei 7 Treffern liegen.', sub: 'Die Trefferwahrscheinlichkeit ist 0,35.', fix: { p: 0.35 }, init: { n: 10 }, target: 7, sol: { n: 20, p: 0.35 } },
+];
+/** Eigene Aufträge je Schwierigkeit: leicht (Stufe 1–2), mittel (3), schwer (4–5). */
+export const levelsFor = (lv) => [LEICHT, MISSIONS, SCHWER][lv <= 2 ? 0 : lv === 3 ? 1 : 2];
+
 export function labor(el, ctx) {
+  const LS = levelsFor(store.level);
   let mi = 0, n = 10, p = 0.5, counts = null, shown = 0, raf = 0, tries = 0, wrongQ = 0, phase = 'lab';
 
   el.innerHTML = `
@@ -39,7 +56,7 @@ export function labor(el, ctx) {
     </div>`;
   const cv = el.querySelector('#lb-c'), g = cv.getContext('2d'), note = el.querySelector('#lb-note'), go = el.querySelector('#lb-go'), body = el.querySelector('#lb-body');
   const inN = el.querySelector('#lb-in'), inP = el.querySelector('#lb-ip');
-  const M = () => MISSIONS[mi];
+  const M = () => LS[mi];
   let W = 300, H = 220;
   const ro = new ResizeObserver(() => { size(); draw(); }); ro.observe(cv);
   const offLook = onLook(() => draw());
@@ -83,7 +100,7 @@ export function labor(el, ctx) {
   function setMission() {
     const m = M();
     n = m.fix.n ?? m.init.n; p = m.fix.p ?? m.init.p; counts = null; shown = 0; tries = 0;
-    el.querySelector('#lb-n').textContent = `${mi + 1}/${MISSIONS.length + 1}`;
+    el.querySelector('#lb-n').textContent = `${mi + 1}/${LS.length + 1}`;
     el.querySelector('#lb-t').textContent = m.text; el.querySelector('#lb-s').textContent = m.sub;
     el.querySelector('#lb-rn').hidden = m.fix.n !== undefined; el.querySelector('#lb-rp').hidden = m.fix.p !== undefined;
     el.querySelector('#lb-m').textContent = '–';
@@ -112,7 +129,7 @@ export function labor(el, ctx) {
         buzz(20);
         note.innerHTML = `<div class="note ok"><b>Getroffen.</b> Der Berg liegt bei ${M().target} – der Mittelwert der 400 Reihen ist ${fmt(mean, 1)}.</div>`;
         go.textContent = 'Weiter'; go.dataset.next = '1';
-        ctx.progress((mi + 1) / (MISSIONS.length + 1));
+        ctx.progress((mi + 1) / (LS.length + 1));
       } else {
         sfx('bad');
         const wrongN = M().needN && n !== M().needN;
@@ -124,11 +141,11 @@ export function labor(el, ctx) {
 
   function question() {
     phase = 'ask';
-    el.querySelector('#lb-n').textContent = `${MISSIONS.length + 1}/${MISSIONS.length + 1}`;
+    el.querySelector('#lb-n').textContent = `${LS.length + 1}/${LS.length + 1}`;
     el.querySelector('#lb-t').textContent = 'Du hast es gemerkt: Wo liegt der Berg?';
     el.querySelector('#lb-s').textContent = 'Wähle die passende Formel.';
     el.querySelector('#lb-sl').hidden = true; go.hidden = true; note.innerHTML = '';
-    const opts = [['n\\cdot p', true, ''], ['n+p', false, 'Probier es an einem Beispiel: n = 10 und p = 0,3 ergab den Berg bei 3.'], ['\\dfrac{n}{p}', false, 'Dann läge der Berg bei mehr Treffern, als es Drehungen gibt.'], ['n\\cdot(1-p)', false, 'Das ist die erwartete Zahl der Nicht-Treffer.']].sort(() => Math.random() - 0.5);
+    const opts = [['n\\cdot p', true, ''], ['n+p', false, `Probier es an einem Beispiel: n = ${LS[0].sol.n} und p = ${ft(LS[0].sol.p)} ergab den Berg bei ${LS[0].target}.`], ['\\dfrac{n}{p}', false, 'Dann läge der Berg bei mehr Treffern, als es Drehungen gibt.'], ['n\\cdot(1-p)', false, 'Das ist die erwartete Zahl der Nicht-Treffer.']].sort(() => Math.random() - 0.5);
     const box = h('<div class="opts"></div>');
     opts.forEach(([t, ok, why], i) => {
       const b = h(`<button class="opt" type="button" data-ok="${ok ? 1 : 0}"><span class="k">${'ABCD'[i]}</span><span>${tex(t)}</span></button>`);
@@ -147,7 +164,7 @@ export function labor(el, ctx) {
 
   go.addEventListener('click', () => {
     if (go.dataset.next === 'done') { ctx.done({ stars: wrongQ === 0 ? 3 : wrongQ === 1 ? 2 : 1, mistakes: wrongQ }); return; }
-    if (go.dataset.next === '1') { if (mi < MISSIONS.length - 1) { mi++; setMission(); } else question(); return; }
+    if (go.dataset.next === '1') { if (mi < LS.length - 1) { mi++; setMission(); } else question(); return; }
     run();
   });
 

@@ -26,7 +26,19 @@ export function sums(L, n) {
 /** Wie nah Ober- und Untersumme zusammenliegen müssen (je nach Schwierigkeit). */
 export const gap = (lv) => [2, 1.5, 1, 0.8, 0.6][lv - 1];
 
+const LEICHT = [
+  { tex: 'f(x)=x+1', f: (x) => x + 1, a: 0, b: 4, area: 12, view: { x0: -0.6, x1: 4.8, y0: -0.6, y1: 5.6 } },
+  { tex: 'f(x)=0{,}25x^2+1', f: (x) => 0.25 * x * x + 1, a: 0, b: 4, area: 28 / 3, view: { x0: -0.6, x1: 4.8, y0: -0.6, y1: 5.6 } },
+];
+const SCHWER = [
+  { tex: 'f(x)=2\\sin(x)+2{,}5', f: (x) => 2 * Math.sin(x) + 2.5, a: 0, b: 4, area: 2 * (1 - Math.cos(4)) + 10, view: { x0: -0.6, x1: 4.8, y0: -0.6, y1: 5.2 } },
+  { tex: 'f(x)=e^{0{,}5x}', f: (x) => Math.exp(0.5 * x), a: 0, b: 3, area: 2 * (Math.exp(1.5) - 1), view: { x0: -0.6, x1: 3.8, y0: -0.6, y1: 5.2 } },
+];
+/** Eigene Flächen je Schwierigkeit: leicht (Stufe 1–2), mittel (3), schwer (4–5). */
+export const levelsFor = (lv) => [LEICHT, LEVELS, SCHWER][lv <= 2 ? 0 : lv === 3 ? 1 : 2];
+
 export function flaeche(el, ctx) {
+  const LS = levelsFor(store.level);
   let li = 0, n = 2, phase = 'fill', wrong = 0, plot;
   const need = gap(store.level);
 
@@ -41,7 +53,7 @@ export function flaeche(el, ctx) {
       <div class="row" id="fl-next" hidden><button class="btn block" type="button">Weiter</button></div>
     </div>`;
   const note = el.querySelector('#fl-note'), body = el.querySelector('#fl-body'), nextRow = el.querySelector('#fl-next'), range = el.querySelector('#fl-r');
-  const L = () => LEVELS[li];
+  const L = () => LS[li];
 
   function draw() {
     const lv = L(), s = sums(lv, n), g = plot.ctx;
@@ -76,7 +88,7 @@ export function flaeche(el, ctx) {
         if (ok) {
           b.classList.add('right'); nextRow.hidden = false; sfx('ok');
           note.innerHTML = `<div class="note ok"><b>Genau.</b> Diese Zahl ist das Integral ${tex(`\\int_{${lv.a}}^{${lv.b}}f(x)\\,dx=${ft(lv.area)}`)}.</div>`;
-          ctx.progress((li + 1) / LEVELS.length);
+          ctx.progress((li + 1) / LS.length);
         } else {
           wrong++; sfx('bad'); b.classList.add('wrong');
           note.innerHTML = `<div class="note bad"><b>Nicht ganz.</b> Dieser Wert passt nur zu wenigen, groben Streifen. Schau, wohin Unter- und Obersumme bei vielen Streifen laufen.</div>`;
@@ -92,7 +104,7 @@ export function flaeche(el, ctx) {
     plot = new Plot(el.querySelector('#fl-c'), L().view, { ratio: 1.25 });
     plot.onResize = draw;
     n = 2; phase = 'fill'; range.value = 2; el.querySelector('#fl-o').textContent = '2';
-    el.querySelector('#fl-n').textContent = `${li + 1}/${LEVELS.length}`;
+    el.querySelector('#fl-n').textContent = `${li + 1}/${LS.length}`;
     el.querySelector('#fl-fx').innerHTML = tex(L().tex);
     el.querySelector('#fl-t').textContent = 'Fülle die Fläche unter der Kurve: Mach die Streifen schmaler.';
     el.querySelector('#fl-s').textContent = `Ziel: Ober- und Untersumme liegen höchstens ${fmt(need)} auseinander.`;
@@ -102,7 +114,7 @@ export function flaeche(el, ctx) {
 
   range.addEventListener('input', () => { n = +range.value; el.querySelector('#fl-o').textContent = String(n); draw(); });
   nextRow.querySelector('button').addEventListener('click', () => {
-    if (li < LEVELS.length - 1) { li++; load(); return; }
+    if (li < LS.length - 1) { li++; load(); return; }
     ctx.done({ stars: wrong === 0 ? 3 : wrong <= 1 ? 2 : 1, mistakes: wrong });
   });
 

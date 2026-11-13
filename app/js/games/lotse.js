@@ -2,6 +2,7 @@
 import { Plot } from '../plot.js';
 import { h, tex, cssVar, buzz, sfx } from '../ui.js';
 import { ft } from '../math.js';
+import { store } from '../store.js';
 
 const VIEW = { x0: -6, x1: 6, y0: -6, y1: 6 };
 const V = (v) => `\\begin{pmatrix}${ft(v[0])}\\\\${ft(v[1])}\\end{pmatrix}`;
@@ -25,7 +26,24 @@ export function endPoint(M, a, b) {
   return [M.A[0] + a * M.u[0] + b * M.v[0], M.A[1] + a * M.u[1] + b * M.v[1]];
 }
 
+const LEICHT = [
+  { type: 'vec', A: [-3, -2], B: [1, 2], sol: [4, 4], text: 'Steuere das Schiff zum Stern.', sub: 'Stell den Vektor ein: erst nach rechts, dann nach oben.' },
+  { type: 'vec', A: [-2, 3], B: [3, 1], sol: [5, -2], text: 'Der Stern liegt rechts unten.', sub: 'Nach unten ist die zweite Koordinate negativ.' },
+  { type: 'vec', A: [4, -1], B: [-1, 3], sol: [-5, 4], text: 'Und jetzt nach links oben.', sub: 'Nach links ist die erste Koordinate negativ.' },
+  { type: 'combo', A: [-4, -3], u: [2, 0], v: [0, 1], sol: [3, 3], text: 'Du darfst nur nach rechts und nach oben fahren.', sub: 'Wie oft brauchst du jeden der beiden Vektoren?' },
+];
+const SCHWER = [
+  { type: 'combo', A: [-3, 2], u: [2, 1], v: [1, -2], sol: [2, 3], text: 'Steuere das Schiff mit den beiden Vektoren zum Stern.', sub: 'Überlege erst, dann stell r und s ein.' },
+  { type: 'combo', A: [3, -4], u: [-1, 2], v: [2, 1], sol: [3, -1], text: 'Ein Vektor muss rückwärts gefahren werden.', sub: 'Negative Faktoren drehen einen Vektor um.' },
+  { type: 'combo', A: [5, 4], u: [3, 1], v: [1, 2], sol: [-2, -2], text: 'Der Stern liegt „hinter" dir.', sub: 'Beide Faktoren sind negativ.' },
+  { type: 'combo', A: [-5, -1], u: [1, 3], v: [3, -1], sol: [1, 3], text: 'Die Vektoren stehen senkrecht aufeinander.', sub: 'Das macht es übersichtlicher – nutze es.' },
+  { type: 'combo', A: [0, 5], u: [2, -1], v: [-1, -2], sol: [-1, 3], text: 'Letzte Fahrt.', sub: 'Stelle zwei Gleichungen für r und s auf.' },
+];
+/** Eigene Fahrten je Schwierigkeit: leicht (Stufe 1–2), mittel (3), schwer (4–5). */
+export const levelsFor = (lv) => [LEICHT, MISSIONS, SCHWER][lv <= 2 ? 0 : lv === 3 ? 1 : 2];
+
 export function lotse(el, ctx) {
+  const LS = levelsFor(store.level);
   let mi = 0, a = 0, b = 0, tries = 0, total = 0, solved = false;
 
   el.innerHTML = `
@@ -39,7 +57,7 @@ export function lotse(el, ctx) {
     </div>`;
   const plot = new Plot(el.querySelector('#lo-c'), VIEW);
   const note = el.querySelector('#lo-note'), go = el.querySelector('#lo-go');
-  const M = () => MISSIONS[mi];
+  const M = () => LS[mi];
 
   function arrow(p, q, color, width = 4) {
     const g = plot.ctx;
@@ -82,7 +100,7 @@ export function lotse(el, ctx) {
   function load() {
     const m = M();
     a = 0; b = 0; tries = 0; solved = false;
-    el.querySelector('#lo-n').textContent = `${mi + 1}/${MISSIONS.length}`;
+    el.querySelector('#lo-n').textContent = `${mi + 1}/${LS.length}`;
     el.querySelector('#lo-t').textContent = m.text; el.querySelector('#lo-s').textContent = m.sub;
     const box = el.querySelector('#lo-sl'); box.innerHTML = '';
     if (m.type === 'vec') box.append(slider('a', 'x', -8, 8, () => a, (v) => { a = v; }), slider('b', 'y', -8, 8, () => b, (v) => { b = v; }));
@@ -94,8 +112,8 @@ export function lotse(el, ctx) {
   go.addEventListener('click', () => {
     const m = M();
     if (solved) {
-      if (mi < MISSIONS.length - 1) { mi++; load(); return; }
-      ctx.done({ stars: Math.max(1, Math.round(total / MISSIONS.length)) }); return;
+      if (mi < LS.length - 1) { mi++; load(); return; }
+      ctx.done({ stars: Math.max(1, Math.round(total / LS.length)) }); return;
     }
     tries++;
     const E = endPoint(m, a, b), B = goal(m);
@@ -105,8 +123,8 @@ export function lotse(el, ctx) {
       note.innerHTML = m.type === 'vec'
         ? `<div class="note ok"><b>Angekommen.</b> ${tex(`\\overrightarrow{AB}=${V([a, b])}`)} – das ist „Ziel minus Start".</div>`
         : `<div class="note ok"><b>Angekommen.</b> Der Weg ist eine Linearkombination: ${tex(`${ft(a)}\\cdot\\vec u+${b < 0 ? `(${ft(b)})` : ft(b)}\\cdot\\vec v`)}.</div>`;
-      go.textContent = mi < MISSIONS.length - 1 ? 'Nächstes Ziel' : 'Fertig';
-      ctx.progress((mi + 1) / MISSIONS.length);
+      go.textContent = mi < LS.length - 1 ? 'Nächstes Ziel' : 'Fertig';
+      ctx.progress((mi + 1) / LS.length);
     } else {
       sfx('bad');
       const dx = B[0] - E[0], dy = B[1] - E[1];

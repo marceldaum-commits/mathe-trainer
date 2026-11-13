@@ -68,7 +68,39 @@ export function simulate(kind, p, stars, { dt = 1 / 240, tMax = 12 } = {}) {
   return { path, got: [...got], reason, x0 };
 }
 
+const LEICHT = [
+  { kind: 'line', hint: 'm ist die Steigung: negativ heißt, es geht bergab.',
+    params: [{ k: 'm', min: -2, max: 2, step: 0.5, init: 0.5 }], fixed: { b: 4 }, target: { m: -1, b: 4 }, starsX: [-2, 1, 3] },
+  { kind: 'line', hint: 'b schiebt die Gerade nach oben oder unten.',
+    params: [{ k: 'b', min: -1, max: 8, step: 0.5, init: 1 }], fixed: { m: -0.5 }, target: { m: -0.5, b: 5 }, starsX: [-3, 0, 3] },
+  { kind: 'line', hint: 'Erst die Steigung m passend machen, dann mit b die Höhe.',
+    params: [{ k: 'm', min: -2, max: 2, step: 0.5, init: 0.5 }, { k: 'b', min: -1, max: 8, step: 0.5, init: 6 }], target: { m: -1, b: 3 }, starsX: [-3, -1, 2] },
+  { kind: 'par', hint: 'd verschiebt die Parabel nach rechts oder links.',
+    params: [{ k: 'd', min: -4, max: 4, step: 0.5, init: -2 }], fixed: { a: 1, e: 0 }, target: { a: 1, d: 1, e: 0 }, starsX: [-1, 1, 2.5] },
+  { kind: 'par', hint: 'Der tiefste Stern verrät den Scheitel: d nach rechts/links, e nach oben/unten.',
+    params: [{ k: 'd', min: -4, max: 4, step: 0.5, init: 1 }, { k: 'e', min: -1, max: 6, step: 0.5, init: 0 }], fixed: { a: 1 }, target: { a: 1, d: -2, e: 2 }, starsX: [-4, -2, 0] },
+];
+const SCHWER = [
+  { kind: 'line', hint: 'Lies Steigung und Achsenabschnitt an zwei Sternen ab.',
+    params: [{ k: 'm', min: -2, max: 2, step: 0.25, init: 1 }, { k: 'b', min: -1, max: 8, step: 0.25, init: 6 }], target: { m: -0.75, b: 3.5 }, starsX: [-4, 0, 4] },
+  { kind: 'par', hint: 'Scheitel suchen, dann die Breite über a.',
+    params: [{ k: 'a', min: -1, max: 2, step: 0.25, init: 1 }, { k: 'd', min: -4, max: 4, step: 0.5, init: -1 }, { k: 'e', min: -1, max: 6, step: 0.5, init: 3 }],
+    target: { a: 0.5, d: 2, e: -1 }, starsX: [-1, 2, 4] },
+  { kind: 'par', hint: 'Zwei Sterne auf gleicher Höhe liegen symmetrisch zum Scheitel.',
+    params: [{ k: 'a', min: -1, max: 2, step: 0.25, init: 0.25 }, { k: 'd', min: -4, max: 4, step: 0.5, init: 1 }, { k: 'e', min: -1, max: 6, step: 0.5, init: 0 }],
+    target: { a: 0.75, d: -1.5, e: 1.5 }, starsX: [-4, -1.5, 1] },
+  { kind: 'par', hint: 'Eine schmale Parabel braucht ein großes a.',
+    params: [{ k: 'a', min: -1, max: 2, step: 0.25, init: 0.5 }, { k: 'd', min: -4, max: 4, step: 0.5, init: -2 }, { k: 'e', min: -1, max: 6, step: 0.5, init: 4 }],
+    target: { a: 1.5, d: 0.5, e: 0.5 }, starsX: [-1, 0.5, 2] },
+  { kind: 'par', hint: 'Eine breite Parabel braucht ein kleines a.',
+    params: [{ k: 'a', min: -1, max: 2, step: 0.25, init: 1 }, { k: 'd', min: -4, max: 4, step: 0.5, init: -1 }, { k: 'e', min: -1, max: 6, step: 0.5, init: 2 }],
+    target: { a: 0.25, d: 1.5, e: -0.5 }, starsX: [-4, 1.5, 5] },
+];
+/** Eigene Bahnen je Schwierigkeit: leicht (Stufe 1–2), mittel (3), schwer (4–5). */
+export const levelsFor = (lv) => [LEICHT, LEVELS, SCHWER][lv <= 2 ? 0 : lv === 3 ? 1 : 2];
+
 export function murmelbahn(el, ctx) {
+  const LS = levelsFor(store.level);
   let li = 0, p = {}, attempts = 0, totalStars = 0, raf = 0, running = false, collected = new Set(), ball = null, solved = false;
 
   el.innerHTML = `
@@ -83,7 +115,7 @@ export function murmelbahn(el, ctx) {
   const plot = new Plot(el.querySelector('#mb-c'), VIEW);
   const note = el.querySelector('#mb-note'), go = el.querySelector('#mb-go');
 
-  const lvl = () => LEVELS[li];
+  const lvl = () => LS[li];
   const K = () => KINDS[lvl().kind];
   const stars = () => lvl().starsX.map((x) => [x, K().f(lvl().target, x)]);
 
@@ -107,7 +139,7 @@ export function murmelbahn(el, ctx) {
     p = { ...(L.fixed || {}) };
     L.params.forEach((q) => { p[q.k] = q.init; });
     attempts = 0; collected = new Set(); ball = null; solved = false;
-    el.querySelector('#mb-lv').textContent = `${li + 1}/${LEVELS.length}`;
+    el.querySelector('#mb-lv').textContent = `${li + 1}/${LS.length}`;
     el.querySelector('#mb-hint').textContent = store.level >= 4 ? '' : L.hint;
     const box = el.querySelector('#mb-sl');
     box.innerHTML = '';
@@ -155,7 +187,7 @@ export function murmelbahn(el, ctx) {
         const easy = store.level <= 2 ? 2 : 0;
         const s = attempts <= 2 + easy ? 3 : attempts <= 4 + easy ? 2 : 1;
         totalStars += s;
-        const last = li === LEVELS.length - 1;
+        const last = li === LS.length - 1;
         note.innerHTML = `<div class="note ok"><b>Alle Sterne!</b> ${tex(`f(x)=${K().tex(p)}`)} passt genau.</div>`;
         go.textContent = last ? 'Fertig' : 'Nächste Bahn';
       } else {
@@ -172,9 +204,9 @@ export function murmelbahn(el, ctx) {
   }
 
   function next() {
-    if (li < LEVELS.length - 1) { li++; loadLevel(); ctx.progress(li / LEVELS.length); return; }
+    if (li < LS.length - 1) { li++; loadLevel(); ctx.progress(li / LS.length); return; }
     ctx.progress(1);
-    ctx.done({ stars: Math.max(1, Math.round(totalStars / LEVELS.length)) });
+    ctx.done({ stars: Math.max(1, Math.round(totalStars / LS.length)) });
   }
 
   go.addEventListener('click', run);

@@ -17,9 +17,30 @@ export const LEVELS = [
 export const gateTol = (lv) => [0.7, 0.55, 0.45, 0.35, 0.28][lv - 1];
 /** Welche Tore durchfliegt die Kurve mit diesen Werten? */
 export function passed(L, p, lv = 3) { return L.gatesX.map((x) => Math.abs(f(p, x) - f(L.target, x)) <= gateTol(lv)); }
-const sinTex = (p) => `${p.a === 1 ? '' : ft(p.a)}\\sin(${p.b === 1 ? '' : ft(p.b)}x)${p.d === 0 ? '' : `${p.d > 0 ? '+' : '-'}${ft(Math.abs(p.d))}`}`;
+const sinTex = (p) => `${p.a === 1 ? '' : p.a === -1 ? '-' : ft(p.a)}\\sin(${p.b === 1 ? '' : ft(p.b)}x)${p.d === 0 ? '' : `${p.d > 0 ? '+' : '-'}${ft(Math.abs(p.d))}`}`;
+
+const ext = (b, n) => Array.from({ length: n }, (_, k) => +((Math.PI / 2 + k * Math.PI) / b).toFixed(3));
+const A = (init, min = 0.5) => ({ k: 'a', min, max: 4, step: 0.5, init });
+const D = (init) => ({ k: 'd', min: -3, max: 3, step: 0.5, init });
+const B = (init, step = 0.5) => ({ k: 'b', min: 0.5, max: 2, step, init });
+const LEICHT = [
+  { hint: 'a ist die Amplitude: So hoch und so tief schwingt die Kurve.', params: [A(1)], fixed: { b: 1, d: 0 }, target: { a: 2, b: 1, d: 0 }, gatesX: ext(1, 3) },
+  { hint: 'd verschiebt die ganze Kurve nach oben oder unten.', params: [D(0)], fixed: { a: 2, b: 1 }, target: { a: 2, b: 1, d: -1 }, gatesX: ext(1, 3) },
+  { hint: 'Erst die Mitte (d), dann die Höhe (a).', params: [A(1), D(0)], fixed: { b: 1 }, target: { a: 3, b: 1, d: 1 }, gatesX: ext(1, 4) },
+  { hint: 'b staucht die Kurve: Bei b = 2 passen doppelt so viele Wellen ins Bild.', params: [B(1)], fixed: { a: 2, d: 0 }, target: { a: 2, b: 2, d: 0 }, gatesX: ext(2, 4) },
+];
+const SCHWER = [
+  { hint: 'Alle drei Regler: Mitte, Höhe, Wellenlänge.', params: [A(1), B(1, 0.25), D(0)], fixed: {}, target: { a: 2.5, b: 1.5, d: -1 }, gatesX: ext(1.5, 5) },
+  { hint: 'Lange Wellen: b ist kleiner als 1.', params: [A(2), B(1, 0.25), D(0)], fixed: {}, target: { a: 1, b: 0.75, d: 2 }, gatesX: ext(0.75, 3) },
+  { hint: 'Ein negatives a spiegelt die Kurve: Sie beginnt mit einem Tal.', params: [A(1, -4), B(1, 0.25), D(0)], fixed: {}, target: { a: -2, b: 1, d: 1 }, gatesX: ext(1, 4) },
+  { hint: 'Zähle die Wellen und miss die Mitte zwischen Berg und Tal.', params: [A(1, -4), B(1, 0.25), D(0)], fixed: {}, target: { a: 3.5, b: 1.25, d: 0.5 }, gatesX: ext(1.25, 5) },
+  { hint: 'Gespiegelt, gestreckt und verschoben.', params: [A(1, -4), B(1, 0.25), D(0)], fixed: {}, target: { a: -1.5, b: 1.75, d: -2 }, gatesX: ext(1.75, 6) },
+];
+/** Eigene Strecken je Schwierigkeit: leicht (Stufe 1–2), mittel (3), schwer (4–5). */
+export const levelsFor = (lv) => [LEICHT, LEVELS, SCHWER][lv <= 2 ? 0 : lv === 3 ? 1 : 2];
 
 export function flug(el, ctx) {
+  const LS = levelsFor(store.level);
   let li = 0, p = {}, tries = 0, total = 0, solved = false, raf = 0, pos = null, hit = [];
   const tol = gateTol(store.level);
   el.innerHTML = `<div class="stack">
@@ -30,7 +51,7 @@ export function flug(el, ctx) {
     <div class="row"><button class="btn block" id="fg-go" type="button">Abflug!</button></div></div>`;
   const plot = new Plot(el.querySelector('#fg-c'), VIEW, { ratio: 1.35 });
   const note = el.querySelector('#fg-note'), go = el.querySelector('#fg-go');
-  const L = () => LEVELS[li];
+  const L = () => LS[li];
 
   function draw() {
     plot.clear(); plot.grid({ labels: false });
@@ -49,7 +70,7 @@ export function flug(el, ctx) {
   function load() {
     const lv = L(); p = { ...lv.fixed }; lv.params.forEach((q) => { p[q.k] = q.init; });
     tries = 0; solved = false; pos = null; hit = [];
-    el.querySelector('#fg-n').textContent = `${li + 1}/${LEVELS.length}`;
+    el.querySelector('#fg-n').textContent = `${li + 1}/${LS.length}`;
     el.querySelector('#fg-hint').textContent = store.level >= 4 ? '' : lv.hint;
     const box = el.querySelector('#fg-sl'); box.innerHTML = '';
     lv.params.forEach((q) => {
@@ -66,7 +87,7 @@ export function flug(el, ctx) {
   }
 
   go.addEventListener('click', () => {
-    if (solved) { if (li < LEVELS.length - 1) { li++; ctx.progress(li / LEVELS.length); load(); return; } ctx.progress(1); ctx.done({ stars: Math.max(1, Math.round(total / LEVELS.length)) }); return; }
+    if (solved) { if (li < LS.length - 1) { li++; ctx.progress(li / LS.length); load(); return; } ctx.progress(1); ctx.done({ stars: Math.max(1, Math.round(total / LS.length)) }); return; }
     tries++; go.disabled = true; hit = []; sfx('roll');
     const res = passed(L(), p, store.level), gates = L().gatesX;
     let x = 0, crashed = false;
@@ -79,7 +100,7 @@ export function flug(el, ctx) {
         if (!crashed && res.every(Boolean)) {
           solved = true; sfx('ok'); total += tries <= 2 ? 3 : tries <= 4 ? 2 : 1;
           note.innerHTML = `<div class="note ok"><b>Sauber durchgeflogen!</b> ${tex(`f(x)=${sinTex(p)}`)}</div>`;
-          go.textContent = li < LEVELS.length - 1 ? 'Nächste Strecke' : 'Fertig';
+          go.textContent = li < LS.length - 1 ? 'Nächste Strecke' : 'Fertig';
         } else {
           sfx('bad'); const i = res.indexOf(false), dy = f(L().target, gates[i]) - f(p, gates[i]);
           note.innerHTML = `<div class="note tip"><b>Am ${i + 1}. Tor hängen geblieben.</b> Die Kurve liegt dort ${fmt(Math.abs(dy), 1)} zu ${dy > 0 ? 'tief' : 'hoch'}. Verändere die Regler und starte neu.</div>`;

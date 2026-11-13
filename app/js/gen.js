@@ -149,23 +149,24 @@ export function genExp(lv = 3) {
 /** Auswahl-Aufgabe: Produktregel bei (ax+b)·e^{kx}. */
 export function genProdukt(lv = 3) {
   for (;;) {
-    const a = pick([1, 2, 3, -2]), b = pick([1, 2, -1, -3, 4]), k = pick(lv >= 4 ? [2, -2, 3, -1] : [1, 2, -1]);
+    const a = pick(lv <= 1 ? [1, 2] : [1, 2, 3, -2]), b = pick(lv <= 1 ? [1, 2, 4] : [1, 2, -1, -3, 4]), k = pick(tier(lv, [1], [1, 2], [2, -1], [-2, 3, -1], [-2, 3, -3]));
+    const u = lv >= 5 ? [b, pick([0, a]), pick([1, 2, -1])] : [b, a], du = polyDeriv(u).concat(0).slice(0, u.length), U = polyTex(u);
     const E = `e^{${k === 1 ? '' : k === -1 ? '-' : ft(k)}x}`;
     const mk = (coef, correct, why) => ({ tex: `f'(x)=(${polyTex(coef)})\\,${E}`, correct, why, val: (x) => polyEval(coef, x) * Math.exp(k * x) });
     const opts = [
-      mk([a + k * b, k * a], true),
-      mk([a * k], false, `Das ist ${tex("u'\\cdot v'")}. Die Produktregel lautet ${tex("u'v+uv'")}.`),
-      mk([a], false, `Hier fehlt der zweite Teil ${tex("u\\cdot v'")}.`),
-      mk([k * b, k * a], false, `Hier fehlt der erste Teil ${tex("u'\\cdot v")}.`),
+      mk(u.map((c, i) => du[i] + k * c), true),
+      k === 1 ? mk(u.map((c, i) => c - du[i]), false, `Die beiden Teile werden addiert, nicht subtrahiert: ${tex("u'v+uv'")}.`) : mk(du.map((c) => c * k), false, `Das ist ${tex("u'\\cdot v'")}. Die Produktregel lautet ${tex("u'v+uv'")}.`),
+      mk(du, false, `Hier fehlt der zweite Teil ${tex("u\\cdot v'")}.`),
+      mk(u.map((c) => k * c), false, `Hier fehlt der erste Teil ${tex("u'\\cdot v")}.`),
     ];
     if (!uniq(opts)) continue;
     return {
       prompt: 'Welche Ableitung ist richtig?',
-      formula: `f(x)=(${polyTex([b, a])})\\,${E}`,
+      formula: `f(x)=(${U})\\,${E}`,
       options: shuffle(opts),
-      hints: ['Zwei Faktoren mit x: Das ist ein Fall für die Produktregel.', `${tex("(u\\cdot v)'=u'v+uv'")} mit ${tex(`u=${polyTex([b, a])}`)} und ${tex(`v=${E}`)}.`, `${tex(`u'=${ft(a)}`)} und ${tex(`v'=${ft(k)}${E}`)}.`],
-      explain: `Produktregel: ${tex(`f'(x)=${ft(a)}\\cdot ${E}+(${polyTex([b, a])})\\cdot${par(k)}${E}=(${polyTex([a + k * b, k * a])})\\,${E}`)}.`,
-      f: (x) => (a * x + b) * Math.exp(k * x),
+      hints: ['Zwei Faktoren mit x: Das ist ein Fall für die Produktregel.', `${tex("(u\\cdot v)'=u'v+uv'")} mit ${tex(`u=${U}`)} und ${tex(`v=${E}`)}.`, `${tex(`u'=${polyTex(du)}`)} und ${tex(`v'=${ft(k)}${E}`)}.`],
+      explain: `Produktregel: ${tex(`f'(x)=(${polyTex(du)})\\cdot ${E}+(${U})\\cdot${par(k)}${E}=(${polyTex(u.map((c, i) => du[i] + k * c))})\\,${E}`)}.`,
+      f: (x) => polyEval(u, x) * Math.exp(k * x),
     };
   }
 }
@@ -273,8 +274,8 @@ export function genStammfunktion(lv = 3) {
 /** Bestimmtes Integral berechnen. */
 export function genIntegral(lv = 3) {
   for (;;) {
-    const { F, f } = stammPoly(Math.min(lv, 3));
-    const a = lv <= 2 ? 1 : pick([0, 1, -1]), b = a + ri(1, tier(lv, 2, 2, 3, 3, 4));
+    const { F, f } = stammPoly(lv);
+    const a = lv <= 2 ? 1 : pick(tier(lv, [1], [1], [0, 1, -1], [-1, -2, 1], [-2, -3, -1])), b = a + ri(tier(lv, 1, 1, 1, 2, 3), tier(lv, 2, 2, 3, 3, 4));
     const Fa = polyEval(F, a), Fb = polyEval(F, b);
     const mk = (num, correct, why) => ({ tex: ft(num), correct, why, num });
     const opts = [

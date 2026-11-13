@@ -1,5 +1,6 @@
 // Raum-Blick: ein drehbares 3D-Koordinatensystem. Geraden von allen Seiten ansehen.
 import { h, tex, cssVar, buzz, sfx, onLook } from '../ui.js';
+import { store } from '../store.js';
 
 const V = (v) => `\\begin{pmatrix}${v.join('\\\\')}\\end{pmatrix}`;
 const lineTex = (name, P, u, par) => `${name}:\\ \\vec x=${V(P)}+${par}\\cdot${V(u)}`;
@@ -21,7 +22,22 @@ export function alignment(u, yaw, pitch) {
   return Math.abs(d[0] * u[0] + d[1] * u[1] + d[2] * u[2]) / Math.hypot(...u);
 }
 
+const LEICHT = [
+  { type: 'look', lines: [{ P: [0, 0, 1], u: [1, 1, 0] }], text: 'Dreh den Raum so, dass du genau entlang der Geraden schaust.', sub: 'Die Gerade liegt waagerecht. Schau ihr „in den Lauf" – dann schrumpft sie zu einem Punkt.' },
+  { type: 'ask', lines: [{ P: [-2, -2, 0], u: [1, 1, 1] }, { P: [2, -2, 0], u: [-1, 1, 1] }], answer: 'schnitt', text: 'Schneiden sich die beiden Geraden?', sub: 'Dreh den Raum und sieh von mehreren Seiten hin.' },
+  { type: 'ask', lines: [{ P: [-3, 0, 0], u: [1, 0, 0] }, { P: [0, -3, 2], u: [0, 1, 0] }], answer: 'windschief', text: 'Und diese beiden?', sub: 'Die eine liegt am Boden, die andere zwei Einheiten darüber.' },
+];
+const SCHWER = [
+  { type: 'look', lines: [{ P: [-1, 2, 0], u: [1, -2, 2] }], text: 'Dreh den Raum so, dass du genau entlang der Geraden schaust.', sub: 'Der Richtungsvektor zeigt schräg nach oben.' },
+  { type: 'ask', lines: [{ P: [1, -2, 0], u: [1, 2, 1] }, { P: [-1, 1, 3], u: [2, -1, -1] }], answer: 'windschief', text: 'Schneiden sich die beiden Geraden?', sub: 'Von oben sieht es nach einem Schnittpunkt aus.' },
+  { type: 'ask', lines: [{ P: [-3, 1, 2], u: [2, -1, 1] }, { P: [2, 3, 0], u: [-1, -3, 3] }], answer: 'schnitt', text: 'Und diese beiden?', sub: 'Rechne im Kopf mit: Gibt es passende t und s?' },
+  { type: 'ask', lines: [{ P: [-2, -1, 3], u: [2, 1, -1] }, { P: [0, 2, -1], u: [1, -2, 2] }], answer: 'windschief', text: 'Letztes Paar.', sub: 'Ein echter Schnittpunkt bleibt aus jeder Blickrichtung ein Schnittpunkt.' },
+];
+/** Eigene Aufträge je Schwierigkeit: leicht (Stufe 1–2), mittel (3), schwer (4–5). */
+export const levelsFor = (lv) => [LEICHT, MISSIONS, SCHWER][lv <= 2 ? 0 : lv === 3 ? 1 : 2];
+
 export function raum(el, ctx) {
+  const LS = levelsFor(store.level);
   let mi = 0, yaw = -0.9, pitch = 0.45, hold = 0, wrong = 0, done = false, drag = null;
 
   el.innerHTML = `
@@ -34,7 +50,7 @@ export function raum(el, ctx) {
       <div class="row" id="rm-next" hidden><button class="btn block" type="button">Weiter</button></div>
     </div>`;
   const cv = el.querySelector('#rm-c'), g = cv.getContext('2d'), note = el.querySelector('#rm-note'), body = el.querySelector('#rm-body'), nextRow = el.querySelector('#rm-next');
-  const M = () => MISSIONS[mi];
+  const M = () => LS[mi];
   let W = 300, H = 300;
   const ro = new ResizeObserver(() => { size(); draw(); }); ro.observe(cv);
   const offLook = onLook(() => draw());
@@ -71,7 +87,7 @@ export function raum(el, ctx) {
   function setMission() {
     const m = M();
     done = false; hold = 0;
-    el.querySelector('#rm-n').textContent = `${mi + 1}/${MISSIONS.length}`;
+    el.querySelector('#rm-n').textContent = `${mi + 1}/${LS.length}`;
     el.querySelector('#rm-t').textContent = m.text; el.querySelector('#rm-s').textContent = m.sub;
     el.querySelector('#rm-f').innerHTML = m.lines.map((ln, i) => tex(lineTex('gh'[i], ln.P, ln.u, 'ts'[i]))).join('<br>');
     note.innerHTML = ''; nextRow.hidden = true; body.replaceChildren();
@@ -83,7 +99,7 @@ export function raum(el, ctx) {
         b.addEventListener('click', () => {
           if (done) return;
           if (key === m.answer) {
-            done = true; b.classList.add('right'); buzz(20); nextRow.hidden = false; ctx.progress((mi + 1) / MISSIONS.length);
+            done = true; b.classList.add('right'); buzz(20); nextRow.hidden = false; ctx.progress((mi + 1) / LS.length);
             note.innerHTML = `<div class="note ok"><b>Richtig.</b> ${m.answer === 'windschief' ? 'Die Geraden haben keinen gemeinsamen Punkt und sind nicht parallel: windschief. Rechnerisch führt Gleichsetzen zu einem Widerspruch.' : 'Egal wie du drehst, die Geraden treffen sich. Rechnerisch hat das Gleichsetzen eine Lösung.'}</div>`;
           } else {
             wrong++; sfx('bad'); b.classList.add('wrong');
@@ -102,7 +118,7 @@ export function raum(el, ctx) {
     if (alignment(M().lines[0].u, yaw, pitch) < 0.985) { hold = 0; return; }
     if (!hold) { hold = performance.now(); return; }
     if (performance.now() - hold < 350) return;
-    done = true; buzz(20); nextRow.hidden = false; ctx.progress((mi + 1) / MISSIONS.length);
+    done = true; buzz(20); nextRow.hidden = false; ctx.progress((mi + 1) / LS.length);
     note.innerHTML = `<div class="note ok"><b>Genau so.</b> Du schaust jetzt in Richtung ${tex(V(M().lines[0].u))}. Der Richtungsvektor legt fest, wohin die Gerade läuft – der Stützpunkt nur, wo sie liegt.</div>`;
   }
   /** Für Tastatur und Tests: Blickwinkel direkt setzen. */
@@ -123,7 +139,7 @@ export function raum(el, ctx) {
   });
 
   nextRow.querySelector('button').addEventListener('click', () => {
-    if (mi < MISSIONS.length - 1) { mi++; setMission(); return; }
+    if (mi < LS.length - 1) { mi++; setMission(); return; }
     ctx.done({ stars: wrong === 0 ? 3 : wrong === 1 ? 2 : 1, mistakes: wrong });
   });
 

@@ -38,7 +38,21 @@ export function grade(round, ys, lv = 3) {
   return { coverage, stars, err: mean, wrong };
 }
 
+const LEICHT = [
+  { tex: 'f(x)=0{,}5x', f: (x) => 0.5 * x, d: () => 0.5, tip: 'Eine Gerade steigt überall gleich – die Ableitung ist eine waagerechte Linie.' },
+  { tex: 'f(x)=0{,}2x^2-1{,}5', f: (x) => 0.2 * x * x - 1.5, d: (x) => 0.4 * x, tip: 'Links fällt der Graph, rechts steigt er – und zwar immer steiler.' },
+  { tex: 'f(x)=-0{,}25x^2+1{,}5', f: (x) => -0.25 * x * x + 1.5, d: (x) => -0.5 * x, tip: 'Links steigt der Graph, rechts fällt er. Am Hochpunkt ist die Steigung 0.' },
+];
+const SCHWER = [
+  { tex: 'f(x)=\\tfrac1{32}x^4-\\tfrac12x^2', f: (x) => x ** 4 / 32 - x * x / 2, d: (x) => x ** 3 / 8 - x, tip: 'Drei Extrempunkte: Dort schneidet die Ableitung die x-Achse.' },
+  { tex: 'f(x)=1{,}2\\cos(x)', f: (x) => 1.2 * Math.cos(x), d: (x) => -1.2 * Math.sin(x), tip: 'Bei x = 0 liegt ein Hochpunkt. Danach fällt der Graph.' },
+  { tex: 'f(x)=0{,}5e^{0{,}5x}-2', f: (x) => 0.5 * Math.exp(0.5 * x) - 2, d: (x) => 0.25 * Math.exp(0.5 * x), tip: 'Der Graph steigt überall – und immer schneller.' },
+];
+/** Eigene Funktionen je Schwierigkeit: leicht (Stufe 1–2), mittel (3), schwer (4–5). */
+export const levelsFor = (lv) => [LEICHT, ROUNDS, SCHWER][lv <= 2 ? 0 : lv === 3 ? 1 : 2];
+
 export function zeichnen(el, ctx) {
+  const LS = levelsFor(store.level);
   let ri = 0, ys = new Float32Array(N).fill(NaN), last = null, drawing = false, checked = null, sum = 0, tries = 0;
 
   el.innerHTML = `
@@ -53,7 +67,7 @@ export function zeichnen(el, ctx) {
   const dc = el.querySelector('#z-d');
   const dp = new Plot(dc, VIEW);
   const note = el.querySelector('#z-note'), btn = el.querySelector('#z-check'), clr = el.querySelector('#z-clear');
-  const R = () => ROUNDS[ri];
+  const R = () => LS[ri];
 
   function draw() {
     fp.clear(); fp.grid(); fp.fn(R().f, { width: 4 });
@@ -72,7 +86,7 @@ export function zeichnen(el, ctx) {
 
   function load() {
     ys = new Float32Array(N).fill(NaN); checked = null; tries = 0;
-    el.querySelector('#z-n').textContent = `${ri + 1}/${ROUNDS.length}`;
+    el.querySelector('#z-n').textContent = `${ri + 1}/${LS.length}`;
     el.querySelector('#z-tip').textContent = store.level >= 5 ? '' : R().tip;
     el.querySelector('#z-fx').innerHTML = tex(R().tex);
     note.innerHTML = ''; btn.textContent = 'Prüfen'; btn.disabled = true; clr.hidden = false;
@@ -107,8 +121,8 @@ export function zeichnen(el, ctx) {
     if (checked) {
       if (checked.stars === 0) { ys.fill(NaN); checked = null; note.innerHTML = ''; btn.textContent = 'Prüfen'; btn.disabled = true; clr.hidden = false; draw(); return; }
       sum += Math.max(1, checked.stars - Math.min(1, tries - 1));
-      if (ri < ROUNDS.length - 1) { ri++; ctx.progress(ri / ROUNDS.length); load(); return; }
-      ctx.progress(1); ctx.done({ stars: Math.max(1, Math.round(sum / ROUNDS.length)) });
+      if (ri < LS.length - 1) { ri++; ctx.progress(ri / LS.length); load(); return; }
+      ctx.progress(1); ctx.done({ stars: Math.max(1, Math.round(sum / LS.length)) });
       return;
     }
     tries++;
@@ -122,7 +136,7 @@ export function zeichnen(el, ctx) {
     else if (checked.stars > 0) msg = 'Der Verlauf stimmt. Vergleiche die Höhe mit der grünen Kurve: Je steiler f, desto größer der Betrag von f′.';
     else msg = 'Das passt noch nicht. Schau, wo f steigt (f′ positiv), fällt (f′ negativ) und wo ein Hoch- oder Tiefpunkt liegt (f′ = 0).';
     note.innerHTML = `<div class="note ${checked.stars ? 'ok' : 'tip'}"><b>${checked.stars ? 'Grün ist die richtige Ableitung.' : 'Noch einmal.'}</b> ${msg}</div>`;
-    btn.textContent = checked.stars ? (ri < ROUNDS.length - 1 ? 'Nächste Funktion' : 'Fertig') : 'Nochmal zeichnen';
+    btn.textContent = checked.stars ? (ri < LS.length - 1 ? 'Nächste Funktion' : 'Fertig') : 'Nochmal zeichnen';
     draw();
   });
 

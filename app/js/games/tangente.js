@@ -37,7 +37,51 @@ export function hit(level, mission, x, found, lv = 3) {
   return Math.abs(m - mission.m) < 0.12 * k ? 0 : -1;
 }
 
+const LEICHT = [
+  {
+    tex: 'f(x)=\\tfrac12x^2-1{,}5', f: (x) => x * x / 2 - 1.5, d: (x) => x,
+    view: { x0: -3, x1: 3, y0: -3, y1: 3 }, dview: { x0: -3, x1: 3, y0: -4, y1: 4 }, start: -2.2,
+    missions: [
+      { text: 'Finde die Stelle, an der die Tangente waagerecht liegt.', sub: 'Dort ist die Steigung 0 – im tiefsten Punkt.', type: 'zero', xs: [0] },
+      { text: 'Finde die Stelle mit der Steigung 2.', sub: 'Rechts vom Tiefpunkt geht es bergauf.', type: 'slope', m: 2 },
+      { text: 'Finde die Stelle mit der Steigung −1.', sub: 'Negative Steigung heißt: Es geht bergab.', type: 'slope', m: -1 },
+    ],
+  },
+  {
+    tex: 'f(x)=-\\tfrac14x^2+x+1', f: (x) => -x * x / 4 + x + 1, d: (x) => -x / 2 + 1,
+    view: { x0: -2.6, x1: 4.6, y0: -3.6, y1: 2.8 }, dview: { x0: -2.6, x1: 4.6, y0: -2, y1: 3 }, start: -1.8,
+    missions: [
+      { text: 'Finde den höchsten Punkt.', sub: 'Dort liegt die Tangente waagerecht.', type: 'zero', xs: [2] },
+      { text: 'Finde die Stelle mit der Steigung 2.', sub: 'Links vom Hochpunkt ist der Graph am steilsten.', type: 'slope', m: 2 },
+      { text: 'Finde die Stelle mit der Steigung −1.', sub: 'Rechts vom Hochpunkt fällt der Graph.', type: 'slope', m: -1 },
+    ],
+  },
+];
+const SCHWER = [
+  {
+    tex: 'f(x)=2\\sin(1{,}5x)', f: (x) => 2 * Math.sin(1.5 * x), d: (x) => 3 * Math.cos(1.5 * x),
+    view: { x0: -2.6, x1: 2.6, y0: -3, y1: 3 }, dview: { x0: -2.6, x1: 2.6, y0: -4, y1: 4 }, start: -2,
+    missions: [
+      { text: 'Sammle beide Stellen mit waagerechter Tangente.', sub: 'Ein Tal und ein Berg.', type: 'zero', xs: [-Math.PI / 3, Math.PI / 3] },
+      { text: 'Finde die Stelle mit dem steilsten Anstieg.', sub: 'Dort hat die Ableitung ihren größten Wert.', type: 'at', xs: [0], tol: 0.12 },
+      { text: 'Finde eine Stelle mit der Steigung −1,5.', sub: 'Hinter dem Berg geht es bergab.', type: 'slope', m: -1.5 },
+    ],
+  },
+  {
+    tex: 'f(x)=\\tfrac13x^3-\\tfrac12x^2-2x', f: (x) => x ** 3 / 3 - x * x / 2 - 2 * x, d: (x) => x * x - x - 2,
+    view: { x0: -2.6, x1: 3.5, y0: -4.6, y1: 2.6 }, dview: { x0: -2.6, x1: 3.5, y0: -3, y1: 7 }, start: -2.2,
+    missions: [
+      { text: 'Sammle alle Stellen mit waagerechter Tangente.', sub: 'Die Extremstellen liegen nicht symmetrisch.', type: 'zero', xs: [-1, 2] },
+      { text: 'Finde die Stelle mit dem steilsten Gefälle.', sub: 'Das ist die Wendestelle.', type: 'at', xs: [0.5], tol: 0.12 },
+      { text: 'Finde eine Stelle mit der Steigung 4.', sub: 'Es gibt zwei davon – eine genügt.', type: 'slope', m: 4 },
+    ],
+  },
+];
+/** Eigene Kurven je Schwierigkeit: leicht (Stufe 1–2), mittel (3), schwer (4–5). */
+export const levelsFor = (lv) => [LEICHT, LEVELS, SCHWER][lv <= 2 ? 0 : lv === 3 ? 1 : 2];
+
 export function tangente(el, ctx) {
+  const LS = levelsFor(store.level);
   let li = 0, mi = 0, x = 0, found = new Set(), trace = [], hold = 0, holdIdx = -1, dragging = false, revealed = false, slips = 0;
 
   el.innerHTML = `
@@ -53,10 +97,10 @@ export function tangente(el, ctx) {
   let plot, dplot;
   const note = el.querySelector('#tg-note'), nextRow = el.querySelector('#tg-next');
 
-  const L = () => LEVELS[li];
+  const L = () => LS[li];
   const M = () => L().missions[mi];
-  const totalMissions = LEVELS.reduce((s, l) => s + l.missions.length, 0);
-  const doneMissions = () => LEVELS.slice(0, li).reduce((s, l) => s + l.missions.length, 0) + mi;
+  const totalMissions = LS.reduce((s, l) => s + l.missions.length, 0);
+  const doneMissions = () => LS.slice(0, li).reduce((s, l) => s + l.missions.length, 0) + mi;
 
   function draw() {
     const lv = L(), m = lv.d(x), y = lv.f(x);
@@ -155,7 +199,7 @@ export function tangente(el, ctx) {
 
   nextRow.querySelector('button').addEventListener('click', () => {
     if (mi < L().missions.length - 1) { mi++; setMission(); return; }
-    if (li < LEVELS.length - 1) { li++; loadLevel(); return; }
+    if (li < LS.length - 1) { li++; loadLevel(); return; }
     ctx.done({ stars: 3 - Math.min(2, slips) });
   });
 

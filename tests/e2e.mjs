@@ -3,18 +3,13 @@
 import { createRequire } from 'node:module';
 const { chromium, devices } = createRequire(import.meta.url)('playwright');
 globalThis.window = { katex: { renderToString: (s) => s } };
-const { LEVELS: MB } = await import('../app/js/games/murmelbahn.js');
-const { LEVELS: TG } = await import('../app/js/games/tangente.js');
-const { ROUNDS: ZR } = await import('../app/js/games/zeichnen.js');
-const { UNITS } = await import('../app/js/units.js');
-const { LEVELS: FL } = await import('../app/js/games/flaeche.js');
-const { MISSIONS: LB } = await import('../app/js/games/labor.js');
-const { MISSIONS: LO } = await import('../app/js/games/lotse.js');
-const { LEVELS: WK } = await import('../app/js/games/werkstatt.js');
-const { MISSIONS: RM, lookAlong } = await import('../app/js/games/raum.js');
-const { LEVELS: FG } = await import('../app/js/games/flug.js');
-const { BADGES } = await import('../app/js/badges.js');
 const LEVEL = +(process.env.LEVEL || 3);
+const game = async (name) => (await import(`../app/js/games/${name}.js`)).levelsFor(LEVEL);   // jede Schwierigkeit hat eigene Level
+const { UNITS } = await import('../app/js/units.js');
+const { lookAlong } = await import('../app/js/games/raum.js');
+const MB = await game('murmelbahn'), TG = await game('tangente'), ZR = await game('zeichnen'), FL = await game('flaeche'), LB = await game('labor');
+const LO = await game('lotse'), WK = await game('werkstatt'), RM = await game('raum'), FG = await game('flug');
+const { BADGES } = await import('../app/js/badges.js');
 const BASE = process.env.BASE || 'http://localhost:8123/';
 const shots = process.argv[2];
 

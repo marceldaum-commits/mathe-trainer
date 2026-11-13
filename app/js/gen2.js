@@ -207,25 +207,26 @@ export function genSteckbrief(lv = 3) {
 
 /** Funktionenschar: Tiefpunkt in Abhängigkeit vom Parameter. */
 export function genSchar(lv = 3) {
-  const kub = lv >= 4 && rand() < 0.5;
+  const kub = lv >= 5 || (lv === 4 && rand() < 0.5);
   const O = (xt, yt, fn, correct, why) => ({ tex: `T(${xt}\\mid ${yt})`, fn, correct, why });
   if (kub) {
-    const f = (k) => (x) => x ** 3 - 3 * k * k * x;
+    const c = pick(lv >= 5 ? [1, 2, -1, -3, 4] : [0, 1, -2]), C = c === 0 ? '' : `${c > 0 ? '+' : '-'}${Math.abs(c)}`;
+    const f = (k) => (x) => x ** 3 - 3 * k * k * x + c;
     return {
       prompt: `Wo liegt der Tiefpunkt des Graphen für ${tex('k>0')}?`,
-      formula: 'f_k(x)=x^3-3k^2x',
+      formula: `f_k(x)=x^3-3k^2x${C}`,
       options: shuffle([
-        O('k', '-2k^3', (k) => [k, -2 * (k ** 3)], true),
-        O('-k', '2k^3', (k) => [-k, 2 * k ** 3], false, `Das ist der Hochpunkt: ${tex("f_k''(-k)=-6k<0")}.`),
-        O('k', '2k^3', (k) => [k, 2 * k ** 3], false, `Einsetzen: ${tex('k^3-3k^2\\cdot k=-2k^3')}.`),
-        O('k', '-k^3', (k) => [k, -(k ** 3)], false, `Einsetzen: ${tex('k^3-3k^3=-2k^3')}.`),
+        O('k', `-2k^3${C}`, (k) => [k, -2 * (k ** 3) + c], true),
+        O('-k', `2k^3${C}`, (k) => [-k, 2 * k ** 3 + c], false, `Das ist der Hochpunkt: ${tex("f_k''(-k)=-6k<0")}.`),
+        O('k', `2k^3${C}`, (k) => [k, 2 * k ** 3 + c], false, `Einsetzen: ${tex('k^3-3k^2\\cdot k=-2k^3')}.`),
+        O('k', `-k^3${C}`, (k) => [k, -(k ** 3) + c], false, `Einsetzen: ${tex('k^3-3k^3=-2k^3')}.`),
       ]),
       hints: [`${tex("f_k'(x)=3x^2-3k^2=0")} liefert ${tex('x=\\pm k')}.`, `${tex("f_k''(x)=6x")}: bei ${tex('x=k')} positiv, also Tiefpunkt.`],
-      explain: `${tex("f_k'(x)=0")} bei ${tex('x=\\pm k')}; ${tex("f_k''(k)=6k>0")}, also Tiefpunkt ${tex('T(k\\mid -2k^3)')}.`,
+      explain: `${tex("f_k'(x)=0")} bei ${tex('x=\\pm k')}; ${tex("f_k''(k)=6k>0")}, also Tiefpunkt ${tex(`T(k\\mid -2k^3${C})`)}.`,
       f, min: true,
     };
   }
-  const a = lv <= 1 ? 1 : pick([1, 2, 3]), c = pick(lv <= 2 ? [0, 1, 4] : [0, 1, -2, 4]);
+  const a = lv <= 1 ? 1 : pick(lv >= 4 ? [2, 3, 4, 5] : [1, 2, 3]), c = pick(tier(lv, [0, 1, 2], [0, 1, 4], [1, -2, 4], [-3, 5, -6, 7], [0]));
   const ak = `${a === 1 ? '' : a}k`, a2 = a * a === 1 ? '' : a * a;
   const yT = (sign) => `${c === 0 ? '' : c}${sign}${a2}k^2`.replace(/^\+/, '');
   const f = (k) => (x) => x * x - 2 * a * k * x + c;
@@ -278,9 +279,23 @@ export function genExtremwert(lv = 3) {
 export function genLn(lv = 3) {
   const F = (t, val, correct, why) => ({ tex: `f'(x)=${t}`, val, correct, why });
   if (lv >= 4 && rand() < 0.5) {
-    return { prompt: 'Welche Ableitung ist richtig?', formula: 'f(x)=x\\cdot\\ln(x)', domain: 'pos', f: (x) => x * Math.log(x),
+    const n = lv >= 5 ? pick([2, 3, 4]) : pick([1, 2]);
+    if (n === 1) return { prompt: 'Welche Ableitung ist richtig?', formula: 'f(x)=x\\cdot\\ln(x)', domain: 'pos', f: (x) => x * Math.log(x),
       options: shuffle([F('\\ln(x)+1', (x) => Math.log(x) + 1, true), F('\\dfrac{1}{x}', (x) => 1 / x, false, `Das ist ${tex("u'\\cdot v'")}. Produktregel: ${tex("u'v+uv'")}.`), F('\\ln(x)', (x) => Math.log(x), false, `Der zweite Teil fehlt: ${tex('x\\cdot\\tfrac1x=1')}.`), F('1+\\dfrac{1}{x}', (x) => 1 + 1 / x, false, `${tex("u'v=1\\cdot\\ln(x)")} und ${tex("uv'=x\\cdot\\tfrac1x=1")}.`)]),
       hints: ['Zwei Faktoren mit x: Produktregel.', `${tex("(\\ln x)'=\\tfrac1x")}.`], explain: `Produktregel: ${tex("f'(x)=1\\cdot\\ln(x)+x\\cdot\\tfrac1x=\\ln(x)+1")}.` };
+    const P = (e) => (e === 1 ? 'x' : `x^{${e}}`), m = n - 1;
+    return { prompt: 'Welche Ableitung ist richtig?', formula: `f(x)=${P(n)}\\cdot\\ln(x)`, domain: 'pos', f: (x) => x ** n * Math.log(x),
+      options: shuffle([F(`${n}${P(m)}\\ln(x)+${P(m)}`, (x) => n * x ** m * Math.log(x) + x ** m, true),
+        F(`${n}${m === 1 ? '' : P(m - 1)}`, (x) => n * x ** (m - 1), false, `Das ist ${tex("u'\\cdot v'")}. Produktregel: ${tex("u'v+uv'")}.`),
+        F(`${n}${P(m)}\\ln(x)`, (x) => n * x ** m * Math.log(x), false, `Der zweite Teil fehlt: ${tex(`${P(n)}\\cdot\\tfrac1x=${P(m)}`)}.`),
+        F(`${n}${P(m)}\\ln(x)+${P(n)}`, (x) => n * x ** m * Math.log(x) + x ** n, false, `Im zweiten Teil steht ${tex(`${P(n)}\\cdot\\tfrac1x`)} – das lässt sich kürzen.`)]),
+      hints: ['Zwei Faktoren mit x: Produktregel.', `${tex(`u'=${n}${P(m)}`)} und ${tex("v'=\\tfrac1x")}.`], explain: `Produktregel: ${tex(`f'(x)=${n}${P(m)}\\ln(x)+${P(n)}\\cdot\\tfrac1x=${n}${P(m)}\\ln(x)+${P(m)}`)}.` };
+  }
+  if (lv >= 4) {
+    const a = pick([1, 2, 3]), b = pick(lv >= 5 ? [1, 3, 5, 7] : [1, 2, 4]), inner = polyTex([b, 0, a]), q = (x) => a * x * x + b;
+    return { prompt: 'Welche Ableitung ist richtig?', formula: `f(x)=\\ln(${inner})`, domain: 'pos', f: (x) => Math.log(q(x)),
+      options: shuffle([F(dfrac(`${2 * a}x`, inner), (x) => (2 * a * x) / q(x), true), F(dfrac(1, inner), (x) => 1 / q(x), false, `Die innere Ableitung ${tex(`${2 * a}x`)} fehlt (Kettenregel).`), F(dfrac(1, `${2 * a}x`), (x) => 1 / (2 * a * x), false, 'Im Nenner bleibt die innere Funktion selbst stehen, nicht ihre Ableitung.'), F(dfrac(`${a === 1 ? '' : a}x`, inner), (x) => (a * x) / q(x), false, `Die innere Ableitung ist ${tex(`${2 * a}x`)} – der Exponent 2 kommt als Faktor nach vorn.`)]),
+      hints: [`${tex("(\\ln x)'=\\tfrac1x")} – und innen steht nicht nur x.`, `Kettenregel: innere Ableitung ${tex(`${2 * a}x`)} in den Zähler.`], explain: `Kettenregel: ${tex(`f'(x)=\\dfrac{1}{${inner}}\\cdot${2 * a}x=${dfrac(`${2 * a}x`, inner)}`)}.` };
   }
   if (lv <= 2) {
     const c = pick([2, 3, 4, 5]);
@@ -431,9 +446,10 @@ export function genSigma(lv = 3) {
   const O = (r, correct, why) => ({ tex: `[${ft(mu - r)};\\ ${ft(mu + r)}]`, lo: mu - r, hi: mu + r, correct, why });
   const opts = [1, 2, 3].map((j) => O(j * sg, j === k, `Das ist die ${j}σ-Umgebung mit etwa ${PCT[j]} %.`));
   opts.push({ tex: `[${ft(-k * sg)};\\ ${ft(k * sg)}]`, lo: -k * sg, hi: k * sg, correct: false, why: `Die Umgebung liegt um den Erwartungswert ${tex('\\mu')}, nicht um 0.` });
-  return { prompt: `${tex('X')} ist binomialverteilt. In welchem Intervall liegt die Trefferzahl mit etwa <b>${PCT[k]} %</b> Wahrscheinlichkeit?`,
+  const out = lv >= 5 || (lv === 4 && rand() < 0.5), OUT = { 1: '31,7', 2: '4,6', 3: '0,3' };
+  return { prompt: out ? `${tex('X')} ist binomialverteilt. Nur mit etwa <b>${OUT[k]} %</b> Wahrscheinlichkeit liegt die Trefferzahl <b>außerhalb</b> eines dieser Intervalle. Außerhalb von welchem?` : `${tex('X')} ist binomialverteilt. In welchem Intervall liegt die Trefferzahl mit etwa <b>${PCT[k]} %</b> Wahrscheinlichkeit?`,
     formula: lv <= 2 ? `\\mu=${mu},\\quad\\sigma=${sg}` : `n=${n},\\quad p=${ft(p)}`, options: shuffle(opts),
-    hints: [`${tex('\\mu=n\\,p')} und ${tex('\\sigma=\\sqrt{n\\,p\\,(1-p)}')}.`, 'Sigma-Regeln: 1σ ≈ 68,3 %, 2σ ≈ 95,4 %, 3σ ≈ 99,7 %.'],
+    hints: [`${tex('\\mu=n\\,p')} und ${tex('\\sigma=\\sqrt{n\\,p\\,(1-p)}')}.`, out ? `Außerhalb heißt: 100 % minus die Wahrscheinlichkeit innerhalb. ${OUT[k]} % außerhalb bedeutet ${PCT[k]} % innerhalb.` : 'Sigma-Regeln: 1σ ≈ 68,3 %, 2σ ≈ 95,4 %, 3σ ≈ 99,7 %.'],
     explain: `${tex(`\\mu=${mu}`)}, ${tex(`\\sigma=${sg}`)}; die ${k}σ-Umgebung ist ${tex(`[${mu}-${k * sg};\\ ${mu}+${k * sg}]=[${mu - k * sg};\\ ${mu + k * sg}]`)}.`, n, p, k };
 }
 
