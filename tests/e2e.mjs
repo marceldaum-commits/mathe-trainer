@@ -324,7 +324,7 @@ if (!wegGesehen) fail('Rechenweg Schritt für Schritt wurde nach Fehlversuchen n
 await page.goto(`${BASE}#/lernen`); await page.waitForSelector('a[href="#/einstufung/ergebnis"]'); await page.click('a[href="#/einstufung/ergebnis"]');
 await page.waitForSelector('#es-go'); await page.click('#es-go'); await page.waitForSelector('#stage .q');
 if (await page.locator('#q-in').count()) fail('Einstufung: muss Auswahl-Aufgaben stellen');
-await quiz('.es-area');
+await quiz('.es-area[data-a="analysis"]');
 if ((await page.locator('.es-area').count()) !== 3 || !/von 12 auf Anhieb/.test(await page.textContent('h1'))) fail('Einstufung: Ergebnis unvollständig');
 await shot('71-einstufung');
 if (await page.locator('#es-lv').count()) { await page.click('#es-lv'); await page.waitForSelector('.note.ok'); }
