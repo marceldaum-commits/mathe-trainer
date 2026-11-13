@@ -21,6 +21,15 @@ const want = `const ASSETS = ${JSON.stringify(assets, null, 2)};`;
 const wantCache = `const CACHE = 'mt-${version}';`;
 
 const errors = [];
+// Datum der Version: Wird die VERSION erhöht (sw.js trägt noch die alte), setzt --fix das heutige Datum (deutsche Zeit).
+const cfgPath = join(APP, 'js/config.js');
+let cfg = readFileSync(cfgPath, 'utf8');
+const stand = cfg.match(/STAND = '([^']*)'/)?.[1];
+const heute = new Intl.DateTimeFormat('de-DE', { timeZone: 'Europe/Berlin', day: '2-digit', month: '2-digit', year: 'numeric' }).format(new Date());
+if (fix && (!sw.includes(wantCache) || !/^\d{2}\.\d{2}\.\d{4}$/.test(stand || '')) && stand !== heute) {
+  cfg = cfg.replace(/STAND = '[^']*'/, `STAND = '${heute}'`); writeFileSync(cfgPath, cfg); console.log(`config.js: Datum der Version auf ${heute} gesetzt`);
+}
+if (!fix && !/^\d{2}\.\d{2}\.\d{4}$/.test(stand || '')) errors.push('STAND in app/js/config.js fehlt oder hat nicht das Format TT.MM.JJJJ → npm run fix');
 if (fix) {
   sw = sw.replace(/const ASSETS = \[[\s\S]*?\];/, want).replace(/const CACHE = '[^']*';/, wantCache);
   writeFileSync(swPath, sw);

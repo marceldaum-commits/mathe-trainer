@@ -5,7 +5,7 @@ import { initMelden } from './melden.js';
 import { einstufungView, einstufungErgebnis, verbundView, planView, planNow, zertifikatView, areaDone } from './plus.js';
 import { mixOf } from './gen.js';
 import { store, LEVELS } from './store.js';
-import { CONFIG, VERSION } from './config.js';
+import { CONFIG, VERSION, STAND } from './config.js';
 import { $, h, esc, ICON, starsHtml, toast, sfx, sound, confetti, look } from './ui.js';
 import { abiView, rundeView, blitzView } from './exam.js';
 import { checkBadges, titleOf } from './badges.js';
@@ -75,7 +75,7 @@ const footer = () => `<footer class="foot">
     <a class="site" href="${CONFIG.website}" target="_blank" rel="noopener">${esc(CONFIG.firma)}</a>
     <a href="${CONFIG.impressum}" target="_blank" rel="noopener">Impressum</a>
     <a href="${CONFIG.datenschutz}" target="_blank" rel="noopener">Datenschutz</a>
-    <span>Version ${VERSION}</span></footer>`;
+    <span id="ver">Version ${VERSION} · ${STAND}</span></footer>`;
 
 /** Startseite: kurz – weitermachen, was heute ansteht, Gebiet wählen. */
 function home() {

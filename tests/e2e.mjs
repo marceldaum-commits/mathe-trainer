@@ -249,6 +249,8 @@ await page.click('#look');
 
 /* ───────────── Hilfe-Knopf: Menü, Fehler melden (Versand aus → Meldung wartet im Gerät) ───────────── */
 if (!(await page.locator('#fab').isVisible())) fail('Hilfe-Knopf fehlt');
+await page.goto(BASE); await page.waitForSelector('#ver'); if (!/^Version \d+\.\d+\.\d+ · \d{2}\.\d{2}\.\d{4}$/.test((await page.textContent('#ver')).trim())) fail(`Version mit Datum fehlt in der Fußzeile: ${await page.textContent('#ver')}`);
+await page.goto(`${BASE}#/lernen`); await page.waitForSelector('#fab');
 { const sb = page.locator('.sitebar'); if (!(await sb.isVisible()) || (await sb.getAttribute('href')) !== 'https://www.mathenachhilfe-online.com/' || (await sb.boundingBox()).y > 4) fail('Knopf zur Website fehlt ganz oben'); }
 serverAus = true; let versuche = 0;
 await page.route('**/api/meldung', (r) => { versuche++; r.fulfill({ status: 503, contentType: 'application/json', body: '{"error":"nicht erreichbar"}' }); });   // Server fällt aus → Meldung muss im Gerät warten
