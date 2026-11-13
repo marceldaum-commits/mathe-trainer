@@ -18,7 +18,7 @@ export const colX = (i) => VIEW.x0 + ((VIEW.x1 - VIEW.x0) * i) / (N - 1);
 /** Bewertet die Skizze. ys: gezeichnete Werte je Spalte (NaN = nichts). */
 export function grade(round, ys, lv = 3) {
   const k = [1.45, 1.2, 1, 0.85, 0.7][lv - 1];
-  let n = 0, err = 0, wrongRun = null, best = null;
+  let n = 0, err = 0, wrongRun = null, best = null, wrongCols = 0;
   for (let i = 0; i < N; i++) {
     const y = ys[i];
     if (Number.isNaN(y)) { if (wrongRun) { wrongRun = null; } continue; }
@@ -26,6 +26,7 @@ export function grade(round, ys, lv = 3) {
     n++; err += Math.abs(Math.max(VIEW.y0, Math.min(VIEW.y1, t)) - y);
     const wrong = Math.abs(t) > 0.35 && Math.sign(t) !== Math.sign(y);
     if (wrong) {
+      wrongCols++;
       if (!wrongRun) wrongRun = { a: i, b: i, sign: Math.sign(t) }; else wrongRun.b = i;
       if (!best || wrongRun.b - wrongRun.a > best.b - best.a) best = { ...wrongRun };
     } else wrongRun = null;
@@ -33,7 +34,8 @@ export function grade(round, ys, lv = 3) {
   const coverage = n / N;
   if (coverage < 0.7) return { coverage, stars: 0, err: Infinity, wrong: null };
   const mean = err / n;
-  const stars = mean <= 0.28 * k ? 3 : mean <= 0.5 * k ? 2 : mean <= 0.75 * k ? 1 : 0;
+  // Wer auf mehr als einem Viertel der Breite das falsche Vorzeichen hat (steigend statt fallend), besteht auf keiner Stufe.
+  const stars = wrongCols / n > 0.25 ? 0 : mean <= 0.28 * k ? 3 : mean <= 0.5 * k ? 2 : mean <= 0.75 * k ? 1 : 0;
   const wrong = best && best.b - best.a >= 10 ? { x0: colX(best.a), x1: colX(best.b), sign: best.sign } : null;
   return { coverage, stars, err: mean, wrong };
 }
