@@ -77,8 +77,48 @@ const SCHWER = [
     ],
   },
 ];
-/** Eigene Kurven je Schwierigkeit: leicht (Stufe 1–2), mittel (3), schwer (4–5). */
-export const levelsFor = (lv) => [LEICHT, LEVELS, SCHWER][lv <= 2 ? 0 : lv === 3 ? 1 : 2];
+const SEHR_LEICHT = [
+  {
+    tex: 'f(x)=\\tfrac14x^2', f: (x) => x * x / 4, d: (x) => x / 2,
+    view: { x0: -3.2, x1: 3.2, y0: -1.5, y1: 3.5 }, dview: { x0: -3.2, x1: 3.2, y0: -2, y1: 2 }, start: -2.4,
+    missions: [
+      { text: 'Finde den tiefsten Punkt.', sub: 'Dort liegt die Tangente waagerecht: Steigung 0.', type: 'zero', xs: [0] },
+      { text: 'Finde die Stelle mit der Steigung 1.', sub: 'Rechts vom Tiefpunkt geht es bergauf.', type: 'slope', m: 1 },
+      { text: 'Finde die Stelle mit der Steigung −1.', sub: 'Links vom Tiefpunkt geht es bergab.', type: 'slope', m: -1 },
+    ],
+  },
+  {
+    tex: 'f(x)=-\\tfrac12x^2+2', f: (x) => -x * x / 2 + 2, d: (x) => -x,
+    view: { x0: -3, x1: 3, y0: -3, y1: 3 }, dview: { x0: -3, x1: 3, y0: -4, y1: 4 }, start: -2.2,
+    missions: [
+      { text: 'Finde den höchsten Punkt.', sub: 'Auch dort ist die Steigung 0.', type: 'zero', xs: [0] },
+      { text: 'Finde die Stelle mit der Steigung 2.', sub: 'Links vom Hochpunkt steigt der Graph.', type: 'slope', m: 2 },
+      { text: 'Finde die Stelle mit der Steigung −1,5.', sub: 'Rechts vom Hochpunkt fällt der Graph.', type: 'slope', m: -1.5 },
+    ],
+  },
+];
+const ANSPRUCH = [
+  {
+    tex: 'f(x)=\\tfrac13x^3-x^2', f: (x) => x ** 3 / 3 - x * x, d: (x) => x * x - 2 * x,
+    view: { x0: -1.5, x1: 3.5, y0: -3.8, y1: 2.6 }, dview: { x0: -1.5, x1: 3.5, y0: -2, y1: 6 }, start: -1.1,
+    missions: [
+      { text: 'Sammle beide Stellen mit waagerechter Tangente.', sub: 'Ein Hügel und ein Tal.', type: 'zero', xs: [0, 2] },
+      { text: 'Finde die Stelle mit dem steilsten Gefälle.', sub: 'Sie liegt genau zwischen Hügel und Tal.', type: 'at', xs: [1], tol: 0.12 },
+      { text: 'Finde eine Stelle mit der Steigung 3.', sub: 'Es gibt zwei davon – eine genügt.', type: 'slope', m: 3 },
+    ],
+  },
+  {
+    tex: 'f(x)=1{,}5\\cos(x)+0{,}5x', f: (x) => 1.5 * Math.cos(x) + 0.5 * x, d: (x) => -1.5 * Math.sin(x) + 0.5,
+    view: { x0: -2.6, x1: 3.4, y0: -3.2, y1: 2.4 }, dview: { x0: -2.6, x1: 3.4, y0: -2, y1: 3 }, start: -2.2,
+    missions: [
+      { text: 'Sammle beide Stellen mit waagerechter Tangente.', sub: 'Sie liegen nicht auf dem Gitter.', type: 'zero', xs: [Math.asin(1 / 3), Math.PI - Math.asin(1 / 3)] },
+      { text: 'Finde die Stelle mit dem steilsten Anstieg.', sub: 'Dort hat die Ableitung ihren größten Wert.', type: 'at', xs: [-Math.PI / 2], tol: 0.12 },
+      { text: 'Finde die Stelle mit der Steigung −1.', sub: 'Steiler bergab geht es bei dieser Kurve nicht.', type: 'slope', m: -1 },
+    ],
+  },
+];
+/** Eigene Level für jede der fünf Schwierigkeiten. */
+export const levelsFor = (lv) => [SEHR_LEICHT, LEICHT, LEVELS, ANSPRUCH, SCHWER][Math.min(5, Math.max(1, lv | 0 || 3)) - 1];
 
 export function tangente(el, ctx) {
   const LS = levelsFor(store.level);

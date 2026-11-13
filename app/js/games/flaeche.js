@@ -34,8 +34,16 @@ const SCHWER = [
   { tex: 'f(x)=2\\sin(x)+2{,}5', f: (x) => 2 * Math.sin(x) + 2.5, a: 0, b: 4, area: 2 * (1 - Math.cos(4)) + 10, view: { x0: -0.6, x1: 4.8, y0: -0.6, y1: 5.2 } },
   { tex: 'f(x)=e^{0{,}5x}', f: (x) => Math.exp(0.5 * x), a: 0, b: 3, area: 2 * (Math.exp(1.5) - 1), view: { x0: -0.6, x1: 3.8, y0: -0.6, y1: 5.2 } },
 ];
-/** Eigene Flächen je Schwierigkeit: leicht (Stufe 1–2), mittel (3), schwer (4–5). */
-export const levelsFor = (lv) => [LEICHT, LEVELS, SCHWER][lv <= 2 ? 0 : lv === 3 ? 1 : 2];
+const SEHR_LEICHT = [
+  { tex: 'f(x)=0{,}5x+1', f: (x) => 0.5 * x + 1, a: 0, b: 4, area: 8, view: { x0: -0.6, x1: 4.8, y0: -0.6, y1: 3.8 } },
+  { tex: 'f(x)=-0{,}5x+4', f: (x) => -0.5 * x + 4, a: 0, b: 4, area: 12, view: { x0: -0.6, x1: 4.8, y0: -0.6, y1: 4.8 } },
+];
+const ANSPRUCH = [
+  { tex: 'f(x)=0{,}25x^3-x^2+3', f: (x) => 0.25 * x ** 3 - x * x + 3, a: 0, b: 4, area: 20 / 3, view: { x0: -0.6, x1: 4.8, y0: -0.6, y1: 4.2 } },
+  { tex: 'f(x)=\\sqrt{x}+1', f: (x) => Math.sqrt(Math.max(0, x)) + 1, a: 0, b: 4, area: 28 / 3, view: { x0: -0.6, x1: 4.8, y0: -0.6, y1: 3.8 } },
+];
+/** Eigene Level für jede der fünf Schwierigkeiten. */
+export const levelsFor = (lv) => [SEHR_LEICHT, LEICHT, LEVELS, ANSPRUCH, SCHWER][Math.min(5, Math.max(1, lv | 0 || 3)) - 1];
 
 export function flaeche(el, ctx) {
   const LS = levelsFor(store.level);

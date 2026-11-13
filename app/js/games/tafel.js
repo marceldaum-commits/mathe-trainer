@@ -29,8 +29,19 @@ const SCHWER = [
     'Befragt wurden 400 Personen, davon 260 unter 18. 60 % aller Befragten nutzen die App. Von den Befragten ab 18 nutzen 56 die App nicht.'),
 ];
 export const LEVELS = MITTEL;
-/** Eigene Tafeln je Schwierigkeit: leicht (Stufe 1–2), mittel (3), schwer (4–5, Angaben nur im Text). */
-export const levelsFor = (lv) => [LEICHT, MITTEL, SCHWER][lv <= 2 ? 0 : lv === 3 ? 1 : 2];
+const SEHR_LEICHT = [
+  T('Klassenfahrt', 'fährt mit', 'bleibt da', 'Klasse 10a', 'Klasse 10b', [20, 18, 5, 7], ['a', 'b', 'c', 'd']),
+  T('Geschwister', 'hat Geschwister', 'Einzelkind', 'Mädchen', 'Jungen', [9, 7, 4, 5], ['a', 'b', 'c', 'd', 'r1']),
+  T('Frühstück', 'frühstückt', 'frühstückt nicht', 'Unterstufe', 'Oberstufe', [30, 15, 10, 25], ['a', 'b', 'c', 'd', 'n']),
+];
+const ANSPRUCH = [
+  T('Wahlfach', 'wählt Informatik', 'wählt Kunst', 'Klasse 11', 'Klasse 12', [34, 26, 41, 19], ['r1', 'c1', 'n', 'd']),
+  T('Impfung', 'geimpft', 'nicht geimpft', 'erkrankt', 'gesund', [12, 188, 48, 52], ['n', 'c1', 'a', 'r2']),
+  T('Lieferdienst', 'pünktlich', 'verspätet', 'Fahrrad', 'Auto', [72, 48, 18, 62], [],
+    'Ein Lieferdienst wertet 200 Fahrten aus. 90 Fahrten wurden mit dem Fahrrad gemacht, davon waren 72 pünktlich. Insgesamt waren 80 Fahrten verspätet.'),
+];
+/** Eigene Level für jede der fünf Schwierigkeiten. */
+export const levelsFor = (lv) => [SEHR_LEICHT, LEICHT, MITTEL, ANSPRUCH, SCHWER][Math.min(5, Math.max(1, lv | 0 || 3)) - 1];
 
 export function tafel(el, ctx) {
   const LS = levelsFor(store.level);

@@ -19,8 +19,8 @@ const LEICHT = [
   { f: (x) => x, d: () => 1, why: 'Die Gerade steigt überall gleich stark – ihre Ableitung ist konstant 1.' },
   { f: (x) => -0.5 * x + 1, d: () => -0.5, why: 'Die Gerade fällt gleichmäßig – ihre Ableitung ist konstant negativ.' },
   { f: () => 1.5, d: () => 0, why: 'Eine waagerechte Gerade hat überall die Steigung 0.' },
-  { f: (x) => x * x / 2 - 1, d: (x) => x, why: 'Die Parabel fällt links und steigt rechts – ihre Ableitung ist eine steigende Gerade durch den Scheitel.' },
-  { f: (x) => -x * x / 2 + 1, d: (x) => -x, why: 'Die Parabel steigt links und fällt rechts – ihre Ableitung ist eine fallende Gerade.' },
+  { f: (x) => x * x / 3 - 1.5, d: (x) => (2 * x) / 3, why: 'Die Parabel fällt links und steigt rechts – ihre Ableitung ist eine steigende Gerade durch den Scheitel.' },
+  { f: (x) => -x * x / 3 + 1.5, d: (x) => (-2 * x) / 3, why: 'Die Parabel steigt links und fällt rechts – ihre Ableitung ist eine fallende Gerade.' },
   { f: (x) => (x - 1) ** 2 / 2 - 1, d: (x) => x - 1, why: 'Der Scheitel liegt bei x = 1 – genau dort schneidet die Ableitung die x-Achse.' },
 ];
 const SCHWER = [
@@ -31,8 +31,24 @@ const SCHWER = [
   { f: (x) => Math.exp(x / 2) - 1.5, d: (x) => Math.exp(x / 2) / 2, why: 'Die e-Funktion steigt immer – ihre Ableitung liegt überall über der x-Achse und wächst mit.' },
   { f: (x) => x ** 3 / 6, d: (x) => x * x / 2, why: 'Sattelpunkt bei x = 0: Die Ableitung berührt die x-Achse nur, ohne das Vorzeichen zu wechseln.' },
 ];
-/** Eigene Graphen je Schwierigkeit: leicht (Stufe 1–2), mittel (3), schwer (4–5). */
-export const levelsFor = (lv) => [LEICHT, POOL, SCHWER][lv <= 2 ? 0 : lv === 3 ? 1 : 2];
+const SEHR_LEICHT = [
+  { f: (x) => 2 * x / 1.5, d: () => 2 / 1.5, why: 'Eine steile Gerade: Die Ableitung ist konstant und groß.' },
+  { f: (x) => -x, d: () => -1, why: 'Die Gerade fällt gleichmäßig – die Ableitung ist konstant −1.' },
+  { f: (x) => 0.5 * x - 1, d: () => 0.5, why: 'Flach ansteigend: Die Ableitung ist konstant und klein.' },
+  { f: () => -2, d: () => 0, why: 'Waagerecht heißt: Steigung 0 an jeder Stelle.' },
+  { f: (x) => x * x / 2 - 2, d: (x) => x, why: 'Links fällt die Parabel, rechts steigt sie – die Ableitung geht von Minus nach Plus.' },
+  { f: (x) => -x * x / 4 + 1, d: (x) => -x / 2, why: 'Links steigt die Parabel, rechts fällt sie – die Ableitung geht von Plus nach Minus.' },
+];
+const ANSPRUCH = [
+  { f: (x) => x ** 3 / 6 - x, d: (x) => x * x / 2 - 1, why: 'Zwei Extrempunkte: Dort schneidet die Ableitung die x-Achse.' },
+  { f: (x) => -(x ** 3) / 6 + x * x / 2, d: (x) => -x * x / 2 + x, why: 'Tiefpunkt bei x = 0, Hochpunkt bei x = 2 – dazwischen liegt die Ableitung über der x-Achse.' },
+  { f: (x) => Math.sin(x) + x / 2, d: (x) => Math.cos(x) + 0.5, why: 'Die Welle steigt insgesamt an: Die Ableitung schwingt um 0,5 statt um 0.' },
+  { f: (x) => -1.2 * Math.sin(x), d: (x) => -1.2 * Math.cos(x), why: 'Bei x = 0 fällt der Graph am steilsten – dort hat die Ableitung ihren tiefsten Wert.' },
+  { f: (x) => x ** 4 / 16 - x, d: (x) => x ** 3 / 4 - 1, why: 'Nur ein Tiefpunkt: Die Ableitung hat genau eine Nullstelle.' },
+  { f: (x) => 2 / (1 + x * x), d: (x) => (-4 * x) / (1 + x * x) ** 2, why: 'Ein Hügel bei x = 0: Links ist die Ableitung positiv, rechts negativ, weit außen fast 0.' },
+];
+/** Eigene Level für jede der fünf Schwierigkeiten. */
+export const levelsFor = (lv) => [SEHR_LEICHT, LEICHT, POOL, ANSPRUCH, SCHWER][Math.min(5, Math.max(1, lv | 0 || 3)) - 1];
 
 export function paare(el, ctx) {
   const LS = levelsFor(store.level);

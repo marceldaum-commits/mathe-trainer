@@ -105,6 +105,10 @@ export function verbundGeometrie(lv = 3) {
     ];
     if (parts.some((t) => !uniq(t.options)) || !uniqNum(parts[1].options) || !uniqNum(parts[2].options)) continue;
     if ([0, 3, 4].some((i) => parts[i].options.some((o, a) => parts[i].options.some((o2, b) => a < b && (o.vec ? same(o.vec, o2.vec) : same(o.P, o2.P) && same(o.r, o2.r)))))) continue;
+    // kein Ablenker darf selbst eine Gerade durch A und B sein
+    const kreuz = (a, b) => [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]];
+    const liegt = (o, X) => kreuz(X.map((c, i) => c - o.P[i]), o.r).every((c) => c === 0);
+    if (parts[3].options.some((o) => !o.correct && o.r.some((c) => c !== 0) && liegt(o, A) && liegt(o, B))) continue;
     const Pn = (name, v) => `${name}(${v.map((c) => ft(c)).join('\\mid ')})`;
     return { art: 'geometrie', title: 'Punkte im Raum', intro: 'Gegeben sind die Punkte', formula: `${Pn('A', A)},\\quad ${Pn('B', B)},\\quad ${Pn('C', C)}`, parts: fin(parts), A, B, C, be: [2, 2, 3, 3, 2] };
   }

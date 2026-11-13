@@ -96,8 +96,29 @@ const SCHWER = [
     params: [{ k: 'a', min: -1, max: 2, step: 0.25, init: 1 }, { k: 'd', min: -4, max: 4, step: 0.5, init: -1 }, { k: 'e', min: -1, max: 6, step: 0.5, init: 2 }],
     target: { a: 0.25, d: 1.5, e: -0.5 }, starsX: [-4, 1.5, 5] },
 ];
-/** Eigene Bahnen je Schwierigkeit: leicht (Stufe 1–2), mittel (3), schwer (4–5). */
-export const levelsFor = (lv) => [LEICHT, LEVELS, SCHWER][lv <= 2 ? 0 : lv === 3 ? 1 : 2];
+const SEHR_LEICHT = [
+  { kind: 'line', hint: 'm ist die Steigung: Je kleiner m, desto steiler geht es bergab.',
+    params: [{ k: 'm', min: -2, max: 2, step: 0.5, init: 1 }], fixed: { b: 2 }, target: { m: -1, b: 2 }, starsX: [-3, -1, 1] },
+  { kind: 'line', hint: 'b ist die Höhe, in der die Gerade die y-Achse schneidet.',
+    params: [{ k: 'b', min: -1, max: 8, step: 0.5, init: 2 }], fixed: { m: -1 }, target: { m: -1, b: 5 }, starsX: [-2, 1, 4] },
+  { kind: 'par', hint: 'd verschiebt die Parabel nach links oder rechts.',
+    params: [{ k: 'd', min: -4, max: 4, step: 0.5, init: 2 }], fixed: { a: 1, e: 1 }, target: { a: 1, d: -1, e: 1 }, starsX: [-3, -1, 0.5] },
+];
+const ANSPRUCH = [
+  { kind: 'line', hint: 'Zwei Sterne genügen, um Steigung und Achsenabschnitt abzulesen.',
+    params: [{ k: 'm', min: -2, max: 2, step: 0.25, init: 0.5 }, { k: 'b', min: -1, max: 8, step: 0.25, init: 5 }], target: { m: -1.25, b: 2.5 }, starsX: [-3, 0, 2] },
+  { kind: 'par', hint: 'Der tiefste Stern ist der Scheitel. Danach die Breite einstellen.',
+    params: [{ k: 'a', min: -1, max: 2, step: 0.5, init: 1.5 }, { k: 'd', min: -4, max: 4, step: 0.5, init: 1 }, { k: 'e', min: -1, max: 6, step: 0.5, init: 2 }],
+    target: { a: 0.5, d: -1, e: 0 }, starsX: [-4, -1, 2] },
+  { kind: 'par', hint: 'Der Scheitel liegt zwischen zwei Gitterlinien.',
+    params: [{ k: 'a', min: -1, max: 2, step: 0.5, init: 0.5 }, { k: 'd', min: -4, max: 4, step: 0.5, init: 0 }, { k: 'e', min: -1, max: 6, step: 0.5, init: 3 }],
+    target: { a: 1, d: 2.5, e: 1 }, starsX: [0.5, 2.5, 4] },
+  { kind: 'par', hint: 'Breite Parabel, Scheitel nicht auf dem Gitter.',
+    params: [{ k: 'a', min: -1, max: 2, step: 0.5, init: 1.5 }, { k: 'd', min: -4, max: 4, step: 0.5, init: -2 }, { k: 'e', min: -1, max: 6, step: 0.5, init: 0 }],
+    target: { a: 0.5, d: 0.5, e: 1.5 }, starsX: [-3, 0.5, 3] },
+];
+/** Eigene Level für jede der fünf Schwierigkeiten. */
+export const levelsFor = (lv) => [SEHR_LEICHT, LEICHT, LEVELS, ANSPRUCH, SCHWER][Math.min(5, Math.max(1, lv | 0 || 3)) - 1];
 
 export function murmelbahn(el, ctx) {
   const LS = levelsFor(store.level);

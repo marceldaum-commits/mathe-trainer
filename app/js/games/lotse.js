@@ -39,8 +39,19 @@ const SCHWER = [
   { type: 'combo', A: [-5, -1], u: [1, 3], v: [3, -1], sol: [1, 3], text: 'Die Vektoren stehen senkrecht aufeinander.', sub: 'Das macht es übersichtlicher – nutze es.' },
   { type: 'combo', A: [0, 5], u: [2, -1], v: [-1, -2], sol: [-1, 3], text: 'Letzte Fahrt.', sub: 'Stelle zwei Gleichungen für r und s auf.' },
 ];
-/** Eigene Fahrten je Schwierigkeit: leicht (Stufe 1–2), mittel (3), schwer (4–5). */
-export const levelsFor = (lv) => [LEICHT, MISSIONS, SCHWER][lv <= 2 ? 0 : lv === 3 ? 1 : 2];
+const SEHR_LEICHT = [
+  { type: 'vec', A: [-4, -2], B: [0, -2], sol: [4, 0], text: 'Der Stern liegt genau rechts vom Schiff.', sub: 'Nur die erste Koordinate ändert sich.' },
+  { type: 'vec', A: [-1, -3], B: [-1, 2], sol: [0, 5], text: 'Jetzt liegt der Stern genau über dem Schiff.', sub: 'Nur die zweite Koordinate ändert sich.' },
+  { type: 'vec', A: [-3, -1], B: [2, 3], sol: [5, 4], text: 'Schräg nach rechts oben.', sub: 'Erst nach rechts, dann nach oben.' },
+];
+const ANSPRUCH = [
+  { type: 'combo', A: [-4, 1], u: [2, 1], v: [1, -1], sol: [3, 2], text: 'Du darfst nur in zwei Richtungen fahren.', sub: 'Wie oft brauchst du jeden der beiden Vektoren?' },
+  { type: 'combo', A: [2, -4], u: [1, 2], v: [-2, 1], sol: [2, 1], text: 'Die Richtungen stehen senkrecht aufeinander.', sub: 'Erst die eine Richtung ganz, dann die andere.' },
+  { type: 'combo', A: [4, 4], u: [2, 1], v: [1, 3], sol: [-3, -1], text: 'Der Stern liegt „hinter" dir.', sub: 'Negative Faktoren drehen einen Vektor um.' },
+  { type: 'combo', A: [-2, -5], u: [1, 2], v: [2, -1], sol: [3, -2], text: 'Ein Faktor positiv, einer negativ.', sub: 'Überlege, welcher Vektor zurückgefahren werden muss.' },
+];
+/** Eigene Level für jede der fünf Schwierigkeiten. */
+export const levelsFor = (lv) => [SEHR_LEICHT, LEICHT, MISSIONS, ANSPRUCH, SCHWER][Math.min(5, Math.max(1, lv | 0 || 3)) - 1];
 
 export function lotse(el, ctx) {
   const LS = levelsFor(store.level);

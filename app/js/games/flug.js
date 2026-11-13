@@ -36,8 +36,19 @@ const SCHWER = [
   { hint: 'Zähle die Wellen und miss die Mitte zwischen Berg und Tal.', params: [A(1, -4), B(1, 0.25), D(0)], fixed: {}, target: { a: 3.5, b: 1.25, d: 0.5 }, gatesX: ext(1.25, 5) },
   { hint: 'Gespiegelt, gestreckt und verschoben.', params: [A(1, -4), B(1, 0.25), D(0)], fixed: {}, target: { a: -1.5, b: 1.75, d: -2 }, gatesX: ext(1.75, 6) },
 ];
-/** Eigene Strecken je Schwierigkeit: leicht (Stufe 1–2), mittel (3), schwer (4–5). */
-export const levelsFor = (lv) => [LEICHT, LEVELS, SCHWER][lv <= 2 ? 0 : lv === 3 ? 1 : 2];
+const SEHR_LEICHT = [
+  { hint: 'a ist die Amplitude: So hoch schwingt die Kurve.', params: [A(3)], fixed: { b: 1, d: 0 }, target: { a: 1.5, b: 1, d: 0 }, gatesX: ext(1, 3) },
+  { hint: 'd verschiebt die ganze Kurve nach oben oder unten.', params: [D(0)], fixed: { a: 1, b: 1 }, target: { a: 1, b: 1, d: 2 }, gatesX: ext(1, 3) },
+  { hint: 'Erst mit d die Mitte treffen, dann mit a die Höhe.', params: [A(1), D(0)], fixed: { b: 1 }, target: { a: 2.5, b: 1, d: -0.5 }, gatesX: ext(1, 3) },
+];
+const ANSPRUCH = [
+  { hint: 'Zähle die Wellen: Wie groß muss b sein?', params: [A(1), B(1), D(0)], fixed: {}, target: { a: 3, b: 1.5, d: 0 }, gatesX: ext(1.5, 5) },
+  { hint: 'Eine lange Welle: b ist kleiner als 1.', params: [A(1), B(1), D(0)], fixed: {}, target: { a: 2, b: 0.5, d: -1.5 }, gatesX: [3.142, 6.283, 9.425] },
+  { hint: 'Die Kurve beginnt mit einem Tal: a ist negativ.', params: [A(1, -4), B(1), D(0)], fixed: {}, target: { a: -3, b: 1, d: 0.5 }, gatesX: ext(1, 4) },
+  { hint: 'Kurze Wellen, weit oben.', params: [A(1), B(1), D(0)], fixed: {}, target: { a: 1.5, b: 2, d: 2 }, gatesX: ext(2, 6) },
+];
+/** Eigene Level für jede der fünf Schwierigkeiten. */
+export const levelsFor = (lv) => [SEHR_LEICHT, LEICHT, LEVELS, ANSPRUCH, SCHWER][Math.min(5, Math.max(1, lv | 0 || 3)) - 1];
 
 export function flug(el, ctx) {
   const LS = levelsFor(store.level);

@@ -34,8 +34,19 @@ const SCHWER = [
   { text: 'Beide Regler frei: Der Berg soll bei 9 liegen – mit genau 12 Drehungen.', sub: 'Rechne erst, dann stell ein.', fix: {}, init: { n: 18, p: 0.5 }, target: 9, needN: 12, sol: { n: 12, p: 0.75 } },
   { text: 'Der Berg soll bei 7 Treffern liegen.', sub: 'Die Trefferwahrscheinlichkeit ist 0,35.', fix: { p: 0.35 }, init: { n: 10 }, target: 7, sol: { n: 20, p: 0.35 } },
 ];
-/** Eigene Aufträge je Schwierigkeit: leicht (Stufe 1–2), mittel (3), schwer (4–5). */
-export const levelsFor = (lv) => [LEICHT, MISSIONS, SCHWER][lv <= 2 ? 0 : lv === 3 ? 1 : 2];
+const SEHR_LEICHT = [
+  { text: 'Stell die Trefferwahrscheinlichkeit so ein, dass der Berg bei 2 Treffern liegt.', sub: 'Es wird 10-mal gedreht.', fix: { n: 10 }, init: { p: 0.5 }, target: 2, sol: { n: 10, p: 0.2 } },
+  { text: 'Jetzt soll der Berg bei 10 Treffern liegen.', sub: 'Es wird 20-mal gedreht – die Hälfte soll treffen.', fix: { n: 20 }, init: { p: 0.2 }, target: 10, sol: { n: 20, p: 0.5 } },
+  { text: 'Wie oft muss gedreht werden, damit der Berg bei 4 Treffern liegt?', sub: 'Die Trefferwahrscheinlichkeit ist 0,5.', fix: { p: 0.5 }, init: { n: 14 }, target: 4, sol: { n: 8, p: 0.5 } },
+];
+const ANSPRUCH = [
+  { text: 'Wie oft muss gedreht werden, damit der Berg bei 5 Treffern liegt?', sub: 'Die Trefferwahrscheinlichkeit ist 0,25 – jede vierte Drehung trifft.', fix: { p: 0.25 }, init: { n: 10 }, target: 5, sol: { n: 20, p: 0.25 } },
+  { text: 'Der Berg soll bei 6 Treffern liegen.', sub: 'Es wird 15-mal gedreht.', fix: { n: 15 }, init: { p: 0.7 }, target: 6, sol: { n: 15, p: 0.4 } },
+  { text: 'Beide Regler frei: Der Berg soll bei 4 liegen – mit genau 16 Drehungen.', sub: 'Erst n einstellen, dann das passende p.', fix: {}, init: { n: 10, p: 0.5 }, target: 4, needN: 16, sol: { n: 16, p: 0.25 } },
+  { text: 'Wie oft muss gedreht werden, damit der Berg bei 8 Treffern liegt?', sub: 'Die Trefferwahrscheinlichkeit ist 0,8.', fix: { p: 0.8 }, init: { n: 16 }, target: 8, sol: { n: 10, p: 0.8 } },
+];
+/** Eigene Level für jede der fünf Schwierigkeiten. */
+export const levelsFor = (lv) => [SEHR_LEICHT, LEICHT, MISSIONS, ANSPRUCH, SCHWER][Math.min(5, Math.max(1, lv | 0 || 3)) - 1];
 
 export function labor(el, ctx) {
   const LS = levelsFor(store.level);

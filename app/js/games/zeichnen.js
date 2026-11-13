@@ -40,7 +40,7 @@ export function grade(round, ys, lv = 3) {
 
 const LEICHT = [
   { tex: 'f(x)=0{,}5x', f: (x) => 0.5 * x, d: () => 0.5, tip: 'Eine Gerade steigt überall gleich – die Ableitung ist eine waagerechte Linie.' },
-  { tex: 'f(x)=0{,}2x^2-1{,}5', f: (x) => 0.2 * x * x - 1.5, d: (x) => 0.4 * x, tip: 'Links fällt der Graph, rechts steigt er – und zwar immer steiler.' },
+  { tex: 'f(x)=0{,}25x^2-1', f: (x) => 0.25 * x * x - 1, d: (x) => 0.5 * x, tip: 'Links fällt der Graph, rechts steigt er – und zwar immer steiler.' },
   { tex: 'f(x)=-0{,}25x^2+1{,}5', f: (x) => -0.25 * x * x + 1.5, d: (x) => -0.5 * x, tip: 'Links steigt der Graph, rechts fällt er. Am Hochpunkt ist die Steigung 0.' },
 ];
 const SCHWER = [
@@ -48,8 +48,18 @@ const SCHWER = [
   { tex: 'f(x)=1{,}2\\cos(x)', f: (x) => 1.2 * Math.cos(x), d: (x) => -1.2 * Math.sin(x), tip: 'Bei x = 0 liegt ein Hochpunkt. Danach fällt der Graph.' },
   { tex: 'f(x)=0{,}5e^{0{,}5x}-2', f: (x) => 0.5 * Math.exp(0.5 * x) - 2, d: (x) => 0.25 * Math.exp(0.5 * x), tip: 'Der Graph steigt überall – und immer schneller.' },
 ];
-/** Eigene Funktionen je Schwierigkeit: leicht (Stufe 1–2), mittel (3), schwer (4–5). */
-export const levelsFor = (lv) => [LEICHT, ROUNDS, SCHWER][lv <= 2 ? 0 : lv === 3 ? 1 : 2];
+const SEHR_LEICHT = [
+  { tex: 'f(x)=x', f: (x) => x, d: () => 1, tip: 'Die Gerade steigt überall gleich stark: Die Ableitung ist eine waagerechte Linie bei 1.' },
+  { tex: 'f(x)=-0{,}5x', f: (x) => -0.5 * x, d: () => -0.5, tip: 'Die Gerade fällt überall gleich: Die Ableitung liegt unter der x-Achse.' },
+  { tex: 'f(x)=0{,}15x^2', f: (x) => 0.15 * x * x, d: (x) => 0.3 * x, tip: 'Im Tiefpunkt ist die Steigung 0, rechts davon positiv, links negativ.' },
+];
+const ANSPRUCH = [
+  { tex: 'f(x)=\\tfrac19x^3-x', f: (x) => x ** 3 / 9 - x, d: (x) => x * x / 3 - 1, tip: 'Hoch- und Tiefpunkt liegen nicht auf dem Gitter – schätze sie am Graphen ab.' },
+  { tex: 'f(x)=\\sin(1{,}5x)', f: (x) => Math.sin(1.5 * x), d: (x) => 1.5 * Math.cos(1.5 * x), tip: 'Viele Berge und Täler: An jedem ist die Steigung 0.' },
+  { tex: 'f(x)=-\\tfrac1{64}x^4+\\tfrac14x^2', f: (x) => -(x ** 4) / 64 + x * x / 4, d: (x) => -(x ** 3) / 16 + x / 2, tip: 'Zwei Hochpunkte außen, ein Tiefpunkt in der Mitte.' },
+];
+/** Eigene Level für jede der fünf Schwierigkeiten. */
+export const levelsFor = (lv) => [SEHR_LEICHT, LEICHT, ROUNDS, ANSPRUCH, SCHWER][Math.min(5, Math.max(1, lv | 0 || 3)) - 1];
 
 export function zeichnen(el, ctx) {
   const LS = levelsFor(store.level);

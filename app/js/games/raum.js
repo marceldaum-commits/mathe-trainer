@@ -33,8 +33,19 @@ const SCHWER = [
   { type: 'ask', lines: [{ P: [-3, 1, 2], u: [2, -1, 1] }, { P: [2, 3, 0], u: [-1, -3, 3] }], answer: 'schnitt', text: 'Und diese beiden?', sub: 'Rechne im Kopf mit: Gibt es passende t und s?' },
   { type: 'ask', lines: [{ P: [-2, -1, 3], u: [2, 1, -1] }, { P: [0, 2, -1], u: [1, -2, 2] }], answer: 'windschief', text: 'Letztes Paar.', sub: 'Ein echter Schnittpunkt bleibt aus jeder Blickrichtung ein Schnittpunkt.' },
 ];
-/** Eigene Aufträge je Schwierigkeit: leicht (Stufe 1–2), mittel (3), schwer (4–5). */
-export const levelsFor = (lv) => [LEICHT, MISSIONS, SCHWER][lv <= 2 ? 0 : lv === 3 ? 1 : 2];
+const SEHR_LEICHT = [
+  { type: 'look', lines: [{ P: [0, 1, 1], u: [1, 0, 0] }], text: 'Dreh den Raum so, dass du genau entlang der Geraden schaust.', sub: 'Die Gerade läuft parallel zur ersten Achse.' },
+  { type: 'ask', lines: [{ P: [-2, 0, 1], u: [1, 0, 0] }, { P: [0, -2, 1], u: [0, 1, 0] }], answer: 'schnitt', text: 'Schneiden sich die beiden Geraden?', sub: 'Beide liegen auf derselben Höhe.' },
+  { type: 'ask', lines: [{ P: [-2, 0, 0], u: [1, 0, 0] }, { P: [0, -2, 2], u: [0, 1, 1] }], answer: 'windschief', text: 'Und diese beiden?', sub: 'Schau von der Seite: Wie hoch ist die zweite Gerade, wenn sie über der ersten ist?' },
+];
+const ANSPRUCH = [
+  { type: 'look', lines: [{ P: [-1, -1, 0], u: [2, 2, 1] }], text: 'Dreh den Raum so, dass du genau entlang der Geraden schaust.', sub: 'Der Richtungsvektor steigt leicht an.' },
+  { type: 'ask', lines: [{ P: [1, 0, -1], u: [1, 1, 2] }, { P: [3, 2, 3], u: [2, -1, 1] }], answer: 'schnitt', text: 'Schneiden sich die beiden Geraden?', sub: 'Liegt der Stützpunkt der zweiten Geraden vielleicht auf der ersten?' },
+  { type: 'ask', lines: [{ P: [0, 1, 2], u: [1, 2, -1] }, { P: [2, 0, 1], u: [2, 1, 1] }], answer: 'windschief', text: 'Und diese beiden?', sub: 'Dreh, bis du sicher bist.' },
+  { type: 'ask', lines: [{ P: [-2, 2, 1], u: [2, -1, 0] }, { P: [1, -1, 2], u: [1, 1, -1] }], answer: 'schnitt', text: 'Letztes Paar.', sub: 'Ein echter Schnittpunkt bleibt aus jeder Blickrichtung ein Schnittpunkt.' },
+];
+/** Eigene Level für jede der fünf Schwierigkeiten. */
+export const levelsFor = (lv) => [SEHR_LEICHT, LEICHT, MISSIONS, ANSPRUCH, SCHWER][Math.min(5, Math.max(1, lv | 0 || 3)) - 1];
 
 export function raum(el, ctx) {
   const LS = levelsFor(store.level);

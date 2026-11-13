@@ -4,13 +4,13 @@ const G = await import('../app/js/gen.js');
 const H = await import('../app/js/gen2.js');
 const K = await import('../app/js/gen3.js');
 const { nDeriv, polyTex, vertexTex, lineTex, fmt } = await import('../app/js/math.js');
-const all = (m) => [1, 3, 5].flatMap((lv) => m.levelsFor(lv));
+const all = (m) => [1, 2, 3, 4, 5].flatMap((lv) => m.levelsFor(lv));
 const GAMES = {};
 for (const g of ['murmelbahn', 'tangente', 'zeichnen', 'paare', 'flaeche', 'labor', 'lotse', 'werkstatt', 'raum', 'flug', 'tafel']) GAMES[g] = await import(`../app/js/games/${g}.js`);
 const { simulate } = GAMES.murmelbahn, MB = all(GAMES.murmelbahn);
 const { hit } = GAMES.tangente, TG = all(GAMES.tangente);
 const { grade, colX } = GAMES.zeichnen, ZR = all(GAMES.zeichnen);
-const POOLS = [1, 3, 5].map((lv) => GAMES.paare.levelsFor(lv));
+const POOLS = [1, 2, 3, 4, 5].map((lv) => GAMES.paare.levelsFor(lv));
 const { sums, gap } = GAMES.flaeche, FL = all(GAMES.flaeche);
 const { solved } = GAMES.labor, LB = all(GAMES.labor);
 const { goal, endPoint } = GAMES.lotse, LO = all(GAMES.lotse);
@@ -395,9 +395,11 @@ POOLS.forEach((POOL, t) => {
 
 // 10b) Jede Schwierigkeit hat eigene Spiel-Level: leicht, mittel und schwer teilen sich nichts
 for (const [name, m] of Object.entries(GAMES)) {
-  const [a, b, c] = [1, 3, 5].map((lv) => m.levelsFor(lv));
-  ok(m.levelsFor(1) === m.levelsFor(2) && m.levelsFor(4) === m.levelsFor(5) && a.length >= 2 && b.length >= 2 && c.length >= 2, `${name}: Level-Sätze je Schwierigkeit vorhanden`);
-  ok(!a.some((x) => b.includes(x) || c.includes(x)) && !b.some((x) => c.includes(x)), `${name}: leicht, mittel, schwer haben verschiedene Level`);
+  const sets = [1, 2, 3, 4, 5].map((lv) => m.levelsFor(lv)), flat = sets.flat();
+  ok(sets.every((x) => Array.isArray(x) && x.length >= 2) && new Set(sets).size === 5, `${name}: fünf eigene Level-Sätze`);
+  ok(new Set(flat).size === flat.length, `${name}: kein Level kommt in zwei Schwierigkeiten vor`);
+  const sig = (L) => JSON.stringify(L, (k, v) => (typeof v === 'function' ? String(v) : v));
+  ok(new Set(flat.map(sig)).size === flat.length, `${name}: auch inhaltlich ist kein Level doppelt`);
 }
 // 10c) Kurven-Flug: Ziel einstellbar, Tore im Bild, Zielkurve fliegt durch, Startwerte nicht
 all(GAMES.flug).forEach((L, i) => {

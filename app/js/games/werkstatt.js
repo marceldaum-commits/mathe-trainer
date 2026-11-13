@@ -15,7 +15,9 @@ export const LEVELS = [zaun(20, 0.5, 1.5), karton(12, 4.5)];
 const LEICHT = [zaun(12, 0.5, 1), karton(6, 2.5)];
 const SCHWER = [zaun(25, 0.25, 2), karton(15, 6), zaun(34, 0.5, 15), karton(21, 1)];
 /** Eigene Aufgaben je Schwierigkeit: leicht (Stufe 1–2), mittel (3), schwer (4–5). */
-export const levelsFor = (lv) => [LEICHT, LEVELS, SCHWER][lv <= 2 ? 0 : lv === 3 ? 1 : 2];
+const SEHR_LEICHT = [zaun(8, 0.5, 0.5), karton(9, 3.5)];
+const ANSPRUCH = [zaun(28, 0.5, 3), karton(18, 7), zaun(22, 0.5, 9)];
+export const levelsFor = (lv) => [SEHR_LEICHT, LEICHT, LEVELS, ANSPRUCH, SCHWER][Math.min(5, Math.max(1, lv | 0 || 3)) - 1];
 
 export function werkstatt(el, ctx) {
   const LS = levelsFor(store.level);
