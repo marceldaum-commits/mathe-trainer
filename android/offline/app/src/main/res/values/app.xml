@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Mathe-Trainer</string>
+    <string name="kurz_tag">Tages-Runde</string>
+    <string name="kurz_blitz">Blitz-Runde</string>
+    <string name="kurz_wiederholen">Wiederholen</string>
+    <string name="kurz_abenteuer">Abenteuer</string>
+    <color name="navy">#0D1733</color>
+    <style name="AppTheme" parent="@android:style/Theme.DeviceDefault.NoActionBar">
+        <item name="android:windowBackground">@color/navy</item>
+        <item name="android:statusBarColor">@color/navy</item>
+        <item name="android:navigationBarColor">@color/navy</item>
+        <item name="android:windowLightStatusBar">false</item>
+    </style>
+</resources>

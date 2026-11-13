@@ -374,7 +374,8 @@ window.addEventListener('appinstalled', () => { installEvent = null; window.__mt
 route();
 
 // Offline-Fähigkeit und automatische Updates.
-if ('serviceWorker' in navigator && (location.protocol === 'https:' || ['localhost', '127.0.0.1'].includes(location.hostname))) {
+// In der Offline-App (Android) sind alle Dateien fest eingepackt – dort braucht es keinen Service Worker.
+if (!window.MTApp && 'serviceWorker' in navigator && (location.protocol === 'https:' || ['localhost', '127.0.0.1'].includes(location.hostname))) {
   const hadController = !!navigator.serviceWorker.controller;
   navigator.serviceWorker.register('sw.js').then((reg) => {
     const offer = (w) => toast('Neue Version verfügbar.', { label: 'Aktualisieren', run: () => w.postMessage('skip') }, { sticky: true });

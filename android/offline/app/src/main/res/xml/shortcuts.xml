@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shortcuts xmlns:android="http://schemas.android.com/apk/res/android">
+    <shortcut android:shortcutId="tag" android:enabled="true" android:icon="@mipmap/ic_launcher" android:shortcutShortLabel="@string/kurz_tag">
+        <intent android:action="android.intent.action.VIEW" android:targetPackage="com.mathenachhilfe_online.trainer"
+            android:targetClass="com.mathenachhilfe_online.trainer.LauncherActivity" android:data="https://trainer.mathenachhilfe-online.com/#/tag" />
+    </shortcut>
+    <shortcut android:shortcutId="blitz" android:enabled="true" android:icon="@mipmap/ic_launcher" android:shortcutShortLabel="@string/kurz_blitz">
+        <intent android:action="android.intent.action.VIEW" android:targetPackage="com.mathenachhilfe_online.trainer"
+            android:targetClass="com.mathenachhilfe_online.trainer.LauncherActivity" android:data="https://trainer.mathenachhilfe-online.com/#/blitz" />
+    </shortcut>
+    <shortcut android:shortcutId="wiederholen" android:enabled="true" android:icon="@mipmap/ic_launcher" android:shortcutShortLabel="@string/kurz_wiederholen">
+        <intent android:action="android.intent.action.VIEW" android:targetPackage="com.mathenachhilfe_online.trainer"
+            android:targetClass="com.mathenachhilfe_online.trainer.LauncherActivity" android:data="https://trainer.mathenachhilfe-online.com/#/wiederholen" />
+    </shortcut>
+    <shortcut android:shortcutId="abenteuer" android:enabled="true" android:icon="@mipmap/ic_launcher" android:shortcutShortLabel="@string/kurz_abenteuer">
+        <intent android:action="android.intent.action.VIEW" android:targetPackage="com.mathenachhilfe_online.trainer"
+            android:targetClass="com.mathenachhilfe_online.trainer.LauncherActivity" android:data="https://trainer.mathenachhilfe-online.com/#/abenteuer" />
+    </shortcut>
+</shortcuts>

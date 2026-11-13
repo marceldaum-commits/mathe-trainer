@@ -5,5 +5,10 @@
 *.aab
 *.idsig
 build/
-app/
+/app/
 .gradle/
+
+# Offline-App: Bau-Ergebnisse
+offline/app/build/
+offline/.gradle/
+offline/build/

@@ -1,0 +1,5 @@
+// Android-App „Mathe-Trainer“ – Offline-Fassung: Die Web-App aus dem Ordner app/ wird fest eingepackt.
+buildscript {
+    repositories { google(); mavenCentral() }
+    dependencies { classpath 'com.android.tools.build:gradle:8.9.1' }
+}

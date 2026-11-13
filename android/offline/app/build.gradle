@@ -1,0 +1,52 @@
+apply plugin: 'com.android.application'
+
+// Eine Quelle: Die Versionsnummer kommt aus der Web-App (app/js/config.js). 0.15.0 -> Name "0.15.0", Nummer 1500.
+def webApp = rootProject.file('../../app')
+def m = (new File(webApp, 'js/config.js').text =~ /VERSION = '(\d+)\.(\d+)\.(\d+)'/)
+assert m.find() : 'VERSION in app/js/config.js nicht gefunden'
+def vName = "${m.group(1)}.${m.group(2)}.${m.group(3)}"
+def vCode = m.group(1).toInteger() * 10000 + m.group(2).toInteger() * 100 + m.group(3).toInteger()
+
+// Die Web-App wird beim Bauen in die App-Datei kopiert (Ordner www). Bilder für den Store bleiben draußen.
+def webZiel = layout.buildDirectory.dir('webapp')
+tasks.register('webAppKopieren', Sync) {
+    from(webApp) { exclude 'img/shots/**' }
+    into webZiel.map { it.dir('www') }
+}
+
+android {
+    namespace 'com.mathenachhilfe_online.trainer'
+    compileSdkVersion 36
+    defaultConfig {
+        applicationId 'com.mathenachhilfe_online.trainer'
+        minSdkVersion 24
+        targetSdkVersion 36
+        versionCode vCode
+        versionName vName
+    }
+    sourceSets { main {
+        assets.srcDirs = [webZiel]
+        java.srcDirs += rootProject.file('../widget/java')   // Widget: eine Quelle für beide App-Fassungen
+        res.srcDirs += rootProject.file('../widget/res')
+    } }
+    signingConfigs {
+        release {
+            // Schlüssel und Passwort stehen nie im Repo – sie kommen beim Bauen aus der Umgebung.
+            if (System.getenv('MT_KEYSTORE')) {
+                storeFile file(System.getenv('MT_KEYSTORE'))
+                storePassword System.getenv('MT_KEYSTORE_PASS')
+                keyAlias 'mathe-trainer'
+                keyPassword System.getenv('MT_KEYSTORE_PASS')
+            }
+        }
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            if (System.getenv('MT_KEYSTORE')) signingConfig signingConfigs.release
+        }
+    }
+    compileOptions { sourceCompatibility JavaVersion.VERSION_17; targetCompatibility JavaVersion.VERSION_17 }
+    lint { abortOnError false; checkReleaseBuilds false }
+}
+preBuild.dependsOn('webAppKopieren')

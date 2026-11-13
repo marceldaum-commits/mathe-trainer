@@ -1,7 +1,7 @@
 // Zentrale Einstellungen. VERSION muss mit CACHE in ../sw.js übereinstimmen (npm run check prüft das).
-export const VERSION = '0.15.0';
+export const VERSION = '0.15.1';
 // Datum dieser Version (TT.MM.JJJJ). Setzt `npm run fix` von selbst, sobald VERSION erhöht wurde; `npm run check` prüft das Format.
-export const STAND = '13.11.2026';
+export const STAND = '14.11.2026';
 
 export const CONFIG = {
   // Server-Teil (Klassen-Rangliste): eingeschaltet am 13.11.2026 nach Übergabe (25) des Leitstands. Leer = abgeschaltet.

@@ -85,7 +85,7 @@ export function settingsView() {
       stand.textContent = st.an ? `Erinnerung täglich um ${st.zeit} Uhr (deutsche Zeit)` : 'Erinnerung ist aus';
       zeile.hidden = !st.an; if (document.activeElement !== tf) tf.value = st.zeit;
     };
-    const sync = async () => { st = await pushStand(); paintP(); if (!st.kann) pn.innerHTML = '<div class="note tip">Auf diesem Gerät geht das nur, wenn die App auf dem Startbildschirm installiert ist (iPhone: Teilen → „Zum Home-Bildschirm“).</div>'; else if (st.gesperrt) pn.innerHTML = sperre(); };
+    const sync = async () => { st = await pushStand(); paintP(); if (!st.kann && window.MTApp) pn.innerHTML = '<div class="note tip">In der Android-App gibt es die Erinnerung noch nicht – sie kommt mit einem der nächsten Updates.</div>'; else if (!st.kann) pn.innerHTML = '<div class="note tip">Auf diesem Gerät geht das nur, wenn die App auf dem Startbildschirm installiert ist (iPhone: Teilen → „Zum Home-Bildschirm“).</div>'; else if (st.gesperrt) pn.innerHTML = sperre(); };
     const schalten = async (zeit) => {
       sw.disabled = save.disabled = true; pn.innerHTML = '';
       const r = await pushAn(zeit); sw.disabled = save.disabled = false;

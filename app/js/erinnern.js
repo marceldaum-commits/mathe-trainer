@@ -24,7 +24,7 @@ export const SPERR_SCHRITTE = [
 ];
 export const SPERR_HILFE = 'Mitteilungen sind für den Mathe-Trainer gesperrt.';
 /** Läuft die App schon als installierte App? */
-export const installiert = () => typeof window !== 'undefined' && (window.matchMedia?.('(display-mode: standalone)').matches || navigator.standalone === true);
+export const installiert = () => typeof window !== 'undefined' && (!!window.MTApp || window.matchMedia?.('(display-mode: standalone)').matches || navigator.standalone === true);
 /** Wahrer Zustand: an ist die Erinnerung nur, wenn der Browser es erlaubt UND das Gerät noch angemeldet ist. */
 export async function pushStand() {
   const zeit = zeitOk(store.erinnern?.zeit) ? store.erinnern.zeit : ZEIT_VORGABE;
