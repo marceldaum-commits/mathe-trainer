@@ -189,4 +189,5 @@ MT_KEYSTORE=/pfad/android.keystore MT_KEYSTORE_PASS=… android/offline/bauen.sh
 ```
 
 **Regel: Web-App und App-Datei haben immer dieselbe Version.** Nach jeder neuen Web-Version die App-Datei neu bauen.
-Noch offen: Erinnerung (eigene Android-Erinnerung statt Web-Push), Drucken/Teilen, Prüfung auf einem echten Handy.
+Erinnerung (ab 0.15.2): `Erinnerung.java` – Wecker im Gerät, ohne Server; Rechte `POST_NOTIFICATIONS` und `RECEIVE_BOOT_COMPLETED`.
+Noch offen: Drucken/Teilen, Prüfung auf einem echten Handy.

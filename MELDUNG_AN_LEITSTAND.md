@@ -2,6 +2,14 @@
 
 Neueste Meldung oben. Keine Geheimnisse, keine Personendaten (dieses Repo ist öffentlich, siehe Punkt 1).
 
+## 13.11.2026 (26) – Version 0.15.2: Erinnerung in der Android-App läuft im Gerät, ohne Server
+
+Auf Marcels Auftrag: Die Offline-App (25) stellt die tägliche Erinnerung selbst zu (Android-Wecker, Uhrzeit des Geräts,
+höchstens eine am Tag, keine nach dem Üben). **Für den Server ändert sich nichts** – die App ruft `/api/push…` in dieser
+Fassung gar nicht auf. Im Browser und als installierte Web-App bleibt Web-Push wie in (33)/(34). Die Bedienung der Karte
+(Schalter an/aus, Uhrzeit, Speichern) ist in beiden Fassungen dieselbe – als Vorlage für andere Apps weiter brauchbar.
+Neue App-Datei 0.15.2 liegt in Marcels Drive-Ordner.
+
 ## 13.11.2026 (25) – Marcel: Android-App muss ganz ohne Internet laufen → eigene Offline-Fassung (Version 0.15.1)
 
 Marcel (13.11., wörtlich sinngemäß): Die App muss als APK offline spielbar sein, „wer erwirbt eine Rechen-App mit
