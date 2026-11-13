@@ -121,6 +121,16 @@ function home() {
   if (days === null && started) tiles.push(tile('#/plan', ICON.right, 'Lernplan', 'Abi-Termin eintragen'));
   today.append(h(`<div class="tiles">${tiles.join('')}</div>`));
   today.append(weekCard(() => { chips(); badgeCheck(); route(); }));
+  // Wie bei einer echten App: Zahl am App-Symbol (fällige Wiederholungen), wo das Gerät es kann
+  try { if ('setAppBadge' in navigator) { if (due) navigator.setAppBadge(due); else navigator.clearAppBadge(); } } catch { /* nicht überall erlaubt */ }
+  // Einmaliger, wegklickbarer Hinweis: als App installieren
+  if (installEvent && started && !store.n('installNein')) {
+    const box = h(`<section class="card stack" id="home-install"><div class="row"><h3 class="grow">Als App aufs Handy</h3><button class="x" id="hi-x" type="button" aria-label="Schließen">✕</button></div>
+      <small class="muted">Eigenes Symbol, Vollbild, läuft auch ohne Netz – und Erinnerungen kommen wie bei jeder App.</small><button class="btn" id="hi-go" type="button">Installieren</button></section>`);
+    $('#hi-x', box).onclick = () => { store.bump('installNein'); box.remove(); };
+    $('#hi-go', box).onclick = async () => { installEvent.prompt(); await installEvent.userChoice; installEvent = null; window.__mtInstall = null; box.remove(); };
+    today.append(box);
+  }
   return el;
 }
 
@@ -340,11 +350,19 @@ function nav() {
     : /^#\/(lernen|g\/|ueben\/|einstufung)/.test(hash) ? 'lernen' : /^#\/(pruefung|abi|tag|duell|blitz|klasse|aufgabe)/.test(hash) ? 'pruefung' : /^#\/(mehr|bericht|einstellungen|wiederholen|erfolge|formeln|lehrplan|plan|zertifikat)/.test(hash) ? 'mehr' : 'start';
   document.querySelectorAll('#nav a').forEach((a) => { const on = a.dataset.tab === tab; a.classList.toggle('on', on); if (on) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current'); });
   $('#nav').hidden = !!view.querySelector('.stephead');
+  tint();
 }
+/** Farbe der Android-Statusleiste: dunkelblau wie die Leiste oben; beim Spielen wie der Seitenhintergrund. */
+function tint() {
+  const spiel = !!view.querySelector('.stephead'), breit = window.matchMedia('(min-width:1240px)').matches;
+  document.querySelector('meta[name="theme-color"]')?.setAttribute('content', spiel || breit ? (look.dark ? '#0b1330' : '#ffffff') : '#0d1733');
+}
+window.addEventListener('mt-look', () => queueMicrotask(tint));
 new MutationObserver(() => { $('#nav').hidden = !!view.querySelector('.stephead'); }).observe(view, { childList: true, subtree: true });
 look.follow(); applySkin(); initMelden();
 window.addEventListener('hashchange', route);
-window.addEventListener('beforeinstallprompt', (ev) => { ev.preventDefault(); installEvent = ev; window.__mtInstall = ev; if (location.hash === '#/mehr') route(); });
+window.addEventListener('beforeinstallprompt', (ev) => { ev.preventDefault(); installEvent = ev; window.__mtInstall = ev; if (['#/mehr', '', '#/'].includes(location.hash)) route(); });
+window.addEventListener('appinstalled', () => { installEvent = null; window.__mtInstall = null; toast('Installiert. Der Mathe-Trainer liegt jetzt bei deinen Apps.'); });
 route();
 
 // Offline-Fähigkeit und automatische Updates.

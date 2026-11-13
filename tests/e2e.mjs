@@ -221,6 +221,9 @@ const HANDLERS = [['#tf', playTafel], ['#mb-c', playMurmelbahn], ['#fg-c', playF
 /* ───────────── Start, Menü, Schwierigkeit, Hell/Dunkel ───────────── */
 await page.goto(BASE); await page.waitForSelector('#home'); await shot('01-start');
 if ((await page.locator('#nav a').count()) !== 4) fail('Menüleiste fehlt');
+{ const man = await page.evaluate(async () => (await fetch(document.querySelector('link[rel="manifest"]').href)).json());   // App-Manifest: Kurzbefehle und Vorschaubilder sind erreichbar
+  for (const f of [...man.icons, ...man.screenshots, ...man.shortcuts.flatMap((s) => s.icons)]) if (!(await page.evaluate(async (src) => (await fetch(src)).ok, f.src))) fail(`Manifest: ${f.src} fehlt`);
+  if ((await page.getAttribute('meta[name="theme-color"]', 'content')) !== '#0d1733') fail('Statusleisten-Farbe auf der Startseite ist nicht dunkelblau'); }
 if (await page.locator('#home a[href^="#/u/"]:not(.btn)').count()) fail('Startseite listet wieder einzelne Einheiten auf');
 const startHeight = await page.evaluate(() => document.documentElement.scrollHeight);
 if (startHeight > 2400) fail(`Startseite zu lang: ${startHeight}px`);

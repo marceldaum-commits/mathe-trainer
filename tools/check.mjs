@@ -12,7 +12,8 @@ function walk(dir) {
   });
 }
 const files = walk(APP).filter((f) => f !== 'sw.js' && !/LICENSE/.test(f)).sort();
-const assets = ['./', ...files.filter((f) => f !== 'index.html')];
+// Bilder für den Installations-Dialog (img/shots) braucht die App offline nicht.
+const assets = ['./', ...files.filter((f) => f !== 'index.html' && !f.startsWith('img/shots/'))];
 
 const swPath = join(APP, 'sw.js');
 let sw = readFileSync(swPath, 'utf8');

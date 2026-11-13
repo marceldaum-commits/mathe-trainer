@@ -1,17 +1,121 @@
 {
+  "id": "./",
   "name": "Mathe-Trainer",
   "short_name": "Mathe-Trainer",
-  "description": "Oberstufen-Mathe zum Anfassen – von Mathenachhilfe Online.",
+  "description": "Oberstufen-Mathe zum Anfassen: Spiele, Aufgaben mit Rechenweg, Abi-Modus – von Mathenachhilfe Online.",
   "lang": "de",
+  "dir": "ltr",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
+  "display_override": [
+    "standalone",
+    "minimal-ui"
+  ],
   "orientation": "portrait",
-  "background_color": "#ffffff",
-  "theme_color": "#101b43",
+  "background_color": "#0d1733",
+  "theme_color": "#0d1733",
+  "categories": [
+    "education"
+  ],
   "icons": [
-    { "src": "img/icon-192.png", "sizes": "192x192", "type": "image/png" },
-    { "src": "img/icon-512.png", "sizes": "512x512", "type": "image/png" },
-    { "src": "img/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+    {
+      "src": "img/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "img/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
+    {
+      "src": "img/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Tages-Runde",
+      "short_name": "Tages-Runde",
+      "description": "Sechs Aufgaben, heute für alle gleich",
+      "url": "./#/tag",
+      "icons": [
+        {
+          "src": "img/icon-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "Blitz-Runde (60 Sekunden)",
+      "short_name": "Blitz",
+      "url": "./#/blitz",
+      "icons": [
+        {
+          "src": "img/icon-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "Wiederholen",
+      "short_name": "Wiederholen",
+      "description": "Fehler-Kartei: was heute fällig ist",
+      "url": "./#/wiederholen",
+      "icons": [
+        {
+          "src": "img/icon-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "Abi-Aufgabe am Stück",
+      "short_name": "Abi-Aufgabe",
+      "url": "./#/aufgabe",
+      "icons": [
+        {
+          "src": "img/icon-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "img/shots/start.jpg",
+      "sizes": "1080x1920",
+      "type": "image/jpeg",
+      "form_factor": "narrow",
+      "label": "Startseite: Gebiet wählen und weitermachen"
+    },
+    {
+      "src": "img/shots/spiel.jpg",
+      "sizes": "1080x1920",
+      "type": "image/jpeg",
+      "form_factor": "narrow",
+      "label": "Murmelbahn: Funktionen zum Anfassen"
+    },
+    {
+      "src": "img/shots/aufgabe.jpg",
+      "sizes": "1080x1920",
+      "type": "image/jpeg",
+      "form_factor": "narrow",
+      "label": "Abi-Aufgabe am Stück mit Rechenweg"
+    },
+    {
+      "src": "img/shots/breit.jpg",
+      "sizes": "1920x1080",
+      "type": "image/jpeg",
+      "form_factor": "wide",
+      "label": "Am großen Bildschirm"
+    }
   ]
 }

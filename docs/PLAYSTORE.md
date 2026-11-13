@@ -9,6 +9,44 @@ Die Web-App wird nicht neu gebaut, sondern in eine kleine Android-Hülle gesteck
 `https://trainer.mathenachhilfe-online.com` im Vollbild zeigt. Updates kommen weiter über die Website – ohne
 neue Store-Version.
 
+## Stand 13.11.2026 (Version 0.14.0): App-Gefühl und Bauplan sind fertig
+
+**In der Web-App selbst (wirkt sofort, auch ohne Play Store, sobald man sie installiert):**
+- Kurzbefehle am App-Symbol (lange drücken): Tages-Runde, Blitz-Runde, Wiederholen, Abi-Aufgabe.
+- Installations-Dialog mit Vorschaubildern und Beschreibung (`screenshots` im Manifest).
+- Dunkelblaue Statusleiste und Startbildschirm in den Firmenfarben; beim Spielen passt sich die Leiste an.
+- Zahl am App-Symbol für fällige Wiederholungen (wo Android/der Starter das unterstützt).
+- Einmaliger Hinweis „Als App aufs Handy“ auf der Startseite, wegklickbar.
+- Schalter „Erinnerung an/aus“ in den Einstellungen.
+
+**Bauplan der Android-Hülle:** `android/twa-manifest.json` (für Googles Werkzeug Bubblewrap): Paketname
+`com.mathenachhilfe_online.trainer`, Adresse `trainer.mathenachhilfe-online.com`, Vollbild, Firmenfarben,
+Mitteilungen über Android (`enableNotifications`), dieselben Kurzbefehle. Schlüssel-Dateien sind per
+`android/.gitignore` vom Repo ausgeschlossen.
+
+**So entsteht daraus die App-Datei** (auf einem Rechner mit Node und Java; macht der Leitstand oder Marcel):
+
+```bash
+npm install -g @bubblewrap/cli
+```
+
+```bash
+cd android && bubblewrap init --manifest=https://trainer.mathenachhilfe-online.com/manifest.webmanifest
+```
+
+```bash
+bubblewrap build
+```
+
+`init` fragt nach dem Signier-Schlüssel und legt ihn an (Passwort wählen, **Schlüssel-Datei und Passwort in
+Bitwarden sichern** – geht der Schlüssel verloren, kann die App nie wieder aktualisiert werden). `build` erzeugt
+`app-release-bundle.aab` (für den Play Store) und `app-release-signed.apk` (zum direkten Testen auf dem Handy)
+und zeigt den Fingerabdruck für die `assetlinks.json` an. Ohne Rechner geht dasselbe über die Website
+pwabuilder.com (Adresse eintragen → „Package for stores“ → Android).
+
+**Wichtig:** Erst wenn die `assetlinks.json` mit dem Fingerabdruck auf der Live-Adresse liegt, läuft die App im
+Vollbild; vorher zeigt sie oben eine Adressleiste.
+
 ## Was die App schon erfüllt
 
 - Installierbare Web-App: `manifest.webmanifest` mit Name, Farben, Symbolen 192/512 und „maskable“-Symbol.

@@ -2,6 +2,12 @@
 
 Neueste Meldung oben. Keine Geheimnisse, keine Personendaten (dieses Repo ist öffentlich, siehe Punkt 1).
 
+## 13.11.2026 (22) – Version 0.14.0: Android-App vorbereitet (Marcel: „Bau es zu einer coolen Android-App um“)
+
+- Web-App: Manifest mit `id`, `shortcuts`, `screenshots` (neue Dateien `app/img/shots/*.jpg`, bewusst **nicht** in der Offline-Liste des Service Workers), `theme_color`/`background_color` jetzt `#0d1733`; Zahl am App-Symbol (`setAppBadge`); Hinweis „Als App aufs Handy“. Neuer Zähler `installNein` im vorhandenen Schlüssel `mt.v1`. Keine neuen Abrufe.
+- **Bauplan der Hülle:** `android/twa-manifest.json` (Bubblewrap), Paketname `com.mathenachhilfe_online.trainer`, `enableNotifications: true`. Bauanleitung mit drei Befehlen in `docs/PLAYSTORE.md`. Der Ordner `android/` wird nicht ausgeliefert (nur `app/`).
+- **Von euch gebraucht, sobald Marcel den Schlüssel hat:** die App-Datei bauen (oder Marcel über pwabuilder.com) und `/.well-known/assetlinks.json` mit dem Fingerabdruck auf `trainer.` ablegen. Für einen Test vor dem Store gern zusätzlich auf `trainer-test.` mit eigenem Paketnamen/Fingerabdruck.
+
 ## 13.11.2026 (21) – Antwort auf eure Übergabe (34): Schalter „Erinnerung an/aus“ (Version 0.13.1), Play-Store-Vorbereitung
 
 - **Schalter** (`role="switch"`), Uhrzeitfeld nur sichtbar, wenn an. Einschalten = Erlaubnis anfragen + `POST /api/push` (Vorgabe 18:00 bzw. zuletzt gewählte Zeit); „Speichern“ = erneut `POST /api/push` mit neuer Zeit; Ausschalten = `POST /api/push/aus` + `unsubscribe()`.

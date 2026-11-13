@@ -383,6 +383,18 @@ for (const [name, fn] of Object.entries({ ...G, ...H, ...K, ...K4 })) {
   for (const fn of Object.values(K4)) if (typeof fn === 'function' && /^gen/.test(fn.name)) ok(typeof fn.topic === 'string', `${fn.name}: hat einen Themen-Namen`);
 }
 
+// 6h) App-Manifest und Bauplan der Android-Hülle: vollständig, Dateien vorhanden, keine Geheimnisse
+{ const { readFileSync, existsSync } = await import('node:fs'); const root = new URL('..', import.meta.url).pathname;
+  const man = JSON.parse(readFileSync(`${root}app/manifest.webmanifest`, 'utf8')), twa = JSON.parse(readFileSync(`${root}android/twa-manifest.json`, 'utf8'));
+  ok(man.display === 'standalone' && man.start_url === './' && man.id && man.lang === 'de' && /^#[0-9a-f]{6}$/.test(man.theme_color) && man.categories.includes('education'), 'Manifest: Grundangaben');
+  ok(man.icons.some((i) => i.sizes === '512x512' && i.purpose === 'maskable') && man.icons.every((i) => existsSync(`${root}app/${i.src}`)), 'Manifest: Symbole vorhanden (auch maskierbar)');
+  ok(man.shortcuts.length >= 3 && man.shortcuts.every((s) => /^\.\/#\/(tag|blitz|wiederholen|aufgabe)$/.test(s.url) && s.name && s.icons.every((i) => existsSync(`${root}app/${i.src}`))), 'Manifest: Kurzbefehle führen auf vorhandene Seiten');
+  ok(man.screenshots.filter((s) => s.form_factor === 'narrow').length >= 3 && man.screenshots.some((s) => s.form_factor === 'wide') && man.screenshots.every((s) => existsSync(`${root}app/${s.src}`) && s.label), 'Manifest: Vorschaubilder vorhanden');
+  ok(twa.host === 'trainer.mathenachhilfe-online.com' && twa.enableNotifications === true && /^[a-z][a-z0-9_]*(\.[a-z][a-z0-9_]*)+$/.test(twa.packageId) && twa.shortcuts.length === man.shortcuts.length, 'Android-Hülle: Adresse, Paketname, Mitteilungen an, Kurzbefehle wie im Manifest');
+  ok(!/password|passwort|storepass|keypass/i.test(JSON.stringify(twa)) && readFileSync(`${root}android/.gitignore`, 'utf8').includes('*.keystore'), 'Android-Hülle: kein Passwort im Bauplan, Schlüssel-Dateien sind vom Repo ausgeschlossen');
+  const sw = readFileSync(`${root}app/sw.js`, 'utf8'); ok(!sw.includes('img/shots/'), 'Service Worker: Vorschaubilder werden nicht offline vorgeladen');
+}
+
 // 7) Murmelbahn: Ziel-Parameter sind einstellbar und gewinnen; die Startwerte gewinnen nicht.
 MB.forEach((L, i) => {
   const K = { line: (p, x) => p.m * x + p.b, par: (p, x) => p.a * (x - p.d) ** 2 + p.e }[L.kind];

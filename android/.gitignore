@@ -1,0 +1,9 @@
+# Signier-Schlüssel und Build-Ergebnisse gehören nie ins Repo
+*.keystore
+*.jks
+*.apk
+*.aab
+*.idsig
+build/
+app/
+.gradle/
