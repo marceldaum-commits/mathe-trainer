@@ -66,6 +66,18 @@ await page.locator('#lv button').nth(LEVEL - 1).click();
 if (!(await page.locator('#lv button').nth(LEVEL - 1).evaluate((n) => n.classList.contains('on')))) throw new Error('Schwierigkeit wurde nicht übernommen');
 await page.reload(); await page.waitForSelector('.unit');
 if (!(await page.locator('#lv button').nth(LEVEL - 1).evaluate((n) => n.classList.contains('on')))) throw new Error('Schwierigkeit nach Neuladen vergessen');
+// Hell/Dunkel-Schalter: wechselt, bleibt nach Neuladen, Hintergrund ändert sich wirklich
+const bgOf = () => page.evaluate(() => getComputedStyle(document.body).backgroundColor);
+const look0 = await page.getAttribute('html', 'data-look'), bg0 = await bgOf();
+if (look0 !== (process.env.DARK ? 'dunkel' : 'hell')) throw new Error(`Start-Design folgt nicht dem Gerät: ${look0}`);
+await page.click('#look');
+const look1 = await page.getAttribute('html', 'data-look'), bg1 = await bgOf();
+if (look1 === look0 || bg1 === bg0) throw new Error('Hell/Dunkel-Schalter ohne Wirkung');
+await page.reload(); await page.waitForSelector('.unit');
+if ((await page.getAttribute('html', 'data-look')) !== look1) throw new Error('Hell/Dunkel-Wahl nach Neuladen vergessen');
+await shot('00-start-umgeschaltet');
+await page.click('#look');
+if ((await page.getAttribute('html', 'data-look')) !== look0) throw new Error('Zurückschalten klappt nicht');
 const title = await page.textContent('h1');
 if (!title.includes('Verstehen')) throw new Error('Startseite fehlt');
 

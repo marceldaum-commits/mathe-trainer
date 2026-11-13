@@ -1,5 +1,5 @@
 // Raum-Blick: ein drehbares 3D-Koordinatensystem. Geraden von allen Seiten ansehen.
-import { h, tex, cssVar, buzz, sfx } from '../ui.js';
+import { h, tex, cssVar, buzz, sfx, onLook } from '../ui.js';
 
 const V = (v) => `\\begin{pmatrix}${v.join('\\\\')}\\end{pmatrix}`;
 const lineTex = (name, P, u, par) => `${name}:\\ \\vec x=${V(P)}+${par}\\cdot${V(u)}`;
@@ -37,6 +37,7 @@ export function raum(el, ctx) {
   const M = () => MISSIONS[mi];
   let W = 300, H = 300;
   const ro = new ResizeObserver(() => { size(); draw(); }); ro.observe(cv);
+  const offLook = onLook(() => draw());
   function size() { const r = cv.getBoundingClientRect(), d = Math.min(window.devicePixelRatio || 1, 3); W = r.width || 300; H = r.height || 300; cv.width = Math.round(W * d); cv.height = Math.round(H * d); g.setTransform(d, 0, 0, d, 0, 0); }
 
   function proj(p) {
@@ -127,5 +128,5 @@ export function raum(el, ctx) {
   });
 
   size(); setMission();
-  return () => { clearInterval(timer); ro.disconnect(); };
+  return () => { clearInterval(timer); ro.disconnect(); offLook(); };
 }

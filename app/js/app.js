@@ -2,7 +2,7 @@
 import { UNITS, AREAS } from './units.js';
 import { store, LEVELS } from './store.js';
 import { CONFIG, VERSION } from './config.js';
-import { $, h, esc, ICON, starsHtml, toast, sfx, sound, confetti } from './ui.js';
+import { $, h, esc, ICON, starsHtml, toast, sfx, sound, confetti, look } from './ui.js';
 import { abiView, rundeView } from './exam.js';
 import { settingsView, berichtView, karteiView, dailyGoal, openSteps } from './extras.js';
 
@@ -12,10 +12,12 @@ let installEvent = null;
 
 function chips() {
   $('#chips').innerHTML =
+    `<button class="look" type="button" id="look" aria-pressed="${look.dark}" aria-label="${look.dark ? 'Helles' : 'Dunkles'} Design einschalten">${ICON.moon}${ICON.sun}</button>` +
     `<button class="chip snd" type="button" id="snd" aria-pressed="${sound.on}" aria-label="Ton ${sound.on ? 'ausschalten' : 'einschalten'}">${sound.on ? ICON.speaker : ICON.mute}</button>` +
     `<span class="chip fire" title="Lern-Serie in Tagen">${ICON.fire}${store.streak}</span>` +
     `<span class="chip xp" title="Punkte">${ICON.bolt}${store.xp}</span>`;
   $('#snd').onclick = () => { sound.on = !sound.on; chips(); sfx('ok'); };
+  $('#look').onclick = () => { look.toggle(); chips(); sfx('tap'); };
 }
 
 function nextSpot() {
@@ -188,6 +190,7 @@ function route() {
   window.scrollTo(0, 0);
 }
 
+look.follow();
 window.addEventListener('hashchange', route);
 window.addEventListener('beforeinstallprompt', (ev) => { ev.preventDefault(); installEvent = ev; if (!location.hash || location.hash === '#/') route(); });
 route();

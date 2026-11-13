@@ -1,5 +1,5 @@
 // Zeichenfläche für Graphen: Koordinaten-Umrechnung, Gitter, Kurven, Punkte.
-import { cssVar } from './ui.js';
+import { cssVar, onLook } from './ui.js';
 
 export class Plot {
   /** view: {x0,x1,y0,y1}; die Höhe der Fläche ergibt sich aus dem Seitenverhältnis der Ansicht (gleiche Skalierung). */
@@ -12,9 +12,10 @@ export class Plot {
     this.onResize = null;
     this.ro = new ResizeObserver(() => { this.resize(); this.onResize?.(); });
     this.ro.observe(canvas);
+    this.offLook = onLook(() => this.onResize?.());
     this.resize();
   }
-  destroy() { this.ro.disconnect(); }
+  destroy() { this.ro.disconnect(); this.offLook(); }
   resize() {
     const r = this.c.getBoundingClientRect();
     const d = Math.min(window.devicePixelRatio || 1, 3);

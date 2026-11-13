@@ -1,5 +1,5 @@
 // Zufalls-Labor: Viele Versuchsreihen laufen lassen und sehen, wo der „Berg" der Verteilung liegt.
-import { h, tex, cssVar, buzz, sfx } from '../ui.js';
+import { h, tex, cssVar, buzz, sfx, onLook } from '../ui.js';
 import { fmt, ft } from '../math.js';
 
 export const MISSIONS = [
@@ -42,6 +42,7 @@ export function labor(el, ctx) {
   const M = () => MISSIONS[mi];
   let W = 300, H = 220;
   const ro = new ResizeObserver(() => { size(); draw(); }); ro.observe(cv);
+  const offLook = onLook(() => draw());
 
   function size() {
     const r = cv.getBoundingClientRect(), d = Math.min(window.devicePixelRatio || 1, 3);
@@ -151,5 +152,5 @@ export function labor(el, ctx) {
   });
 
   size(); setMission();
-  return () => { cancelAnimationFrame(raf); ro.disconnect(); };
+  return () => { cancelAnimationFrame(raf); ro.disconnect(); offLook(); };
 }

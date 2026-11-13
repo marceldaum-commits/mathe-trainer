@@ -1,6 +1,6 @@
 // Extremwert-Werkstatt: Eine Größe verändern, die Zielgröße wächst und fällt – das Maximum finden.
 import { Plot } from '../plot.js';
-import { tex, cssVar, buzz, sfx } from '../ui.js';
+import { tex, cssVar, buzz, sfx, onLook } from '../ui.js';
 import { fmt } from '../math.js';
 
 export const LEVELS = [
@@ -29,6 +29,7 @@ export function werkstatt(el, ctx) {
   const L = () => LEVELS[li];
   let W = 300, H = 160;
   const ro = new ResizeObserver(() => { size(); draw(); }); ro.observe(pic);
+  const offLook = onLook(() => draw());
   function size() { const r = pic.getBoundingClientRect(), d = Math.min(window.devicePixelRatio || 1, 3); W = r.width || 300; H = r.height || 160; pic.width = Math.round(W * d); pic.height = Math.round(H * d); g.setTransform(d, 0, 0, d, 0, 0); }
 
   function sketch() {
@@ -99,5 +100,5 @@ export function werkstatt(el, ctx) {
   });
 
   load();
-  return () => { cancelAnimationFrame(raf); ro.disconnect(); plot.destroy(); };
+  return () => { cancelAnimationFrame(raf); ro.disconnect(); offLook(); plot.destroy(); };
 }

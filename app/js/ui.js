@@ -23,6 +23,8 @@ export const ICON = {
   left: '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.500" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 6-6 6 6 6"/></svg>',
   speaker: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9z" fill="currentColor"/><path d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.500 8.500 0 0 1 0 12"/></svg>',
   mute: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9z" fill="currentColor"/><path d="m17 9 5 6M22 9l-5 6"/></svg>',
+  moon: '<svg class="moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>',
+  sun: '<svg class="sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.2" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M12 2.5v2.2M12 19.3v2.2M2.5 12h2.2M19.3 12h2.2M5.3 5.3l1.6 1.6M17.1 17.1l1.6 1.6M5.3 18.7l1.6-1.6M17.1 6.9l1.6-1.6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>',
   close: '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.500" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>',
   check: '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 5 5 9-10"/></svg>',
 };
@@ -105,3 +107,25 @@ export function confetti(n = 36) {
 }
 
 export const cssVar = (name) => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+
+/* Hell/Dunkel: gleiche Logik wie auf der Website (gespeicherte Wahl, sonst Geräte-Einstellung). */
+const LOOK_KEY = 'mt.look';
+const storedLook = () => { try { const v = localStorage.getItem(LOOK_KEY); return v === 'hell' || v === 'dunkel' ? v : null; } catch { return null; } };
+export const look = {
+  get dark() { return document.documentElement.getAttribute('data-look') === 'dunkel'; },
+  apply(v, save) {
+    document.documentElement.setAttribute('data-look', v);
+    document.querySelector('meta[name="theme-color"]')?.setAttribute('content', v === 'dunkel' ? '#0b1330' : '#ffffff');
+    if (save) { try { localStorage.setItem(LOOK_KEY, v); } catch { /* privater Modus: nur diese Sitzung */ } }
+    window.dispatchEvent(new Event('mt-look'));   // Zeichenflächen malen sich in den neuen Farben neu
+  },
+  toggle() { this.apply(this.dark ? 'hell' : 'dunkel', true); },
+  /** Folgt dem Gerät, solange nichts gewählt wurde. */
+  follow() {
+    this.apply(this.dark ? 'dunkel' : 'hell', false);
+    const mq = window.matchMedia?.('(prefers-color-scheme: dark)');
+    mq?.addEventListener?.('change', () => { if (!storedLook()) this.apply(mq.matches ? 'dunkel' : 'hell', false); });
+  },
+};
+/** Meldet eine Zeichenfunktion an, die beim Wechsel Hell/Dunkel erneut läuft. Liefert die Abmelde-Funktion. */
+export function onLook(fn) { window.addEventListener('mt-look', fn); return () => window.removeEventListener('mt-look', fn); }
