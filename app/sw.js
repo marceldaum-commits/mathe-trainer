@@ -1,6 +1,6 @@
 // Service Worker: macht die App offline nutzbar und liefert Updates aus.
 // CACHE muss zur VERSION in js/config.js passen; ASSETS pflegt `npm run fix` (tools/check.mjs).
-const CACHE = 'mt-0.9.3';
+const CACHE = 'mt-0.10.0';
 const ASSETS = [
   "./",
   "css/app.css",
@@ -39,11 +39,13 @@ const ASSETS = [
   "js/math.js",
   "js/melden.js",
   "js/plot.js",
+  "js/plus.js",
   "js/quiz.js",
   "js/share.js",
   "js/store.js",
   "js/ui.js",
   "js/units.js",
+  "js/verbund.js",
   "manifest.webmanifest",
   "vendor/katex/fonts/KaTeX_AMS-Regular.woff2",
   "vendor/katex/fonts/KaTeX_Caligraphic-Bold.woff2",

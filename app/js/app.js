@@ -2,6 +2,7 @@
 import { UNITS, AREAS, practiceGens, stepExtra, unitExtra, NICHT_TEXT } from './units.js';
 import { quiz } from './quiz.js';
 import { initMelden } from './melden.js';
+import { einstufungView, einstufungErgebnis, verbundView, planView, planNow, zertifikatView, areaDone } from './plus.js';
 import { mixOf } from './gen.js';
 import { store, LEVELS } from './store.js';
 import { CONFIG, VERSION } from './config.js';
@@ -109,6 +110,8 @@ function home() {
     const goal = dailyGoal(openSteps(), days);
     today.append(h(`<section class="card count"><b class="big">${days}</b><span><h3>${days === 1 ? 'Tag' : 'Tage'} bis zum Mathe-Abi</h3><small class="muted">${goal ? `Tagesziel: ${goal} ${goal === 1 ? 'Schritt' : 'Schritte'} im Lernpfad.` : 'Alle Schritte geschafft – jetzt Abi-Modus und Wiederholen.'}</small></span></section>`));
   }
+  if (!started && !store.einstufung) today.append(h(linkCard('#/einstufung/ergebnis', '?', 'Erst einstufen?', 'Zwölf Aufgaben zeigen dir, wo du am besten anfängst.')));
+  { const w = planNow(); if (w?.units.length) today.append(h(linkCard('#/plan', ICON.right, 'Lernplan: diese Woche', esc(w.units.map((u) => u.title).join(' · '))))); }
   if (due) today.append(h(linkCard('#/wiederholen', due, 'Wiederholen', `${due === 1 ? 'Eine Aufgabenart ist' : `${due} Aufgabenarten sind`} heute fällig.`)));
   today.append(weekCard(() => { chips(); badgeCheck(); route(); }));
   today.append(h(linkCard('#/tag', ICON.bolt, 'Tages-Runde', tb !== undefined ? `Heute: ${tb} Punkte – noch einmal?` : 'Sechs Aufgaben, heute für alle gleich.')));
@@ -120,6 +123,7 @@ function lernenView() {
   const el = h(`<div class="view stack">
     <div><span class="eyebrow">Lernen</span><h1 style="margin-top:8px">Wähle ein Gebiet</h1></div>
     <section class="stack">${LERN_AREAS().map((a) => { const s = areaStat(a); return linkCard(`#/g/${a.id}`, `<i class="pct">${Math.round(s.pct)} %</i>`, a.title, `${esc(AREA_INFO[a.id])} · ${s.doneUnits}/${s.n} Einheiten`); }).join('')}</section>
+    <section class="stack">${linkCard('#/einstufung/ergebnis', '?', store.einstufung ? 'Deine Einstufung' : 'Einstufungstest', store.einstufung ? 'Ergebnis ansehen oder Test wiederholen.' : 'Zwölf Aufgaben, fünf Minuten: Wo fängst du am besten an?')}</section>
     <div id="lvbox"></div>
   </div>`);
   $('#lvbox', el).append(levelCard());
@@ -151,6 +155,7 @@ function pruefungView() {
       <div class="bar big"><i style="width:${readiness()}%"></i></div><small class="muted">Aus Lernpfad, Trefferquote und bestem Abi-Modus-Ergebnis – eine Orientierung.</small></section>
     <section class="stack">
       ${linkCard('#/abi', 'A·B', 'Abi-Modus', ex ? `Zuletzt: ${ex.np} Notenpunkte (Teil ${esc(ex.part)})` : 'Auf Zeit, ohne Tipps, mit Punkte-Prognose.')}
+      ${linkCard('#/aufgabe', 'a–e', 'Abi-Aufgabe am Stück', 'Ein Sachverhalt, mehrere Teilaufgaben – wie in der Prüfung.')}
       ${linkCard('#/tag', ICON.bolt, 'Tages-Runde', tb !== undefined ? `Heute: ${tb} Punkte` : 'Sechs Aufgaben, heute für alle gleich.')}
       ${linkCard('#/blitz', '60', 'Blitz-Runde', store.n('blitzRekord') ? `Dein Rekord: ${store.n('blitzRekord')} Punkte` : '60 Sekunden, Kombo-Faktor, so viele wie möglich.')}
       ${linkCard('#/duell', 'VS', 'Duell', best ? `Dein Bestwert: ${best.score} Punkte` : 'Fordere Mitschüler per Link heraus.')}
@@ -169,6 +174,8 @@ function mehrView() {
     <section class="stack">
       ${linkCard('#/wiederholen', due || ICON.check, 'Fehler-Kartei', due ? `${due} ${due === 1 ? 'Aufgabenart ist' : 'Aufgabenarten sind'} heute fällig.` : `${store.karteCount} in der Kartei, heute nichts fällig.`)}
       ${linkCard('#/erfolge', ICON.star, 'Erfolge', `${titleOf().title} · ${Object.keys(store.badges).length} Abzeichen`)}
+      ${linkCard('#/plan', ICON.right, 'Lernplan bis zum Abi', store.abi ? 'Was diese Woche dran ist.' : 'Abi-Termin eintragen – die App verteilt den Stoff auf die Wochen.')}
+      ${linkCard('#/zertifikat', ICON.check, 'Zertifikate', 'Für jedes geschaffte Gebiet – zum Ausdrucken.')}
       ${linkCard('#/formeln', '∑', 'Formelsammlung', 'Jede abgeschlossene Einheit schaltet Formelkarten frei.')}
       ${linkCard('#/bericht', 'B', 'Bericht für Eltern', 'Lernstand zum Drucken oder Teilen.')}
       ${linkCard('#/einstellungen', ICON.gear, 'Einstellungen', `Schwierigkeit ${LEVELS[store.level - 1]} · Bundesland · Abi-Termin`)}
@@ -290,7 +297,7 @@ function route() {
   const hash = location.hash;
   const m = hash.match(/^#\/u\/([\w-]+)(?:\/(\d+))?$/);
   const u = m && UNITS.find((x) => x.id === m[1]);
-  const x = hash.match(/^#\/(abi|tag|duell|blitz|bericht|einstellungen|wiederholen|erfolge|formeln|klasse|lehrplan)(?:\/([\w-]+))?$/);
+  const x = hash.match(/^#\/(abi|tag|duell|blitz|bericht|einstellungen|wiederholen|erfolge|formeln|klasse|lehrplan|einstufung|aufgabe|plan|zertifikat)(?:\/([\w-]+))?$/);
   const gm = hash.match(/^#\/g\/(\w+)$/), g = gm && LERN_AREAS().find((a) => a.id === gm[1]);
   const pm = hash.match(/^#\/ueben\/(\w+?)(-grund)?$/), pa = pm && LERN_AREAS().find((a) => a.id === pm[1]);
   let el;
@@ -299,7 +306,8 @@ function route() {
   else if (x) {
     const after = () => { chips(); setTimeout(badgeCheck, 600); };
     const r = { abi: () => abiView(['A', 'B'].includes(x[2]) ? x[2] : null, after), tag: () => rundeView('tag', undefined, (res) => { after(); meldeTag(res); }), duell: () => rundeView('duell', x[2], after), blitz: () => blitzView(after),
-      bericht: berichtView, einstellungen: settingsView, wiederholen: karteiView, erfolge: erfolgeView, formeln: formelnView, klasse: klasseView, lehrplan: lehrplanView }[x[1]]();
+      bericht: berichtView, einstellungen: settingsView, wiederholen: karteiView, erfolge: erfolgeView, formeln: formelnView, klasse: klasseView, lehrplan: lehrplanView,
+      einstufung: () => (x[2] === 'ergebnis' ? einstufungErgebnis() : einstufungView()), aufgabe: () => verbundView(x[2]), plan: planView, zertifikat: () => zertifikatView(x[2]) }[x[1]]();
     el = r.el; cleanup = r.cleanup || null;
   } else if (hash === '#/lernen') el = lernenView();
   else if (hash === '#/pruefung') el = pruefungView();
@@ -323,7 +331,7 @@ function nav() {
   const hash = location.hash || '#/';
   const um = hash.match(/^#\/u\/([\w-]+)/), unit = um && UNITS.find((x) => x.id === um[1]);
   const tab = unit ? (unit.area === 'pruefung' ? 'pruefung' : 'lernen')
-    : /^#\/(lernen|g\/|ueben\/)/.test(hash) ? 'lernen' : /^#\/(pruefung|abi|tag|duell|blitz|klasse)/.test(hash) ? 'pruefung' : /^#\/(mehr|bericht|einstellungen|wiederholen|erfolge|formeln|lehrplan)/.test(hash) ? 'mehr' : 'start';
+    : /^#\/(lernen|g\/|ueben\/|einstufung)/.test(hash) ? 'lernen' : /^#\/(pruefung|abi|tag|duell|blitz|klasse|aufgabe)/.test(hash) ? 'pruefung' : /^#\/(mehr|bericht|einstellungen|wiederholen|erfolge|formeln|lehrplan|plan|zertifikat)/.test(hash) ? 'mehr' : 'start';
   document.querySelectorAll('#nav a').forEach((a) => { const on = a.dataset.tab === tab; a.classList.toggle('on', on); if (on) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current'); });
   $('#nav').hidden = !!view.querySelector('.stephead');
 }

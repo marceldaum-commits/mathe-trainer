@@ -174,6 +174,9 @@ export const store = {
   get meldungen() { return Array.isArray(mem.meldungen) ? mem.meldungen : []; },
   meldungNeu(r) { mem.meldungen = [...this.meldungen, r].slice(-20); save(); },
   meldungWeg(zeit) { mem.meldungen = this.meldungen.filter((r) => r.zeit !== zeit); save(); },
+  /** Ergebnis des Einstufungstests: { tag, res: { gebiet: [grund, kern] }, stufe } oder null. */
+  get einstufung() { return mem.einstufung && typeof mem.einstufung === 'object' ? mem.einstufung : null; },
+  set einstufung(v) { mem.einstufung = v; save(); },
   /** Zuletzt gespielte Einheit (id) oder ''. */
   get last() { return typeof mem.last === 'string' ? mem.last : ''; },
   get klasse() { return mem.klasse; },

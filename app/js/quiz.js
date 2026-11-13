@@ -21,9 +21,13 @@ export function quiz(sequence, opts = {}) {
       let asInput = !!spec;
       let firstTry = true;
       const miss = () => { if (firstTry) { firstTry = false; store.record(q.topic, false); store.kartePut(q.gen, q.topic); } };
-      let tipN = 0, solved = false, kombo = '';
+      let tipN = 0, solved = false, kombo = '', wrongHere = 0;
+      // Rechenweg Schritt für Schritt: die gestuften Tipps als Schritte, am Ende das Ergebnis mit Begründung.
+      const weg = (open = false) => `<details class="weg"${open ? ' open' : ''}><summary>Rechenweg Schritt für Schritt</summary><ol>${q.hints.map((t) => `<li>${t}</li>`).join('')}<li><b>Ergebnis:</b> ${q.explain}</li></ol></details>`;
+      const stuck = () => { wrongHere++; if (wrongHere === 2 && !solved) note.insertAdjacentHTML('beforeend', `<div class="weg-wrap">${weg()}</div>`); };
       el.innerHTML = `
         <div class="q">
+          ${opts.kopf ? `<div class="kopf">${opts.kopf}</div>` : ''}
           <div class="mission"><b class="tag">${qi + 1}/${sequence.length}</b><p>${q.prompt}</p></div>
           ${q.graph ? '<div class="stage"><canvas aria-label="Graph"></canvas></div>' : ''}
           ${q.formula ? `<div class="formula" id="q-f">${tex(q.formula, true)}</div>` : ''}
@@ -50,7 +54,7 @@ export function quiz(sequence, opts = {}) {
           combo++; store.max('komboMax', combo);
           if (combo >= 2) { const b = Math.min(combo - 1, 5); store.bonus(b); kombo = `<span class="kombo" id="q-kombo">Kombo ×${combo} · +${b}</span> `; }
         } else { opts.onWrong?.(q); combo = 0; }
-        note.innerHTML = `<div class="note ok">${kombo}<b>Richtig.</b> ${q.explain}</div>`;
+        note.innerHTML = `<div class="note ok">${kombo}<b>Richtig.</b> ${q.explain}</div>${firstTry ? '' : `<div class="weg-wrap">${weg()}</div>`}`;
         ctx.progress((qi + 1) / sequence.length);
         buzz();
       };
@@ -103,6 +107,7 @@ export function quiz(sequence, opts = {}) {
           mistakes++; wrongN++; sfx('bad'); miss(); inp.classList.add('no');
           const why = diagnose(v, q, spec.faktor);
           note.innerHTML = `<div class="note bad"><b>${why ? 'Typischer Fehler.' : 'Noch nicht.'}</b> ${why || 'Rechne noch einmal nach – oder nimm einen Tipp.'}</div>`;
+          stuck();
           if (wrongN >= 2 && !form.querySelector('#q-wahl')) {
             const w = h('<button class="btn ghost small" id="q-wahl" type="button">Auswahl zeigen</button>');
             w.onclick = () => { asInput = false; body.replaceChildren(); choices(); note.innerHTML = ''; };
@@ -127,6 +132,7 @@ export function quiz(sequence, opts = {}) {
               mistakes++; sfx('bad'); miss();
               b.classList.add('wrong');
               note.innerHTML = `<div class="note bad"><b>Typischer Fehler.</b> ${o.why}</div>`;
+              stuck();
             }
           });
           box.append(b);

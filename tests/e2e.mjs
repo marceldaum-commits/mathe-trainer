@@ -21,6 +21,8 @@ const errors = [];
 let serverAus = false;   // solange der nachgestellte Melde-Server „nicht erreichbar“ spielt, sind seine Lade-Fehler erwartet
 page.on('console', (m) => { if (m.type() === 'error' && !(serverAus && /Failed to load resource/.test(m.text()))) errors.push(m.text()); });
 page.on('pageerror', (e) => errors.push(String(e)));
+const apiCalls = [];
+page.on('request', (r) => { const p = new URL(r.url()).pathname; if (p.startsWith('/api/') && p !== '/api/meldung') apiCalls.push(p); });
 const shot = async (name) => { if (shots) await page.screenshot({ path: `${shots}/${name}.png` }); };
 process.on('uncaughtException', async (e) => { console.error(String(e).split('\n')[0]); if (shots) await page.screenshot({ path: `${shots}/fehler.png` }).catch(() => {}); process.exit(1); });
 const fail = (msg) => { throw new Error(msg); };
@@ -421,9 +423,10 @@ await page.goto(BASE); await page.reload(); await page.waitForSelector('#wk-clai
 const xpBefore = +(await page.textContent('.chip.xp'));
 await page.click('#wk-claim'); await page.waitForSelector('#wk-claim', { state: 'detached' });
 if (+(await page.textContent('.chip.xp')) !== xpBefore + 50) fail('Truhe gibt nicht 50 Punkte');
-// Ohne Server ist die Klassen-Rangliste nicht sichtbar
+// Klassen-Rangliste wird angeboten; ohne Klasse hat die App bis hierher nichts an /api geschickt (außer Meldungen)
 await page.goto(`${BASE}#/pruefung`); await page.waitForSelector('a[href="#/blitz"]');
-if (await page.locator('a[href="#/klasse"]').count()) fail('Klassen-Rangliste darf ohne Server nicht angeboten werden');
+if (!(await page.locator('a[href="#/klasse"]').count())) fail('Klassen-Rangliste wird nicht angeboten');
+if (apiCalls.length) fail(`Unerwartete Anfragen an den Server ohne Klasse: ${apiCalls.join(', ')}`);
 
 /* ───────────── Fortschritt, Vorlade-Liste, Offline ───────────── */
 async function countDone() {
@@ -459,10 +462,13 @@ await p2.route('**/js/config.js', async (route) => { const r = await route.fetch
 await p2.route('**/api/**', async (route) => {
   const u = new URL(route.request().url()), body = route.request().postDataJSON?.() ?? null; calls.push([u.pathname, body]);
   if (u.pathname === '/api/klasse/beitreten') return route.fulfill({ json: body.code === 'K7M2QX' ? { klasse: 'Q12 Mathe', spieler: 'p-123' } : { error: 'Diesen Code gibt es nicht.' }, status: body.code === 'K7M2QX' ? 200 : 404 });
+  if (u.pathname === '/api/klasse') return route.fulfill({ json: body.name?.length >= 2 ? { code: 'K7M2QX' } : { error: 'Name fehlt.' } });
   if (u.pathname.endsWith('/rangliste')) return route.fulfill({ json: { woche: '2026-11-09', liste: [{ name: 'Mia', punkte: 540 }, { name: 'Testfuchs', punkte: 480, ich: true }, { name: '<b>Frech</b>', punkte: 10 }] } });
   return route.fulfill({ json: { ok: true } });
 });
 await p2.goto(`${BASE}#/pruefung`); await p2.waitForSelector('a[href="#/klasse"]'); await p2.click('a[href="#/klasse"]'); await p2.waitForSelector('#kl-code');
+await p2.click('details summary'); await p2.fill('#kl-new', 'Q12 Mathe'); await p2.click('#kl-make'); await p2.waitForSelector('#kl-newnote .note.ok');
+if ((await p2.inputValue('#kl-code')) !== 'K7M2QX') fail('Klasse anlegen: Code wird nicht übernommen');
 await p2.fill('#kl-code', 'abc'); await p2.fill('#kl-name', 'Testfuchs'); await p2.click('#kl-join'); await p2.waitForSelector('#kl-note .note.bad');
 await p2.fill('#kl-code', 'ZZZZZZ'); await p2.click('#kl-join'); await p2.waitForFunction(() => document.querySelector('#kl-note')?.textContent.includes('gibt es nicht'));
 await p2.fill('#kl-code', 'k7m2qx'); await p2.click('#kl-join'); await p2.waitForSelector('#kl-list .me');
@@ -474,6 +480,11 @@ for (let g = 0; g < 40 && !(await p2.locator('#rd-score').count()); g++) { await
 await p2.waitForTimeout(300);
 const meld = calls.find(([path]) => path === '/api/ergebnis');
 if (!meld || meld[1].code !== 'K7M2QX' || meld[1].spieler !== 'p-123' || !Array.isArray(meld[1].antworten) || meld[1].antworten.length !== 6 || !Number.isInteger(meld[1].tag)) fail('Ergebnis wird dem Server nicht richtig gemeldet');
+p2.on('dialog', (d) => d.accept());
+await p2.goto(`${BASE}#/klasse`); await p2.waitForSelector('#kl-leave'); await p2.click('#kl-leave'); await p2.waitForSelector('#kl-code');
+const raus = calls.find(([path]) => path === '/api/klasse/verlassen');
+if (!raus || raus[1].code !== 'K7M2QX' || raus[1].spieler !== 'p-123') fail('Klasse verlassen wird dem Server nicht gemeldet');
+if (await p2.evaluate(() => JSON.parse(localStorage.getItem('mt.v1')).klasse)) fail('Klasse verlassen: Eintrag bleibt im Gerät');
 await ctx2.close();
 
 /* ───────────── Breiter Bildschirm (PC): Menü oben, Karten nebeneinander, Knopf im Spiel ohne Scrollen ───────────── */

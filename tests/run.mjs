@@ -308,6 +308,45 @@ for (const [name, fn] of Object.entries({ ...G, ...H, ...K })) {
   ok(extra.join() === 'expln/ln,s-verteilung/sigma,g-ebene/kreuz' && UNITS.every((u) => u.steps.every((s) => !stepExtra(s, 'BY') && !stepExtra(s, 'HE-LK'))), `Lehrplan: markierte Schritte (${extra.join()})`);
 }
 
+// 6f) Abi-Aufgaben am Stück: jede Teilaufgabe unabhängig nachgerechnet
+{ const V = await import('../app/js/verbund.js');
+  const chk = (A, tag) => { ok(A.parts.length === A.be.length && A.parts.length >= 4 && A.intro && A.formula, `${tag}: Aufbau`); A.parts.forEach((q, i) => { ok(q.prompt.startsWith(`<b>${'abcdef'[i]})</b>`), `${tag}: Teilaufgabe ${i + 1} beschriftet`); basics(`${tag} ${'abcdef'[i]})`, q, 0); }); return Object.fromEntries(A.parts.map((q) => [q.kind, q])); };
+  const R = (q) => q.options.find((o) => o.correct), W = (q) => q.options.filter((o) => !o.correct);
+  const logC = (n, k) => { let s = 0; for (let i = 1; i <= k; i++) s += Math.log(n - k + i) - Math.log(i); return s; };
+  for (const lv of LV) for (let i = 0; i < 60; i++) {
+    { const A = V.verbundAnalysis(lv), t = `Verbund Analysis (Stufe ${lv})`, P = chk(A, t), f = A.f, d1 = (x) => nDeriv(f, x), dd = (x) => (f(x + 1e-3) - 2 * f(x) + f(x - 1e-3)) / 1e-6;
+      ok(XS.every((x) => close(R(P.abl).val(x), d1(x))) && W(P.abl).every((o) => XS.some((x) => !close(o.val(x), d1(x)))), `${t}: Ableitung (${A.formula})`);
+      ok(R(P.stellen).xs.every((x) => Math.abs(d1(x)) < 1e-4) && R(P.stellen).xs[0] < R(P.stellen).xs[1] && W(P.stellen).every((o) => o.xs.some((x) => Math.abs(d1(x)) > 1e-3)), `${t}: Stellen mit waagerechter Tangente (${A.formula})`);
+      const good = (o) => Math.abs(d1(o.pt[0])) < 1e-4 && close(f(o.pt[0]), o.pt[1]) && (o.hoch ? dd(o.pt[0]) < -1e-3 : dd(o.pt[0]) > 1e-3);
+      ok(good(R(P.extrem)) && W(P.extrem).every((o) => !good(o)), `${t}: Extrempunkt (${A.formula})`);
+      ok(Math.abs(dd(R(P.wende).num)) < 1e-2 && W(P.wende).every((o) => Math.abs(dd(o.num)) > 0.5), `${t}: Wendestelle (${A.formula})`);
+      const I = simpson(f, A.a, A.b); ok(close(R(P.integral).num, I) && W(P.integral).every((o) => !close(o.num, I)), `${t}: Integral (${A.formula}, bis ${A.b})`); }
+    { const A = V.verbundStochastik(lv), t = `Verbund Stochastik (Stufe ${lv})`, P = chk(A, t), { n, p, k } = A;
+      ok(close(R(P.mu).num, n * p) && W(P.mu).every((o) => !close(o.num, n * p)), `${t}: Erwartungswert`);
+      const pk = Math.exp(logC(n, k) + k * Math.log(p) + (n - k) * Math.log(1 - p));
+      ok(Math.abs(R(P.genau).num - pk) <= 1e-9 * pk && W(P.genau).every((o) => Math.abs(o.num - pk) > 1e-6 * pk), `${t}: P(X=${k}) bei n=${n}, p=${p}`);
+      ok(R(P.genau).tex.includes(`\\binom{${n}}{${k}}`) && R(P.genau).tex.includes(`^{${k}}`) && R(P.genau).tex.includes(`^{${n - k}}`), `${t}: Bernoulli-Term vollständig`);
+      ok(close(R(P.min1).num, 1 - (1 - p) ** n) && R(P.min1).tex === `1-${String(+(1 - p).toFixed(4)).replace('.', '{,}')}^{${n}}`, `${t}: mindestens ein Treffer (${R(P.min1).tex})`);
+      ok(close(R(P.sigma).num, Math.sqrt(n * p * (1 - p))) && W(P.sigma).every((o) => !close(o.num, Math.sqrt(n * p * (1 - p)))), `${t}: Standardabweichung`); }
+    { const A = V.verbundGeometrie(lv), t = `Verbund Geometrie (Stufe ${lv})`, P = chk(A, t), u = A.B.map((c, j) => c - A.A[j]), w = A.C.map((c, j) => c - A.A[j]);
+      const eq = (a, b) => a.every((c, j) => close(c, b[j])), par = (a, b) => crossp(a, b).every((c) => Math.abs(c) < 1e-9) && b.some((c) => c !== 0);
+      ok(eq(R(P.ab).vec, u) && W(P.ab).every((o) => !eq(o.vec, u)), `${t}: Vektor AB`);
+      ok(close(R(P.laenge).num, Math.hypot(...u)) && W(P.laenge).every((o) => !close(o.num, Math.hypot(...u))), `${t}: Länge`);
+      ok(close(R(P.skalar).num, dotp(u, w)) && W(P.skalar).every((o) => !close(o.num, dotp(u, w))), `${t}: Skalarprodukt`);
+      const on = (o, X) => par(X.map((c, j) => c - o.P[j]), o.r) || eq(X, o.P), line = (o) => o.r.some((c) => c !== 0) && on(o, A.A) && on(o, A.B);
+      ok(line(R(P.gerade)) && W(P.gerade).every((o) => !line(o)), `${t}: Gerade durch A und B`);
+      const M = A.A.map((c, j) => (c + A.B[j]) / 2); ok(eq(R(P.mitte).vec, M) && W(P.mitte).every((o) => !eq(o.vec, M)), `${t}: Mittelpunkt`); }
+  }
+  const PL = await import('../app/js/plus.js');
+  { const e = PL.einstufung({ analysis: [2, 2], stochastik: [2, 2], geometrie: [2, 2] }); ok(e.total === 12 && e.stufe === 4 && Object.values(e.rat).every((r) => r === 'sicher'), 'Einstufung: alles richtig → sicher, Stufe schwer'); }
+  { const e = PL.einstufung({ analysis: [2, 1], stochastik: [1, 2], geometrie: [0, 0] }); ok(e.total === 6 && e.stufe === 2 && e.rat.analysis === 'kern' && e.rat.stochastik === 'grund' && e.rat.geometrie === 'grund' && e.schwach === 'geometrie', 'Einstufung: gemischt → Rat je Gebiet, schwächstes Gebiet'); }
+  ok(PL.einstufung({ analysis: [0, 0], stochastik: [0, 0], geometrie: [0, 0] }).stufe === 1, 'Einstufung: nichts richtig → sehr leicht');
+  for (const set of Object.values(PL.EINSTUFUNG)) for (const fn of [...set.grund, ...set.kern]) { const q = fn(2); ok(!q.type && q.options.length === 4, `Einstufung: ${fn.name} ist Auswahl-Aufgabe`); }
+  { const u = Array.from({ length: 10 }, (_, i) => ({ id: i })), t0 = new Date(2026, 10, 13);
+    const w = PL.planWeeks(u, 21, t0); ok(w.length === 3 && w.flatMap((x) => x.units).map((x) => x.id).join() === '0,1,2,3,4,5,6,7,8,9' && w.every((x) => x.units.length >= 3) && w[1].start.getDate() === 20, 'Lernplan: 10 Einheiten in 3 Wochen, jede genau einmal, in Reihenfolge');
+    ok(PL.planWeeks(u.slice(0, 2), 70, t0).length === 2 && PL.planWeeks(u, 0, t0).length === 1 && PL.planWeeks(u, 0, t0)[0].units.length === 10 && PL.planWeeks([], 30, t0)[0].units.length === 0, 'Lernplan: wenig Stoff, kein Tag mehr, nichts offen'); }
+}
+
 // 7) Murmelbahn: Ziel-Parameter sind einstellbar und gewinnen; die Startwerte gewinnen nicht.
 MB.forEach((L, i) => {
   const K = { line: (p, x) => p.m * x + p.b, par: (p, x) => p.a * (x - p.d) ** 2 + p.e }[L.kind];
@@ -496,8 +535,8 @@ const EX = await import('../app/js/exam.js');
 
 // 13h) Server-Schnittstelle (abgeschaltet) und KI-Prüfer
 { const A = await import('../app/js/api.js'); const { parse } = await import('../app/js/ki/expr.js'); const K = await import('../app/js/ki/verify.js');
-  ok(!A.serverOn() && !A.kiOn(), 'Server: ohne Einstellung abgeschaltet');
-  ok((await A.api.rangliste('ABCDEF', 'x')).off === true && (await A.api.aufgabe({})).off === true, 'Server: abgeschaltet → keine Anfrage');
+  ok(A.serverOn() && !A.kiOn(), 'Server: Rangliste eingeschaltet, KI aus');
+  { const r = await A.api.rangliste('ABCDEF', 'x'); ok(r.ok === false && typeof r.error === 'string', 'Server: nicht erreichbar → saubere Fehlermeldung statt Absturz'); }
   ok(A.codeOk('k7m2qx') && !A.codeOk('ABC') && !A.codeOk('ABCDE1') && !A.codeOk('ABCDEO'), 'Klassen-Code: Format');
   ok(A.nameOk('Mia_07') && A.nameOk('Jörg B.') && !A.nameOk('x') && !A.nameOk('<b>hi</b>') && !A.nameOk('a'.repeat(17)), 'Spitzname: Format');
   ok(close(parse('3*x^2-2*x+exp(-x)/2')(2), 12 - 4 + Math.exp(-2) / 2) && parse('-x^2')(3) === -9 && parse('2^-1')(0) === 0.5 && close(parse('sqrt(16)+ln(e)+2,5')(0), 7.5), 'Ausdrücke: Rechenregeln');

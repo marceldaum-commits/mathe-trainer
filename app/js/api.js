@@ -26,6 +26,8 @@ export const api = {
   klasseNeu: (name) => call('/klasse', { name }),
   /** Klasse beitreten → { klasse, spieler } (spieler = zufällige Kennung, kein Konto) */
   beitreten: (code, name) => call('/klasse/beitreten', { code: String(code).trim().toUpperCase(), name: String(name).trim() }),
+  /** Klasse verlassen → { ok } (der Server löscht den Eintrag des Spielers) */
+  verlassen: (code, spieler) => call('/klasse/verlassen', { code, spieler }),
   /** Ergebnis melden. Der Server rechnet die Runde aus dem Startwert nach (siehe docs/SERVER.md). */
   melden: (r) => call('/ergebnis', r),
   /** Rangliste → { woche, liste: [{ name, punkte, ich }] } */

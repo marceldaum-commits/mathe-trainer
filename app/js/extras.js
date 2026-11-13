@@ -224,7 +224,12 @@ export function klasseView() {
     el.innerHTML = `<a class="back" href="#/pruefung">${ICON.left} Prüfung</a><div><span class="eyebrow">Klasse ${esc(k.code)}</span><h1 style="margin-top:8px">${esc(k.name || 'Rangliste')}</h1><p class="lead" style="margin-top:8px">Du spielst als <b>${esc(k.spitzname)}</b>. Gewertet wird die Tages-Runde dieser Woche.</p></div>
       <section class="stack" id="kl-list"><div class="card"><small class="muted">Lade Rangliste …</small></div></section>
       <a class="btn block" href="#/tag">Tages-Runde spielen</a><button class="btn ghost block" id="kl-leave" type="button">Klasse verlassen</button>`;
-    $('#kl-leave', el).onclick = () => { store.klasse = null; form(); };
+    $('#kl-leave', el).onclick = async () => {
+      if (!window.confirm('Klasse wirklich verlassen? Dein Eintrag in der Rangliste wird gelöscht.')) return;
+      const r = await api.verlassen(k.code, k.spieler);   // der Server löscht den Eintrag; im Gerät wird in jedem Fall aufgeräumt
+      store.klasse = null; form();
+      toast(r.ok ? 'Du hast die Klasse verlassen. Dein Eintrag wurde gelöscht.' : 'Im Gerät entfernt. Der Server war nicht erreichbar – der Eintrag verfällt dort von selbst.');
+    };
     const r = await api.rangliste(k.code, k.spieler);
     $('#kl-list', el).innerHTML = !r.ok ? `<div class="note bad">${esc(r.error || 'Rangliste nicht erreichbar.')}</div>`
       : r.liste?.length ? r.liste.map((p, i) => `<div class="card row ${p.ich ? 'me' : ''}"><b class="num sm">${i + 1}</b><span class="grow">${esc(p.name)}${p.ich ? ' <small class="muted">(du)</small>' : ''}</span><b>${Number(p.punkte) || 0}</b></div>`).join('')
@@ -234,7 +239,18 @@ export function klasseView() {
     el.innerHTML = `<a class="back" href="#/pruefung">${ICON.left} Prüfung</a><div><span class="eyebrow">Klasse</span><h1 style="margin-top:8px">Rangliste für eure Klasse</h1><p class="lead" style="margin-top:8px">Mit einem Code tretet ihr gemeinsam bei. Es gibt kein Konto – nur einen Spitznamen.</p></div>
       <section class="card stack"><label for="kl-code"><b>Klassen-Code</b></label><input class="field" id="kl-code" maxlength="6" autocomplete="off" autocapitalize="characters" placeholder="z. B. K7M2QX">
         <label for="kl-name"><b>Spitzname</b></label><input class="field" id="kl-name" maxlength="16" autocomplete="off" placeholder="Kein echter Name nötig">
-        <div id="kl-note"></div><button class="btn block" id="kl-join" type="button">Beitreten</button></section>`;
+        <div id="kl-note"></div><button class="btn block" id="kl-join" type="button">Beitreten</button></section>
+      <details class="card stack"><summary><b>Neue Klasse anlegen</b> <small class="muted">(für Lehrkräfte oder Klassensprecher)</small></summary>
+        <label for="kl-new"><b>Name der Klasse</b></label><input class="field" id="kl-new" maxlength="30" autocomplete="off" placeholder="z. B. Q12 Mathe">
+        <div id="kl-newnote"></div><button class="btn ghost block" id="kl-make" type="button">Code erzeugen</button></details>`;
+    $('#kl-make', el).onclick = async () => {
+      const name = $('#kl-new', el).value.trim(), note = $('#kl-newnote', el);
+      if (name.length < 2) { note.innerHTML = '<div class="note bad">Der Name braucht 2 bis 30 Zeichen.</div>'; return; }
+      const r = await api.klasseNeu(name);
+      if (!r.ok || !r.code) { note.innerHTML = `<div class="note bad">${esc(r.error || 'Anlegen nicht möglich.')}</div>`; return; }
+      note.innerHTML = `<div class="note ok"><b>Code: ${esc(r.code)}</b> – gib ihn an deine Klasse weiter. Er steht jetzt oben im Feld; wähle noch einen Spitznamen und tritt bei.</div>`;
+      $('#kl-code', el).value = r.code; sfx('ok');
+    };
     $('#kl-join', el).onclick = async () => {
       const code = $('#kl-code', el).value.trim().toUpperCase(), name = $('#kl-name', el).value.trim(), note = $('#kl-note', el);
       if (!codeOk(code)) { note.innerHTML = '<div class="note bad">Der Code hat 6 Zeichen (Buchstaben und Ziffern).</div>'; return; }
