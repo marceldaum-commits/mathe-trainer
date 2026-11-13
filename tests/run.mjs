@@ -266,6 +266,34 @@ for (const [name, fn] of Object.entries({ ...G, ...H, ...K })) {
   }
 }
 
+// 6d) Freie Eingabe: Wer die gezeigte Lösung eintippt, bekommt recht; wer einen Ablenker eintippt, bekommt dessen Diagnose
+{ const E = await import('../app/js/eingabe.js');
+  ok(E.parseInput('3,5') === 3.5 && E.parseInput(' -2 ') === -2 && E.parseInput('7/4') === 1.75 && E.parseInput('25 %') === 25 && E.parseInput('x=4') === 4 && E.parseInput('−3') === -3, 'Eingabe: Zahlen, Brüche, Prozent, Minus');
+  ok([' ', 'abc', '1/0', '3,5,1', '2x', '--2', '1e5'].every((s) => E.parseInput(s) === null), 'Eingabe: Unsinn wird abgelehnt');
+  ok(E.isRight(3.14, Math.PI, '3,14') && !E.isRight(3.2, Math.PI, '3,14') && E.isRight(0.75, 0.75, '3/4') && E.isRight(0.667, 2 / 3, '2/3') && !E.isRight(0.6, 2 / 3, '2/3') && !E.isRight(12.4, 12, '12'), 'Eingabe: Rundung auf gezeigte Stellen');
+  const able = new Set();
+  for (const [name, fn] of Object.entries({ ...G, ...H, ...K })) {
+    if (typeof fn !== 'function' || !/^gen[A-Z]/.test(name)) continue;
+    for (const lv of LV) for (let i = 0; i < 40; i++) {
+      const q = fn(lv), spec = E.inputSpec(q); if (!spec) continue;
+      able.add(q.gen || name);
+      const r = { num: spec.num, tex: q.options.find((o) => o.correct).tex }, sh = spec.sh, v = E.parseInput(sh.plain);
+      ok(v !== null && E.isRight(v, r.num, sh.plain), `${name} (Stufe ${lv}): getippte Lösung ${sh.plain} wird anerkannt (${r.tex}, Wert ${r.num})`);
+      for (const o of q.options) { if (o.correct) continue; const so = E.shapeOf(o.tex); if (!so) continue; const w = E.parseInput(so.plain);
+        ok(!E.isRight(w, r.num, sh.plain), `${name} (Stufe ${lv}): getippter Ablenker ${so.plain} wird nicht anerkannt (richtig ${sh.plain})`);
+        ok(typeof E.diagnose(w, q, spec.faktor) === 'string', `${name} (Stufe ${lv}): getippter Ablenker ${so.plain} bekommt eine Diagnose`); }
+    }
+  }
+  ok(able.size >= 12, `Eingabe: genug Aufgaben-Arten zum Eintippen (${able.size})`);
+  console.log(`  zum Eintippen geeignet: ${[...able].sort().join(', ')}`);
+  const M = await import('../app/js/melden.js');
+  const rep = M.buildReport('quatsch', `  ${'x'.repeat(3000)}\u0001`, { ort: '#/u/regeln/3', stufe: 5, zeit: 'T', aufgabe: { gen: 'genKette', thema: 'Kettenregel', stufe: 5, frage: 'f', formel: 'g', geheim: 1 }, name: 'Max' });
+  ok(rep.art === 'app' && rep.text.length === M.MAX_TEXT && !('aufgabe' in rep) && !('name' in rep) && rep.version && rep.ort === '#/u/regeln/3', 'Meldung: Art geprüft, Text gekürzt, keine fremden Felder');
+  const rep2 = M.buildReport('aufgabe', 'Lösung falsch', { aufgabe: { gen: 'genKette', thema: 'Kettenregel', stufe: 5, frage: 'f', formel: 'g', geheim: 1 } });
+  ok(rep2.aufgabe.gen === 'genKette' && !('geheim' in rep2.aufgabe) && Object.keys(rep2).sort().join() === 'art,aufgabe,ort,stufe,text,version,zeit', 'Meldung: Aufgabe hängt an, nur erlaubte Felder');
+  ok(M.meldenOn() === false, 'Meldung: Versand ist aus, solange keine Adresse eingetragen ist');
+}
+
 // 7) Murmelbahn: Ziel-Parameter sind einstellbar und gewinnen; die Startwerte gewinnen nicht.
 MB.forEach((L, i) => {
   const K = { line: (p, x) => p.m * x + p.b, par: (p, x) => p.a * (x - p.d) ** 2 + p.e }[L.kind];

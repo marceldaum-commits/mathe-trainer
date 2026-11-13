@@ -51,6 +51,7 @@ export function boss(gens, name, symbol) {
     function show() {
       plot?.destroy(); plot = null;
       const fn = nextGen(), q = fn(lv); q.gen ??= fn.name; q.topic ??= fn.topic;
+      window.__mtLast = { gen: q.gen, thema: q.topic, stufe: lv, frage: String(q.prompt).replace(/<[^>]+>/g, ''), formel: q.formula || '' };
       const box = el.querySelector('#bs-q');
       box.innerHTML = `<div class="mission"><p>${q.prompt}</p></div>${q.graph ? '<div class="stage"><canvas aria-label="Graph"></canvas></div>' : ''}${q.formula ? `<div class="formula">${tex(q.formula, true)}</div>` : ''}<div class="opts"></div><div id="bs-note"></div>`;
       if (q.graph) {

@@ -1,6 +1,7 @@
 // Mathe-Trainer – Start, Navigation und Ansichten.
 import { UNITS, AREAS, practiceGens } from './units.js';
 import { quiz } from './quiz.js';
+import { initMelden } from './melden.js';
 import { mixOf } from './gen.js';
 import { store, LEVELS } from './store.js';
 import { CONFIG, VERSION } from './config.js';
@@ -319,7 +320,7 @@ function nav() {
   $('#nav').hidden = !!view.querySelector('.stephead');
 }
 new MutationObserver(() => { $('#nav').hidden = !!view.querySelector('.stephead'); }).observe(view, { childList: true, subtree: true });
-look.follow(); applySkin();
+look.follow(); applySkin(); initMelden();
 window.addEventListener('hashchange', route);
 window.addEventListener('beforeinstallprompt', (ev) => { ev.preventDefault(); installEvent = ev; if (location.hash === '#/mehr') route(); });
 route();

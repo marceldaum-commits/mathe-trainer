@@ -4,6 +4,41 @@ Stand: 13.11.2026 · Status: **vorbereitet, abgeschaltet**. Die App enthält die
 Ansicht für die Klassen-Rangliste; beides ist unsichtbar, solange `CONFIG.api` in `app/js/config.js` leer ist.
 Der Server selbst gehört nicht in dieses öffentliche Repo und wird über den Leitstand entschieden und betrieben.
 
+## Zuerst: Rückmeldungen („Fehler melden“) – kleinster Server-Teil, Marcels Auftrag vom 13.11.2026
+
+In der App gibt es unten rechts einen schwebenden Hilfe-Knopf. Darüber schicken Nutzer Fehler und Ideen.
+App-Seite fertig (`app/js/melden.js`), Versand **aus**, solange `CONFIG.melden` leer ist. Bis dahin warten die
+Meldungen im Gerät (im vorhandenen Speicher-Schlüssel `mt.v1`, höchstens 20) und werden nachgereicht, sobald der
+Versand eingeschaltet ist.
+
+**Was Marcel will:** Jede Meldung kommt (1) als E-Mail bei ihm an, Absender die `system@`-Adresse der Firma,
+und (2) automatisch beim Raum „Mathe-Trainer“ (damit Fehler ohne Zutun behoben werden).
+
+| Aufruf | Anfrage | Antwort |
+| --- | --- | --- |
+| `POST /api/meldung` | `{ "art": "aufgabe" \| "app" \| "idee", "text": "… (höchstens 1000 Zeichen)", "version": "0.7.0", "ort": "#/u/regeln/3", "stufe": 5, "zeit": "ISO-Zeit", "aufgabe": { "gen", "thema", "stufe", "frage", "formel" } }` – `aufgabe` nur bei Art `aufgabe` | `200 { "ok": true }`, sonst Fehlerstatus (die App versucht es später erneut) |
+| `GET /api/meldungen?seit=<ISO-Zeit>` | Kopfzeile `Authorization: Bearer <Geheimnis>` | `{ "liste": [ … Meldungen wie oben, plus "id" … ] }` – für die tägliche Routine des Trainer-Raums |
+
+Der Server muss:
+
+1. **Prüfen:** nur die Felder oben, Längen begrenzen (die App kürzt schon, der Server darf sich nicht darauf
+   verlassen), `art` aus der Liste, alles als reinen Text behandeln – nie als HTML in die E-Mail setzen.
+2. **Bremsen:** höchstens etwa 5 Meldungen je Stunde und Gerät/Adresse, Größe der Anfrage unter 8 kB.
+   IP-Adressen nur kurzlebig für diese Bremse, nicht in der Ablage.
+3. **E-Mail senden:** Absender `system@…`, Empfänger Marcels Adresse – **beide stehen nur auf dem Server**,
+   nicht in diesem öffentlichen Repo. Betreff z. B. „Mathe-Trainer: Fehler in einer Aufgabe (0.7.0)“.
+4. **Ablegen:** Meldung mit Zeit und laufender Nummer speichern (Datei oder Tabelle), damit `GET /api/meldungen`
+   sie liefern kann. Aufbewahrung begrenzen (Vorschlag: 12 Monate).
+5. **Lesezugriff schützen:** `GET` nur mit Geheimnis. Der Trainer-Raum bekommt es als Netzwerk-Geheimnis
+   seiner Umgebung (ein Schritt von Marcel), es steht nie im Repo.
+
+**Datenschutz:** Die Meldung enthält keinen Namen, keine Kennung, keinen Lernstand. Der Freitext kann trotzdem
+Persönliches enthalten (Nutzer sind oft minderjährig) – das Formular bittet darum, keine Namen oder Kontaktdaten
+einzutragen. Abschnitt in der Datenschutzerklärung ergänzen (Zweck: Fehlerbehebung; Empfänger: Betreiber).
+Nicht öffentlich ablegen – also **nicht** als GitHub-Issue in diesem öffentlichen Repo.
+
+**Einschalten:** `melden: '/api/meldung'` in `app/js/config.js`, Version erhöhen, `npm run fix`, prüfen, auf `test`.
+
 ## Was der Server leisten soll
 
 | Funktion | App-Seite | Stand |

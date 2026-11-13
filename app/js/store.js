@@ -165,6 +165,14 @@ export const store = {
   touch(today = new Date()) { touchDay(today); save(); },
 
   /* Klasse (nur mit Server): Code und Spitzname bleiben im Gerät */
+  /** Freie Eingabe: 'auto' (ab Stufe 4), 'an', 'aus'. */
+  get tippenWahl() { return ['an', 'aus'].includes(mem.tippen) ? mem.tippen : 'auto'; },
+  set tippenWahl(v) { mem.tippen = v; save(); },
+  get tippen() { return this.tippenWahl === 'an' || (this.tippenWahl === 'auto' && this.level >= 4); },
+  /** Rückmeldungen, die noch nicht gesendet werden konnten (höchstens 20). */
+  get meldungen() { return Array.isArray(mem.meldungen) ? mem.meldungen : []; },
+  meldungNeu(r) { mem.meldungen = [...this.meldungen, r].slice(-20); save(); },
+  meldungWeg(zeit) { mem.meldungen = this.meldungen.filter((r) => r.zeit !== zeit); save(); },
   get klasse() { return mem.klasse; },
   set klasse(v) { mem.klasse = v; save(); },
 };

@@ -35,8 +35,20 @@ const first = (key) => (once.has(key) ? false : (once.add(key), true));
 
 /* ───────────── Schritt-Arten ───────────── */
 async function info() { while (!(await page.locator('#sheet').isVisible())) { await page.click('#i-next'); await page.waitForTimeout(50); } }
+let getippt = 0;
 async function solveQuestion() {
-  if (await page.locator('.gaprow').count()) {
+  if (await page.locator('#q-in').count()) {   // freie Eingabe: erst Unsinn, dann zweimal falsch (→ „Auswahl zeigen“ erscheint), dann richtig
+    const sol = await page.getAttribute('#q-in', 'data-sol');
+    if (first('tippen')) {
+      await page.fill('#q-in', 'abc'); await page.click('.tipp .btn'); await page.waitForSelector('#q-note .note.tip');
+      for (const w of ['987654', '987653']) { await page.fill('#q-in', w); await page.click('.tipp .btn'); await page.waitForSelector('#q-note .note.bad'); }
+      if (!(await page.locator('#q-wahl').count())) fail('Eingabe: nach zwei Fehlversuchen fehlt „Auswahl zeigen“');
+      await shot('65-eingabe-falsch');
+    }
+    if (first('tippen-wahl')) { await page.fill('#q-in', '987652'); await page.click('.tipp .btn'); await page.click('#q-wahl'); await page.waitForSelector('.opt'); return solveQuestion(); }
+    await page.fill('#q-in', sol); await page.click('.tipp .btn'); getippt++;
+    if (first('tippen-ok')) await shot('66-eingabe-richtig');
+  } else if (await page.locator('.gaprow').count()) {
     const rows = page.locator('.gaprow');
     const a = await rows.nth(0).locator('.pick').count(), b = await rows.nth(1).locator('.pick').count();
     search: for (let i = 0; i < a; i++) for (let j = 0; j < b; j++) {
@@ -49,7 +61,7 @@ async function solveQuestion() {
   await page.click('#q-next'); await page.waitForTimeout(50);
 }
 async function quiz(endSel = '#sheet') {
-  if (first('tipp') && !(await page.locator('.gaprow').count())) {
+  if (first('tipp') && !(await page.locator('.gaprow').count()) && !(await page.locator('#q-in').count())) {
     await page.locator('.opt').first().click(); await page.waitForTimeout(150);
     if (await page.locator('#q-tip').isVisible()) await page.click('#q-tip');
     await shot('08-aufgabe-tipp');
@@ -229,6 +241,18 @@ await page.reload(); await page.waitForSelector('#lv');
 if ((await page.getAttribute('html', 'data-look')) === look0) fail('Hell/Dunkel-Wahl nach Neuladen vergessen');
 await page.click('#look');
 
+/* ───────────── Hilfe-Knopf: Menü, Fehler melden (Versand aus → Meldung wartet im Gerät) ───────────── */
+if (!(await page.locator('#fab').isVisible())) fail('Hilfe-Knopf fehlt');
+await page.click('#fab'); await page.waitForSelector('#help:not([hidden]) #hp-menu'); await shot('67-hilfe-menue');
+await page.click('#hp-menu button[data-art="idee"]'); await page.waitForSelector('#hp-form:not([hidden])');
+await page.click('#hp-form button[type="submit"]'); await page.waitForSelector('#hp-note .note.tip');   // leerer Text wird abgelehnt
+await page.fill('#hp-text', 'Testmeldung aus dem Browser-Test <b>ohne HTML</b>'); await shot('68-hilfe-formular');
+await page.click('#hp-form button[type="submit"]'); await page.waitForSelector('#help', { state: 'hidden' });
+await page.waitForSelector('#toast:not([hidden])');
+const wartend = await page.evaluate(() => JSON.parse(localStorage.getItem('mt.v1')).meldungen);
+if (wartend?.length !== 1 || wartend[0].art !== 'idee' || !wartend[0].version || 'aufgabe' in wartend[0]) fail('Meldung wurde nicht richtig gespeichert');
+if (LEVEL === 3) { await page.goto(`${BASE}#/einstellungen`); await page.click('#st-tipp [data-k="an"]'); await page.reload(); await page.waitForSelector('#st-tipp [data-k="an"].sel'); }
+
 /* ───────────── Alle Einheiten, alle Schritte ───────────── */
 await page.click('#nav a[data-tab="start"]'); await page.waitForSelector('#home');
 if (!(await page.textContent('h1')).includes('Verstehen')) fail('Startseite fehlt');
@@ -245,6 +269,24 @@ for (const u of UNITS) {
     await sheetNext();
   }
 }
+
+if (LEVEL >= 3 && getippt < 20) fail(`Freie Eingabe kam zu selten vor: ${getippt}`);
+if (LEVEL < 3 && getippt) fail('Freie Eingabe darf auf leichter Stufe nicht von selbst erscheinen');
+// Im Spiel: Hilfe-Knopf sichtbar, verdeckt aber keinen Knopf der Aufgabe; Meldung nimmt die Aufgabe mit
+await page.goto(`${BASE}#/u/regeln/3`); await page.waitForSelector('#stage .q');
+const fabBox = await page.locator('#fab').boundingBox();
+for (const sel of ['#q-tip', '.opt', '.tipp .btn', '#q-in']) for (const b of await page.locator(sel).all()) {
+  await b.scrollIntoViewIfNeeded(); const r = await b.boundingBox();
+  if (r && r.x < fabBox.x + fabBox.width && r.x + r.width > fabBox.x && r.y < fabBox.y + fabBox.height && r.y + r.height > fabBox.y) {
+    await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight)); const r2 = await b.boundingBox();
+    if (r2.y < fabBox.y + fabBox.height && r2.y + r2.height > fabBox.y && r2.x + r2.width > fabBox.x) fail(`Hilfe-Knopf verdeckt ${sel}`);
+  }
+}
+await page.click('#fab'); await page.click('#hp-menu button[data-art="aufgabe"]');
+if (!(await page.textContent('#hp-ctx')).includes('Zuletzt gezeigte Aufgabe')) fail('Meldung: Aufgabe wird nicht mitgenommen');
+await page.fill('#hp-text', 'Diese Aufgabe prüfen'); await page.click('#hp-form button[type="submit"]'); await page.waitForSelector('#help', { state: 'hidden' });
+const w2 = await page.evaluate(() => JSON.parse(localStorage.getItem('mt.v1')).meldungen);
+if (w2.length !== 2 || !w2[1].aufgabe?.gen || !w2[1].ort.startsWith('#/u/regeln')) fail('Meldung zur Aufgabe unvollständig');
 
 /* ───────────── Grundlagen stehen vorn, freies Üben ───────────── */
 for (const a of ['analysis', 'stochastik', 'geometrie']) {
