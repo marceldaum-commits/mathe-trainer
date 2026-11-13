@@ -530,3 +530,11 @@ main:has(.stephead){padding-top:calc(10px + env(safe-area-inset-top))}
 body:has(.stephead) .sitebar{display:none}
 @media (min-width:1240px){.sitebar{display:none}}
 @media print{.sitebar{display:none}}
+
+/* Nichts darf seitlich über den Bildschirm hinausragen: breite Formeln bekommen ihren eigenen Rollbalken, die Seite nie. */
+html,body{overflow-x:clip}
+main{overflow-x:clip}
+.kopf,.formula,.note,.weg,.opt>span:last-child,.info .card{max-width:100%;overflow-x:auto;overflow-y:hidden}
+.kopf .katex-display,.formula .katex-display{max-width:100%;overflow-x:auto;overflow-y:hidden;padding-bottom:2px}
+.kopf{font-size:13.5px}
+.opt>span:last-child{min-width:0;flex:1}

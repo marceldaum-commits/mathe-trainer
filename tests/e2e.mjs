@@ -62,6 +62,7 @@ async function solveQuestion() {
   } else for (let i = 0; i < 4; i++) { if (await page.locator('#q-next').isVisible()) break; await page.locator('.opt').nth(i).click(); }
   if (!(await page.locator('#q-next').isVisible())) fail('Quiz: keine Antwort wurde als richtig erkannt');
   if (await page.locator('.weg').count()) wegGesehen = true;
+  { const breit = await page.evaluate(() => [document.documentElement.scrollWidth, innerWidth, scrollX]); if (breit[0] > breit[1] + 1 || breit[2] !== 0) fail(`Seite ragt seitlich über den Bildschirm (${breit[0]} > ${breit[1]}) bei: ${(await page.textContent('.mission')).slice(0, 80)}`); }
   if (await page.locator('.ki').count()) fail('KI-Knopf darf ohne eingeschaltete KI nicht erscheinen');
   await page.click('#q-next'); await page.waitForTimeout(50);
 }
