@@ -2,10 +2,11 @@
 globalThis.window = { katex: { renderToString: (s) => s } };
 const G = await import('../app/js/gen.js');
 const H = await import('../app/js/gen2.js');
+const K = await import('../app/js/gen3.js');
 const { nDeriv, polyTex, vertexTex, lineTex, fmt } = await import('../app/js/math.js');
 const all = (m) => [1, 3, 5].flatMap((lv) => m.levelsFor(lv));
 const GAMES = {};
-for (const g of ['murmelbahn', 'tangente', 'zeichnen', 'paare', 'flaeche', 'labor', 'lotse', 'werkstatt', 'raum', 'flug']) GAMES[g] = await import(`../app/js/games/${g}.js`);
+for (const g of ['murmelbahn', 'tangente', 'zeichnen', 'paare', 'flaeche', 'labor', 'lotse', 'werkstatt', 'raum', 'flug', 'tafel']) GAMES[g] = await import(`../app/js/games/${g}.js`);
 const { simulate } = GAMES.murmelbahn, MB = all(GAMES.murmelbahn);
 const { hit } = GAMES.tangente, TG = all(GAMES.tangente);
 const { grade, colX } = GAMES.zeichnen, ZR = all(GAMES.zeichnen);
@@ -14,7 +15,7 @@ const { sums, gap } = GAMES.flaeche, FL = all(GAMES.flaeche);
 const { solved } = GAMES.labor, LB = all(GAMES.labor);
 const { goal, endPoint } = GAMES.lotse, LO = all(GAMES.lotse);
 const { nextStreak, store } = await import('../app/js/store.js');
-const { UNITS, AREAS } = await import('../app/js/units.js');
+const { UNITS, AREAS, practiceGens } = await import('../app/js/units.js');
 
 let fails = 0, n = 0;
 const seen = new Set();
@@ -200,12 +201,69 @@ for (const lv of LV) for (let i = 0; i < REP; i++) {
 for (const fn of [...Object.values(G), ...Object.values(H)]) if (typeof fn === 'function' && /^gen/.test(fn.name) && !/Mix$/.test(fn.name)) ok(typeof fn.topic === 'string', `${fn.name}: hat einen Themen-Namen`);
 
 // 6b) Schwierigkeit wirkt: Stufe 5 stellt andere Aufgaben als Stufe 1 und Stufe 3
-for (const [name, fn] of Object.entries({ ...G, ...H })) {
+for (const [name, fn] of Object.entries({ ...G, ...H, ...K })) {
   if (typeof fn !== 'function' || !/^gen[A-Z]/.test(name) || ['genScheitel', 'genOperator'].includes(name)) continue;   // Graph- bzw. Begriffs-Aufgaben
   const sample = (lv) => { const s = new Set(); for (let i = 0; i < 150; i++) { const q = fn(lv); s.add(`${q.prompt}|${q.formula ?? ''}`); } return s; };
   const a = sample(1), b = sample(3), c = sample(5), share = (x, y) => [...x].filter((k) => y.has(k)).length / x.size;
   ok(share(c, a) <= 0.25, `${name}: Stufe 5 unterscheidet sich von Stufe 1 (${Math.round(share(c, a) * 100)} % gleich)`);
   ok(share(c, b) <= 0.6, `${name}: Stufe 5 unterscheidet sich von Stufe 3 (${Math.round(share(c, b) * 100)} % gleich)`);
+}
+
+// 6c) Grundlagen-Aufgaben (gen3): jede Lösung unabhängig nachgerechnet, jeder Ablenker wirklich falsch
+{ const PX = [0.6, 1.3, 2.2], eqv = (u, v) => u.length === v.length && u.every((c, i) => close(c, v[i]));
+  const numCheck = (name, want) => { for (const lv of LV) for (let i = 0; i < REP; i++) { const q = K[name](lv), r = basics(name, q, lv), w = want(q);
+    ok(close(r.num, w), `${name} (Stufe ${lv}): Ergebnis stimmt (${q.formula ?? q.prompt})`);
+    for (const o of q.options) if (!o.correct) ok(!close(o.num, w), `${name} (Stufe ${lv}): Ablenker ist falsch (${o.tex})`); } };
+  const fnCheck = (name, xs) => { for (const lv of LV) for (let i = 0; i < REP; i++) { const q = K[name](lv), r = basics(name, q, lv);
+    ok(xs.every((x) => close(r.val(x), q.f(x))), `${name} (Stufe ${lv}): Umformung stimmt (${q.formula})`);
+    for (const o of q.options) if (!o.correct) ok(xs.some((x) => !close(o.val(x), q.f(x))), `${name} (Stufe ${lv}): Ablenker ist falsch (${q.formula} → ${o.tex})`); } };
+  numCheck('genBruch', (q) => ({ '+': q.a / q.b + q.c / q.d, '-': q.a / q.b - q.c / q.d, '·': (q.a / q.b) * (q.c / q.d), ':': (q.a / q.b) / (q.c / q.d) })[q.op]);
+  fnCheck('genKlammer', XS); fnCheck('genPotenz', PX);
+  numCheck('genHaeufigkeit', (q) => (q.k / q.n) * 100);
+  numCheck('genProzent', (q) => ({ wert: (q.G * q.p) / 100, satz: q.p, erhoeht: q.G * (1 + q.p / 100), vermindert: q.G * (1 - q.p / 100), grund: q.G })[q.kind]);
+  numCheck('genKennwerte', (q) => { const s = [...q.data].sort((x, y) => x - y), m = s.length;
+    return q.ask === 'mittel' ? s.reduce((t, x) => t + x, 0) / m : q.ask === 'spann' ? s[m - 1] - s[0] : m % 2 ? s[(m - 1) / 2] : (s[m / 2 - 1] + s[m / 2]) / 2; });
+  numCheck('genLaplace', (q) => q.g / q.m);
+  numCheck('genGegen', (q) => (q.kind === 'min1' ? 1 - q.miss ** q.n : 100 - q.p));
+  numCheck('genPythagoras', (q) => (q.hyp ? Math.hypot(q.A, q.B) : Math.sqrt(q.C ** 2 - q.A ** 2)));
+  numCheck('genTrig', (q) => { const w = (q.al * Math.PI) / 180; return { sin: q.s * Math.sin(w), cos: q.s * Math.cos(w), tan: q.s * Math.tan(w), hyp: q.s / Math.sin(w) }[q.kind]; });
+  for (const lv of LV) for (let i = 0; i < REP; i++) {
+    { const q = K.genFlaeche(lv), r = basics('genFlaeche', q, lv); ok(Math.abs(r.num - q.want) < 0.051, `genFlaeche (Stufe ${lv}): Ergebnis stimmt`);
+      for (const o of q.options) if (!o.correct) ok(Math.abs(o.num - q.want) > 0.2, `genFlaeche (Stufe ${lv}): Ablenker ist falsch (${q.prompt} → ${o.tex})`); }
+    { const q = K.genLinGl(lv), r = basics('genLinGl', q, lv); ok(close(q.left(r.num), q.right(r.num)), `genLinGl (Stufe ${lv}): Lösung erfüllt die Gleichung (${q.formula})`);
+      for (const o of q.options) if (!o.correct) ok(!close(q.left(o.num), q.right(o.num)), `genLinGl (Stufe ${lv}): Ablenker löst nicht (${q.formula} → ${o.tex})`); }
+    { const q = K.genQuadGl(lv), r = basics('genQuadGl', q, lv); ok(r.xs.length === 2 && r.xs[0] !== r.xs[1] && r.xs.every((x) => Math.abs(q.f(x)) < 1e-9), `genQuadGl (Stufe ${lv}): beide Lösungen stimmen (${q.formula})`);
+      for (const o of q.options) if (!o.correct) ok(o.xs.some((x) => Math.abs(q.f(x)) > 1e-6), `genQuadGl (Stufe ${lv}): Ablenker enthält falsche Lösung`); }
+    { const q = K.genSteigung(lv), r = basics('genSteigung', q, lv), m = (q.Q[1] - q.P[1]) / (q.Q[0] - q.P[0]);
+      if (q.kind === 'm') { ok(close(r.num, m), `genSteigung (Stufe ${lv}): Steigung stimmt`); for (const o of q.options) if (!o.correct) ok(!close(o.num, m), `genSteigung (Stufe ${lv}): Ablenker ist falsch`); }
+      else { ok(close(r.val(q.P[0]), q.P[1]) && close(r.val(q.Q[0]), q.Q[1]), `genSteigung (Stufe ${lv}): Gerade geht durch beide Punkte`);
+        for (const o of q.options) if (!o.correct) ok(!close(o.val(q.P[0]), q.P[1]) || !close(o.val(q.Q[0]), q.Q[1]), `genSteigung (Stufe ${lv}): Ablenker geht nicht durch beide Punkte`); } }
+    { const q = K.genMittelpunkt(lv), r = basics('genMittelpunkt', q, lv), w = q.A.map((c, j) => (c + q.B[j]) / 2); ok(eqv(r.vec, w), `genMittelpunkt (Stufe ${lv}): Mittelpunkt stimmt`);
+      for (const o of q.options) if (!o.correct) ok(!eqv(o.vec, w), `genMittelpunkt (Stufe ${lv}): Ablenker ist falsch`); }
+    { const q = K.genVektorRechnen(lv), r = basics('genVektorRechnen', q, lv);
+      const w = q.u.map((c, j) => ({ add: c + q.v[j], sub: c - q.v[j], skalar: q.k * c, kombi: q.k * c - q.v[j] })[q.kind]); ok(eqv(r.vec, w), `genVektorRechnen (Stufe ${lv}): Ergebnis stimmt`);
+      for (const o of q.options) if (!o.correct) ok(!eqv(o.vec, w), `genVektorRechnen (Stufe ${lv}): Ablenker ist falsch`); }
+  }
+  for (const fn of Object.values(K)) if (typeof fn === 'function' && /^gen/.test(fn.name)) ok(typeof fn.topic === 'string', `${fn.name}: hat einen Themen-Namen`);
+  // Vierfeldertafel: aus den Angaben eindeutig lösbar (Zeilen- und Spaltensummen), Text-Tafeln stimmig
+  const { full } = GAMES.tafel, EQ = [['a', 'b', 'r1'], ['c', 'd', 'r2'], ['a', 'c', 'c1'], ['b', 'd', 'c2'], ['r1', 'r2', 'n'], ['c1', 'c2', 'n']];
+  all(GAMES.tafel).forEach((R, i) => {
+    const sol = full(R), known = Object.fromEntries(R.given.map((k) => [k, sol[k]]));
+    ok(R.cells.every((c) => Number.isInteger(c) && c > 0) && R.given.length < 9, `Tafel ${i + 1}: positive ganze Zahlen, etwas bleibt offen`);
+    if (R.text) { ok(R.given.length === 0 && R.text.includes(String(sol.n)), `Tafel ${i + 1}: Text nennt die Gesamtzahl, Tafel startet leer`); return; }
+    for (let pass = 0; pass < 9; pass++) for (const [x, y, z] of EQ) {
+      if (x in known && y in known && !(z in known)) known[z] = known[x] + known[y];
+      else if (z in known && x in known && !(y in known)) known[y] = known[z] - known[x];
+      else if (z in known && y in known && !(x in known)) known[x] = known[z] - known[y];
+    }
+    ok(Object.keys(sol).every((k) => known[k] === sol[k]), `Tafel ${i + 1}: aus den Angaben eindeutig lösbar`);
+  });
+  // Freies Üben: jedes Gebiet hat genug Aufgaben-Arten, alle sind Auswahl-Aufgaben oder Lücken
+  for (const a of ['analysis', 'stochastik', 'geometrie']) {
+    ok(practiceGens(a).length >= 10 && practiceGens(a, true).length >= 5, `Üben ${a}: genug Aufgaben-Arten`);
+    for (const fn of practiceGens(a)) ok(typeof fn === 'function' && fn(3).options?.length >= 3, `Üben ${a}: ${fn.name} liefert Auswahl-Aufgaben`);
+    ok(UNITS.filter((u) => u.area === a && u.grund).length === 1, `${a}: hat eine Grundlagen-Einheit`);
+  }
 }
 
 // 7) Murmelbahn: Ziel-Parameter sind einstellbar und gewinnen; die Startwerte gewinnen nicht.

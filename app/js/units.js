@@ -12,7 +12,12 @@ import { boss } from './games/boss.js';
 import { flug } from './games/flug.js';
 import { werkstatt } from './games/werkstatt.js';
 import { raum } from './games/raum.js';
+import { tafel } from './games/tafel.js';
 import { mixOf } from './gen.js';
+import {
+  genBruch, genKlammer, genLinGl, genQuadGl, genPotenz, genSteigung, genHaeufigkeit, genProzent, genKennwerte, genLaplace, genGegen,
+  genPythagoras, genTrig, genFlaeche, genMittelpunkt, genVektorRechnen,
+} from './gen3.js';
 import {
   genWendestelle, genMonotonie, genSymmetrie, genGrenzwert, genTangente, genSteckbrief, genSchar, genExtremwert, genLn, genWachstum, genFlaecheZwischen,
   genVierfelder, genBedingt, genKumuliert, genSigma, genHypothese, genNormal, genKombinatorik,
@@ -25,6 +30,13 @@ import {
 } from './gen.js';
 
 const T = (s) => `<div class="big">${tex(s, true)}</div>`;
+
+/** Grundlagen-Aufgaben je Gebiet (für die Grundlagen-Einheiten und das freie Üben). */
+export const GRUND = {
+  analysis: [genBruch, genKlammer, genPotenz, genLinGl, genQuadGl, genSteigung],
+  stochastik: [genProzent, genHaeufigkeit, genKennwerte, genLaplace, genGegen, genVierfelder],
+  geometrie: [genPythagoras, genTrig, genFlaeche, genMittelpunkt, genVektorRechnen],
+};
 
 export const UNITS = [
   {
@@ -299,8 +311,67 @@ export const UNITS = [
       { id: 'training', kind: 'Festigen', title: 'Operatoren-Training', run: quiz([genOperator, genOperator, genOperator, genOperator, genOperator, genOperator]) },
     ],
   },
+  /* ───────────── Grundlagen (Mittelstufen-Wissen, das die Oberstufe voraussetzt) ───────────── */
+  {
+    id: 'a-grund', area: 'analysis', grund: true, title: 'Grundlagen: Rechnen und Gleichungen', sub: 'Brüche, Klammern, Potenzen, Gleichungen, Geraden',
+    steps: [
+      { id: 'terme', kind: 'Benennen', title: 'Rechnen mit Termen', run: info([
+        { title: 'Brüche', html: `${T('\\dfrac ab+\\dfrac cd=\\dfrac{ad+cb}{bd}\\qquad \\dfrac ab\\cdot\\dfrac cd=\\dfrac{ac}{bd}')}<p>Addieren geht nur mit <b>gleichem Nenner</b>. Multiplizieren: Zähler mal Zähler, Nenner mal Nenner. Dividieren: mit dem Kehrwert multiplizieren.</p>` },
+        { title: 'Klammern und binomische Formeln', html: `${T('(a\\pm b)^2=a^2\\pm 2ab+b^2\\qquad (a+b)(a-b)=a^2-b^2')}<p>Jedes Glied der einen Klammer wird mit jedem Glied der anderen multipliziert.</p><p class="muted">Der häufigste Fehler: ${tex('(a+b)^2=a^2+b^2')} – das mittlere Glied fehlt.</p>` },
+        { title: 'Potenzgesetze', html: `${T('x^a\\cdot x^b=x^{a+b}\\qquad (x^a)^b=x^{ab}\\qquad x^{-n}=\\dfrac1{x^n}\\qquad \\sqrt[n]{x^m}=x^{\\frac mn}')}<p>Diese vier Regeln brauchst du bei jeder Ableitung und jedem Integral.</p>` },
+      ]) },
+      { id: 'bruch', kind: 'Brücke', title: 'Brüche und Klammern', run: quiz([genBruch, genBruch, genKlammer, genKlammer]) },
+      { id: 'potenz', kind: 'Brücke', title: 'Potenzgesetze', run: quiz([genPotenz, genPotenz, genPotenz]) },
+      { id: 'gleichung', kind: 'Benennen', title: 'Gleichungen lösen', run: info([
+        { title: 'Lineare Gleichung', html: `<p>Alles mit ${tex('x')} auf eine Seite, alle Zahlen auf die andere. Was die Seite wechselt, wechselt das Vorzeichen.</p>${T('3x+4=x-6\\ \\Rightarrow\\ 2x=-10\\ \\Rightarrow\\ x=-5')}` },
+        { title: 'Quadratische Gleichung', html: `${T('x^2+px+q=0\\ \\Rightarrow\\ x_{1,2}=-\\dfrac p2\\pm\\sqrt{\\left(\\dfrac p2\\right)^2-q}')}<p>Vorher durch die Zahl vor ${tex('x^2')} teilen. Probe: Die Lösungen ergeben als Summe ${tex('-p')} und als Produkt ${tex('q')}.</p>` },
+        { title: 'Gerade durch zwei Punkte', html: `${T('m=\\dfrac{y_2-y_1}{x_2-x_1}\\qquad y=m\\,x+b')}<p>Erst die Steigung, dann einen Punkt einsetzen und ${tex('b')} ausrechnen.</p>` },
+      ]) },
+      { id: 'loesen', kind: 'Brücke', title: 'Gleichungen', run: quiz([genLinGl, genLinGl, genQuadGl, genQuadGl]) },
+      { id: 'gerade', kind: 'Brücke', title: 'Geraden durch zwei Punkte', run: quiz([genSteigung, genSteigung, genSteigung]) },
+      { id: 'mix', kind: 'Festigen', title: 'Grundlagen gemischt', run: quiz(Array(6).fill(mixOf([GRUND.analysis]))) },
+    ],
+  },
+  {
+    id: 's-grund', area: 'stochastik', grund: true, title: 'Grundlagen: Daten und Zufall', sub: 'Prozent, Häufigkeit, Laplace, Vierfeldertafel',
+    steps: [
+      { id: 'daten', kind: 'Benennen', title: 'Anteile und Kennwerte', run: info([
+        { title: 'Prozent', html: `${T('W=G\\cdot\\dfrac{p}{100}')}<p>${tex('G')} ist das Ganze (100 %), ${tex('W')} der Anteil, ${tex('p')} der Prozentsatz. „Um 20 % erhöht" heißt: mal ${tex('1{,}2')}.</p>` },
+        { title: 'Absolute und relative Häufigkeit', html: `${T('h=\\dfrac{\\text{Anzahl der Treffer}}{\\text{Anzahl der Versuche}}')}<p>Die absolute Häufigkeit zählt. Die relative Häufigkeit gibt den <b>Anteil</b> an – und ist bei vielen Versuchen ein Schätzwert für die Wahrscheinlichkeit.</p>` },
+        { title: 'Mittelwert und Median', html: `<p><b>Arithmetisches Mittel:</b> alle Werte addieren, durch die Anzahl teilen.</p><p><b>Median:</b> der mittlere Wert der sortierten Liste. Er bleibt ruhig, wenn ein einzelner Wert extrem ausreißt.</p>` },
+      ]) },
+      { id: 'prozent', kind: 'Brücke', title: 'Prozent und Häufigkeit', run: quiz([genProzent, genProzent, genHaeufigkeit, genHaeufigkeit]) },
+      { id: 'kennwerte', kind: 'Brücke', title: 'Mittelwert, Median, Spannweite', run: quiz([genKennwerte, genKennwerte, genKennwerte]) },
+      { id: 'zufall', kind: 'Benennen', title: 'Wahrscheinlichkeit', run: info([
+        { title: 'Laplace-Regel', html: `${T('P(E)=\\dfrac{\\text{günstige Ergebnisse}}{\\text{mögliche Ergebnisse}}')}<p>Gilt, wenn alle Ergebnisse gleich wahrscheinlich sind: Würfel, Münze, Urne, Glücksrad mit gleich großen Feldern.</p>` },
+        { title: 'Gegenereignis', html: `${T('P(\\overline{E})=1-P(E)')}<p>„Mindestens einmal" rechnet man fast immer über das Gegenteil „kein einziges Mal".</p>` },
+        { title: 'Vierfeldertafel', html: `<p>Zwei Merkmale mit je zwei Ausprägungen. Innen stehen die vier Kombinationen, am Rand die Summen, unten rechts die Gesamtzahl.</p><p class="muted">Jede Zeile und jede Spalte ergibt ihre Summe – damit lässt sich aus vier passenden Angaben die ganze Tafel füllen.</p>` },
+      ]) },
+      { id: 'laplace', kind: 'Brücke', title: 'Laplace und Gegenereignis', run: quiz([genLaplace, genLaplace, genGegen, genGegen]) },
+      { id: 'tafel', kind: 'Entdecken', title: 'Vierfeldertafel füllen', run: tafel },
+      { id: 'mix', kind: 'Festigen', title: 'Grundlagen gemischt', run: quiz(Array(6).fill(mixOf([GRUND.stochastik]))) },
+    ],
+  },
+  {
+    id: 'g-grund', area: 'geometrie', grund: true, title: 'Grundlagen: Dreiecke, Flächen, Vektoren', sub: 'Pythagoras, Sinus und Kosinus, Volumen, Mittelpunkt',
+    steps: [
+      { id: 'dreieck', kind: 'Benennen', title: 'Das rechtwinklige Dreieck', run: info([
+        { title: 'Satz des Pythagoras', html: `${T('a^2+b^2=c^2')}<p>${tex('c')} ist die <b>Hypotenuse</b> – die längste Seite, gegenüber dem rechten Winkel. Genau so entsteht später die Länge eines Vektors.</p>` },
+        { title: 'Sinus, Kosinus, Tangens', html: `${T('\\sin\\alpha=\\dfrac{\\text{Gegenkathete}}{\\text{Hypotenuse}}\\quad \\cos\\alpha=\\dfrac{\\text{Ankathete}}{\\text{Hypotenuse}}\\quad \\tan\\alpha=\\dfrac{\\text{Gegenkathete}}{\\text{Ankathete}}')}<p>Erst klären, welche zwei Seiten vorkommen – dann die passende Funktion wählen und umstellen.</p>` },
+        { title: 'Flächen und Volumen', html: `${T('A_{\\triangle}=\\tfrac12\\,g\\,h\\qquad A_{\\circ}=\\pi r^2\\qquad V_{\\text{Zyl}}=\\pi r^2h\\qquad V_{\\text{Pyr}}=\\tfrac13\\,G\\,h')}<p>Spitze Körper (Pyramide, Kegel) haben ein Drittel des Volumens des passenden Prismas oder Zylinders.</p>` },
+      ]) },
+      { id: 'pythagoras', kind: 'Brücke', title: 'Satz des Pythagoras', run: quiz([genPythagoras, genPythagoras, genPythagoras]) },
+      { id: 'trig', kind: 'Brücke', title: 'Sinus, Kosinus, Tangens', run: quiz([genTrig, genTrig, genTrig]) },
+      { id: 'flaeche', kind: 'Brücke', title: 'Flächen und Volumen', run: quiz([genFlaeche, genFlaeche, genFlaeche]) },
+      { id: 'punkte', kind: 'Benennen', title: 'Punkte und Vektoren', run: info([
+        { title: 'Mittelpunkt', html: `${T('M=\\tfrac12\\,(A+B)')}<p>In jeder Koordinate den Mittelwert der beiden Punkte bilden.</p>` },
+        { title: 'Mit Vektoren rechnen', html: `${T('\\begin{pmatrix}u_1\\\\u_2\\end{pmatrix}+\\begin{pmatrix}v_1\\\\v_2\\end{pmatrix}=\\begin{pmatrix}u_1+v_1\\\\u_2+v_2\\end{pmatrix}\\qquad k\\cdot\\begin{pmatrix}u_1\\\\u_2\\end{pmatrix}=\\begin{pmatrix}k\\,u_1\\\\k\\,u_2\\end{pmatrix}')}<p>Immer Zeile für Zeile. Ein Faktor vor dem Vektor gilt für jede Zeile.</p>` },
+      ]) },
+      { id: 'vektor', kind: 'Brücke', title: 'Mittelpunkt und Vektoren', run: quiz([genMittelpunkt, genMittelpunkt, genVektorRechnen, genVektorRechnen]) },
+      { id: 'mix', kind: 'Festigen', title: 'Grundlagen gemischt', run: quiz(Array(6).fill(mixOf([GRUND.geometrie]))) },
+    ],
+  },
 ];
-
 export const AREAS = [
   { id: 'analysis', title: 'Analysis', soon: ['Kurvenscharen vertieft', 'Rotationskörper', 'Integrationsverfahren', 'Trigonometrische Funktionen'] },
   { id: 'stochastik', title: 'Stochastik', soon: ['Zweiseitige Tests', 'Konfidenzintervalle', 'Zufallsgrößen und Erwartungswert allgemein'] },
@@ -352,6 +423,12 @@ const META = {
     formeln: [['Koordinatenform', 'E\\colon\\ n_1x_1+n_2x_2+n_3x_3=d'], ['Kreuzprodukt', '\\vec u\\times\\vec v=\\begin{pmatrix}u_2v_3-u_3v_2\\\\u_3v_1-u_1v_3\\\\u_1v_2-u_2v_1\\end{pmatrix}']] },
   'g-mass': { boss: ['Maßmeister', '∠', [genAbstand, genWinkel]], why: 'Abstände und Winkel braucht man beim Vermessen von Grundstücken, in der Architektur und für Sicherheitsabstände von Drohnen.',
     formeln: [['Abstand Punkt–Ebene', 'd(P;E)=\\dfrac{|\\vec n\\cdot\\vec p-d|}{|\\vec n|}'], ['Winkel', '\\cos\\varphi=\\dfrac{\\vec u\\cdot\\vec v}{|\\vec u|\\cdot|\\vec v|}']] },
+  'a-grund': { boss: ['Term-Troll', 'x', GRUND.analysis], why: 'Wer in der Oberstufe Punkte verliert, verliert sie selten an der neuen Idee – meist an einem Vorzeichen, einem Bruch oder einer Klammer. Sichere Grundlagen sind die schnellsten Punkte im Abi.',
+    formeln: [['Binomische Formeln', '(a\\pm b)^2=a^2\\pm 2ab+b^2,\\quad (a+b)(a-b)=a^2-b^2'], ['Potenzgesetze', 'x^a\\cdot x^b=x^{a+b},\\quad (x^a)^b=x^{ab},\\quad x^{-n}=\\tfrac1{x^n}'], ['pq-Formel', 'x_{1,2}=-\\tfrac p2\\pm\\sqrt{\\left(\\tfrac p2\\right)^2-q}'], ['Steigung', 'm=\\dfrac{y_2-y_1}{x_2-x_1}']] },
+  's-grund': { boss: ['Prozent-Pirat', '%', GRUND.stochastik], why: 'Rabatte, Umfragen, Wahlergebnisse, Testergebnisse beim Arzt: Wer Anteile und Vierfeldertafeln lesen kann, lässt sich von Zahlen nicht täuschen.',
+    formeln: [['Prozentwert', 'W=G\\cdot\\dfrac{p}{100}'], ['Laplace', 'P(E)=\\dfrac{\\text{günstige}}{\\text{mögliche}}'], ['Gegenereignis', 'P(\\overline{E})=1-P(E)']] },
+  'g-grund': { boss: ['Pythagoras-Phantom', '△', GRUND.geometrie], why: 'Handwerker prüfen rechte Winkel mit dem 3-4-5-Dreieck, Vermesser bestimmen Höhen mit dem Tangens. Dieselben Ideen stecken später in Vektorlänge und Winkel.',
+    formeln: [['Pythagoras', 'a^2+b^2=c^2'], ['Sinus, Kosinus, Tangens', '\\sin\\alpha=\\tfrac GH,\\quad \\cos\\alpha=\\tfrac AH,\\quad \\tan\\alpha=\\tfrac GA'], ['Volumen', 'V_{\\text{Zyl}}=\\pi r^2h,\\quad V_{\\text{Pyr}}=\\tfrac13\\,G\\,h'], ['Mittelpunkt', 'M=\\tfrac12\\,(A+B)']] },
   operatoren: { boss: ['Operator-Orakel', '!', [genOperator]], why: 'Wer den Operator genau liest, schreibt in der Prüfung weder zu wenig noch zu viel.', formeln: [] },
 };
 for (const u of UNITS) {
@@ -359,3 +436,6 @@ for (const u of UNITS) {
   u.why = m.why; u.formeln = m.formeln; u.bossName = m.boss[0]; u.bossGens = m.boss[2];
   u.steps.push({ id: 'boss', kind: 'Boss', title: `Boss: ${m.boss[0]}`, run: boss(m.boss[2], m.boss[0], m.boss[1]) });
 }
+
+/** Freies Üben: alle Auswahl-Aufgaben eines Gebiets (aus den Boss-Listen der Einheiten). */
+export const practiceGens = (areaId, nurGrund = false) => (nurGrund ? GRUND[areaId] : [...new Set(UNITS.filter((u) => u.area === areaId).flatMap((u) => u.bossGens || []))]);

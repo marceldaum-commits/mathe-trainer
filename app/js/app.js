@@ -1,5 +1,7 @@
 // Mathe-Trainer – Start, Navigation und Ansichten.
-import { UNITS, AREAS } from './units.js';
+import { UNITS, AREAS, practiceGens } from './units.js';
+import { quiz } from './quiz.js';
+import { mixOf } from './gen.js';
 import { store, LEVELS } from './store.js';
 import { CONFIG, VERSION } from './config.js';
 import { $, h, esc, ICON, starsHtml, toast, sfx, sound, confetti, look } from './ui.js';
@@ -44,7 +46,7 @@ const AREA_INFO = {
 };
 const LERN_AREAS = () => AREAS.filter((a) => a.id !== 'pruefung');
 const areaStat = (area) => {
-  const us = UNITS.filter((u) => u.area === area.id);
+  const us = UNITS.filter((u) => u.area === area.id).sort((x, y) => (y.grund ? 1 : 0) - (x.grund ? 1 : 0));   // Grundlagen zuerst
   const steps = us.reduce((s, u) => s + u.steps.length, 0), done = us.reduce((s, u) => s + store.unitProgress(u).n, 0);
   return { units: us, n: us.length, doneUnits: us.filter((u) => store.unitProgress(u).done).length, pct: steps ? (done / steps) * 100 : 0 };
 };
@@ -122,7 +124,11 @@ function areaView(area) {
   return h(`<div class="view stack">
     <a class="back" href="#/lernen">${ICON.left} Gebiete</a>
     <div><span class="eyebrow">${s.doneUnits}/${s.n} Einheiten · Schwierigkeit ${LEVELS[store.level - 1]}</span><h1 style="margin-top:8px">${esc(area.title)}</h1><p class="lead" style="margin-top:8px">${esc(AREA_INFO[area.id])}</p></div>
-    <section class="stack">${s.units.map(unitCard).join('')}
+    <section class="stack">${s.units.map(unitCard).join('')}</section>
+    <div class="sect"><h2>Freies Üben</h2></div>
+    <section class="stack">
+      ${linkCard(`#/ueben/${area.id}-grund`, '10', 'Grundlagen üben', 'Zehn gemischte Aufgaben zu den Grundlagen – immer neu.')}
+      ${linkCard(`#/ueben/${area.id}`, '10', `${esc(area.title)} gemischt`, 'Zehn Aufgaben quer durch das ganze Gebiet – immer neu.')}
       <div class="card unit soon"><span class="num">+</span><span><h3>Kommt bald</h3><small>${esc(area.soon.join(' · '))}</small></span><span></span></div></section>
   </div>`);
 }
@@ -236,6 +242,39 @@ function finish(u, i, res) {
   setTimeout(badgeCheck, 900);
 }
 
+/** Freies Üben: zehn gemischte Aufgaben eines Gebiets, auf Wunsch nur Grundlagen. Ohne Ende – jede Runde ist neu. */
+function uebenView(area, nurGrund) {
+  const N = 10, gens = practiceGens(area.id, nurGrund), back = `#/g/${area.id}`;
+  const el = h(`<div class="view">
+    <div class="stephead"><a class="x" href="${back}" aria-label="Schließen">${ICON.close}</a><div class="prog"><i></i></div></div>
+    <div id="stage"></div>
+  </div>`);
+  const bar = $('.prog i', el);
+  let right = 0;
+  const ctx = {
+    progress: (f) => { bar.style.width = `${Math.round(f * 100)}%`; },
+    done: (res) => {
+      const mistakes = res.mistakes ?? 0, gain = 10 + 2 * right;
+      store.bonus(gain); store.touch(); store.bump('ueben'); chips();
+      const sheet = $('#sheet');
+      sheet.innerHTML = `<div class="sheet-in" role="dialog" aria-modal="true" aria-label="Runde geschafft">
+        ${starsHtml(res.stars ?? 1)}
+        <small class="muted">${nurGrund ? 'Grundlagen' : esc(area.title)} · Schwierigkeit: ${LEVELS[store.level - 1]}</small>
+        <h2>${right} von ${N} auf Anhieb</h2>
+        <div class="gain"><span class="chip xp">${ICON.bolt}+${gain} Punkte</span></div>
+        ${mistakes >= 4 ? `<div class="promo">Da hakt noch etwas? In einer <a href="${CONFIG.probestunde}" target="_blank" rel="noopener">kostenlosen Probestunde</a> gehen wir es gemeinsam durch.</div>` : ''}
+        <button class="btn block" id="sh-go" type="button">Noch eine Runde</button>
+        <a class="btn ghost block" href="${back}">Zur Übersicht</a></div>`;
+      sheet.hidden = false; sfx('win'); if ((res.stars ?? 1) >= 2) confetti(32);
+      $('#sh-go', sheet).onclick = () => { sheet.hidden = true; route(); };
+      setTimeout(badgeCheck, 900);
+    },
+  };
+  const run = quiz(Array(N).fill(mixOf([gens])), { onRight: () => { right++; } });
+  queueMicrotask(() => { cleanup = run($('#stage', el), ctx) || null; });
+  return el;
+}
+
 function route() {
   cleanup?.(); cleanup = null;
   $('#sheet').hidden = true;
@@ -244,6 +283,7 @@ function route() {
   const u = m && UNITS.find((x) => x.id === m[1]);
   const x = hash.match(/^#\/(abi|tag|duell|blitz|bericht|einstellungen|wiederholen|erfolge|formeln|klasse)(?:\/([\w-]+))?$/);
   const gm = hash.match(/^#\/g\/(\w+)$/), g = gm && LERN_AREAS().find((a) => a.id === gm[1]);
+  const pm = hash.match(/^#\/ueben\/(\w+?)(-grund)?$/), pa = pm && LERN_AREAS().find((a) => a.id === pm[1]);
   let el;
   if (u && m[2] !== undefined && u.steps[+m[2]]) el = stepView(u, +m[2]);
   else if (u) el = unitView(u);
@@ -256,6 +296,7 @@ function route() {
   else if (hash === '#/pruefung') el = pruefungView();
   else if (hash === '#/mehr') el = mehrView();
   else if (g) el = areaView(g);
+  else if (pa) el = uebenView(pa, !!pm[2]);
   else el = home();
   view.replaceChildren(el);
   chips(); nav();
@@ -273,7 +314,7 @@ function nav() {
   const hash = location.hash || '#/';
   const um = hash.match(/^#\/u\/([\w-]+)/), unit = um && UNITS.find((x) => x.id === um[1]);
   const tab = unit ? (unit.area === 'pruefung' ? 'pruefung' : 'lernen')
-    : /^#\/(lernen|g\/)/.test(hash) ? 'lernen' : /^#\/(pruefung|abi|tag|duell|blitz|klasse)/.test(hash) ? 'pruefung' : /^#\/(mehr|bericht|einstellungen|wiederholen|erfolge|formeln)/.test(hash) ? 'mehr' : 'start';
+    : /^#\/(lernen|g\/|ueben\/)/.test(hash) ? 'lernen' : /^#\/(pruefung|abi|tag|duell|blitz|klasse)/.test(hash) ? 'pruefung' : /^#\/(mehr|bericht|einstellungen|wiederholen|erfolge|formeln)/.test(hash) ? 'mehr' : 'start';
   document.querySelectorAll('#nav a').forEach((a) => { const on = a.dataset.tab === tab; a.classList.toggle('on', on); if (on) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current'); });
   $('#nav').hidden = !!view.querySelector('.stephead');
 }

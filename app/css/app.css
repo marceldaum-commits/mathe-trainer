@@ -350,3 +350,18 @@ label b{color:var(--head)}
 /* Meldungen oben unter der Kopfzeile – sie verdecken so nie den Knopf, den man gerade braucht */
 .toast{top:calc(74px + env(safe-area-inset-top));bottom:auto;width:max-content;max-width:calc(100% - 28px);animation:rise .25s ease}
 .toast span{min-width:0}
+
+/* Vierfeldertafel */
+.tafel-wrap{overflow-x:auto;border-radius:18px;border:1px solid var(--line);background:var(--card)}
+.tafel{width:100%;border-collapse:collapse;font-size:14px}
+.tafel th,.tafel td{padding:8px 6px;text-align:center;border-bottom:1px solid var(--line);border-right:1px solid var(--line)}
+.tafel tr:last-child>*{border-bottom:0;background:var(--soft)}
+.tafel tr>*:last-child{border-right:0;background:var(--soft)}
+.tafel th{font-weight:750;color:var(--head);font-size:12.5px;line-height:1.2;hyphens:auto;overflow-wrap:anywhere}
+.tafel tr>th:first-child{text-align:left;padding-left:12px;width:30%}
+.tafel td.fix{font-weight:800;color:var(--head);font-variant-numeric:tabular-nums;font-size:16px}
+.tafel input{width:100%;max-width:74px;height:42px;border-radius:var(--r-ctl);border:1.5px solid var(--line);background:var(--bg);color:var(--head);
+  font:800 16px Inter,sans-serif;text-align:center;font-variant-numeric:tabular-nums;padding:0 4px}
+.tafel input:focus{outline:2px solid var(--orange);outline-offset:1px;border-color:var(--orange)}
+.tafel input.ok{border-color:var(--mint);background:var(--mint-soft)}
+.tafel input.no{border-color:var(--red);background:var(--red-soft)}

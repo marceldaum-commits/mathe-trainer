@@ -179,7 +179,26 @@ async function playBoss() {
   }
   await page.waitForSelector('#bs-done'); await page.click('#bs-done');
 }
-const HANDLERS = [['#mb-c', playMurmelbahn], ['#fg-c', playFlug], ['#tg-c', playTangente], ['#p-f', playPaare], ['#z-d', playZeichnen], ['#fl-c', playFlaeche], ['#lb-c', playLabor], ['#lo-c', playLotse], ['#wk-c', playWerkstatt], ['#rm-c', playRaum], ['#bs', playBoss], ['#i-next', info]];
+async function playTafel() {
+  const fill = async (wrongFirst) => {
+    const inputs = page.locator('#tf input'), n = await inputs.count();
+    for (let i = 0; i < n; i++) { const sol = +(await inputs.nth(i).getAttribute('data-sol')); await inputs.nth(i).fill(String(wrongFirst && i === 0 ? sol + 1 : sol)); }
+  };
+  for (let guard = 0; guard < 6; guard++) {
+    if (guard === 0) {
+      await page.click('#tf-go'); await page.waitForSelector('#tf-note .note.tip');            // leere Felder: Hinweis
+      await fill(true); await page.click('#tf-go'); await page.waitForSelector('#tf input.no');   // ein falsches Feld wird markiert
+      if (!(await page.textContent('#tf-note')).includes('stimmt')) fail('Tafel: Hinweis auf das falsche Feld fehlt');
+      await shot('60-tafel-falsch');
+    }
+    await fill(false); await page.click('#tf-go'); await page.waitForSelector('#tf-note .note.ok');
+    if (guard === 0) await shot('61-tafel-richtig');
+    await page.click('#tf-go'); await page.waitForTimeout(120);
+    if (await page.locator('#sheet').isVisible()) return;
+  }
+  fail('Tafel endet nicht');
+}
+const HANDLERS = [['#tf', playTafel], ['#mb-c', playMurmelbahn], ['#fg-c', playFlug], ['#tg-c', playTangente], ['#p-f', playPaare], ['#z-d', playZeichnen], ['#fl-c', playFlaeche], ['#lb-c', playLabor], ['#lo-c', playLotse], ['#wk-c', playWerkstatt], ['#rm-c', playRaum], ['#bs', playBoss], ['#i-next', info]];
 
 /* ───────────── Start, Menü, Schwierigkeit, Hell/Dunkel ───────────── */
 await page.goto(BASE); await page.waitForSelector('#home'); await shot('01-start');
@@ -226,6 +245,25 @@ for (const u of UNITS) {
     await sheetNext();
   }
 }
+
+/* ───────────── Grundlagen stehen vorn, freies Üben ───────────── */
+for (const a of ['analysis', 'stochastik', 'geometrie']) {
+  await page.goto(`${BASE}#/g/${a}`); await page.waitForSelector('a.unit');
+  if (!(await page.locator('a.unit').first().getAttribute('href')).endsWith('-grund')) fail(`${a}: Grundlagen stehen nicht an erster Stelle`);
+  if (!(await page.locator(`a[href="#/ueben/${a}-grund"]`).count()) || !(await page.locator(`a[href="#/ueben/${a}"]`).count())) fail(`${a}: Freies Üben fehlt`);
+}
+await shot('62-gebiet-grundlagen');
+const xpVor = await page.evaluate(() => JSON.parse(localStorage.getItem('mt.v1')).xp);
+await page.click('a[href="#/ueben/geometrie-grund"]'); await page.waitForSelector('#stage .q');
+if (await page.locator('#nav').isVisible()) fail('Üben: Menü muss ausgeblendet sein');
+await shot('63-ueben');
+await quiz();
+if (!/von 10 auf Anhieb/.test(await page.textContent('#sheet'))) fail('Üben: Ergebnis fehlt');
+if ((await page.evaluate(() => JSON.parse(localStorage.getItem('mt.v1')).xp)) <= xpVor) fail('Üben: keine Punkte gutgeschrieben');
+await shot('64-ueben-ergebnis');
+await page.click('#sh-go'); await page.waitForSelector('#stage .q');   // „Noch eine Runde" startet neu
+if (await page.locator('#sheet').isVisible()) fail('Üben: neue Runde startet nicht');
+await page.goto(`${BASE}#/ueben/analysis`); await page.waitForSelector('#stage .q, #stage .gaprow');
 
 /* ───────────── Einstellungen, Countdown, Farben ───────────── */
 await page.goto(`${BASE}#/einstellungen`); await page.waitForSelector('#st-land');

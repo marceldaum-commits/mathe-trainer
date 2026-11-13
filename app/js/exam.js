@@ -1,6 +1,7 @@
 // Runden auf Zeit: Abi-Modus (mit Punkte-Prognose), Tages-Runde (für alle gleich) und Duell per Link.
 import * as G from './gen.js';
 import * as H from './gen2.js';
+import * as K from './gen3.js';
 import { seedRandom, shuffle, fmt } from './math.js';
 import { store, LEVELS, LAENDER, dayKey } from './store.js';
 import { $, h, tex, esc, ICON, sfx, confetti, toast } from './ui.js';
@@ -199,7 +200,8 @@ export function rundeView(kind, arg, opts_onEnd) {
 /* ───────────── Blitz-Runde: 60 Sekunden, so viele wie möglich ───────────── */
 
 /** Schnelle Aufgabenarten (kurzer Text, im Kopf lösbar). */
-export const BLITZ_POOL = [G.genPolynom, G.genExp, G.genKette, G.genErwartung, G.genVektorAB, G.genBetrag, G.genSkalar, H.genSymmetrie, H.genGrenzwert, H.genKombinatorik, H.genSigma, H.genWendestelle, H.genLn, H.genNormal];
+export const BLITZ_POOL = [G.genPolynom, G.genExp, G.genKette, G.genErwartung, G.genVektorAB, G.genBetrag, G.genSkalar, H.genSymmetrie, H.genGrenzwert, H.genKombinatorik, H.genSigma, H.genWendestelle, H.genLn, H.genNormal,
+  K.genKlammer, K.genPotenz, K.genLinGl, K.genProzent, K.genLaplace, K.genPythagoras, K.genVektorRechnen];
 export const BLITZ_SEKUNDEN = 60;
 /** Punkte je richtiger Antwort: 10 mal Kombo-Faktor (höchstens 5). */
 export const blitzPunkte = (combo) => 10 * Math.min(5, Math.max(1, combo));
