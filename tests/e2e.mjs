@@ -38,7 +38,7 @@ const first = (key) => (once.has(key) ? false : (once.add(key), true));
 
 /* ───────────── Schritt-Arten ───────────── */
 async function info() { while (!(await page.locator('#sheet').isVisible())) { await page.click('#i-next'); await page.waitForTimeout(50); } }
-let getippt = 0;
+let getippt = 0, wegGesehen = false;
 async function solveQuestion() {
   if (await page.locator('#q-in').count()) {   // freie Eingabe: erst Unsinn, dann zweimal falsch (→ „Auswahl zeigen“ erscheint), dann richtig
     const sol = await page.getAttribute('#q-in', 'data-sol');
@@ -61,6 +61,7 @@ async function solveQuestion() {
     }
   } else for (let i = 0; i < 4; i++) { if (await page.locator('#q-next').isVisible()) break; await page.locator('.opt').nth(i).click(); }
   if (!(await page.locator('#q-next').isVisible())) fail('Quiz: keine Antwort wurde als richtig erkannt');
+  if (await page.locator('.weg').count()) wegGesehen = true;
   await page.click('#q-next'); await page.waitForTimeout(50);
 }
 async function quiz(endSel = '#sheet') {
@@ -318,6 +319,32 @@ await page.click('#sh-go'); await page.waitForSelector('#stage .q');   // „Noc
 if (await page.locator('#sheet').isVisible()) fail('Üben: neue Runde startet nicht');
 await page.goto(`${BASE}#/ueben/analysis`); await page.waitForSelector('#stage .q, #stage .gaprow');
 
+/* ───────────── Einstufungstest, Abi-Aufgabe am Stück, Zertifikat, Rechenweg ───────────── */
+if (!wegGesehen) fail('Rechenweg Schritt für Schritt wurde nach Fehlversuchen nie angeboten');
+await page.goto(`${BASE}#/lernen`); await page.waitForSelector('a[href="#/einstufung/ergebnis"]'); await page.click('a[href="#/einstufung/ergebnis"]');
+await page.waitForSelector('#es-go'); await page.click('#es-go'); await page.waitForSelector('#stage .q');
+if (await page.locator('#q-in').count()) fail('Einstufung: muss Auswahl-Aufgaben stellen');
+await quiz('.es-area');
+if ((await page.locator('.es-area').count()) !== 3 || !/von 12 auf Anhieb/.test(await page.textContent('h1'))) fail('Einstufung: Ergebnis unvollständig');
+await shot('71-einstufung');
+if (await page.locator('#es-lv').count()) { await page.click('#es-lv'); await page.waitForSelector('.note.ok'); }
+await page.goto(`${BASE}#/einstellungen`); await page.waitForSelector('#lv'); await page.locator('#lv button').nth(LEVEL - 1).click();   // Stufe für den Rest des Tests zurückstellen
+await page.goto(`${BASE}#/pruefung`); await page.click('a[href="#/aufgabe"]'); await page.waitForSelector('a[href="#/aufgabe/stochastik"]');
+for (const a of ['analysis', 'stochastik', 'geometrie']) {
+  await page.goto(`${BASE}#/aufgabe/${a}`); await page.waitForSelector('#stage .kopf');
+  if (!(await page.textContent('.mission')).includes('a)')) fail(`Abi-Aufgabe ${a}: Teilaufgabe a) fehlt`);
+  if (a === 'analysis') await shot('72-abi-aufgabe');
+  await quiz();
+  if (!/\d+ von \d+ BE/.test(await page.textContent('#vb-be'))) fail(`Abi-Aufgabe ${a}: Bewertung fehlt`);
+}
+await shot('73-abi-aufgabe-ergebnis');
+await page.click('#sh-go'); await page.waitForSelector('#stage .kopf');
+await page.goto(`${BASE}#/mehr`); await page.click('a[href="#/zertifikat"]'); await page.waitForSelector('a[href="#/zertifikat/analysis"]');
+await page.click('a[href="#/zertifikat/analysis"]'); await page.waitForSelector('#zert');
+await page.fill('#zt-name', 'Test Person'); if ((await page.textContent('#zt-out')) !== 'Test Person') fail('Zertifikat: Name erscheint nicht');
+if (await page.evaluate(() => localStorage.getItem('mt.v1').includes('Test Person'))) fail('Zertifikat: Name darf nicht gespeichert werden');
+await shot('74-zertifikat');
+
 /* ───────────── Einstellungen, Countdown, Farben ───────────── */
 await page.goto(`${BASE}#/einstellungen`); await page.waitForSelector('#st-land');
 await page.click('#st-land [data-k="HE-GK"]');   // Grundkurs: Zusatz-Stoff wird markiert und ans Ende gestellt
@@ -345,6 +372,7 @@ await page.click('.skin[data-k="orange"]');
 await page.goto(BASE); await page.waitForSelector('.count');
 const cd = +(await page.textContent('.count .big'));
 if (!(cd >= 89 && cd <= 91)) fail(`Countdown falsch: ${cd}`);
+await page.goto(`${BASE}#/plan`); await page.waitForSelector('h1'); if (!/Noch \d+ Tage/.test(await page.textContent('h1'))) fail('Lernplan: Tage bis zum Abi fehlen'); await shot('75-lernplan');
 
 /* ───────────── Runden auf Zeit ───────────── */
 async function playRound(endSel) {

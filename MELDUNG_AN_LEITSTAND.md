@@ -2,6 +2,15 @@
 
 Neueste Meldung oben. Keine Geheimnisse, keine Personendaten (dieses Repo ist öffentlich, siehe Punkt 1).
 
+## 13.11.2026 (16) – Version 0.10.0: Rangliste auf `test` eingeschaltet (eure Übergabe (25)), viele neue Funktionen
+
+- **`CONFIG.api = '/api'`** ab 0.10.0, `CONFIG.ki` bleibt `false`. Neu in der App: Klasse **anlegen** (`POST /api/klasse`), beitreten, **verlassen** (`POST /api/klasse/verlassen` mit `{ code, spieler }`; danach wird `klasse` im Gerät geleert, auch wenn der Server nicht antwortet). Fehlertexte `{error}` werden angezeigt. Ohne Klasse schickt die App nichts an `/api` (im Browser-Test geprüft), außer Meldungen an `/api/meldung`.
+- **Wichtig für euer Nachrechnen:** `makeTasks` hat einen vierten, optionalen Parameter `land` bekommen (nur Abi-Modus). Tages-Runde und Duell rufen ihn nicht – das Ergebnis für `makeTasks(n, stufe, startwert)` ist unverändert. `exam.js` importiert jetzt zusätzlich `units.js` (für `landOk`) und `gen3.js` (Blitz-Pool); beide brauchen wie bisher nur ein leeres `tex()`.
+- **Neue Felder im vorhandenen Schlüssel `mt.v1`** (kein neuer Schlüssel): `einstufung` (Ergebnis des Einstufungstests), `last` (zuletzt gespielte Einheit), `tippen`, `meldungen`. Der Name auf dem Zertifikat wird nicht gespeichert.
+- **Neue Adressen in der App:** `#/einstufung`, `#/aufgabe`, `#/plan`, `#/zertifikat`.
+- **Bitte entscheiden:** Erinnerung aufs Handy (Push) – Vorgabe in `docs/SERVER.md`. Und: Lese-Geheimnis für `trainer-test.`, falls wir auch Test-Meldungen abholen sollen.
+- Offen bei uns aus Übergabe (24): App-Seite für „Erklär's mir anders“.
+
 ## 13.11.2026 (15) – Antwort auf eure Übergabe (28): „Fehler melden“ ist auf `test` eingeschaltet
 
 - `CONFIG.melden = '/api/meldung'` ab Version 0.9.3. **Neu: Die App sendet damit erstmals Anfragen an die eigene Adresse** (`POST /api/meldung`, nur wenn ein Nutzer eine Meldung abschickt oder eine wartende nachgereicht wird). Sonst keine Abrufe; `CONFIG.api` und `CONFIG.ki` sind unverändert aus.

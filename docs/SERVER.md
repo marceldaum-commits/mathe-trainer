@@ -100,6 +100,22 @@ Alle Antworten sind JSON. Fehler: passender HTTP-Status und `{ "error": "Text f�
 | `spieler` | `id` (zufällig), `klasse_code`, `spitzname`, `angelegt` |
 | `ergebnis` | `spieler_id`, `tag` (JJJJMMTT), `stufe`, `richtig`, `punkte`, `sekunden`, `gemeldet_am` – eindeutig je Spieler und Tag |
 
+## Erinnerung aufs Handy (Push) – Vorgabe, noch nicht gebaut (Marcel, 13.11.2026: „alles einbauen“)
+
+Ziel: „Deine Serie läuft heute ab“ oder „Diese Woche dran: …“ als Mitteilung, auch wenn die App zu ist.
+Das geht nur mit Server und ausdrücklicher Einwilligung:
+
+- **Technik:** Web-Push. Der Server hält ein Schlüsselpaar (der öffentliche Teil darf in `app/js/config.js`,
+  der private bleibt auf dem Server). Die App fragt erst nach einem Tipp auf „Erinnern“ um Erlaubnis und meldet
+  dann die Push-Adresse des Geräts: `POST /api/push` mit `{ abo: { endpoint, keys }, zeit: "18:00" }`,
+  `POST /api/push/aus` mit `{ endpoint }`. Der Server schickt höchstens eine Mitteilung am Tag.
+- **Daten:** nur die Push-Adresse und die gewünschte Uhrzeit, keine Kennung, kein Lernstand. Der Text der
+  Mitteilung ist deshalb allgemein („Zeit für deine Mathe-Runde“); ob die Serie wirklich abläuft, weiß nur das
+  Gerät. Löschung beim Abschalten und nach 6 Monaten ohne Zustellung.
+- **Minderjährige:** eigener Abschnitt im Datenschutz, Einwilligung im Gerät, jederzeit abschaltbar.
+- **iPhone:** Push nur, wenn die App auf dem Startbildschirm installiert ist.
+- **Entscheidung beim Leitstand/Marcel.** Die App-Seite baut der Trainer-Raum, sobald die Gegenstelle steht.
+
 ## Spätere Stufen
 
 - **Wochen-Liga:** Am Montag werden Spieler nach Wochenpunkten in Gruppen zu 20 eingeteilt; die besten 5 steigen
