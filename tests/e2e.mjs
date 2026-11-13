@@ -243,7 +243,6 @@ await page.click('#look');
 
 /* ───────────── Hilfe-Knopf: Menü, Fehler melden (Versand aus → Meldung wartet im Gerät) ───────────── */
 if (!(await page.locator('#fab').isVisible())) fail('Hilfe-Knopf fehlt');
-if ((await page.locator('a.site[href^="https://www.mathenachhilfe-online.com"]').count()) < 2) fail('Knopf zur Website fehlt auf der Seite');
 await page.click('#fab'); await page.waitForSelector('#help:not([hidden]) #hp-menu'); await shot('67-hilfe-menue');
 await page.click('#hp-menu button[data-art="idee"]'); await page.waitForSelector('#hp-form:not([hidden])');
 await page.click('#hp-form button[type="submit"]'); await page.waitForSelector('#hp-note .note.tip');   // leerer Text wird abgelehnt
@@ -257,6 +256,8 @@ if (LEVEL === 3) { await page.goto(`${BASE}#/einstellungen`); await page.click('
 /* ───────────── Alle Einheiten, alle Schritte ───────────── */
 await page.click('#nav a[data-tab="start"]'); await page.waitForSelector('#home');
 if (!(await page.textContent('h1')).includes('Verstehen')) fail('Startseite fehlt');
+if (!(await page.locator('.cta a.site[href^="https://www.mathenachhilfe-online.com"]').count()) || !(await page.locator('.foot a.site').count())) fail('Startseite: Knopf zur Website fehlt');
+await page.click('#fab'); await page.waitForSelector('#hp-menu a.site'); await page.click('#hp-x');
 await page.click('.board .btn'); await page.waitForSelector('#mb-c');   // „Erste Runde starten" führt zum ersten Schritt
 let kombo = false;
 for (const u of UNITS) {
