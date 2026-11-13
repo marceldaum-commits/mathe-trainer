@@ -3,8 +3,10 @@ import { UNITS, AREAS } from './units.js';
 import { store, LEVELS } from './store.js';
 import { CONFIG, VERSION } from './config.js';
 import { $, h, esc, ICON, starsHtml, toast, sfx, sound, confetti, look } from './ui.js';
-import { abiView, rundeView } from './exam.js';
-import { settingsView, berichtView, karteiView, dailyGoal, openSteps, levelCard } from './extras.js';
+import { abiView, rundeView, blitzView } from './exam.js';
+import { checkBadges, titleOf } from './badges.js';
+import { api, serverOn } from './api.js';
+import { settingsView, berichtView, karteiView, dailyGoal, openSteps, levelCard, erfolgeView, formelnView, klasseView, weekCard, readiness, applySkin } from './extras.js';
 
 const view = $('#view');
 let cleanup = null;
@@ -18,6 +20,15 @@ function chips() {
     `<span class="chip xp" title="Punkte">${ICON.bolt}${store.xp}</span>`;
   $('#snd').onclick = () => { sound.on = !sound.on; chips(); sfx('ok'); };
   $('#look').onclick = () => { look.toggle(); chips(); sfx('tap'); };
+}
+
+/** Prüft nach jedem Ereignis auf neue Abzeichen und meldet sie. */
+function badgeCheck() {
+  const neu = checkBadges();
+  if (!neu.length) return;
+  sfx('win'); confetti(30);
+  toast(neu.length === 1 ? `Neues Abzeichen: ${neu[0].name}` : `${neu.length} neue Abzeichen: ${neu.map((b) => b.name).join(', ')}`, { label: 'Ansehen', run: () => { $('#toast').hidden = true; location.hash = '#/erfolge'; } });
+  chips();
 }
 
 function nextSpot() {
@@ -89,6 +100,7 @@ function home() {
     today.append(h(`<section class="card count"><b class="big">${days}</b><span><h3>${days === 1 ? 'Tag' : 'Tage'} bis zum Mathe-Abi</h3><small class="muted">${goal ? `Tagesziel: ${goal} ${goal === 1 ? 'Schritt' : 'Schritte'} im Lernpfad.` : 'Alle Schritte geschafft – jetzt Abi-Modus und Wiederholen.'}</small></span></section>`));
   }
   if (due) today.append(h(linkCard('#/wiederholen', due, 'Wiederholen', `${due === 1 ? 'Eine Aufgabenart ist' : `${due} Aufgabenarten sind`} heute fällig.`)));
+  today.append(weekCard(() => { chips(); badgeCheck(); route(); }));
   today.append(h(linkCard('#/tag', ICON.bolt, 'Tages-Runde', tb !== undefined ? `Heute: ${tb} Punkte – noch einmal?` : 'Sechs Aufgaben, heute für alle gleich.')));
   return el;
 }
@@ -121,10 +133,14 @@ function pruefungView() {
   const area = AREAS.find((a) => a.id === 'pruefung');
   return h(`<div class="view stack">
     <div><span class="eyebrow">Prüfung</span><h1 style="margin-top:8px">Zeig, was sitzt</h1></div>
+    <section class="card stack ready"><div class="row"><h3 class="grow">Abi-bereit</h3><b class="orange" id="rd-pct">${readiness()} %</b></div>
+      <div class="bar big"><i style="width:${readiness()}%"></i></div><small class="muted">Aus Lernpfad, Trefferquote und bestem Abi-Modus-Ergebnis – eine Orientierung.</small></section>
     <section class="stack">
       ${linkCard('#/abi', 'A·B', 'Abi-Modus', ex ? `Zuletzt: ${ex.np} Notenpunkte (Teil ${esc(ex.part)})` : 'Auf Zeit, ohne Tipps, mit Punkte-Prognose.')}
       ${linkCard('#/tag', ICON.bolt, 'Tages-Runde', tb !== undefined ? `Heute: ${tb} Punkte` : 'Sechs Aufgaben, heute für alle gleich.')}
+      ${linkCard('#/blitz', '60', 'Blitz-Runde', store.n('blitzRekord') ? `Dein Rekord: ${store.n('blitzRekord')} Punkte` : '60 Sekunden, Kombo-Faktor, so viele wie möglich.')}
       ${linkCard('#/duell', 'VS', 'Duell', best ? `Dein Bestwert: ${best.score} Punkte` : 'Fordere Mitschüler per Link heraus.')}
+      ${serverOn() ? linkCard('#/klasse', ICON.star, 'Klassen-Rangliste', store.klasse ? `Klasse ${esc(store.klasse.code)}` : 'Mit einem Code gemeinsam antreten.') : ''}
     </section>
     <div class="sect"><h2>Prüfungswissen</h2></div>
     <section class="stack">${areaStat(area).units.map(unitCard).join('')}</section>
@@ -138,7 +154,9 @@ function mehrView() {
     <div><span class="eyebrow">Mehr</span><h1 style="margin-top:8px">Dein Trainer</h1></div>
     <section class="stack">
       ${linkCard('#/wiederholen', due || ICON.check, 'Fehler-Kartei', due ? `${due} ${due === 1 ? 'Aufgabenart ist' : 'Aufgabenarten sind'} heute fällig.` : `${store.karteCount} in der Kartei, heute nichts fällig.`)}
-      ${linkCard('#/bericht', ICON.star, 'Bericht für Eltern', 'Lernstand zum Drucken oder Teilen.')}
+      ${linkCard('#/erfolge', ICON.star, 'Erfolge', `${titleOf().title} · ${Object.keys(store.badges).length} Abzeichen`)}
+      ${linkCard('#/formeln', '∑', 'Formelsammlung', 'Jede abgeschlossene Einheit schaltet Formelkarten frei.')}
+      ${linkCard('#/bericht', 'B', 'Bericht für Eltern', 'Lernstand zum Drucken oder Teilen.')}
       ${linkCard('#/einstellungen', ICON.gear, 'Einstellungen', `Schwierigkeit ${LEVELS[store.level - 1]} · Bundesland · Abi-Termin`)}
     </section>
     <div id="install"></div>
@@ -162,6 +180,7 @@ function unitView(u) {
   const el = h(`<div class="view stack">
     <a class="back" href="${u.area === 'pruefung' ? '#/pruefung' : `#/g/${u.area}`}">${ICON.left} ${esc(area.title)}</a>
     <div><span class="eyebrow">${esc(area.title)}</span><h1 style="margin-top:8px">${esc(u.title)}</h1><p class="lead" style="margin-top:8px">${esc(u.sub)}</p></div>
+    ${u.why ? `<details class="card why"><summary>Wo brauche ich das?</summary><p>${esc(u.why)}</p></details>` : ''}
     <div class="steps"></div>
   </div>`);
   u.steps.forEach((s, i) => {
@@ -192,7 +211,10 @@ function stepView(u, i) {
 function finish(u, i, res) {
   const s = u.steps[i];
   const stars = Math.max(0, Math.min(3, res.stars ?? 3));
+  const before = titleOf().title;
   const r = store.complete(u.id, s.id, stars);
+  if (store.level >= 5) store.bump('stufe5');
+  const after = titleOf().title;
   chips();
   const nextI = i + 1 < u.steps.length ? i + 1 : null;
   const unitDone = store.unitProgress(u).done && nextI === null;
@@ -201,6 +223,8 @@ function finish(u, i, res) {
     ${starsHtml(stars)}
     <small class="muted">Schwierigkeit: ${LEVELS[store.level - 1]}</small>
     <h2>${unitDone ? 'Einheit geschafft!' : stars === 3 ? 'Stark!' : 'Geschafft!'}</h2>
+    ${after !== before ? `<div class="note ok"><b>Neuer Titel:</b> ${esc(after)}</div>` : ''}
+    ${unitDone && u.formeln?.length ? `<div class="note tip"><b>${u.formeln.length} ${u.formeln.length === 1 ? 'Formelkarte' : 'Formelkarten'} freigeschaltet.</b> <a href="#/formeln">Zur Formelsammlung</a></div>` : ''}
     <div class="gain"><span class="chip xp">${ICON.bolt}+${r.gain} Punkte</span><span class="chip fire">${ICON.fire}${r.streak} ${r.streak === 1 ? 'Tag' : 'Tage'} in Folge</span></div>
     ${(res.mistakes ?? 0) >= 3 ? `<div class="promo">Das Thema hakt noch? Das ist normal. In einer <a href="${CONFIG.probestunde}" target="_blank" rel="noopener">kostenlosen Probestunde</a> gehen wir es gemeinsam durch.</div>` : ''}
     <a class="btn block" id="sh-go" href="${nextI !== null ? `#/u/${u.id}/${nextI}` : u.area === 'pruefung' ? '#/pruefung' : `#/g/${u.area}`}">${nextI !== null ? `Weiter: ${esc(u.steps[nextI].title)}` : 'Zur Übersicht'}</a>
@@ -209,6 +233,7 @@ function finish(u, i, res) {
   sheet.hidden = false;
   sfx('win'); if (stars >= 2) confetti(unitDone ? 60 : 32);
   $('#sh-go', sheet).focus();
+  setTimeout(badgeCheck, 900);
 }
 
 function route() {
@@ -217,14 +242,15 @@ function route() {
   const hash = location.hash;
   const m = hash.match(/^#\/u\/([\w-]+)(?:\/(\d+))?$/);
   const u = m && UNITS.find((x) => x.id === m[1]);
-  const x = hash.match(/^#\/(abi|tag|duell|bericht|einstellungen|wiederholen)(?:\/([\w-]+))?$/);
+  const x = hash.match(/^#\/(abi|tag|duell|blitz|bericht|einstellungen|wiederholen|erfolge|formeln|klasse)(?:\/([\w-]+))?$/);
   const gm = hash.match(/^#\/g\/(\w+)$/), g = gm && LERN_AREAS().find((a) => a.id === gm[1]);
   let el;
   if (u && m[2] !== undefined && u.steps[+m[2]]) el = stepView(u, +m[2]);
   else if (u) el = unitView(u);
   else if (x) {
-    const r = { abi: () => abiView(['A', 'B'].includes(x[2]) ? x[2] : null), tag: () => rundeView('tag'), duell: () => rundeView('duell', x[2]),
-      bericht: berichtView, einstellungen: settingsView, wiederholen: karteiView }[x[1]]();
+    const after = () => { chips(); setTimeout(badgeCheck, 600); };
+    const r = { abi: () => abiView(['A', 'B'].includes(x[2]) ? x[2] : null, after), tag: () => rundeView('tag', undefined, (res) => { after(); meldeTag(res); }), duell: () => rundeView('duell', x[2], after), blitz: () => blitzView(after),
+      bericht: berichtView, einstellungen: settingsView, wiederholen: karteiView, erfolge: erfolgeView, formeln: formelnView, klasse: klasseView }[x[1]]();
     el = r.el; cleanup = r.cleanup || null;
   } else if (hash === '#/lernen') el = lernenView();
   else if (hash === '#/pruefung') el = pruefungView();
@@ -236,17 +262,23 @@ function route() {
   window.scrollTo(0, 0);
 }
 
+/** Mit Server und Klasse: Ergebnis der Tages-Runde melden (der Server rechnet nach). */
+function meldeTag(res) {
+  if (!serverOn() || !store.klasse || !res) return;
+  api.melden({ art: 'tag', code: store.klasse.code, spieler: store.klasse.spieler, tag: res.seed, stufe: res.lv, antworten: res.answers, sekunden: res.secs, punkte: res.score });
+}
+
 /** Untere Menüleiste: zeigt, wo man ist; verschwindet, solange gespielt wird. */
 function nav() {
   const hash = location.hash || '#/';
   const um = hash.match(/^#\/u\/([\w-]+)/), unit = um && UNITS.find((x) => x.id === um[1]);
   const tab = unit ? (unit.area === 'pruefung' ? 'pruefung' : 'lernen')
-    : /^#\/(lernen|g\/)/.test(hash) ? 'lernen' : /^#\/(pruefung|abi|tag|duell)/.test(hash) ? 'pruefung' : /^#\/(mehr|bericht|einstellungen|wiederholen)/.test(hash) ? 'mehr' : 'start';
+    : /^#\/(lernen|g\/)/.test(hash) ? 'lernen' : /^#\/(pruefung|abi|tag|duell|blitz|klasse)/.test(hash) ? 'pruefung' : /^#\/(mehr|bericht|einstellungen|wiederholen|erfolge|formeln)/.test(hash) ? 'mehr' : 'start';
   document.querySelectorAll('#nav a').forEach((a) => { const on = a.dataset.tab === tab; a.classList.toggle('on', on); if (on) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current'); });
   $('#nav').hidden = !!view.querySelector('.stephead');
 }
 new MutationObserver(() => { $('#nav').hidden = !!view.querySelector('.stephead'); }).observe(view, { childList: true, subtree: true });
-look.follow();
+look.follow(); applySkin();
 window.addEventListener('hashchange', route);
 window.addEventListener('beforeinstallprompt', (ev) => { ev.preventDefault(); installEvent = ev; if (location.hash === '#/mehr') route(); });
 route();
@@ -255,7 +287,7 @@ route();
 if ('serviceWorker' in navigator && (location.protocol === 'https:' || ['localhost', '127.0.0.1'].includes(location.hostname))) {
   const hadController = !!navigator.serviceWorker.controller;
   navigator.serviceWorker.register('sw.js').then((reg) => {
-    const offer = (w) => toast('Neue Version verfügbar.', { label: 'Aktualisieren', run: () => w.postMessage('skip') });
+    const offer = (w) => toast('Neue Version verfügbar.', { label: 'Aktualisieren', run: () => w.postMessage('skip') }, { sticky: true });
     if (reg.waiting && navigator.serviceWorker.controller) offer(reg.waiting);
     reg.addEventListener('updatefound', () => {
       const w = reg.installing;

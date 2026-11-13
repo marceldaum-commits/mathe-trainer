@@ -37,7 +37,8 @@ export function starsHtml(n, max = 3) {
 }
 
 let toastTimer;
-export function toast(msg, action) {
+/** Kurze Meldung oben. Mit Knopf bleibt sie 7 Sekunden, mit sticky bis zum Tippen (z. B. Update-Hinweis). */
+export function toast(msg, action, { sticky = false } = {}) {
   const el = $('#toast');
   el.innerHTML = `<span>${esc(msg)}</span>`;
   if (action) {
@@ -47,7 +48,7 @@ export function toast(msg, action) {
   }
   el.hidden = false;
   clearTimeout(toastTimer);
-  if (!action) toastTimer = setTimeout(() => { el.hidden = true; }, 3200);
+  if (!sticky) toastTimer = setTimeout(() => { el.hidden = true; }, action ? 7000 : 3200);
 }
 
 /* Töne: werden im Browser erzeugt (Web Audio) – keine Sounddateien, keine Lizenzen. */

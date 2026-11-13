@@ -299,3 +299,54 @@ main{padding-bottom:calc(96px + env(safe-area-inset-bottom))}
 .brand-text b{white-space:nowrap}
 .unit .num .pct{font-style:normal;font-size:12.5px;white-space:nowrap}
 @media (max-width:440px){.brand-text small{display:none}}
+
+/* Erfolge, Boss, Kombo, Wochen-Ziel, Formeln, Karte */
+.bar.big{height:10px;margin:0}
+.badges{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.badge{display:grid;gap:3px;justify-items:center;text-align:center;padding:12px 6px;border-radius:16px;border:1px solid var(--line);background:var(--card);opacity:.45}
+.badge.on{opacity:1;border-color:color-mix(in srgb,var(--orange) 45%,var(--line));box-shadow:var(--shadow)}
+.badge b{display:grid;place-items:center;width:46px;height:46px;border-radius:50%;background:var(--soft);color:var(--muted);font-size:14px;font-weight:900}
+.badge.on b{background:var(--orange);color:#fff}
+.badge span{font-size:12.5px;font-weight:800;color:var(--head);line-height:1.15}
+.badge small{font-size:10.5px;color:var(--muted);line-height:1.25}
+.kombo{display:inline-block;padding:3px 10px;border-radius:99px;background:var(--orange);color:#fff;font-weight:900;font-size:12.5px;animation:pop .35s cubic-bezier(.2,1.6,.4,1)}
+.kombo-line{min-height:26px;text-align:center}
+@keyframes pop{from{transform:scale(.5);opacity:0}}
+.boss{display:grid;grid-template-columns:auto 1fr;gap:14px;align-items:center;padding:14px 16px;border-radius:22px;background:var(--navy-deep);color:#fff}
+.boss-face{display:grid;place-items:center;width:64px;height:64px;border-radius:20px;background:linear-gradient(135deg,#d85042,#ff7418);font-weight:900;font-size:20px;color:#fff;box-shadow:0 10px 22px rgba(216,80,66,.35)}
+.boss-face.hit{animation:hit .4s}
+.boss-face.down{filter:grayscale(1);opacity:.5;transform:rotate(-14deg)}
+@keyframes hit{20%{transform:translateX(-8px) rotate(-6deg) scale(.92)}60%{transform:translateX(6px) rotate(4deg)}}
+.boss-info{display:grid;gap:6px}
+.hp{height:10px;border-radius:9px;background:rgba(255,255,255,.16);overflow:hidden}
+.hp i{display:block;height:100%;background:linear-gradient(90deg,#ff7418,#ffb020);border-radius:9px;transition:width .4s ease}
+.hearts{display:flex;gap:4px;font-size:18px;line-height:1;color:rgba(255,255,255,.22)}
+.hearts .on{color:#ff5a6e}
+.step .kind{color:var(--muted)}
+.week{display:grid;gap:10px}
+.weekdots{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
+.weekdots i{height:10px;border-radius:9px;background:var(--line)}
+.weekdots i.on{background:var(--orange)}
+.why summary{font-weight:800;color:var(--head);cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center}
+.why summary::after{content:"+";color:var(--orange);font-size:20px;font-weight:800}
+.why[open] summary::after{content:"–"}
+.why p{margin-top:8px;color:var(--muted);line-height:1.6}
+.fcard{display:grid;gap:8px}
+.fcard.locked{opacity:.6}
+.fline{display:grid;gap:4px}
+.fline small{font-weight:800;color:var(--muted);font-size:12px;letter-spacing:.04em;text-transform:uppercase}
+.fline .formula{text-align:left;padding:10px 12px;font-size:16px}
+.sharebox{display:grid;gap:10px}
+.sharecard{width:100%;max-width:300px;justify-self:center;border-radius:18px;box-shadow:var(--shadow)}
+.skins{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.skin{display:grid;justify-items:center;gap:4px;padding:10px 4px;border-radius:14px;border:1.5px solid var(--line);background:var(--card);font-size:12.5px;font-weight:750;color:var(--head)}
+.skin i{width:28px;height:28px;border-radius:50%}
+.skin small{font-size:10.5px;color:var(--muted);min-height:13px}
+.skin.sel{border-color:var(--orange);background:var(--orange-soft)}
+.skin:disabled{opacity:.45;cursor:not-allowed}
+.card.me{border-color:var(--orange)}
+label b{color:var(--head)}
+
+/* Meldungen oben unter der Kopfzeile – sie verdecken so nie den Knopf, den man gerade braucht */
+.toast{top:calc(74px + env(safe-area-inset-top));bottom:auto;width:max-content;max-width:calc(100% - 28px);animation:rise .25s ease}
+.toast span{min-width:0}

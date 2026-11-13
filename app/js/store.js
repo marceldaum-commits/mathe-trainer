@@ -5,7 +5,8 @@ const XP_STEP = 10;
 function load() {
   try { return JSON.parse(localStorage.getItem(KEY)) || {}; } catch { return {}; }
 }
-const FRESH = () => ({ done: {}, xp: 0, streak: { n: 0, last: '' }, level: 3, stats: {}, kartei: {}, land: '', abi: '', exams: [], runs: [], tag: {} });
+const FRESH = () => ({ done: {}, xp: 0, streak: { n: 0, last: '' }, level: 3, stats: {}, kartei: {}, land: '', abi: '', exams: [], runs: [], tag: {},
+  badges: {}, count: {}, skin: 'orange', week: { key: '', days: [], claimed: false }, klasse: null });
 let mem = Object.assign(FRESH(), load());
 
 export const LAENDER = { '': 'Nicht gewählt', BY: 'Bayern', 'HE-GK': 'Hessen – Grundkurs', 'HE-LK': 'Hessen – Leistungskurs' };
@@ -18,6 +19,13 @@ export const LEVELS = ['Sehr leicht', 'Leicht', 'Mittel', 'Schwer', 'Sehr schwer
 function save() {
   try { localStorage.setItem(KEY, JSON.stringify(mem)); } catch { /* privater Modus: läuft ohne Speichern weiter */ }
 }
+
+/** Montag der Woche als Schlüssel (für das Wochen-Ziel). */
+export function weekKey(d = new Date()) {
+  const x = new Date(d.getFullYear(), d.getMonth(), d.getDate()); x.setDate(x.getDate() - ((x.getDay() + 6) % 7));
+  return `${x.getFullYear()}-${String(x.getMonth() + 1).padStart(2, '0')}-${String(x.getDate()).padStart(2, '0')}`;
+}
+export const WOCHEN_ZIEL = 5, WOCHEN_BONUS = 50;
 
 export function dayKey(d = new Date()) {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
@@ -41,6 +49,14 @@ export function nextStreak(streak, today = new Date()) {
   return { n: ok ? streak.n + 1 : 1, last: t };
 }
 
+/** Markiert den heutigen Tag als aktiv: Serie und Wochen-Ziel. */
+function touchDay(today = new Date()) {
+  mem.streak = nextStreak(mem.streak, today);
+  const wk = weekKey(today), dk = dayKey(today);
+  if (mem.week.key !== wk) mem.week = { key: wk, days: [], claimed: false };
+  if (!mem.week.days.includes(dk)) mem.week.days.push(dk);
+}
+
 export const store = {
   get xp() { return mem.xp; },
   /** Schwierigkeit 1 (sehr leicht) bis 5 (sehr schwer). */
@@ -59,7 +75,7 @@ export const store = {
     mem.done[k] = Math.max(mem.done[k] ?? 0, stars);
     const gain = first ? XP_STEP + stars * 2 : 2;
     mem.xp += gain;
-    mem.streak = nextStreak(mem.streak);
+    touchDay();
     save();
     return { gain, first, streak: mem.streak.n };
   },
@@ -91,7 +107,7 @@ export const store = {
   karteResult(gen, ok, today = new Date()) {
     const k = mem.kartei[gen]; if (!k) return;
     if (!ok) { k.step = 0; k.due = dayKey(addDays(today, KARTEI_TAGE[0])); }
-    else if (k.step + 1 >= KARTEI_TAGE.length) delete mem.kartei[gen];
+    else if (k.step + 1 >= KARTEI_TAGE.length) { delete mem.kartei[gen]; mem.count.karteiFertig = (mem.count.karteiFertig || 0) + 1; }
     else { k.step++; k.due = dayKey(addDays(today, KARTEI_TAGE[k.step])); }
     save();
   },
@@ -112,13 +128,43 @@ export const store = {
   },
 
   /* Ergebnisse: Abi-Modus und Runden (nur die letzten 20) */
-  addExam(r) { mem.exams.unshift({ date: dayKey(), ...r }); mem.exams = mem.exams.slice(0, 20); mem.streak = nextStreak(mem.streak); mem.xp += r.xp || 0; save(); },
+  addExam(r) { mem.exams.unshift({ date: dayKey(), ...r }); mem.exams = mem.exams.slice(0, 20); touchDay(); mem.xp += r.xp || 0; save(); },
   get exams() { return mem.exams; },
-  addRun(r) { mem.runs.unshift({ date: dayKey(), ...r }); mem.runs = mem.runs.slice(0, 20); mem.streak = nextStreak(mem.streak); mem.xp += r.xp || 0; save(); },
+  addRun(r) { mem.runs.unshift({ date: dayKey(), ...r }); mem.runs = mem.runs.slice(0, 20); touchDay(); mem.xp += r.xp || 0; save(); },
   get runs() { return mem.runs; },
   /** Bestwerte der eigenen Runden. */
   best(n = 5) { return [...mem.runs].sort((a, b) => b.score - a.score).slice(0, n); },
   tagBest(day = dayKey()) { return mem.tag[day]; },
   setTag(score, day = dayKey()) { if (!(mem.tag[day] >= score)) mem.tag = { [day]: score }; save(); },
   get lastDay() { return mem.streak.last; },
+
+  /* Zähler (für Abzeichen), Bonus-Punkte, Abzeichen */
+  bump(key, by = 1) { mem.count[key] = (mem.count[key] || 0) + by; save(); return mem.count[key]; },
+  max(key, v) { if (!(mem.count[key] >= v)) { mem.count[key] = v; save(); } return mem.count[key]; },
+  n(key) { return mem.count[key] || 0; },
+  bonus(xp) { mem.xp += Math.max(0, Math.round(xp)); save(); },
+  get badges() { return mem.badges; },
+  award(id) { if (mem.badges[id]) return false; mem.badges[id] = dayKey(); save(); return true; },
+  get streakN() { return mem.streak.n; },
+  get tasksRight() { return Object.values(mem.stats).reduce((s, x) => s + x.ok, 0); },
+  get stars3() { return Object.values(mem.done).filter((s) => s === 3).length; },
+
+  /* Design (freischaltbare Akzentfarbe) */
+  get skin() { return mem.skin || 'orange'; },
+  set skin(v) { mem.skin = v; save(); },
+
+  /* Wochen-Ziel: an 5 Tagen der Woche üben, dann Truhe öffnen */
+  week(today = new Date()) {
+    const cur = mem.week.key === weekKey(today) ? mem.week : { key: weekKey(today), days: [], claimed: false };
+    return { days: cur.days.length, goal: WOCHEN_ZIEL, done: cur.days.length >= WOCHEN_ZIEL, claimed: cur.claimed };
+  },
+  claimWeek(today = new Date()) {
+    const w = this.week(today); if (!w.done || w.claimed) return 0;
+    mem.week.claimed = true; mem.xp += WOCHEN_BONUS; mem.count.truhen = (mem.count.truhen || 0) + 1; save(); return WOCHEN_BONUS;
+  },
+  touch(today = new Date()) { touchDay(today); save(); },
+
+  /* Klasse (nur mit Server): Code und Spitzname bleiben im Gerät */
+  get klasse() { return mem.klasse; },
+  set klasse(v) { mem.klasse = v; save(); },
 };

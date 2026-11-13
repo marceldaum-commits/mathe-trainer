@@ -6,6 +6,10 @@ import { store, LEVELS, LAENDER, KARTEI_TAGE } from './store.js';
 import { UNITS, AREAS } from './units.js';
 import { $, h, esc, ICON, sfx, toast, confetti } from './ui.js';
 import { CONFIG } from './config.js';
+import { BADGES, TITLES, SKINS, titleOf, skinOpen, checkBadges } from './badges.js';
+import { tex } from './ui.js';
+import { api, serverOn, nameOk, codeOk } from './api.js';
+import { WOCHEN_ZIEL, WOCHEN_BONUS } from './store.js';
 
 const GEN = { ...G, ...H };
 
@@ -38,10 +42,21 @@ export function settingsView() {
     <section class="card stack"><h3>Abi-Termin Mathe</h3>
       <input class="field" id="st-abi" type="date" aria-label="Datum der Mathe-Prüfung" value="${esc(store.abi)}">
       <small class="muted" id="st-abi-note"></small></section>
+    <section class="card stack"><h3>Farbe</h3><div class="skins" id="st-skin" role="radiogroup" aria-label="Akzentfarbe"></div>
+      <small class="muted">Neue Farben schaltest du mit Punkten frei.</small></section>
     <section class="card stack"><h3>Fortschritt</h3><small class="muted">Alles liegt nur auf diesem Gerät. Es gibt kein Konto.</small>
       <button class="btn ghost" id="st-reset" type="button">Fortschritt zurücksetzen</button></section>
   </div>`);
   $('#st-level', el).append(levelCard());
+  const sk = $('#st-skin', el);
+  const paintSkin = () => sk.querySelectorAll('button').forEach((b) => { const on = b.dataset.k === store.skin; b.classList.toggle('sel', on); b.setAttribute('aria-checked', on); });
+  SKINS.forEach(([id, name, need, color]) => {
+    const open = skinOpen(id);
+    const b = h(`<button class="skin" type="button" role="radio" data-k="${id}" ${open ? '' : 'disabled'} aria-label="${name}${open ? '' : `, ab ${need} Punkten`}"><i style="background:${color}"></i><span>${esc(name)}</span><small>${open ? '' : `ab ${need}`}</small></button>`);
+    b.onclick = () => { store.skin = id; applySkin(); paintSkin(); sfx('tap'); };
+    sk.append(b);
+  });
+  paintSkin();
   const box = $('#st-land', el);
   const paint = () => box.querySelectorAll('button').forEach((b) => { const on = b.dataset.k === store.land; b.classList.toggle('sel', on); b.setAttribute('aria-checked', on); });
   Object.entries(LAENDER).forEach(([k, name]) => {
@@ -128,4 +143,101 @@ export function karteiView() {
     }) || null;
   });
   return { el, cleanup: () => cleanup?.() };
+}
+
+/* ───────────── Design ───────────── */
+export function applySkin() {
+  const s = SKINS.find((x) => x[0] === store.skin && skinOpen(x[0])) || SKINS[0];
+  const r = document.documentElement.style;
+  if (s[0] === 'orange') { r.removeProperty('--orange'); r.removeProperty('--orange-dark'); } else { r.setProperty('--orange', s[3]); r.setProperty('--orange-dark', s[4]); }
+}
+
+/* ───────────── Abi-Bereitschaft ───────────── */
+/** Schätzt, wie weit man ist (0–100): 55 % Lernpfad, 25 % Trefferquote, 20 % bestes Abi-Ergebnis. */
+export function readiness() {
+  const steps = UNITS.reduce((s, u) => s + u.steps.length, 0), done = UNITS.reduce((s, u) => s + store.unitProgress(u).n, 0);
+  const st = Object.values(store.stats), n = st.reduce((s, x) => s + x.ok + x.bad, 0), ok = st.reduce((s, x) => s + x.ok, 0);
+  const rate = n >= 20 ? ok / n : (ok / Math.max(1, n)) * (n / 20);
+  const np = store.exams.reduce((m, e) => Math.max(m, e.np), 0) / 15;
+  return Math.round(100 * (0.55 * (steps ? done / steps : 0) + 0.25 * rate + 0.2 * np));
+}
+
+/* ───────────── Wochen-Ziel ───────────── */
+export function weekCard(onClaim) {
+  const w = store.week();
+  const el = h(`<section class="card week"><div class="row"><h3 class="grow">Wochen-Ziel</h3><b class="orange">${Math.min(w.days, WOCHEN_ZIEL)}/${WOCHEN_ZIEL} Tage</b></div>
+    <div class="weekdots">${Array.from({ length: WOCHEN_ZIEL }, (_, i) => `<i class="${i < w.days ? 'on' : ''}"></i>`).join('')}</div>
+    ${w.claimed ? '<small class="muted">Truhe dieser Woche geöffnet. Nächste Woche gibt es eine neue.</small>' : w.done ? `<button class="btn block" id="wk-claim" type="button">Truhe öffnen · +${WOCHEN_BONUS} Punkte</button>` : `<small class="muted">Übe an ${WOCHEN_ZIEL} Tagen dieser Woche, dann wartet eine Truhe mit ${WOCHEN_BONUS} Punkten.</small>`}</section>`);
+  const b = $('#wk-claim', el);
+  if (b) b.onclick = () => { const got = store.claimWeek(); if (got) { sfx('win'); confetti(60); toast(`Truhe geöffnet: +${got} Punkte.`); onClaim?.(); } };
+  return el;
+}
+
+/* ───────────── Erfolge: Titel und Abzeichen ───────────── */
+export function erfolgeView() {
+  checkBadges();
+  const t = titleOf(), have = store.badges, got = BADGES.filter((b) => have[b.id]).length;
+  const el = h(`<div class="view stack">
+    <a class="back" href="#/mehr">${ICON.left} Mehr</a>
+    <div><span class="eyebrow">Erfolge</span><h1 style="margin-top:8px">${esc(t.title)}</h1><p class="lead" style="margin-top:8px">Stufe ${t.level} von ${TITLES.length} · ${store.xp} Punkte</p></div>
+    <section class="card stack"><div class="bar big"><i style="width:${Math.round(t.pct * 100)}%"></i></div>
+      <small class="muted">${t.next ? `Noch ${t.need} Punkte bis „${esc(t.next)}".` : 'Höchster Titel erreicht.'}</small></section>
+    <div class="sect"><h2>Abzeichen</h2><small class="muted" id="bd-count">${got}/${BADGES.length}</small></div>
+    <section class="badges">${BADGES.map((b) => `<div class="badge ${have[b.id] ? 'on' : ''}" title="${esc(b.text)}"><b>${esc(b.icon)}</b><span>${esc(b.name)}</span><small>${esc(b.text)}</small></div>`).join('')}</section>
+    <small class="muted">Abzeichen gibt es für Können – richtige Antworten beim ersten Versuch, Serien und Abschlüsse –, nicht für bloße Spielzeit.</small>
+  </div>`);
+  return { el };
+}
+
+/* ───────────── Formelsammlung zum Freischalten ───────────── */
+export function formelnView() {
+  const total = UNITS.reduce((s, u) => s + (u.formeln?.length || 0), 0);
+  const open = UNITS.filter((u) => store.unitProgress(u).done).reduce((s, u) => s + (u.formeln?.length || 0), 0);
+  const el = h(`<div class="view stack report">
+    <a class="back noprint" href="#/mehr">${ICON.left} Mehr</a>
+    <div><span class="eyebrow">Deine Formelsammlung</span><h1 style="margin-top:8px">${open} von ${total} Formeln</h1><p class="lead noprint" style="margin-top:8px">Jede abgeschlossene Einheit schaltet ihre Formelkarten frei.</p></div>
+    ${AREAS.map((a) => { const us = UNITS.filter((u) => u.area === a.id && u.formeln?.length); return us.length ? `<div class="sect"><h2>${esc(a.title)}</h2></div><section class="stack">${us.map((u) => {
+      const ok = store.unitProgress(u).done;
+      return `<div class="card fcard ${ok ? '' : 'locked noprint'}"><div class="row"><h3 class="grow">${esc(u.title)}</h3>${ok ? '' : `<a class="btn small ghost" href="#/u/${u.id}">Freischalten</a>`}</div>
+        ${ok ? u.formeln.map(([n, f]) => `<div class="fline"><small>${esc(n)}</small><div class="formula">${tex(f, true)}</div></div>`).join('') : `<small class="muted">${u.formeln.length} ${u.formeln.length === 1 ? 'Formel' : 'Formeln'} – schließe die Einheit ab.</small>`}</div>`; }).join('')}</section>` : ''; }).join('')}
+    ${open ? '<button class="btn ghost block noprint" id="fm-print" type="button">Drucken oder als PDF sichern</button>' : ''}
+  </div>`);
+  const pb = $('#fm-print', el); if (pb) pb.onclick = () => window.print();
+  return { el };
+}
+
+/* ───────────── Klasse (nur mit Server) ───────────── */
+export function klasseView() {
+  const el = h('<div class="view stack"></div>');
+  if (!serverOn()) {
+    el.innerHTML = `<a class="back" href="#/pruefung">${ICON.left} Prüfung</a><div><span class="eyebrow">Klasse</span><h1 style="margin-top:8px">Noch nicht verfügbar</h1><p class="lead" style="margin-top:8px">Die Klassen-Bestenliste braucht einen Server. Bis dahin kannst du Mitschüler im Duell per Link herausfordern.</p></div><a class="btn block" href="#/duell">Zum Duell</a>`;
+    return { el };
+  }
+  async function board() {
+    const k = store.klasse;
+    el.innerHTML = `<a class="back" href="#/pruefung">${ICON.left} Prüfung</a><div><span class="eyebrow">Klasse ${esc(k.code)}</span><h1 style="margin-top:8px">${esc(k.name || 'Rangliste')}</h1><p class="lead" style="margin-top:8px">Du spielst als <b>${esc(k.spitzname)}</b>. Gewertet wird die Tages-Runde dieser Woche.</p></div>
+      <section class="stack" id="kl-list"><div class="card"><small class="muted">Lade Rangliste …</small></div></section>
+      <a class="btn block" href="#/tag">Tages-Runde spielen</a><button class="btn ghost block" id="kl-leave" type="button">Klasse verlassen</button>`;
+    $('#kl-leave', el).onclick = () => { store.klasse = null; form(); };
+    const r = await api.rangliste(k.code, k.spieler);
+    $('#kl-list', el).innerHTML = !r.ok ? `<div class="note bad">${esc(r.error || 'Rangliste nicht erreichbar.')}</div>`
+      : r.liste?.length ? r.liste.map((p, i) => `<div class="card row ${p.ich ? 'me' : ''}"><b class="num sm">${i + 1}</b><span class="grow">${esc(p.name)}${p.ich ? ' <small class="muted">(du)</small>' : ''}</span><b>${Number(p.punkte) || 0}</b></div>`).join('')
+        : '<div class="card"><small class="muted">Noch keine Ergebnisse in dieser Woche. Spiel die Tages-Runde!</small></div>';
+  }
+  function form() {
+    el.innerHTML = `<a class="back" href="#/pruefung">${ICON.left} Prüfung</a><div><span class="eyebrow">Klasse</span><h1 style="margin-top:8px">Rangliste für eure Klasse</h1><p class="lead" style="margin-top:8px">Mit einem Code tretet ihr gemeinsam bei. Es gibt kein Konto – nur einen Spitznamen.</p></div>
+      <section class="card stack"><label for="kl-code"><b>Klassen-Code</b></label><input class="field" id="kl-code" maxlength="6" autocomplete="off" autocapitalize="characters" placeholder="z. B. K7M2QX">
+        <label for="kl-name"><b>Spitzname</b></label><input class="field" id="kl-name" maxlength="16" autocomplete="off" placeholder="Kein echter Name nötig">
+        <div id="kl-note"></div><button class="btn block" id="kl-join" type="button">Beitreten</button></section>`;
+    $('#kl-join', el).onclick = async () => {
+      const code = $('#kl-code', el).value.trim().toUpperCase(), name = $('#kl-name', el).value.trim(), note = $('#kl-note', el);
+      if (!codeOk(code)) { note.innerHTML = '<div class="note bad">Der Code hat 6 Zeichen (Buchstaben und Ziffern).</div>'; return; }
+      if (!nameOk(name)) { note.innerHTML = '<div class="note bad">Der Spitzname braucht 2 bis 16 Zeichen.</div>'; return; }
+      const r = await api.beitreten(code, name);
+      if (!r.ok) { note.innerHTML = `<div class="note bad">${esc(r.error || 'Beitreten nicht möglich.')}</div>`; return; }
+      store.klasse = { code, name: r.klasse || '', spitzname: name, spieler: r.spieler }; sfx('ok'); board();
+    };
+  }
+  if (store.klasse) board(); else form();
+  return { el };
 }

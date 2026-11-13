@@ -5,6 +5,7 @@ import { seedRandom, shuffle, fmt } from './math.js';
 import { store, LEVELS, LAENDER, dayKey } from './store.js';
 import { $, h, tex, esc, ICON, sfx, confetti, toast } from './ui.js';
 import { CONFIG } from './config.js';
+import { cardBox } from './share.js';
 
 /** Auswahl-Aufgaben je Gebiet (ohne Lücken- und Graph-Aufgaben, die brauchen mehr Platz und Zeit). */
 export const POOL = {
@@ -43,8 +44,8 @@ const clock = (s) => `${Math.floor(s / 60)}:${String(Math.max(0, Math.floor(s % 
 
 /** Spielt eine Runde: eine Antwort je Aufgabe, keine Tipps, Zeit läuft. */
 export function round(el, { tasks, seconds, onEnd }) {
-  let i = 0, correct = 0, answered = 0, left = seconds, lock = false, ended = false;
-  const wrong = [];
+  let i = 0, correct = 0, answered = 0, left = seconds, lock = false, ended = false, combo = 0;
+  const wrong = [], answers = [];
   const t0 = performance.now();
   el.innerHTML = `<div class="stack">
     <div class="examhead"><b id="ex-n"></b><div class="prog"><i id="ex-bar"></i></div><b class="timer" id="ex-t"></b></div>
@@ -58,7 +59,7 @@ export function round(el, { tasks, seconds, onEnd }) {
   const timer = setInterval(tick, 250);
   function end() {
     if (ended) return; ended = true; clearInterval(timer);
-    onEnd({ correct, total: tasks.length, answered, secsLeft: Math.max(0, left), secsUsed: Math.min(seconds, seconds - left), wrong });
+    onEnd({ correct, total: tasks.length, answered, answers, secsLeft: Math.max(0, left), secsUsed: Math.min(seconds, seconds - left), wrong });
   }
   function show() {
     const q = tasks[i];
@@ -69,10 +70,10 @@ export function round(el, { tasks, seconds, onEnd }) {
     q.options.forEach((o, k) => {
       const b = h(`<button class="opt" type="button"><span class="k">${'ABCD'[k]}</span><span>${o.html ?? tex(o.tex)}</span></button>`);
       b.addEventListener('click', () => {
-        if (lock || ended) return; lock = true; answered++;
-        if (o.correct) { correct++; b.classList.add('right'); sfx('pling'); store.record(q.topic, true); }
+        if (lock || ended) return; lock = true; answered++; answers.push(k);
+        if (o.correct) { correct++; combo++; store.max('komboMax', combo); b.classList.add('right'); sfx('pling'); store.record(q.topic, true); }
         else {
-          b.classList.add('wrong'); sfx('bad'); store.record(q.topic, false); store.kartePut(q.gen, q.topic); wrong.push({ q, chosen: o });
+          combo = 0; b.classList.add('wrong'); sfx('bad'); store.record(q.topic, false); store.kartePut(q.gen, q.topic); wrong.push({ q, chosen: o });
           box.querySelectorAll('.opt').forEach((n, j) => { if (q.options[j].correct) n.classList.add('right'); });
         }
         setTimeout(() => { lock = false; i++; if (i >= tasks.length) end(); else { show(); window.scrollTo(0, 0); } }, o.correct ? 380 : 900);
@@ -96,7 +97,7 @@ export function abiPlan(part, land = store.land, level = store.level) {
     : { part, title: 'Teil B – mit Hilfsmitteln', n: 12 + 3 * lk, seconds: (20 + 5 * lk) * 60, lv: Math.min(5, Math.max(3, level + 1) + lk) };
 }
 
-export function abiView(part) {
+export function abiView(part, opts_onEnd) {
   const el = h('<div class="view stack"></div>');
   let stop = null;
   if (!part) {
@@ -121,8 +122,11 @@ export function abiView(part) {
         <section class="board" style="text-align:center"><div class="board-top"><span>${esc(plan.title.toUpperCase())}</span><b>● PROGNOSE</b></div>
           <div class="npbig" id="ex-np">${np}</div><h2>Notenpunkte</h2><p>${r.correct} von ${r.total} richtig (${pct} %) · ${clock(r.secsUsed)} Minuten${r.answered < r.total ? ` · ${r.total - r.answered} nicht beantwortet` : ''}</p></section>
         ${weakT.length ? `<div class="promo">Hier lohnt sich Üben: <b>${weakT.map(esc).join(', ')}</b>. Diese Aufgabenarten liegen jetzt in deiner Fehler-Kartei. Wenn es an einem Thema länger hakt, hilft eine <a href="${CONFIG.probestunde}" target="_blank" rel="noopener">kostenlose Probestunde</a>.</div>` : '<div class="note ok"><b>Fehlerfrei.</b> Probier die nächste Schwierigkeit.</div>'}
+        <div id="ex-card"></div>
         ${review(r.wrong)}
         <a class="btn block" id="ex-again" href="#/abi">Zurück zum Abi-Modus</a>`;
+      if (np >= 5) $('#ex-card', el).append(cardBox({ kicker: `Abi-Modus · ${plan.title.split(' – ')[0]}`, big: np, unit: 'Notenpunkte', lines: [`${r.correct} von ${r.total} Aufgaben richtig.`, 'Prognose aus dem Mathe-Trainer.'] }, `Abi-Modus im Mathe-Trainer: ${np} Notenpunkte.`, linkFor('#/abi')));
+      opts_onEnd?.();
       window.scrollTo(0, 0);
     } });
   });
@@ -141,7 +145,7 @@ async function share(text, url) {
 }
 
 /** #/tag oder #/duell[/seed-lv-punkte] */
-export function rundeView(kind, arg) {
+export function rundeView(kind, arg, opts_onEnd) {
   const el = h('<div class="view stack"></div>');
   let stop = null;
   const m = /^(\d{1,9})-([1-5])(?:-(\d{1,5}))?$/.exec(arg || '');
@@ -166,8 +170,9 @@ export function rundeView(kind, arg) {
     stop = round($('#stage', el), { tasks: makeTasks(cfg.n, cfg.lv, seed), seconds: cfg.seconds, onEnd: (r) => {
       const score = scoreOf(r.correct, r.total, r.answered, r.secsLeft);
       store.addRun({ kind, score, correct: r.correct, total: r.total, xp: r.correct * 2 });
-      if (kind === 'tag') store.setTag(score);
+      if (kind === 'tag') { store.setTag(score); store.bump('tagRunden'); }
       const won = cfg.rival !== null ? score > cfg.rival : null;
+      if (won) store.bump('duellSiege');
       sfx('win'); if (won !== false && r.correct >= r.total / 2) confetti(40);
       const url = kind === 'tag' ? linkFor('#/tag') : linkFor(`#/duell/${seed}-${cfg.lv}-${score}`);
       const text = kind === 'tag' ? `Mathe-Trainer Tages-Runde: ${score} Punkte. Schaffst du mehr?` : `Ich habe ${score} Punkte im Mathe-Duell. Schlag mich – du bekommst dieselben Aufgaben:`;
@@ -177,15 +182,87 @@ export function rundeView(kind, arg) {
           ${won === null ? '' : `<p><b>${won ? 'Gewonnen!' : score === cfg.rival ? 'Unentschieden.' : 'Knapp verloren.'}</b> Dein Gegner hatte ${cfg.rival} Punkte.</p>`}</section>
         <button class="btn block" id="rd-share" type="button">${kind === 'tag' ? 'Ergebnis teilen' : 'Mitschüler herausfordern'}</button>
         <input class="linkbox" id="rd-link" readonly value="${esc(url)}" aria-label="Link zum Weitergeben">
+        <div id="rd-card"></div>
         ${review(r.wrong)}
         <a class="btn ghost block" href="${kind === 'tag' ? '#/tag' : '#/duell'}">Neue Runde</a>`;
       $('#rd-share', el).onclick = () => share(text, url);
       $('#rd-link', el).onclick = (ev) => ev.target.select();
+      if (r.correct > 0) $('#rd-card', el).append(cardBox({ kicker: cfg.title, big: score, unit: 'Punkte', lines: [`${r.correct} von ${r.total} richtig.`, kind === 'tag' ? 'Heute bekommen alle dieselben Aufgaben.' : 'Schaffst du mehr? Du bekommst dieselben Aufgaben.'] }, text, url));
+      opts_onEnd?.({ seed, lv: cfg.lv, answers: r.answers, secs: Math.round(r.secsUsed), score });
       window.scrollTo(0, 0);
     } });
   }
   intro();
   return { el, cleanup: () => stop?.() };
+}
+
+/* ───────────── Blitz-Runde: 60 Sekunden, so viele wie möglich ───────────── */
+
+/** Schnelle Aufgabenarten (kurzer Text, im Kopf lösbar). */
+export const BLITZ_POOL = [G.genPolynom, G.genExp, G.genKette, G.genErwartung, G.genVektorAB, G.genBetrag, G.genSkalar, H.genSymmetrie, H.genGrenzwert, H.genKombinatorik, H.genSigma, H.genWendestelle, H.genLn, H.genNormal];
+export const BLITZ_SEKUNDEN = 60;
+/** Punkte je richtiger Antwort: 10 mal Kombo-Faktor (höchstens 5). */
+export const blitzPunkte = (combo) => 10 * Math.min(5, Math.max(1, combo));
+
+export function blitzView(opts_onEnd) {
+  const el = h('<div class="view stack"></div>');
+  let timer = 0, over = true;
+  function intro() {
+    el.innerHTML = `<a class="back" href="#/pruefung">${ICON.left} Prüfung</a>
+      <div><span class="eyebrow">60 Sekunden</span><h1 style="margin-top:8px">Blitz-Runde</h1>
+      <p class="lead" style="margin-top:8px">So viele Aufgaben wie möglich. Jede richtige Antwort in Folge erhöht den Kombo-Faktor – ein Fehler setzt ihn zurück.</p></div>
+      <div class="card"><small class="muted">Schwierigkeit ${LEVELS[Math.min(3, store.level) - 1]} · 10 Punkte mal Kombo (bis ×5) · Dein Rekord: ${store.n('blitzRekord')} Punkte, ${store.n('blitzBest')} richtige</small></div>
+      <button class="btn block" id="bz-go" type="button">Los!</button>`;
+    $('#bz-go', el).onclick = play;
+  }
+  function play() {
+    const lv = Math.min(3, store.level), t0 = performance.now();
+    let score = 0, right = 0, total = 0, combo = 0, best = 0, lock = false, bag = [];
+    over = false;
+    el.innerHTML = `<div class="stephead"><a class="x" href="#/blitz" aria-label="Abbrechen">${ICON.close}</a><b>Blitz-Runde</b></div>
+      <div class="examhead"><b id="bz-score">0</b><div class="prog"><i id="bz-bar" style="width:100%"></i></div><b class="timer" id="bz-t">1:00</b></div>
+      <div class="kombo-line"><span class="kombo" id="bz-kombo" hidden></span></div><div class="q" id="bz-q"></div>`;
+    const end = () => {
+      if (over) return; over = true; clearInterval(timer);
+      store.addRun({ kind: 'blitz', score, correct: right, total, xp: right });
+      store.max('blitzBest', right); const rec = score > store.n('blitzRekord'); store.max('blitzRekord', score);
+      sfx('win'); if (right >= 5) confetti(rec ? 60 : 30);
+      el.innerHTML = `<a class="back" href="#/pruefung">${ICON.left} Prüfung</a>
+        <section class="board" style="text-align:center"><div class="board-top"><span>BLITZ-RUNDE</span><b>● ${rec ? 'NEUER REKORD' : 'ERGEBNIS'}</b></div>
+          <div class="npbig" id="bz-end">${score}</div><h2>Punkte</h2><p>${right} von ${total} richtig · längste Kombo ×${best}</p></section>
+        <div id="bz-card"></div><button class="btn block" id="bz-again" type="button">Noch einmal</button>`;
+      if (right > 0) $('#bz-card', el).append(cardBox({ kicker: 'Blitz-Runde · 60 Sekunden', big: score, unit: 'Punkte', lines: [`${right} richtige Antworten, längste Kombo ×${best}.`, 'Schaffst du mehr?'] }, `Blitz-Runde im Mathe-Trainer: ${score} Punkte in 60 Sekunden.`, linkFor('#/blitz')));
+      $('#bz-again', el).onclick = play; opts_onEnd?.(); window.scrollTo(0, 0);
+    };
+    const tick = () => {
+      const left = BLITZ_SEKUNDEN - (performance.now() - t0) / 1000, tm = $('#bz-t', el); if (!tm) return;
+      tm.textContent = clock(left); tm.classList.toggle('low', left < 10); $('#bz-bar', el).style.width = `${Math.max(0, (left / BLITZ_SEKUNDEN) * 100)}%`;
+      if (left <= 0) end();
+    };
+    const show = () => {
+      if (!bag.length) bag = shuffle(BLITZ_POOL);
+      const fn = bag.pop(), q = fn(lv); q.gen = fn.name; q.topic = fn.topic;
+      const box = $('#bz-q', el);
+      box.innerHTML = `<div class="mission"><p>${q.prompt}</p></div>${q.formula ? `<div class="formula">${tex(q.formula, true)}</div>` : ''}<div class="opts"></div>`;
+      q.options.forEach((o, k) => {
+        const b = h(`<button class="opt" type="button"><span class="k">${'ABCD'[k]}</span><span>${o.html ?? tex(o.tex)}</span></button>`);
+        if (window.__mtTest) b.dataset.ok = o.correct ? '1' : '0';   // nur im automatischen Browser-Test
+        b.addEventListener('click', () => {
+          if (lock || over) return; lock = true; total++;
+          const kb = $('#bz-kombo', el);
+          if (o.correct) { right++; combo++; best = Math.max(best, combo); score += blitzPunkte(combo); b.classList.add('right'); sfx('pling'); store.record(q.topic, true); store.max('komboMax', combo); }
+          else { combo = 0; b.classList.add('wrong'); sfx('bad'); store.record(q.topic, false); box.querySelectorAll('.opt').forEach((n, j) => { if (q.options[j].correct) n.classList.add('right'); }); }
+          $('#bz-score', el).textContent = String(score);
+          kb.hidden = combo < 2; kb.textContent = `Kombo ×${Math.min(5, combo)}`;
+          setTimeout(() => { lock = false; if (!over) show(); }, o.correct ? 220 : 700);
+        });
+        $('.opts', box).append(b);
+      });
+    };
+    timer = setInterval(tick, 200); tick(); show();
+  }
+  intro();
+  return { el, cleanup: () => { over = true; clearInterval(timer); } };
 }
 
 export { fmt, dayKey };

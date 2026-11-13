@@ -319,6 +319,76 @@ const EX = await import('../app/js/exam.js');
   ok(dailyGoal(70, 173) === 1 && dailyGoal(70, 14) === 5 && dailyGoal(70, 2) === 6 && dailyGoal(0, 10) === 0 && dailyGoal(10, null) === 0, 'Tagesziel');
   store.reset(); }
 
+// 13f) Abzeichen, Titel, Farben, Wochen-Ziel, Bereitschaft
+{ const B = await import('../app/js/badges.js'); const { weekKey, WOCHEN_ZIEL, WOCHEN_BONUS } = await import('../app/js/store.js'); const { readiness } = await import('../app/js/extras.js');
+  store.reset();
+  ok(new Set(B.BADGES.map((b) => b.id)).size === B.BADGES.length && B.BADGES.every((b) => b.name && b.text && b.icon && typeof b.ok === 'function'), 'Abzeichen: eindeutig und vollständig');
+  ok(B.checkBadges().length === 0, 'Abzeichen: ohne Leistung keines');
+  ok(B.titleOf(0).title === B.TITLES[0][1] && B.titleOf(99).level === 1 && B.titleOf(100).level === 2 && B.titleOf(1e6).next === null && B.titleOf(1e6).pct === 1, 'Titel: Schwellen');
+  for (let i = 1; i < B.TITLES.length; i++) ok(B.TITLES[i][0] > B.TITLES[i - 1][0], 'Titel: aufsteigend');
+  ok(B.skinOpen('orange', 0) && !B.skinOpen('blau', 199) && B.skinOpen('blau', 200) && !B.skinOpen('gibtsnicht', 1e9), 'Farben: Freischaltung nach Punkten');
+  for (let i = 0; i < 10; i++) store.record('Kettenregel', true); store.max('komboMax', 5); store.bump('boss');
+  const neu = B.checkBadges().map((b) => b.id);
+  ok(['r10', 'kombo5', 'boss1'].every((id) => neu.includes(id)) && !neu.includes('kombo10') && B.checkBadges().length === 0, 'Abzeichen: werden einmal vergeben');
+  ok(weekKey(new Date(2026, 10, 13)) === '2026-11-09' && weekKey(new Date(2026, 10, 15)) === '2026-11-09' && weekKey(new Date(2026, 10, 16)) === '2026-11-16', 'Woche beginnt am Montag');
+  store.reset();
+  for (let d = 9; d <= 12; d++) store.touch(new Date(2026, 10, d, 12));
+  store.touch(new Date(2026, 10, 12, 18));
+  ok(store.week(new Date(2026, 10, 12)).days === 4 && !store.week(new Date(2026, 10, 12)).done && store.claimWeek(new Date(2026, 10, 12)) === 0, 'Wochen-Ziel: 4 Tage reichen nicht, doppelter Tag zählt einmal');
+  store.touch(new Date(2026, 10, 14, 12));
+  const xp0 = store.xp;
+  ok(store.week(new Date(2026, 10, 14)).done && store.claimWeek(new Date(2026, 10, 14)) === WOCHEN_BONUS && store.xp === xp0 + WOCHEN_BONUS && store.claimWeek(new Date(2026, 10, 14)) === 0, 'Wochen-Ziel: Truhe genau einmal');
+  ok(store.week(new Date(2026, 10, 16)).days === 0 && WOCHEN_ZIEL === 5, 'Wochen-Ziel: neue Woche beginnt bei 0');
+  store.reset(); ok(readiness() === 0, 'Bereitschaft: am Anfang 0');
+  for (const u of UNITS) for (const s of u.steps) store.complete(u.id, s.id, 3);
+  for (let i = 0; i < 30; i++) store.record('X', true); store.addExam({ part: 'A', pct: 100, np: 15, correct: 9, total: 9 });
+  ok(readiness() === 100, 'Bereitschaft: alles geschafft = 100');
+  store.reset(); }
+
+// 13g) Kurven-Flug und Boss
+{ const F = await import('../app/js/games/flug.js'); const Bo = await import('../app/js/games/boss.js');
+  F.LEVELS.forEach((L, i) => {
+    const init = { ...L.fixed }; L.params.forEach((q) => { init[q.k] = q.init; });
+    for (const lv of LV) ok(F.passed(L, L.target, lv).every(Boolean), `Flug ${i + 1}: Zielkurve kommt durch alle Tore (Stufe ${lv})`);
+    ok(!F.passed(L, init, 1).every(Boolean), `Flug ${i + 1}: Startwerte kommen nicht durch`);
+    for (const q of L.params) { const tt = L.target[q.k]; ok(tt >= q.min && tt <= q.max && Math.abs((tt - q.min) / q.step - Math.round((tt - q.min) / q.step)) < 1e-9, `Flug ${i + 1}: Ziel ${q.k} einstellbar`); }
+    ok(L.gatesX.every((x) => x > 0 && x < 12.7 && Math.abs(F.f(L.target, x)) < 4.3), `Flug ${i + 1}: Tore im Bild`);
+  });
+  ok(Bo.bossLevel(5) === 5 && Bo.bossLevel(2) === 3 && LV.every((lv) => Bo.bossHp(lv) >= 4), 'Boss: Stufe und Lebenspunkte');
+  for (const u of UNITS) {
+    ok(u.steps.at(-1).id === 'boss' && u.steps.at(-1).kind === 'Boss' && u.bossName && u.bossGens.length >= 1, `Einheit ${u.id}: Boss ist letzter Schritt`);
+    ok(typeof u.why === 'string' && u.why.length > 30 && Array.isArray(u.formeln) && u.formeln.every(([n, f]) => n && f), `Einheit ${u.id}: Alltagsbezug und Formelkarten`);
+    for (const lv of LV) for (const fn of u.bossGens) { const q = fn(lv); ok(!q.type && q.options.filter((o) => o.correct).length === 1 && q.options.every((o) => o.correct || o.why), `Boss ${u.id}: ${fn.name} ist Auswahl-Aufgabe mit Diagnose`); }
+  }
+  ok(EX.blitzPunkte(1) === 10 && EX.blitzPunkte(4) === 40 && EX.blitzPunkte(12) === 50 && EX.blitzPunkte(0) === 10, 'Blitz: Kombo-Faktor bis ×5');
+  for (const lv of [1, 2, 3]) for (const fn of EX.BLITZ_POOL) { const q = fn(lv); ok(!q.type && !q.graph, `Blitz: ${fn.name} ist schnelle Auswahl-Aufgabe`); } }
+
+// 13h) Server-Schnittstelle (abgeschaltet) und KI-Prüfer
+{ const A = await import('../app/js/api.js'); const { parse } = await import('../app/js/ki/expr.js'); const K = await import('../app/js/ki/verify.js');
+  ok(!A.serverOn() && !A.kiOn(), 'Server: ohne Einstellung abgeschaltet');
+  ok((await A.api.rangliste('ABCDEF', 'x')).off === true && (await A.api.aufgabe({})).off === true, 'Server: abgeschaltet → keine Anfrage');
+  ok(A.codeOk('k7m2qx') && !A.codeOk('ABC') && !A.codeOk('ABCDE1') && !A.codeOk('ABCDEO'), 'Klassen-Code: Format');
+  ok(A.nameOk('Mia_07') && A.nameOk('Jörg B.') && !A.nameOk('x') && !A.nameOk('<b>hi</b>') && !A.nameOk('a'.repeat(17)), 'Spitzname: Format');
+  ok(close(parse('3*x^2-2*x+exp(-x)/2')(2), 12 - 4 + Math.exp(-2) / 2) && parse('-x^2')(3) === -9 && parse('2^-1')(0) === 0.5 && close(parse('sqrt(16)+ln(e)+2,5')(0), 7.5), 'Ausdrücke: Rechenregeln');
+  for (const b of ['alert(1)', 'x;1', '2**3', 'constructor', 'x^', '(x', 'window', 'x.y', '', 'a'.repeat(300)]) { let thrown = false; try { parse(b); } catch { thrown = true; } ok(thrown, `Ausdrücke: „${b.slice(0, 12)}" wird abgelehnt`); }
+  const base = { thema: 'Kettenregel', stufe: 3, frage: 'Welche Ableitung ist richtig?', tipps: ['Kettenregel nutzen.', 'Innere Ableitung ist 2.'], erklaerung: 'Äußere mal innere Ableitung.' };
+  const abl = () => ({ ...base, art: 'ableitung', funktion: '(2*x+1)^3', antworten: [{ tex: '6(2x+1)^2', ausdruck: '6*(2*x+1)^2', richtig: true }, { tex: '3(2x+1)^2', ausdruck: '3*(2*x+1)^2', fehler: 'Innere Ableitung fehlt.' }, { tex: '6(2x+1)^3', ausdruck: '6*(2*x+1)^3', fehler: 'Exponent nicht verringert.' }, { tex: '2(2x+1)^2', ausdruck: '2*(2*x+1)^2', fehler: 'Alter Exponent fehlt.' }] });
+  ok(K.verify(abl()).ok && K.toQuestion(abl()).options.filter((o) => o.correct).length === 1, 'KI-Prüfer: richtige Ableitungs-Aufgabe wird angenommen');
+  { const t = abl(); t.antworten[0].ausdruck = '5*(2*x+1)^2'; ok(!K.verify(t).ok, 'KI-Prüfer: falsche Lösung wird abgelehnt'); }
+  { const t = abl(); t.antworten[1].ausdruck = '6*(2*x+1)^2'; ok(!K.verify(t).ok, 'KI-Prüfer: richtiger Ablenker wird abgelehnt'); }
+  { const t = abl(); t.antworten[2].richtig = true; ok(!K.verify(t).ok, 'KI-Prüfer: zwei richtige Antworten abgelehnt'); }
+  { const t = abl(); delete t.antworten[3].fehler; ok(!K.verify(t).ok, 'KI-Prüfer: Ablenker ohne Diagnose abgelehnt'); }
+  { const t = abl(); t.tipps = ['nur einer']; ok(!K.verify(t).ok, 'KI-Prüfer: zu wenige Tipps abgelehnt'); }
+  { const t = abl(); t.frage = 'Hallo <script>alert(1)</script> Welt'; ok(!K.verify(t).ok, 'KI-Prüfer: eingeschleuster Code abgelehnt'); }
+  { const t = abl(); t.funktion = 'fetch(1)'; ok(!K.verify(t).ok, 'KI-Prüfer: unlesbarer Ausdruck abgelehnt'); }
+  { let thrown = false; try { const t = abl(); t.antworten[0].ausdruck = 'x'; K.toQuestion(t); } catch { thrown = true; } ok(thrown, 'KI-Prüfer: ungeprüfte Aufgabe kommt nicht in die App'); }
+  const st = { ...base, art: 'stammfunktion', thema: 'Stammfunktion', funktion: '3*x^2+2', antworten: [{ tex: 'x^3+2x', ausdruck: 'x^3+2*x', richtig: true }, { tex: '6x', ausdruck: '6*x', fehler: 'Das ist die Ableitung.' }, { tex: '3x^3+2x', ausdruck: '3*x^3+2*x', fehler: 'Durch den neuen Exponenten teilen.' }, { tex: 'x^2+2', ausdruck: 'x^2+2', fehler: 'Exponent muss steigen.' }] };
+  ok(K.verify(st).ok, 'KI-Prüfer: Stammfunktion angenommen');
+  const ig = { ...base, art: 'integral', thema: 'Integral', funktion: '2*x', von: 0, bis: 3, antworten: [{ tex: '9', wert: 9, richtig: true }, { tex: '6', wert: 6, fehler: 'f statt F eingesetzt.' }, { tex: '-9', wert: -9, fehler: 'Grenzen vertauscht.' }, { tex: '3', wert: 3, fehler: 'Nur die Grenze eingesetzt.' }] };
+  ok(K.verify(ig).ok && !K.verify({ ...ig, bis: 4 }).ok && !K.verify({ ...ig, von: 3, bis: 0 }).ok, 'KI-Prüfer: Integral nachgerechnet');
+  const za = { ...base, art: 'zahl', thema: 'Erwartungswert', rechnung: '40*0,25', antworten: [{ tex: '10', wert: 10, richtig: true }, { tex: '30', wert: 30, fehler: 'Das sind die Misserfolge.' }, { tex: '7{,}5', wert: 7.5, fehler: 'Das ist die Varianz.' }, { tex: '160', wert: 160, fehler: 'Geteilt statt multipliziert.' }] };
+  ok(K.verify(za).ok && !K.verify({ ...za, rechnung: '40*0,3' }).ok && !K.verify({ ...za, art: 'beweis' }).ok, 'KI-Prüfer: Zahlen-Aufgabe nachgerechnet, unbekannte Art abgelehnt'); }
+
 // 14) Lernpfad: eindeutige Kennungen, jedes Gebiet hat Einheiten, jeder Schritt ist startbar
 ok(new Set(UNITS.map((u) => u.id)).size === UNITS.length, 'Einheiten: Kennungen eindeutig');
 for (const a of AREAS) ok(UNITS.some((u) => u.area === a.id), `Gebiet ${a.title}: hat Einheiten`);

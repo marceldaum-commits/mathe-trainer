@@ -7,7 +7,7 @@ import { ft } from './math.js';
 /** sequence: Liste von Erzeugern (eine Aufgabe je Eintrag). */
 export function quiz(sequence, opts = {}) {
   return (el, ctx) => {
-    let qi = 0, mistakes = 0, plot = null;
+    let qi = 0, mistakes = 0, plot = null, combo = 0;
 
     function show() {
       plot?.destroy(); plot = null;
@@ -17,7 +17,7 @@ export function quiz(sequence, opts = {}) {
       q.gen ??= fn.name; q.topic ??= fn.topic;
       let firstTry = true;
       const miss = () => { if (firstTry) { firstTry = false; store.record(q.topic, false); store.kartePut(q.gen, q.topic); } };
-      let tipN = 0, solved = false;
+      let tipN = 0, solved = false, kombo = '';
       el.innerHTML = `
         <div class="q">
           <div class="mission"><b class="tag">${qi + 1}/${sequence.length}</b><p>${q.prompt}</p></div>
@@ -41,8 +41,12 @@ export function quiz(sequence, opts = {}) {
 
       const finish = () => {
         solved = true; tip.hidden = true; next.hidden = false;
-        if (firstTry) { store.record(q.topic, true); opts.onRight?.(q); } else opts.onWrong?.(q);
-        note.innerHTML = `<div class="note ok"><b>Richtig.</b> ${q.explain}</div>`;
+        if (firstTry) {
+          store.record(q.topic, true); opts.onRight?.(q);
+          combo++; store.max('komboMax', combo);
+          if (combo >= 2) { const b = Math.min(combo - 1, 5); store.bonus(b); kombo = `<span class="kombo" id="q-kombo">Kombo ×${combo} · +${b}</span> `; }
+        } else { opts.onWrong?.(q); combo = 0; }
+        note.innerHTML = `<div class="note ok">${kombo}<b>Richtig.</b> ${q.explain}</div>`;
         ctx.progress((qi + 1) / sequence.length);
         buzz();
       };

@@ -8,6 +8,8 @@ import { paare } from './games/paare.js';
 import { flaeche } from './games/flaeche.js';
 import { labor } from './games/labor.js';
 import { lotse } from './games/lotse.js';
+import { boss } from './games/boss.js';
+import { flug } from './games/flug.js';
 import { werkstatt } from './games/werkstatt.js';
 import { raum } from './games/raum.js';
 import { mixOf } from './gen.js';
@@ -29,6 +31,11 @@ export const UNITS = [
     id: 'formen', area: 'analysis', title: 'Funktionen formen', sub: 'Was Parameter mit einem Graphen machen',
     steps: [
       { id: 'murmelbahn', kind: 'Entdecken', title: 'Murmelbahn', run: murmelbahn },
+      { id: 'flug', kind: 'Entdecken', title: 'Kurven-Flug', run: flug },
+      { id: 'sinus', kind: 'Benennen', title: 'Was a, b und d beim Sinus tun', run: info([
+        { title: 'Die allgemeine Sinusfunktion', html: `${T('f(x)=a\\cdot\\sin(b\\,x)+d')}<p>${tex('a')} ist die <b>Amplitude</b>: so weit schwingt die Kurve nach oben und unten. ${tex('d')} verschiebt die Mittellinie.</p>` },
+        { title: 'Die Periode', html: `${T('p=\\dfrac{2\\pi}{b}')}<p>${tex('b')} staucht oder streckt die Kurve in x-Richtung. Bei ${tex('b=2')} ist eine Welle nur noch halb so lang.</p>` },
+      ]) },
       { id: 'regel', kind: 'Benennen', title: 'Was die Parameter tun', run: info([
         { title: 'Du hast gerade Parameter gesteuert.', html: `<p>Bei der Geraden bestimmt ${tex('m')} die Steigung und ${tex('b')} die Höhe an der y-Achse.</p>${T('f(x)=m\\,x+b')}<p class="muted">Negatives ${tex('m')}: Die Gerade fällt – nur dann rollt die Murmel los.</p>` },
         { title: 'Die Scheitelform der Parabel', html: `${T('f(x)=a\\,(x-d)^2+e')}<p>${tex('d')} verschiebt nach <b>rechts</b>, ${tex('e')} nach <b>oben</b>. Der Scheitel liegt bei ${tex('S(d\\mid e)')}.</p><p class="muted">Vorsicht: In der Klammer steht ein Minus. ${tex('(x+1)^2')} heißt also: Scheitel bei ${tex('x=-1')}.</p>` },
@@ -300,3 +307,55 @@ export const AREAS = [
   { id: 'geometrie', title: 'Analytische Geometrie', soon: ['Ebenen in Parameterform', 'Spiegelungen', 'Kugeln', 'Abstand windschiefer Geraden'] },
   { id: 'pruefung', title: 'Prüfung', soon: ['Musterlösungen lesen', 'Zeit einteilen'] },
 ];
+
+/* ───────────── Zusatz je Einheit: Boss, „Wo brauche ich das?", Formelkarten ───────────── */
+const META = {
+  formen: { boss: ['Parabel-Golem', 'x²', [genScheitel]], why: 'Parabeln beschreiben Wurfbahnen, Brückenbögen und Satellitenschüsseln. Sinus-Kurven beschreiben Töne, Wechselstrom und Gezeiten.',
+    formeln: [['Gerade', 'f(x)=m\\,x+b'], ['Scheitelform', 'f(x)=a\\,(x-d)^2+e,\\quad S(d\\mid e)'], ['Sinusfunktion', 'f(x)=a\\sin(b\\,x)+d,\\quad p=\\tfrac{2\\pi}{b}']] },
+  steigung: { boss: ['Tangenten-Titan', 'm', [genPolynom, genTangente]], why: 'Die Steigung ist eine Änderungsrate: Geschwindigkeit ist die Änderungsrate des Weges, Inflation die der Preise.',
+    formeln: [['Ableitung', "f'(x_0)=\\text{Steigung der Tangente bei }x_0"], ['Waagerechte Tangente', "f'(x_0)=0"]] },
+  zeichnen: { boss: ['Skizzen-Schatten', "f′", [genMonotonie, genHochTief, genPolynom]], why: 'Ärzte lesen aus einer Fieberkurve, ob es besser oder schlechter wird – das ist grafisches Ableiten.',
+    formeln: [['Vorzeichen der Ableitung', "f'(x)>0:\\ \\text{steigend}\\qquad f'(x)<0:\\ \\text{fallend}"]] },
+  regeln: { boss: ['Regel-Rex', 'd/dx', [genPolynom, genKette, genExp, genProdukt]], why: 'KI-Modelle lernen, indem ein Computer Millionen Ableitungen mit der Kettenregel berechnet. Ohne Ableitungsregeln gäbe es keine Bild- oder Spracherkennung.',
+    formeln: [['Potenzregel', "(x^n)'=n\\,x^{n-1}"], ['Kettenregel', "\\bigl(u(v(x))\\bigr)'=u'(v(x))\\cdot v'(x)"], ['Produktregel', "(u\\cdot v)'=u'v+uv'"], ['e-Funktion', "(e^{kx})'=k\\,e^{kx}"]] },
+  extrema: { boss: ['Extrem-Drache', 'H|T', [genExtremstellen, genHochTief]], why: 'Firmen suchen den Preis mit dem höchsten Gewinn, Ingenieure die Form mit dem geringsten Luftwiderstand. Beides sind Extrempunkte.',
+    formeln: [['Extrempunkt', "f'(x_0)=0,\\quad f''(x_0)<0:\\text{ Hochpunkt},\\quad f''(x_0)>0:\\text{ Tiefpunkt}"]] },
+  integral: { boss: ['Integral-Riese', '∫', [genStammfunktion, genIntegral, genFlaecheZwischen]], why: 'Aus der Geschwindigkeit eines Autos wird per Integral der gefahrene Weg, aus dem Stromverbrauch pro Stunde die Stromrechnung.',
+    formeln: [['Hauptsatz', '\\int_a^b f(x)\\,dx=F(b)-F(a)'], ['Aufleiten', '\\int x^n\\,dx=\\tfrac{1}{n+1}x^{n+1}+C'], ['Fläche zwischen Graphen', 'A=\\int_{x_1}^{x_2}\\bigl(g(x)-f(x)\\bigr)dx']] },
+  kurve: { boss: ['Kurven-Krake', '∿', [genWendestelle, genMonotonie, genSymmetrie, genGrenzwert]], why: 'Bei einer Epidemie ist der Wendepunkt der Moment, ab dem die Zahlen langsamer steigen.',
+    formeln: [['Wendepunkt', "f''(x_0)=0,\\quad f'''(x_0)\\neq 0"], ['Symmetrie', 'f(-x)=f(x):\\text{ Achse}\\qquad f(-x)=-f(x):\\text{ Punkt}']] },
+  extremwert: { boss: ['Optimus Maximus', 'max', [genExtremwert]], why: 'Getränkedosen haben fast genau die Form, die bei festem Inhalt am wenigsten Blech braucht.',
+    formeln: [['Extremwertaufgabe', "\\text{Zielfunktion aufstellen}\\ \\to\\ \\text{ableiten}\\ \\to\\ \\text{null setzen}\\ \\to\\ \\text{Rand prüfen}"]] },
+  anwenden: { boss: ['Steckbrief-Sheriff', '?', [genTangente, genSteckbrief, genSchar]], why: 'Straßen und Achterbahnen werden aus Kurvenstücken gebaut, die am Übergang in Höhe und Steigung zusammenpassen müssen. Das sind Steckbriefaufgaben.',
+    formeln: [['Tangente', "t(x)=f'(x_0)\\cdot(x-x_0)+f(x_0)"], ['Steckbrief', "f(a)=b\\quad f'(a)=m\\quad f''(a)=0"]] },
+  expln: { boss: ['Graf Logarithmus', 'ln', [genLn, genWachstum]], why: 'Zinseszins, radioaktiver Zerfall und abkühlender Kaffee folgen Exponentialfunktionen. Mit dem ln berechnet man die Zeit – so wird das Alter von Funden bestimmt.',
+    formeln: [['ln ableiten', "(\\ln x)'=\\dfrac1x"], ['Wachstum', 'N(t)=N_0\\cdot a^t=N_0\\cdot e^{kt}'], ['Verdopplungszeit', 't=\\dfrac{\\ln 2}{k}']] },
+  's-labor': { boss: ['Würfel-Baron', 'μ', [genErwartung, genBinomial]], why: 'Versicherungen und Qualitätsprüfer rechnen mit dem Erwartungswert: Wie viele von 1000 Teilen sind vermutlich defekt?',
+    formeln: [['Erwartungswert', '\\mu=n\\cdot p'], ['Standardabweichung', '\\sigma=\\sqrt{n\\,p\\,(1-p)}'], ['Bernoulli-Formel', 'P(X=k)=\\binom{n}{k}p^k(1-p)^{n-k}']] },
+  's-baum': { boss: ['Urnen-Geist', '⑂', [genBaum]], why: 'Jede mehrstufige Entscheidung unter Unsicherheit ist ein Baum – vom Elfmeterschießen bis zur Lieferkette.',
+    formeln: [['Pfadregeln', '\\text{entlang eines Pfades: mal}\\qquad\\text{mehrere Pfade: plus}']] },
+  's-bedingt': { boss: ['Doktor Bedingt', 'P|B', [genVierfelder, genBedingt]], why: 'Bei seltenen Krankheiten heißt ein positiver Test oft trotzdem „wahrscheinlich gesund". Das versteht man nur mit bedingter Wahrscheinlichkeit.',
+    formeln: [['Bedingte Wahrscheinlichkeit', 'P_B(A)=\\dfrac{P(A\\cap B)}{P(B)}']] },
+  's-verteilung': { boss: ['Die Glocke', 'σ', [genKumuliert, genSigma, genNormal]], why: 'Körpergrößen, Messfehler, Prüfungsergebnisse: Vieles ist ungefähr normalverteilt. Die Sigma-Regeln sagen, was üblich und was auffällig ist.',
+    formeln: [['Mindestens', 'P(X\\ge k)=1-P(X\\le k-1)'], ['Standardisieren', 'z=\\dfrac{x-\\mu}{\\sigma}'], ['Sigma-Regeln', '1\\sigma:68{,}3\\,\\%\\quad 2\\sigma:95{,}4\\,\\%\\quad 3\\sigma:99{,}7\\,\\%']] },
+  's-test': { boss: ['Hypo-These', 'H₀', [genHypothese]], why: 'Ob ein neues Medikament wirkt oder eine Münze gezinkt ist, entscheidet man mit Hypothesentests.',
+    formeln: [['Ablehnungsbereich (rechtsseitig)', '\\text{kleinstes }k\\text{ mit }P(X\\ge k)\\le\\alpha']] },
+  's-kombi': { boss: ['Zähl-Zyklop', 'n!', [genKombinatorik]], why: 'Passwörter, Lotto, Turnierpläne: Kombinatorik sagt, wie viele Möglichkeiten es gibt – und wie sicher ein Passwort ist.',
+    formeln: [['Zählmodelle', 'n^k\\qquad \\dfrac{n!}{(n-k)!}\\qquad \\binom{n}{k}\\qquad n!']] },
+  'g-vektor': { boss: ['Vektor-Wächter', '→', [genVektorAB, genBetrag]], why: 'Navigationsgeräte, Computerspiele und Roboterarme berechnen jede Bewegung mit Vektoren.',
+    formeln: [['Verbindungsvektor', '\\overrightarrow{AB}=B-A'], ['Betrag', '|\\vec v|=\\sqrt{v_1^2+v_2^2+v_3^2}']] },
+  'g-skalar': { boss: ['Skalar-Sphinx', '·', [genSkalar]], why: 'Solarzellen liefern am meisten, wenn die Sonne senkrecht auftrifft. Wie viel Licht ankommt, berechnet man mit dem Skalarprodukt.',
+    formeln: [['Skalarprodukt', '\\vec u\\cdot\\vec v=u_1v_1+u_2v_2+u_3v_3'], ['Senkrecht', '\\vec u\\cdot\\vec v=0\\iff\\vec u\\perp\\vec v']] },
+  'g-gerade': { boss: ['Linien-Lord', 'g', [genGeradePunkt, genLage]], why: 'Zwei Flugrouten können sich auf der Karte kreuzen und trotzdem aneinander vorbeiführen – in verschiedenen Höhen. Das ist „windschief".',
+    formeln: [['Gerade', 'g\\colon\\ \\vec x=\\vec p+t\\cdot\\vec u']] },
+  'g-ebene': { boss: ['Ebenen-Eminenz', 'E', [genEbene, genSchnittpunkt, genKreuz]], why: 'In 3D-Grafik besteht alles aus ebenen Flächen. Ob ein Lichtstrahl eine Fläche trifft, ist genau die Aufgabe „Gerade schneidet Ebene".',
+    formeln: [['Koordinatenform', 'E\\colon\\ n_1x_1+n_2x_2+n_3x_3=d'], ['Kreuzprodukt', '\\vec u\\times\\vec v=\\begin{pmatrix}u_2v_3-u_3v_2\\\\u_3v_1-u_1v_3\\\\u_1v_2-u_2v_1\\end{pmatrix}']] },
+  'g-mass': { boss: ['Maßmeister', '∠', [genAbstand, genWinkel]], why: 'Abstände und Winkel braucht man beim Vermessen von Grundstücken, in der Architektur und für Sicherheitsabstände von Drohnen.',
+    formeln: [['Abstand Punkt–Ebene', 'd(P;E)=\\dfrac{|\\vec n\\cdot\\vec p-d|}{|\\vec n|}'], ['Winkel', '\\cos\\varphi=\\dfrac{\\vec u\\cdot\\vec v}{|\\vec u|\\cdot|\\vec v|}']] },
+  operatoren: { boss: ['Operator-Orakel', '!', [genOperator]], why: 'Wer den Operator genau liest, schreibt in der Prüfung weder zu wenig noch zu viel.', formeln: [] },
+};
+for (const u of UNITS) {
+  const m = META[u.id]; if (!m) continue;
+  u.why = m.why; u.formeln = m.formeln; u.bossName = m.boss[0]; u.bossGens = m.boss[2];
+  u.steps.push({ id: 'boss', kind: 'Boss', title: `Boss: ${m.boss[0]}`, run: boss(m.boss[2], m.boss[0], m.boss[1]) });
+}
