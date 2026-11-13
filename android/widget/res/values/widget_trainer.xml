@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="widget_name">Mathe-Trainer</string>
+    <string name="widget_kicker">FORMEL DES TAGES</string>
+    <string name="widget_tag">Tages-Runde</string>
+    <string name="widget_abenteuer">Abenteuer</string>
+    <string name="widget_wiederholen">Wiederholen</string>
+    <style name="WidgetKnopf">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">38dp</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:gravity">center</item>
+        <item name="android:textColor">#FFFFFF</item>
+        <item name="android:textSize">12sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:maxLines">1</item>
+    </style>
+    <string-array name="widget_formeln">
+        <item>Potenzregel: aus xⁿ wird n · xⁿ⁻¹</item>
+        <item>Kettenregel: äußere Ableitung mal innere Ableitung</item>
+        <item>Produktregel: (u · v)′ = u′ · v + u · v′</item>
+        <item>Hochpunkt: f′(x) = 0 und f″(x) &lt; 0</item>
+        <item>Tiefpunkt: f′(x) = 0 und f″(x) &gt; 0</item>
+        <item>Wendestelle: f″(x) = 0 mit Vorzeichenwechsel</item>
+        <item>Stammfunktion von xⁿ: xⁿ⁺¹ geteilt durch (n + 1)</item>
+        <item>Hauptsatz: Integral von a bis b = F(b) − F(a)</item>
+        <item>Die Ableitung von eˣ ist eˣ</item>
+        <item>Die Ableitung von ln(x) ist 1/x</item>
+        <item>Die Ableitung von sin(x) ist cos(x)</item>
+        <item>Die Ableitung von cos(x) ist −sin(x)</item>
+        <item>Scheitelform: f(x) = a · (x − d)² + e, Scheitel S(d | e)</item>
+        <item>Tangente: y = f′(x₀) · (x − x₀) + f(x₀)</item>
+        <item>Erwartungswert der Binomialverteilung: μ = n · p</item>
+        <item>Standardabweichung: σ = √(n · p · (1 − p))</item>
+        <item>Gegenereignis: P(nicht A) = 1 − P(A)</item>
+        <item>Pfadregel: entlang des Pfades malnehmen, Pfade addieren</item>
+        <item>Bedingte Wahrscheinlichkeit: P(A | B) = P(A und B) / P(B)</item>
+        <item>Sigma-Regel: rund 68 % liegen zwischen μ − σ und μ + σ</item>
+        <item>Vektor von A nach B: Spitze minus Fuß, also B − A</item>
+        <item>Länge eines Vektors: Wurzel aus x₁² + x₂² + x₃²</item>
+        <item>Skalarprodukt gleich 0 heißt: senkrecht</item>
+        <item>Winkel: cos(α) = Skalarprodukt geteilt durch beide Längen</item>
+        <item>Der Normalenvektor steht senkrecht auf der Ebene</item>
+        <item>Kugel: (x − m)² = r² – Abstand zum Mittelpunkt ist r</item>
+        <item>Satz des Pythagoras: a² + b² = c²</item>
+        <item>Prozentwert = Grundwert · Prozentsatz</item>
+        <item>Rotationsvolumen: V = π · Integral von f(x)²</item>
+        <item>Operator „Bestimme“: Rechenweg zeigen, Ergebnis nennen</item>
+        <item>Operator „Zeige“: Die Behauptung steht fest – du lieferst den Weg</item>
+    </string-array>
+</resources>

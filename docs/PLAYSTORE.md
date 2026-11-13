@@ -154,3 +154,19 @@ Signier-Schlüssel selbst schon):
 
 Als Web-App über „Zum Home-Bildschirm“ installierbar. Der App Store wäre ein eigener, größerer Schritt
 (Apple-Entwicklerkonto 99 US-Dollar im Jahr, eigene Hülle, strengere Prüfung von Web-Hüllen).
+
+## Widget für den Startbildschirm (ab App-Datei 1.1.0)
+
+Die Quellen liegen in `android/widget/`: ein kleiner Empfänger (`TrainerWidget.java`), das Aussehen und die Texte.
+Das Widget zeigt die **Formel des Tages** (31 feste Sätze, wechselt nach Kalendertag) und drei Knöpfe:
+Tages-Runde, Abenteuer, Wiederholen. Es liest keine Daten und sendet nichts.
+
+Einbau nach jedem `bubblewrap init`/`update` (das Werkzeug erzeugt das Projekt neu und kennt das Widget nicht):
+
+```bash
+android/widget/einbauen.sh <Ordner des erzeugten Projekts>
+```
+
+Danach in `app/build.gradle` `versionCode` und `versionName` erhöhen und `bubblewrap build` ausführen.
+Stand 13.11.2026: App-Datei 1.1.0 (versionCode 2) mit Widget gebaut, gleicher Signier-Schlüssel wie 1.0.0.
+**Noch nicht auf einem echten Handy geprüft** – hier gibt es kein Android-Gerät.
