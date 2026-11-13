@@ -9,7 +9,7 @@ import { CONFIG } from './config.js';
 import { BADGES, TITLES, SKINS, titleOf, skinOpen, checkBadges } from './badges.js';
 import { tex } from './ui.js';
 import { api, serverOn, nameOk, codeOk } from './api.js';
-import { pushOn, pushCan, pushAn, pushAus, pushStand, pushGesperrt, zeitOk, installiert, SPERR_HILFE, SPERR_SCHRITTE } from './erinnern.js';
+import { pushOn, pushCan, pushAn, pushAus, pushStand, pushGesperrt, zeitOk, installiert, SPERR_HILFE, SPERR_SCHRITTE, SPERR_SCHRITTE_APP, nativ } from './erinnern.js';
 import { WOCHEN_ZIEL, WOCHEN_BONUS } from './store.js';
 
 const GEN = { ...G, ...H };
@@ -50,7 +50,7 @@ export function settingsView() {
       <small class="muted" id="st-abi-note"></small></section>
     <section class="card stack"><h3>Farbe</h3><div class="skins" id="st-skin" role="radiogroup" aria-label="Akzentfarbe"></div>
       <small class="muted">Neue Farben schaltest du mit Punkten frei.</small></section>
-    ${pushOn() ? `<section class="card stack" id="st-push"><h3>Erinnerung</h3><small class="muted">Einmal am Tag eine kurze Mitteilung „Zeit für deine Mathe-Runde“. Gespeichert wird beim Server nur die Adresse für die Mitteilung und die Uhrzeit – kein Name, kein Lernstand. Jederzeit abschaltbar.</small>
+    ${pushOn() ? `<section class="card stack" id="st-push"><h3>Erinnerung</h3><small class="muted">${nativ() ? 'Einmal am Tag eine kurze Mitteilung „Zeit für Mathe“ – nur, wenn du an dem Tag noch nicht geübt hast. Das Handy stellt sie selbst zu: ohne Server, ohne Internet. Jederzeit abschaltbar.' : 'Einmal am Tag eine kurze Mitteilung „Zeit für deine Mathe-Runde“. Gespeichert wird beim Server nur die Adresse für die Mitteilung und die Uhrzeit – kein Name, kein Lernstand. Jederzeit abschaltbar.'}</small>
       <button class="schalter" id="st-push-schalter" type="button" role="switch" aria-checked="false"><span class="knopf" aria-hidden="true"></span><span id="st-push-stand">Erinnerung ist aus</span></button>
       <div class="row push-row" id="st-push-zeile" hidden><label for="st-push-time"><b>Uhrzeit</b></label><input class="field" id="st-push-time" type="time" step="300" aria-label="Uhrzeit der Erinnerung">
         <button class="btn small" id="st-push-an" type="button">Speichern</button></div>
@@ -78,23 +78,24 @@ export function settingsView() {
   paint();
   if (pushOn()) {
     const pn = $('#st-push-note', el), tf = $('#st-push-time', el), sw = $('#st-push-schalter', el), save = $('#st-push-an', el), stand = $('#st-push-stand', el), zeile = $('#st-push-zeile', el), inst = $('#st-push-install', el);
-    const sperre = () => `<div class="note tip" id="st-push-sperre"><b>${esc(SPERR_HILFE)}</b> So gibst du sie frei:<ol>${SPERR_SCHRITTE.map(([wo, was]) => `<li><b>${esc(wo)}:</b> ${esc(was)}</li>`).join('')}</ol></div>`;
+    const sperre = () => `<div class="note tip" id="st-push-sperre"><b>${esc(SPERR_HILFE)}</b> So gibst du sie frei:<ol>${(nativ() ? SPERR_SCHRITTE_APP : SPERR_SCHRITTE).map(([wo, was]) => `<li><b>${esc(wo)}:</b> ${esc(was)}</li>`).join('')}</ol>${nativ() ? '<button class="btn ghost small" id="st-push-android" type="button">Android-Einstellungen öffnen</button>' : ''}</div>`;
     let st = { an: false, zeit: store.erinnern?.zeit || '18:00', kann: pushCan(), gesperrt: pushGesperrt() };
     const paintP = () => {
       sw.setAttribute('aria-checked', st.an); sw.classList.toggle('an', st.an);
-      stand.textContent = st.an ? `Erinnerung täglich um ${st.zeit} Uhr (deutsche Zeit)` : 'Erinnerung ist aus';
+      stand.textContent = st.an ? `Erinnerung täglich um ${st.zeit} Uhr${nativ() ? '' : ' (deutsche Zeit)'}` : 'Erinnerung ist aus';
       zeile.hidden = !st.an; if (document.activeElement !== tf) tf.value = st.zeit;
     };
-    const sync = async () => { st = await pushStand(); paintP(); if (!st.kann && window.MTApp) pn.innerHTML = '<div class="note tip">In der Android-App gibt es die Erinnerung noch nicht – sie kommt mit einem der nächsten Updates.</div>'; else if (!st.kann) pn.innerHTML = '<div class="note tip">Auf diesem Gerät geht das nur, wenn die App auf dem Startbildschirm installiert ist (iPhone: Teilen → „Zum Home-Bildschirm“).</div>'; else if (st.gesperrt) pn.innerHTML = sperre(); };
+    const sync = async () => { st = await pushStand(); paintP(); if (!st.kann) pn.innerHTML = '<div class="note tip">Auf diesem Gerät geht das nur, wenn die App auf dem Startbildschirm installiert ist (iPhone: Teilen → „Zum Home-Bildschirm“).</div>'; else if (st.gesperrt) pn.innerHTML = sperre(); };
     const schalten = async (zeit) => {
       sw.disabled = save.disabled = true; pn.innerHTML = '';
       const r = await pushAn(zeit); sw.disabled = save.disabled = false;
       if (!r.ok) pn.innerHTML = r.gesperrt ? sperre() : `<div class="note bad">${esc(r.grund)}</div>`;
-      await sync(); if (r.ok) pn.innerHTML = '<div class="note ok">Eingeschaltet. Du bekommst höchstens eine Mitteilung am Tag.</div>';
+      $('#st-push-android', el)?.addEventListener('click', () => window.MTApp.mitteilungenEinstellen());
+      await sync(); if (r.ok) pn.innerHTML = `<div class="note ok">Eingeschaltet. Du bekommst höchstens eine Mitteilung am Tag${nativ() ? ' – und keine, wenn du an dem Tag schon geübt hast. Das Handy stellt sie selbst zu, ganz ohne Internet' : ''}.</div>`;
       sfx(r.ok ? 'ok' : 'tap');
     };
     sw.onclick = async () => {
-      if (st.an) { sw.disabled = true; await pushAus(); sw.disabled = false; await sync(); pn.innerHTML = '<div class="note ok">Ausgeschaltet. Die Anmeldung beim Server ist gelöscht.</div>'; sfx('tap'); }
+      if (st.an) { sw.disabled = true; await pushAus(); sw.disabled = false; await sync(); pn.innerHTML = `<div class="note ok">Ausgeschaltet.${nativ() ? '' : ' Die Anmeldung beim Server ist gelöscht.'}</div>`; sfx('tap'); }
       else await schalten(zeitOk(tf.value) ? tf.value : st.zeit);
     };
     save.onclick = () => { if (!zeitOk(tf.value)) { pn.innerHTML = '<div class="note bad">Bitte eine Uhrzeit wählen.</div>'; return; } schalten(tf.value); };
@@ -103,6 +104,7 @@ export function settingsView() {
       inst.innerHTML = `<small class="muted">Am besten als App installieren – dann kommt die Erinnerung wie bei jeder App.</small>${window.__mtInstall ? ' <button class="btn ghost small" id="st-push-inst" type="button">App installieren</button>' : ''}`;
       $('#st-push-inst', el)?.addEventListener('click', async () => { const ev = window.__mtInstall; if (!ev) return; ev.prompt(); await ev.userChoice; window.__mtInstall = null; inst.innerHTML = ''; });
     }
+    if (nativ()) { const neu = () => { if (el.isConnected) sync(); else window.removeEventListener('mt-erinnerung', neu); }; window.addEventListener('mt-erinnerung', neu); }
     paintP(); sync();
   }
   { const rb = $('#st-ruhig', el), paintR = () => { rb.setAttribute('aria-checked', store.ruhig); rb.classList.toggle('an', store.ruhig); };

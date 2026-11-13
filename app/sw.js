@@ -1,6 +1,6 @@
 // Service Worker: macht die App offline nutzbar und liefert Updates aus.
 // CACHE muss zur VERSION in js/config.js passen; ASSETS pflegt `npm run fix` (tools/check.mjs).
-const CACHE = 'mt-0.15.1';
+const CACHE = 'mt-0.15.2';
 const ASSETS = [
   "./",
   "css/app.css",

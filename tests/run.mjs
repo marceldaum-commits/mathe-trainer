@@ -663,6 +663,25 @@ for (const u of UNITS) {
   { const p = Array.from({ length: 14 }, (_, i) => Ka.punkt(i)); ok(p.every((q, i) => q.x >= 60 && q.x <= 260 && (i === 0 || q.y - p[i - 1].y >= 100)) && Ka.hoehe(14) > p[13].y + 60, 'Karte: Stationen liegen im Feld und überlappen nicht'); }
   store.reset(); }
 
+// 14c) Erinnerung in der Android-App (Offline-Fassung): die App spricht mit dem Gerät statt mit dem Server
+{ const E = await import('../app/js/erinnern.js');
+  ok(!E.nativ(), 'Android-Erinnerung: im Browser nicht aktiv');
+  const geraet = { an: false, zeit: '18:00', erlaubt: true, geuebt: 0, antwort: 'ok' };
+  window.MTApp = { erinnerungStand: () => JSON.stringify({ an: geraet.an && geraet.erlaubt, zeit: geraet.zeit, erlaubt: geraet.erlaubt }),
+    erinnerungAn: (z) => { if (geraet.antwort === 'ok') { geraet.an = true; geraet.zeit = z; } return geraet.antwort; }, erinnerungAus: () => { geraet.an = false; }, geuebt: () => { geraet.geuebt++; } };
+  store.reset();
+  ok(E.nativ() && E.pushOn() && E.pushCan() && !E.pushGesperrt(), 'Android-Erinnerung: in der App verfügbar, auch ohne Server');
+  let st = await E.pushStand(); ok(st.kann && !st.an && st.zeit === '18:00', 'Android-Erinnerung: anfangs aus');
+  ok(!(await E.pushAn('25:00')).ok && !geraet.an, 'Android-Erinnerung: unmögliche Uhrzeit abgelehnt');
+  ok((await E.pushAn('07:15')).ok && geraet.an && geraet.zeit === '07:15' && store.erinnern.an && store.erinnern.zeit === '07:15', 'Android-Erinnerung: einschalten stellt das Gerät');
+  st = await E.pushStand(); ok(st.an && st.zeit === '07:15', 'Android-Erinnerung: Zustand kommt vom Gerät');
+  geraet.erlaubt = false; st = await E.pushStand(); ok(!st.an && store.erinnern.an === false, 'Android-Erinnerung: ohne Erlaubnis gilt sie als aus');
+  geraet.antwort = 'gesperrt'; { const r = await E.pushAn('08:00'); ok(!r.ok && r.gesperrt, 'Android-Erinnerung: gesperrt wird gemeldet'); }
+  geraet.erlaubt = true; geraet.antwort = 'ok'; await E.pushAn('08:00'); await E.pushAus(); ok(!geraet.an && store.erinnern.an === false && store.erinnern.zeit === '08:00', 'Android-Erinnerung: ausschalten, Uhrzeit bleibt gemerkt');
+  window.MTApp.erinnerungStand = () => 'kaputt'; st = await E.pushStand(); ok(st.kann && !st.an, 'Android-Erinnerung: unlesbare Antwort des Geräts bringt nichts durcheinander');
+  { const vor = geraet.geuebt; store.touch(); ok(geraet.geuebt === vor + 1, 'Android-Erinnerung: Üben wird dem Gerät gemeldet (heute keine Mitteilung mehr)'); }
+  delete window.MTApp; store.reset(); ok(!E.nativ(), 'Android-Erinnerung: ohne App wieder der Web-Weg'); }
+
 // 15) Schwierigkeit und Serie
 store.level = 9; ok(store.level === 5, 'Schwierigkeit: nach oben begrenzt');
 store.level = 0; ok(store.level === 1, 'Schwierigkeit: nach unten begrenzt');
