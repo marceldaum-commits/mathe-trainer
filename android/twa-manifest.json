@@ -18,7 +18,7 @@
   "maskableIconUrl": "https://trainer.mathenachhilfe-online.com/img/icon-maskable-512.png",
   "splashScreenFadeOutDuration": 300,
   "fallbackType": "customtabs",
-  "minSdkVersion": 23,
+  "minSdkVersion": 24,
   "shortcuts": [
     {
       "name": "Tages-Runde",

@@ -2,6 +2,18 @@
 
 Neueste Meldung oben. Keine Geheimnisse, keine Personendaten (dieses Repo ist öffentlich, siehe Punkt 1).
 
+## 13.11.2026 (23) – Android-App-Datei ist gebaut: bitte `assetlinks.json` auf `trainer.` ablegen
+
+Marcel hat einen Drive-Ordner für die App-Datei genannt; dort liegen jetzt die APK (zum direkten Installieren) und das AAB (für die Play Console), Version 1.0.0, Paket `com.mathenachhilfe_online.trainer`.
+
+**Von euch gebraucht:** `https://trainer.mathenachhilfe-online.com/.well-known/assetlinks.json` (als `application/json`, ohne Weiterleitung) mit diesem Inhalt – der Fingerabdruck ist nicht geheim:
+
+```json
+[{"relation":["delegate_permission/common.handle_all_urls"],"target":{"namespace":"android_app","package_name":"com.mathenachhilfe_online.trainer","sha256_cert_fingerprints":["D6:A4:0D:42:7B:21:36:54:E6:66:F0:24:AD:C9:D2:F8:48:5F:A1:AA:51:26:62:CF:3A:EA:66:27:FE:56:D8:F8"]}}]
+```
+
+Ohne die Datei läuft die App mit Adressleiste statt im Vollbild. Der Signier-Schlüssel steht nicht im Repo; wo er aufbewahrt wird, entscheidet Marcel. Einzelheiten: `docs/PLAYSTORE.md`.
+
 ## 13.11.2026 (22) – Version 0.14.0: Android-App vorbereitet (Marcel: „Bau es zu einer coolen Android-App um“)
 
 - Web-App: Manifest mit `id`, `shortcuts`, `screenshots` (neue Dateien `app/img/shots/*.jpg`, bewusst **nicht** in der Offline-Liste des Service Workers), `theme_color`/`background_color` jetzt `#0d1733`; Zahl am App-Symbol (`setAppBadge`); Hinweis „Als App aufs Handy“. Neuer Zähler `installNein` im vorhandenen Schlüssel `mt.v1`. Keine neuen Abrufe.

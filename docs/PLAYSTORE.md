@@ -9,6 +9,34 @@ Die Web-App wird nicht neu gebaut, sondern in eine kleine Android-Hülle gesteck
 `https://trainer.mathenachhilfe-online.com` im Vollbild zeigt. Updates kommen weiter über die Website – ohne
 neue Store-Version.
 
+## Erste App-Datei gebaut (13.11.2026)
+
+- Gebaut aus `android/twa-manifest.json` mit Bubblewrap (Java 17, Android-Baupaket 36): Paket
+  `com.mathenachhilfe_online.trainer`, Version 1.0.0 (Code 1), ab Android 7, Ziel Android 16, Mitteilungen über
+  Android (`POST_NOTIFICATIONS`), vier Kurzbefehle. Die Hülle zeigt `https://trainer.mathenachhilfe-online.com/`.
+- Dateien liegen in Marcels Drive-Ordner für die App: `…​.apk` (direkt aufs Handy) und `…​-PlayStore.aab` (für die
+  Play Console). Sie stehen **nicht** im Repo.
+- **Fingerabdruck des Signier-Zertifikats (SHA-256, nicht geheim):**
+  `D6:A4:0D:42:7B:21:36:54:E6:66:F0:24:AD:C9:D2:F8:48:5F:A1:AA:51:26:62:CF:3A:EA:66:27:FE:56:D8:F8`
+- **Damit die App im Vollbild läuft**, muss der Leitstand diese Datei auf dem Server ablegen
+  (`https://trainer.mathenachhilfe-online.com/.well-known/assetlinks.json`):
+
+```json
+[{
+  "relation": ["delegate_permission/common.handle_all_urls"],
+  "target": {
+    "namespace": "android_app",
+    "package_name": "com.mathenachhilfe_online.trainer",
+    "sha256_cert_fingerprints": ["D6:A4:0D:42:7B:21:36:54:E6:66:F0:24:AD:C9:D2:F8:48:5F:A1:AA:51:26:62:CF:3A:EA:66:27:FE:56:D8:F8"]
+  }
+}]
+```
+
+  Bis dahin funktioniert die App, zeigt aber oben eine schmale Adressleiste.
+- Im Play Store kommt später Googles eigener Fingerabdruck dazu („Play App Signing“).
+- Beim Bauen in der Cloud-Umgebung aufgefallen: Bubblewrap holt Symbole ohne Proxy – dort die Symbol-Adressen im
+  Bauplan vorübergehend auf einen lokalen Server zeigen lassen. `minSdkVersion` muss 24 sein.
+
 ## Stand 13.11.2026 (Version 0.14.0): App-Gefühl und Bauplan sind fertig
 
 **In der Web-App selbst (wirkt sofort, auch ohne Play Store, sobald man sie installiert):**
