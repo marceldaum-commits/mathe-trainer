@@ -43,7 +43,7 @@ button{font:inherit;color:inherit;cursor:pointer}
   padding:calc(10px + env(safe-area-inset-top)) 16px 10px;background:color-mix(in srgb,var(--bg) 88%,transparent);
   backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
 .brand{display:flex;align-items:center;gap:10px;text-decoration:none;min-width:0}
-.brand-logo{flex:none;width:36px;height:36px;border-radius:10px;background:#000 url(../icons/favicon.svg) center/78% no-repeat}
+.brand-logo{flex:none;width:36px;height:36px;border-radius:10px;background:#000 url(../img/favicon.svg) center/78% no-repeat}
 .brand-text{display:grid;line-height:1.1;min-width:0}
 .brand-text b{font-weight:800;letter-spacing:-.03em;color:var(--head)}
 .brand-text small{font-size:11px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}

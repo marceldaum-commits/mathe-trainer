@@ -6,6 +6,7 @@ Stand: 13.11.2026 · Status: **im Bau** (Marcels „los" am 13.11.2026).
 
 | Datum | Was | Stand |
 | --- | --- | --- |
+| 13.11.2026 | **Version 0.2.1 – Befunde der Testseite behoben (Leitstand).** Ordner `app/icons/` → `app/img/` (auf dem Server ist `/icons/` belegt), Service Worker installiert auch, wenn eine Nebendatei fehlt, Probestunden-Link → `/probestunde/`, Datenschutz-Link → `/datenschutz/#mathe-trainer`, Lizenzdateien als `.txt`. `npm run check` prüft jetzt auch die auf dem Server erlaubten Dateiarten; der Browser-Durchlauf prüft, dass jede vorgeladene Datei erreichbar ist. Branch `test` angelegt. | Auf `test` → trainer-test |
 | 13.11.2026 | **Version 0.2.0 – Schwierigkeit, Stochastik, Geometrie, mehr Analysis, Töne (Marcel: „von sehr einfach bis sehr schwer", „Stochastik und Geometrie auch", „Sounds einbauen").** (1) **Schwierigkeit 1–5** auf der Startseite (sehr leicht … sehr schwer), wird gemerkt; steuert Zahlen und Aufgabentypen aller Erzeuger, die Strenge beim Zeichnen, die Toleranz im Surfer, Hinweise und Tipps (Stufe 5 ohne Tipps). (2) **Analysis** erweitert: Produktregel, Einheit *Extrempunkte* (Extremstellen, Hoch-/Tiefpunkt), Einheit *Fläche und Integral* mit Spiel **Fläche füllen** (Unter-/Obersumme), Stammfunktionen, bestimmte Integrale. (3) **Stochastik** neu: Spiel **Zufalls-Labor** (400 Versuchsreihen, Erwartungswert entdecken), Erwartungswert/Standardabweichung, Bernoulli-Formel, Baumdiagramme mit/ohne Zurücklegen. (4) **Analytische Geometrie** neu: Spiel **Vektor-Lotse** (Verbindungsvektor, Linearkombination), Verbindungsvektoren, Betrag, Skalarprodukt/Orthogonalität. (5) **Töne** (im Browser erzeugt, keine Dateien) für Tippen, Stern, richtig, falsch, Abschluss; Schalter zum Stummschalten oben rechts; **Konfetti** beim Abschluss. Startseite nach Gebieten gegliedert. Jetzt 10 Einheiten, 36 Schritte, 7 Spiele, 16 Aufgaben-Erzeuger. Geprüft: `npm run check` (102.204 Prüfungen über alle fünf Stufen) und Browser-Durchlauf aller Einheiten auf Stufe 1, 3 und 5. **Täglicher Ausbau** per Routine eingerichtet (siehe unten). | Im Repo, noch nicht online |
 | 13.11.2026 | **Version 0.1.0 – Gerüst und erste vier Einheiten (Phase 0 und Anfang Phase 1).** Installierbare Web-App im Website-Design (hell/dunkel), offline nutzbar, Update-Hinweis. Lernpfad Analysis: (1) *Funktionen formen* – Murmelbahn (5 Bahnen), Erklär-Karten, Graph-und-Gleichung-Aufgaben; (2) *Steigung entdecken* – Tangenten-Surfer mit Spur der Steigung, Erklär-Karten, Graphen-Paare; (3) *Ableitung zeichnen* – Skizze mit dem Finger samt Vorzeichen-Rückmeldung; (4) *Ableitungsregeln* – Lücken- und Auswahl-Aufgaben (Potenz-, Ketten-, e-Regel) mit gestuften Tipps und Fehler-Diagnose. Punkte, Sterne, Serie ohne Druck (Wochenende zählt nicht), Probestunden-Kasten. Fortschritt nur auf dem Gerät. Geprüft: `npm run check` (11.883 Prüfungen) und kompletter Durchlauf im Handy-Browser hell und dunkel, auch offline (`tests/e2e.mjs`). Graphen laufen über eine eigene kleine Zeichenfläche statt JSXGraph (leichter, reicht bisher). | Im Repo, **noch nicht online** – siehe `docs/DEPLOY.md` |
 
@@ -14,6 +15,22 @@ Stand: 13.11.2026 · Status: **im Bau** (Marcels „los" am 13.11.2026).
 kein Serverzugriff, Veröffentlichung nur über den Leitstand (Testseite → Marcels Go → live), keine Tracking-/
 Werbedienste ohne Freigabe, Entscheidungsfragen als Auswahlfenster, neue Ideen sammeln statt vorziehen.
 Meldungen an den Leitstand: `MELDUNG_AN_LEITSTAND.md`.
+
+**Wege nach draußen (Leitstand, 13.11.2026):** Branch `test` → automatisch auf `trainer-test.mathenachhilfe-online.com`.
+Branch `live` → `trainer.mathenachhilfe-online.com`, wird **nie von diesem Raum gesetzt**, nur nach Marcels Go über den
+Leitstand. Erlaubte Dateiarten in `app/`: html, css, js, mjs, json, webmanifest, svg, png, jpg, webp, ico, woff2, txt.
+
+**Daueraufgabe (Marcel, 13.11.2026: „Es muss definitiv dazu, dass die App stetig erweitert wird"):** feste Reihenfolge,
+Gebiete im Wechsel, je Einheit dasselbe Prüfniveau (`npm run check` + Browser-Durchlauf), jede Version erst auf `test`.
+
+| Runde | Analysis | Stochastik | Analytische Geometrie |
+| --- | --- | --- | --- |
+| 1 | Extremwert-Werkstatt | Bedingte Wahrscheinlichkeit, Vierfeldertafel | Geraden im Raum |
+| 2 | Kurvendiskussion komplett (Wendepunkte, Monotonie, Symmetrie) | Hypothesentests | Ebenen |
+| 3 | Steckbriefaufgaben | Normalverteilung | Abstände und Winkel |
+| 4 | Funktionenscharen | Kumulierte Binomialverteilung, Sigma-Regeln | Lagebeziehungen |
+| 5 | e- und ln-Funktionen, Wachstum | Kombinatorik | Kugeln, Spiegelungen |
+| danach | Abi-Modus je Bundesland (Phase 2), dann Mittelstufe (Algebra, Funktionen-Grundlagen) | | |
 
 **Täglicher Ausbau (Marcel, 13.11.2026):** Eine Routine erweitert jeden Tag die Aufgaben und setzt neue dazu.
 Regeln dafür: in der Reihenfolge der „Kommt bald"-Listen in `app/js/units.js` (Gebiete abwechselnd), jede neue

@@ -214,6 +214,16 @@ if ((await page.locator('.unit.done').count()) !== UNITS.length) throw new Error
 const xp = +(await page.textContent('.chip.xp'));
 if (!(xp > 100)) throw new Error(`Punkte unplausibel: ${xp}`);
 
+// Jede Datei aus der Vorlade-Liste des Service Workers muss erreichbar sein (sonst fehlen offline Teile).
+const missing = await page.evaluate(async () => {
+  const sw = await (await fetch('sw.js', { cache: 'no-store' })).text();
+  const list = JSON.parse(sw.match(/const ASSETS = (\[[\s\S]*?\]);/)[1]);
+  const bad = [];
+  for (const a of list) { const r = await fetch(a, { cache: 'no-store' }).catch(() => null); if (!r || !r.ok) bad.push(a); }
+  return bad;
+});
+if (missing.length) throw new Error('Nicht erreichbar: ' + missing.join(', '));
+
 // Offline: Service Worker aktiv → ohne Netz neu laden
 const sw = await page.evaluate(async () => { const r = await navigator.serviceWorker?.ready; return !!r?.active; });
 if (!sw) throw new Error('Service Worker nicht aktiv');

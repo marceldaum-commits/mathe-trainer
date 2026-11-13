@@ -1,16 +1,16 @@
 // Service Worker: macht die App offline nutzbar und liefert Updates aus.
 // CACHE muss zur VERSION in js/config.js passen; ASSETS pflegt `npm run fix` (tools/check.mjs).
-const CACHE = 'mt-0.2.0';
+const CACHE = 'mt-0.2.1';
 const ASSETS = [
   "./",
   "css/app.css",
   "fonts/inter-latin-wght-normal.woff2",
-  "icons/apple-touch-icon.png",
-  "icons/favicon.svg",
-  "icons/icon-192.png",
-  "icons/icon-512.png",
-  "icons/icon-maskable-512.png",
-  "icons/logo.svg",
+  "img/apple-touch-icon.png",
+  "img/favicon.svg",
+  "img/icon-192.png",
+  "img/icon-512.png",
+  "img/icon-maskable-512.png",
+  "img/logo.svg",
   "js/app.js",
   "js/config.js",
   "js/games/flaeche.js",
@@ -52,8 +52,15 @@ const ASSETS = [
   "vendor/katex/katex.min.js"
 ];
 
+// Jede Datei einzeln laden: Fehlt eine Nebendatei (z. B. ein Bild), wird trotzdem installiert.
+// Nur die Startseite selbst ist Pflicht.
 self.addEventListener('install', (ev) => {
-  ev.waitUntil(caches.open(CACHE).then((c) => c.addAll(ASSETS)));
+  ev.waitUntil(caches.open(CACHE).then(async (c) => {
+    await c.add('./');
+    const res = await Promise.allSettled(ASSETS.filter((a) => a !== './').map((a) => c.add(a)));
+    const missing = res.filter((r) => r.status === 'rejected').length;
+    if (missing) console.warn(`Mathe-Trainer: ${missing} Datei(en) konnten nicht vorgeladen werden.`);
+  }));
 });
 
 self.addEventListener('activate', (ev) => {
