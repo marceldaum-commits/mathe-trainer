@@ -75,6 +75,16 @@ export function initMelden() {
   const fab = h('<button class="fab" id="fab" type="button" aria-label="Hilfe und Fehler melden"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5h14v10H10l-4 4v-4H5z"/><path d="M12 8v3M12 13.200v.100"/></svg></button>');
   fab.onclick = () => { sfx('tap'); open(); };
   document.body.append(fab, h('<div id="help" class="sheet" hidden></div>'));
+  // Beim Spielen: Hilfe-Knopf oben in der Kopfzeile des Schritts (verdeckt dort nichts).
+  const view = document.querySelector('#view');
+  const dock = () => {
+    const head = view.querySelector('.stephead');
+    if (!head || head.querySelector('.help-x')) return;
+    const b = h('<button class="x help-x" type="button" aria-label="Hilfe und Fehler melden"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5h14v10H10l-4 4v-4H5z"/><path d="M12 8v3M12 13.200v.100"/></svg></button>');
+    b.onclick = () => { sfx('tap'); open(); };
+    head.append(b);
+  };
+  new MutationObserver(dock).observe(view, { childList: true, subtree: true }); dock();
   window.addEventListener('online', () => { flush(); });
   flush();
 }

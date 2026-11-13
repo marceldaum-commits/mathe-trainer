@@ -261,6 +261,10 @@ let kombo = false;
 for (const u of UNITS) {
   for (let i = 0; i < u.steps.length; i++) {
     if (!(u === UNITS[0] && i === 0)) { await page.goto(`${BASE}#/u/${u.id}/${i}`); await page.waitForSelector('#stage > *'); }
+    await page.evaluate(() => window.scrollTo(0, 0));
+    { const btn = page.locator('#stage .row:last-child:not([hidden]) .btn:not([hidden])').last();   // Haupt-Knopf muss ohne Scrollen im Bild sein
+      if (await btn.count() && await btn.isVisible()) { const r = await btn.boundingBox(), vh = page.viewportSize().height;
+        if (!(r.y >= 0 && r.y + r.height <= vh + 1)) fail(`${u.id}/${u.steps[i].id}: Haupt-Knopf nicht ohne Scrollen sichtbar (y=${Math.round(r.y)}, Höhe Fenster ${vh})`); } }
     let done = false;
     for (const [sel, fn] of HANDLERS) if (await page.locator(sel).count()) { await fn(); done = true; break; }
     if (!done) { if (first(`quiz-${u.area}`)) await shot(`30-aufgabe-${u.area}`); await quiz(); if (await page.locator('#q-kombo').count()) kombo = true; }
@@ -274,15 +278,8 @@ if (LEVEL >= 3 && getippt < 20) fail(`Freie Eingabe kam zu selten vor: ${getippt
 if (LEVEL < 3 && getippt) fail('Freie Eingabe darf auf leichter Stufe nicht von selbst erscheinen');
 // Im Spiel: Hilfe-Knopf sichtbar, verdeckt aber keinen Knopf der Aufgabe; Meldung nimmt die Aufgabe mit
 await page.goto(`${BASE}#/u/regeln/3`); await page.waitForSelector('#stage .q');
-const fabBox = await page.locator('#fab').boundingBox();
-for (const sel of ['#q-tip', '.opt', '.tipp .btn', '#q-in']) for (const b of await page.locator(sel).all()) {
-  await b.scrollIntoViewIfNeeded(); const r = await b.boundingBox();
-  if (r && r.x < fabBox.x + fabBox.width && r.x + r.width > fabBox.x && r.y < fabBox.y + fabBox.height && r.y + r.height > fabBox.y) {
-    await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight)); const r2 = await b.boundingBox();
-    if (r2.y < fabBox.y + fabBox.height && r2.y + r2.height > fabBox.y && r2.x + r2.width > fabBox.x) fail(`Hilfe-Knopf verdeckt ${sel}`);
-  }
-}
-await page.click('#fab'); await page.click('#hp-menu button[data-art="aufgabe"]');
+if (await page.locator('#fab').isVisible()) fail('Im Spiel darf der schwebende Hilfe-Knopf nichts verdecken (er sitzt oben)');
+await page.click('.stephead .help-x'); await page.click('#hp-menu button[data-art="aufgabe"]');
 if (!(await page.textContent('#hp-ctx')).includes('Zuletzt gezeigte Aufgabe')) fail('Meldung: Aufgabe wird nicht mitgenommen');
 await page.fill('#hp-text', 'Diese Aufgabe prüfen'); await page.click('#hp-form button[type="submit"]'); await page.waitForSelector('#help', { state: 'hidden' });
 const w2 = await page.evaluate(() => JSON.parse(localStorage.getItem('mt.v1')).meldungen);

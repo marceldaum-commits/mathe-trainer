@@ -382,8 +382,16 @@ label b{color:var(--head)}
   border-radius:50%;border:1px solid var(--line);background:var(--card);color:var(--muted);box-shadow:var(--shadow);opacity:.92}
 .fab svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
 .fab:active{transform:scale(.94)}
-#nav[hidden]~.fab{bottom:calc(14px + env(safe-area-inset-bottom))}
-.stephead~#stage{padding-bottom:56px}
+#nav[hidden]~.fab{display:none}   /* beim Spielen sitzt der Hilfe-Knopf oben neben dem Fortschrittsbalken */
+.stephead .help-x{flex:none;cursor:pointer}
+.stephead .help-x svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+
+/* Der Haupt-Knopf jedes Spiels und jeder Aufgabe bleibt ohne Scrollen sichtbar (Marcel, 13.11.2026) */
+#stage .row:last-child{position:sticky;bottom:calc(8px + env(safe-area-inset-bottom));z-index:6;margin-top:4px;padding:10px 0 2px;
+  background:linear-gradient(to bottom,transparent,var(--bg) 38%)}
+.stephead~#stage{padding-bottom:4px}
+main:has(.stephead){padding-bottom:calc(14px + env(safe-area-inset-bottom))}
+.tipp+#q-wahl,.tipp~#q-wahl{display:block;margin-top:4px}
 #help{z-index:45}
 .help-in{text-align:left}
 .help-in .x{flex:none}
@@ -391,3 +399,5 @@ label b{color:var(--head)}
 textarea.field{width:100%;border-radius:14px;border:1.5px solid var(--line);padding:12px 14px;color:var(--ink);font:16px/1.5 Inter,sans-serif;resize:vertical}
 @media print{.fab,#help{display:none!important}}
 .extra{display:inline-block;padding:1px 7px;border-radius:8px;background:var(--soft);border:1px solid var(--line);color:var(--muted);font-size:11.5px;font-weight:750;letter-spacing:0;text-transform:none}
+/* Kleine Bildschirme: Zeichenfläche niedriger, damit Regler und Knopf auf eine Seite passen */
+#stage .stage canvas{max-height:max(190px,calc(100dvh - 480px))}
