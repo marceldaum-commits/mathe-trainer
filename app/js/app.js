@@ -4,7 +4,7 @@ import { store, LEVELS } from './store.js';
 import { CONFIG, VERSION } from './config.js';
 import { $, h, esc, ICON, starsHtml, toast, sfx, sound, confetti, look } from './ui.js';
 import { abiView, rundeView } from './exam.js';
-import { settingsView, berichtView, karteiView, dailyGoal, openSteps } from './extras.js';
+import { settingsView, berichtView, karteiView, dailyGoal, openSteps, levelCard } from './extras.js';
 
 const view = $('#view');
 let cleanup = null;
@@ -25,90 +25,130 @@ function nextSpot() {
   return null;
 }
 
+const AREA_INFO = {
+  analysis: 'Funktionen, Ableitung, Integral',
+  stochastik: 'Zufall, Verteilungen, Tests',
+  geometrie: 'Vektoren, Geraden, Ebenen',
+  pruefung: 'Abi-Modus, Runden, Operatoren',
+};
+const LERN_AREAS = () => AREAS.filter((a) => a.id !== 'pruefung');
+const areaStat = (area) => {
+  const us = UNITS.filter((u) => u.area === area.id);
+  const steps = us.reduce((s, u) => s + u.steps.length, 0), done = us.reduce((s, u) => s + store.unitProgress(u).n, 0);
+  return { units: us, n: us.length, doneUnits: us.filter((u) => store.unitProgress(u).done).length, pct: steps ? (done / steps) * 100 : 0 };
+};
+const areaCard = (area, href = `#/g/${area.id}`) => {
+  const s = areaStat(area);
+  return `<a class="card area" href="${href}"><h3>${esc(area.title)}</h3><small>${esc(AREA_INFO[area.id])}</small>
+    <div class="bar"><i style="width:${s.pct}%"></i></div><small class="muted">${s.doneUnits}/${s.n} Einheiten</small></a>`;
+};
+const unitCard = (u, k) => {
+  const p = store.unitProgress(u);
+  return `<a class="card unit ${p.done ? 'done' : ''}" href="#/u/${u.id}">
+    <span class="num">${p.done ? ICON.check : String(k + 1).padStart(2, '0')}</span>
+    <span><h3>${esc(u.title)}</h3><small>${esc(u.sub)}</small><div class="bar"><i style="width:${(p.n / p.total) * 100}%"></i></div></span>
+    <span class="go">${ICON.right}</span></a>`;
+};
+const linkCard = (href, num, title, sub) => `<a class="card unit" href="${href}"><span class="num">${num}</span><span><h3>${esc(title)}</h3><small>${sub}</small></span><span class="go">${ICON.right}</span></a>`;
+const footer = () => `<footer class="foot">
+    <a href="${CONFIG.website}" target="_blank" rel="noopener">${esc(CONFIG.firma)}</a>
+    <a href="${CONFIG.impressum}" target="_blank" rel="noopener">Impressum</a>
+    <a href="${CONFIG.datenschutz}" target="_blank" rel="noopener">Datenschutz</a>
+    <span>Version ${VERSION}</span></footer>`;
+
+/** Startseite: kurz – weitermachen, was heute ansteht, Gebiet wählen. */
 function home() {
   const spot = nextSpot();
   const started = store.xp > 0;
-  const el = h(`<div class="view stack">
+  const el = h(`<div class="view stack" id="home">
     <section class="hero">
       <span class="eyebrow">Oberstufen-Mathe zum Anfassen</span>
       <h1>Verstehen<br>schafft <span class="orange">Sicherheit.</span></h1>
-      <p class="lead">Kurze Spiele statt Arbeitsblätter: erst ausprobieren, dann die Regel, dann wie in der Prüfung.</p>
     </section>
     <section class="board">
       <div class="board-top"><span>${started ? 'WEITER MACHEN' : 'LOS GEHT’S'}</span><b>● ${spot ? esc(AREAS.find((a) => a.id === spot.u.area).title.toUpperCase()) : 'FERTIG'}</b></div>
       ${spot
         ? `<h2>${esc(spot.u.steps[spot.i].title)}</h2><p>${esc(spot.u.title)} · Schritt ${spot.i + 1} von ${spot.u.steps.length}</p>
            <a class="btn" href="#/u/${spot.u.id}/${spot.i}">${started ? 'Weiter' : 'Erste Runde starten'} ${ICON.right}</a>`
-        : '<h2>Alles geschafft!</h2><p>Neue Einheiten sind in Arbeit. Wiederhole gern eine Runde – die Aufgaben sind jedes Mal neu.</p>'}
+        : '<h2>Alles geschafft!</h2><p>Wiederhole gern eine Runde – die Aufgaben sind jedes Mal neu. Oder teste dich im Abi-Modus.</p>'}
     </section>
     <div id="today" class="stack"></div>
-    <section class="tiles" aria-label="Runden">
-      <a class="tile" href="#/tag"><b>Tages-Runde</b><small id="tl-tag">Heute für alle gleich</small></a>
-      <a class="tile" href="#/abi"><b>Abi-Modus</b><small id="tl-abi">Auf Zeit, mit Prognose</small></a>
-      <a class="tile" href="#/duell"><b>Duell</b><small>Mitschüler herausfordern</small></a>
-    </section>
-    <section class="card level" aria-label="Schwierigkeit">
-      <div class="row"><h3 class="grow">Schwierigkeit</h3><b id="lv-name" class="orange"></b></div>
-      <div class="seg" id="lv" role="radiogroup" aria-label="Schwierigkeit wählen"></div>
-      <small class="muted" id="lv-note"></small>
-    </section>
-    <div id="areas" class="stack"></div>
-    <div id="install"></div>
-    <section class="tiles two" aria-label="Mehr">
-      <a class="tile" href="#/bericht"><b>Bericht für Eltern</b><small>Lernstand zum Drucken oder Teilen</small></a>
-      <a class="tile" href="#/einstellungen"><b>Einstellungen</b><small id="tl-set">Bundesland, Abi-Termin</small></a>
-    </section>
+    <div class="sect"><h2>Was möchtest du üben?</h2></div>
+    <section class="areas">${AREAS.map((a) => areaCard(a, a.id === 'pruefung' ? '#/pruefung' : `#/g/${a.id}`)).join('')}</section>
     <section class="cta">
       <h2>Hängt es an einer Stelle?</h2>
-      <p>In einer kostenlosen Probestunde klären wir gemeinsam, was gerade hilft – persönlich und ohne Druck.</p>
+      <p>In einer kostenlosen Probestunde klären wir gemeinsam, was gerade hilft.</p>
       <a class="btn" href="${CONFIG.probestunde}" target="_blank" rel="noopener">Gratis Probestunde ${ICON.right}</a>
     </section>
-    <footer class="foot">
-      <a href="${CONFIG.website}" target="_blank" rel="noopener">${esc(CONFIG.firma)}</a>
-      <a href="${CONFIG.impressum}" target="_blank" rel="noopener">Impressum</a>
-      <a href="${CONFIG.datenschutz}" target="_blank" rel="noopener">Datenschutz</a>
-      <span>Version ${VERSION}</span>
-    </footer>
+    ${footer()}
   </div>`);
-  // Heute: Abi-Countdown mit Tagesziel und fällige Wiederholungen
-  const days = store.abiDays(), due = store.karteDue().length, tb = store.tagBest(), ex = store.exams[0];
+  const days = store.abiDays(), due = store.karteDue().length, tb = store.tagBest();
+  const today = $('#today', el);
   if (days !== null) {
     const goal = dailyGoal(openSteps(), days);
-    $('#today', el).append(h(`<section class="card count"><b class="big">${days}</b><span><h3>${days === 1 ? 'Tag' : 'Tage'} bis zum Mathe-Abi</h3><small class="muted">${goal ? `Tagesziel: ${goal} ${goal === 1 ? 'Schritt' : 'Schritte'} im Lernpfad – dann bist du rechtzeitig durch.` : 'Alle Schritte geschafft – jetzt Abi-Modus und Wiederholen.'}</small></span></section>`));
+    today.append(h(`<section class="card count"><b class="big">${days}</b><span><h3>${days === 1 ? 'Tag' : 'Tage'} bis zum Mathe-Abi</h3><small class="muted">${goal ? `Tagesziel: ${goal} ${goal === 1 ? 'Schritt' : 'Schritte'} im Lernpfad.` : 'Alle Schritte geschafft – jetzt Abi-Modus und Wiederholen.'}</small></span></section>`));
   }
-  if (due) $('#today', el).append(h(`<a class="card unit" href="#/wiederholen"><span class="num">${due}</span><span><h3>Wiederholen</h3><small>${due === 1 ? 'Eine Aufgabenart ist' : `${due} Aufgabenarten sind`} heute in der Fehler-Kartei fällig.</small></span><span class="go">${ICON.right}</span></a>`));
-  if (tb !== undefined) $('#tl-tag', el).textContent = `Heute: ${tb} Punkte`;
-  if (ex) $('#tl-abi', el).textContent = `Zuletzt: ${ex.np} Notenpunkte`;
-  // Schwierigkeit
-  const NOTES = ['Kleine Zahlen, großzügige Bewertung, alle Tipps.', 'Einfache Zahlen, alle Tipps.', 'Wie im Unterricht.', 'Größere Zahlen, mehr Regeln gemischt, weniger Hinweise.', 'Prüfungsniveau und darüber – ohne Tipps.'];
-  const seg = $('#lv', el);
-  const paint = () => {
-    seg.querySelectorAll('button').forEach((b, i) => { const on = i + 1 === store.level; b.classList.toggle('on', on); b.setAttribute('aria-checked', on); });
-    $('#lv-name', el).textContent = LEVELS[store.level - 1];
-    $('#lv-note', el).textContent = NOTES[store.level - 1];
-  };
-  LEVELS.forEach((name, i) => {
-    const b = h(`<button type="button" role="radio" aria-label="${name}">${i + 1}</button>`);
-    b.onclick = () => { store.level = i + 1; paint(); sfx('tap'); };
-    seg.append(b);
-  });
-  paint();
-  // Lernpfade je Gebiet
-  AREAS.forEach((area) => {
-    const units = UNITS.filter((u) => u.area === area.id);
-    const doneN = units.filter((u) => store.unitProgress(u).done).length;
-    const sec = h(`<section class="stack"><div class="sect"><h2>${esc(area.title)}</h2><small class="muted">${doneN}/${units.length} Einheiten</small></div><div class="stack list"></div></section>`);
-    const list = $('.list', sec);
-    units.forEach((u, k) => {
-      const p = store.unitProgress(u);
-      list.append(h(`<a class="card unit ${p.done ? 'done' : ''}" href="#/u/${u.id}">
-        <span class="num">${p.done ? ICON.check : String(k + 1).padStart(2, '0')}</span>
-        <span><h3>${esc(u.title)}</h3><small>${esc(u.sub)}</small><div class="bar"><i style="width:${(p.n / p.total) * 100}%"></i></div></span>
-        <span class="go">${ICON.right}</span></a>`));
-    });
-    list.append(h(`<div class="card unit soon"><span class="num">+</span><span><h3>Kommt bald</h3><small>${esc(area.soon.join(' · '))}</small></span><span></span></div>`));
-    $('#areas', el).append(sec);
-  });
+  if (due) today.append(h(linkCard('#/wiederholen', due, 'Wiederholen', `${due === 1 ? 'Eine Aufgabenart ist' : `${due} Aufgabenarten sind`} heute fällig.`)));
+  today.append(h(linkCard('#/tag', ICON.bolt, 'Tages-Runde', tb !== undefined ? `Heute: ${tb} Punkte – noch einmal?` : 'Sechs Aufgaben, heute für alle gleich.')));
+  return el;
+}
+
+/** Lernen: erst das Gebiet wählen. */
+function lernenView() {
+  const el = h(`<div class="view stack">
+    <div><span class="eyebrow">Lernen</span><h1 style="margin-top:8px">Wähle ein Gebiet</h1></div>
+    <section class="stack">${LERN_AREAS().map((a) => { const s = areaStat(a); return linkCard(`#/g/${a.id}`, `<i class="pct">${Math.round(s.pct)} %</i>`, a.title, `${esc(AREA_INFO[a.id])} · ${s.doneUnits}/${s.n} Einheiten`); }).join('')}</section>
+    <div id="lvbox"></div>
+  </div>`);
+  $('#lvbox', el).append(levelCard());
+  return el;
+}
+
+/** Ein Gebiet: seine Einheiten. */
+function areaView(area) {
+  const s = areaStat(area);
+  return h(`<div class="view stack">
+    <a class="back" href="#/lernen">${ICON.left} Gebiete</a>
+    <div><span class="eyebrow">${s.doneUnits}/${s.n} Einheiten · Schwierigkeit ${LEVELS[store.level - 1]}</span><h1 style="margin-top:8px">${esc(area.title)}</h1><p class="lead" style="margin-top:8px">${esc(AREA_INFO[area.id])}</p></div>
+    <section class="stack">${s.units.map(unitCard).join('')}
+      <div class="card unit soon"><span class="num">+</span><span><h3>Kommt bald</h3><small>${esc(area.soon.join(' · '))}</small></span><span></span></div></section>
+  </div>`);
+}
+
+/** Prüfung: alles, was auf Zeit und auf das Abi vorbereitet. */
+function pruefungView() {
+  const ex = store.exams[0], tb = store.tagBest(), best = store.best(1)[0];
+  const area = AREAS.find((a) => a.id === 'pruefung');
+  return h(`<div class="view stack">
+    <div><span class="eyebrow">Prüfung</span><h1 style="margin-top:8px">Zeig, was sitzt</h1></div>
+    <section class="stack">
+      ${linkCard('#/abi', 'A·B', 'Abi-Modus', ex ? `Zuletzt: ${ex.np} Notenpunkte (Teil ${esc(ex.part)})` : 'Auf Zeit, ohne Tipps, mit Punkte-Prognose.')}
+      ${linkCard('#/tag', ICON.bolt, 'Tages-Runde', tb !== undefined ? `Heute: ${tb} Punkte` : 'Sechs Aufgaben, heute für alle gleich.')}
+      ${linkCard('#/duell', 'VS', 'Duell', best ? `Dein Bestwert: ${best.score} Punkte` : 'Fordere Mitschüler per Link heraus.')}
+    </section>
+    <div class="sect"><h2>Prüfungswissen</h2></div>
+    <section class="stack">${areaStat(area).units.map(unitCard).join('')}</section>
+  </div>`);
+}
+
+/** Mehr: Wiederholen, Bericht, Einstellungen, App installieren, Kontakt. */
+function mehrView() {
+  const due = store.karteDue().length;
+  const el = h(`<div class="view stack">
+    <div><span class="eyebrow">Mehr</span><h1 style="margin-top:8px">Dein Trainer</h1></div>
+    <section class="stack">
+      ${linkCard('#/wiederholen', due || ICON.check, 'Fehler-Kartei', due ? `${due} ${due === 1 ? 'Aufgabenart ist' : 'Aufgabenarten sind'} heute fällig.` : `${store.karteCount} in der Kartei, heute nichts fällig.`)}
+      ${linkCard('#/bericht', ICON.star, 'Bericht für Eltern', 'Lernstand zum Drucken oder Teilen.')}
+      ${linkCard('#/einstellungen', ICON.gear, 'Einstellungen', `Schwierigkeit ${LEVELS[store.level - 1]} · Bundesland · Abi-Termin`)}
+    </section>
+    <div id="install"></div>
+    <section class="cta">
+      <h2>Persönliche Nachhilfe</h2>
+      <p>Wenn es an einem Thema länger hakt: In einer kostenlosen Probestunde klären wir gemeinsam, was hilft.</p>
+      <a class="btn" href="${CONFIG.probestunde}" target="_blank" rel="noopener">Gratis Probestunde ${ICON.right}</a>
+    </section>
+    ${footer()}
+  </div>`);
   if (installEvent) {
     const box = h(`<div class="card install"><span class="grow"><h3>Als App aufs Handy</h3><small class="muted">Ein Tipp – dann liegt der Mathe-Trainer auf dem Startbildschirm.</small></span><button class="btn small" type="button">Installieren</button></div>`);
     box.querySelector('button').onclick = async () => { installEvent.prompt(); await installEvent.userChoice; installEvent = null; box.remove(); };
@@ -118,9 +158,10 @@ function home() {
 }
 
 function unitView(u) {
+  const area = AREAS.find((a) => a.id === u.area);
   const el = h(`<div class="view stack">
-    <a class="back" href="#/">${ICON.left} Lernpfad</a>
-    <div><span class="eyebrow">${esc(AREAS.find((a) => a.id === u.area).title)}</span><h1 style="margin-top:8px">${esc(u.title)}</h1><p class="lead" style="margin-top:8px">${esc(u.sub)}</p></div>
+    <a class="back" href="${u.area === 'pruefung' ? '#/pruefung' : `#/g/${u.area}`}">${ICON.left} ${esc(area.title)}</a>
+    <div><span class="eyebrow">${esc(area.title)}</span><h1 style="margin-top:8px">${esc(u.title)}</h1><p class="lead" style="margin-top:8px">${esc(u.sub)}</p></div>
     <div class="steps"></div>
   </div>`);
   u.steps.forEach((s, i) => {
@@ -162,7 +203,7 @@ function finish(u, i, res) {
     <h2>${unitDone ? 'Einheit geschafft!' : stars === 3 ? 'Stark!' : 'Geschafft!'}</h2>
     <div class="gain"><span class="chip xp">${ICON.bolt}+${r.gain} Punkte</span><span class="chip fire">${ICON.fire}${r.streak} ${r.streak === 1 ? 'Tag' : 'Tage'} in Folge</span></div>
     ${(res.mistakes ?? 0) >= 3 ? `<div class="promo">Das Thema hakt noch? Das ist normal. In einer <a href="${CONFIG.probestunde}" target="_blank" rel="noopener">kostenlosen Probestunde</a> gehen wir es gemeinsam durch.</div>` : ''}
-    <a class="btn block" id="sh-go" href="${nextI !== null ? `#/u/${u.id}/${nextI}` : '#/'}">${nextI !== null ? `Weiter: ${esc(u.steps[nextI].title)}` : 'Zum Lernpfad'}</a>
+    <a class="btn block" id="sh-go" href="${nextI !== null ? `#/u/${u.id}/${nextI}` : u.area === 'pruefung' ? '#/pruefung' : `#/g/${u.area}`}">${nextI !== null ? `Weiter: ${esc(u.steps[nextI].title)}` : 'Zur Übersicht'}</a>
     ${nextI !== null ? `<a class="btn ghost block" href="#/u/${u.id}">Zur Übersicht</a>` : ''}
   </div>`;
   sheet.hidden = false;
@@ -177,6 +218,7 @@ function route() {
   const m = hash.match(/^#\/u\/([\w-]+)(?:\/(\d+))?$/);
   const u = m && UNITS.find((x) => x.id === m[1]);
   const x = hash.match(/^#\/(abi|tag|duell|bericht|einstellungen|wiederholen)(?:\/([\w-]+))?$/);
+  const gm = hash.match(/^#\/g\/(\w+)$/), g = gm && LERN_AREAS().find((a) => a.id === gm[1]);
   let el;
   if (u && m[2] !== undefined && u.steps[+m[2]]) el = stepView(u, +m[2]);
   else if (u) el = unitView(u);
@@ -184,15 +226,29 @@ function route() {
     const r = { abi: () => abiView(['A', 'B'].includes(x[2]) ? x[2] : null), tag: () => rundeView('tag'), duell: () => rundeView('duell', x[2]),
       bericht: berichtView, einstellungen: settingsView, wiederholen: karteiView }[x[1]]();
     el = r.el; cleanup = r.cleanup || null;
-  } else el = home();
+  } else if (hash === '#/lernen') el = lernenView();
+  else if (hash === '#/pruefung') el = pruefungView();
+  else if (hash === '#/mehr') el = mehrView();
+  else if (g) el = areaView(g);
+  else el = home();
   view.replaceChildren(el);
-  chips();
+  chips(); nav();
   window.scrollTo(0, 0);
 }
 
+/** Untere Menüleiste: zeigt, wo man ist; verschwindet, solange gespielt wird. */
+function nav() {
+  const hash = location.hash || '#/';
+  const um = hash.match(/^#\/u\/([\w-]+)/), unit = um && UNITS.find((x) => x.id === um[1]);
+  const tab = unit ? (unit.area === 'pruefung' ? 'pruefung' : 'lernen')
+    : /^#\/(lernen|g\/)/.test(hash) ? 'lernen' : /^#\/(pruefung|abi|tag|duell)/.test(hash) ? 'pruefung' : /^#\/(mehr|bericht|einstellungen|wiederholen)/.test(hash) ? 'mehr' : 'start';
+  document.querySelectorAll('#nav a').forEach((a) => { const on = a.dataset.tab === tab; a.classList.toggle('on', on); if (on) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current'); });
+  $('#nav').hidden = !!view.querySelector('.stephead');
+}
+new MutationObserver(() => { $('#nav').hidden = !!view.querySelector('.stephead'); }).observe(view, { childList: true, subtree: true });
 look.follow();
 window.addEventListener('hashchange', route);
-window.addEventListener('beforeinstallprompt', (ev) => { ev.preventDefault(); installEvent = ev; if (!location.hash || location.hash === '#/') route(); });
+window.addEventListener('beforeinstallprompt', (ev) => { ev.preventDefault(); installEvent = ev; if (location.hash === '#/mehr') route(); });
 route();
 
 // Offline-Fähigkeit und automatische Updates.

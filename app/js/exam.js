@@ -101,7 +101,7 @@ export function abiView(part) {
   let stop = null;
   if (!part) {
     const last = store.exams.slice(0, 3);
-    el.innerHTML = `<a class="back" href="#/">${ICON.left} Start</a>
+    el.innerHTML = `<a class="back" href="#/pruefung">${ICON.left} Prüfung</a>
       <div><span class="eyebrow">Prüfung</span><h1 style="margin-top:8px">Abi-Modus</h1><p class="lead" style="margin-top:8px">Gemischte Aufgaben auf Zeit, eine Antwort je Aufgabe, keine Tipps. Am Ende gibt es eine Punkte-Prognose.</p></div>
       <small class="muted">Einstellung: ${esc(LAENDER[store.land])} · ${store.land ? '' : '<a href="#/einstellungen">Bundesland wählen</a> · '}Schwierigkeit ${LEVELS[store.level - 1]}</small>
       ${['A', 'B'].map((p) => { const pl = abiPlan(p); return `<a class="card unit" href="#/abi/${p}"><span class="num">${p}</span><span><h3>${pl.title}</h3><small>${pl.n} Aufgaben · ${pl.seconds / 60} Minuten · ${p === 'A' ? 'Zahlen, die im Kopf gehen' : 'größere Zahlen und mehr Regeln gemischt'}</small></span><span class="go">${ICON.right}</span></a>`; }).join('')}
@@ -151,7 +151,7 @@ export function rundeView(kind, arg) {
 
   function intro() {
     const best = kind === 'tag' ? store.tagBest() : null, top = store.best(5);
-    el.innerHTML = `<a class="back" href="${cfg.back}">${ICON.left} Start</a>
+    el.innerHTML = `<a class="back" href="#/pruefung">${ICON.left} Prüfung</a>
       <div><span class="eyebrow">${kind === 'tag' ? 'Jeden Tag neu' : 'Gegen Mitschüler'}</span><h1 style="margin-top:8px">${cfg.title}</h1>
       <p class="lead" style="margin-top:8px">${kind === 'tag' ? 'Heute bekommen alle dieselben sechs Aufgaben. Wie viele Punkte schaffst du?' : cfg.rival !== null ? `Du wurdest herausgefordert: <b>${cfg.rival} Punkte</b> sind zu schlagen. Ihr bekommt dieselben Aufgaben.` : 'Spiel eine Runde und schick den Link weiter. Dein Gegner bekommt genau dieselben Aufgaben.'}</p></div>
       <div class="card"><small class="muted">${cfg.n} Aufgaben · ${cfg.seconds / 60} Minuten · Schwierigkeit ${LEVELS[cfg.lv - 1]} · 100 Punkte je richtiger Antwort, dazu ein Zeit-Bonus für richtige Antworten</small></div>
@@ -171,7 +171,7 @@ export function rundeView(kind, arg) {
       sfx('win'); if (won !== false && r.correct >= r.total / 2) confetti(40);
       const url = kind === 'tag' ? linkFor('#/tag') : linkFor(`#/duell/${seed}-${cfg.lv}-${score}`);
       const text = kind === 'tag' ? `Mathe-Trainer Tages-Runde: ${score} Punkte. Schaffst du mehr?` : `Ich habe ${score} Punkte im Mathe-Duell. Schlag mich – du bekommst dieselben Aufgaben:`;
-      el.innerHTML = `<a class="back" href="#/">${ICON.left} Start</a>
+      el.innerHTML = `<a class="back" href="#/pruefung">${ICON.left} Prüfung</a>
         <section class="board" style="text-align:center"><div class="board-top"><span>${esc(cfg.title.toUpperCase())}</span><b>● ERGEBNIS</b></div>
           <div class="npbig" id="rd-score">${score}</div><h2>Punkte</h2><p>${r.correct} von ${r.total} richtig · ${clock(r.secsUsed)} Minuten</p>
           ${won === null ? '' : `<p><b>${won ? 'Gewonnen!' : score === cfg.rival ? 'Unentschieden.' : 'Knapp verloren.'}</b> Dein Gegner hatte ${cfg.rival} Punkte.</p>`}</section>

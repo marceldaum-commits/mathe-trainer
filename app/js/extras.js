@@ -9,12 +9,30 @@ import { CONFIG } from './config.js';
 
 const GEN = { ...G, ...H };
 
+const LEVEL_NOTES = ['Kleine Zahlen, großzügige Bewertung, alle Tipps.', 'Einfache Zahlen, alle Tipps.', 'Wie im Unterricht.', 'Größere Zahlen, mehr Regeln gemischt, weniger Hinweise.', 'Prüfungsniveau und darüber – ohne Tipps.'];
+/** Schwierigkeits-Wahl (1–5) als Karte. */
+export function levelCard() {
+  const el = h(`<section class="card level" aria-label="Schwierigkeit">
+    <div class="row"><h3 class="grow">Schwierigkeit</h3><b id="lv-name" class="orange"></b></div>
+    <div class="seg" id="lv" role="radiogroup" aria-label="Schwierigkeit wählen"></div>
+    <small class="muted" id="lv-note"></small></section>`);
+  const seg = $('#lv', el);
+  const paint = () => {
+    seg.querySelectorAll('button').forEach((b, i) => { const on = i + 1 === store.level; b.classList.toggle('on', on); b.setAttribute('aria-checked', on); });
+    $('#lv-name', el).textContent = LEVELS[store.level - 1]; $('#lv-note', el).textContent = LEVEL_NOTES[store.level - 1];
+  };
+  LEVELS.forEach((name, i) => { const b = h(`<button type="button" role="radio" aria-label="${name}">${i + 1}</button>`); b.onclick = () => { store.level = i + 1; paint(); sfx('tap'); }; seg.append(b); });
+  paint();
+  return el;
+}
+
 /* ───────────── Einstellungen ───────────── */
 
 export function settingsView() {
   const el = h(`<div class="view stack">
-    <a class="back" href="#/">${ICON.left} Start</a>
+    <a class="back" href="#/mehr">${ICON.left} Mehr</a>
     <div><span class="eyebrow">Einstellungen</span><h1 style="margin-top:8px">Für dein Abi</h1></div>
+    <div id="st-level"></div>
     <section class="card stack"><h3>Bundesland und Kurs</h3><div class="picks col" id="st-land" role="radiogroup" aria-label="Bundesland und Kurs"></div>
       <small class="muted">Die Auswahl steuert Umfang und Niveau im Abi-Modus. Alle Lernpfade bleiben für alle offen.</small></section>
     <section class="card stack"><h3>Abi-Termin Mathe</h3>
@@ -23,6 +41,7 @@ export function settingsView() {
     <section class="card stack"><h3>Fortschritt</h3><small class="muted">Alles liegt nur auf diesem Gerät. Es gibt kein Konto.</small>
       <button class="btn ghost" id="st-reset" type="button">Fortschritt zurücksetzen</button></section>
   </div>`);
+  $('#st-level', el).append(levelCard());
   const box = $('#st-land', el);
   const paint = () => box.querySelectorAll('button').forEach((b) => { const on = b.dataset.k === store.land; b.classList.toggle('sel', on); b.setAttribute('aria-checked', on); });
   Object.entries(LAENDER).forEach(([k, name]) => {
@@ -59,7 +78,7 @@ export function berichtView() {
   }).join('');
   const exams = store.exams.slice(0, 5);
   const el = h(`<div class="view stack report">
-    <a class="back noprint" href="#/">${ICON.left} Start</a>
+    <a class="back noprint" href="#/mehr">${ICON.left} Mehr</a>
     <div><span class="eyebrow">Lernstand</span><h1 style="margin-top:8px">Bericht für Eltern</h1><p class="lead" style="margin-top:8px">Stand ${today} · Mathe-Trainer von ${esc(CONFIG.firma)}</p></div>
     <section class="card stack"><h3>Überblick</h3>
       <div class="rep-grid"><div><b>${store.xp}</b><small>Punkte</small></div><div><b>${store.streak}</b><small>Tage in Folge</small></div><div><b>${total}</b><small>Aufgaben</small></div><div><b>${total ? Math.round((right / total) * 100) : 0} %</b><small>beim ersten Versuch richtig</small></div></div>

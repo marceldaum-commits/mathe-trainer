@@ -61,6 +61,19 @@ async function quiz() {
 
 // Start
 await page.goto(BASE); await page.waitForSelector('.unit'); await shot('01-start');
+// Menü: vier Einträge, Start ist kurz (keine Einheiten-Liste), Lernen führt über das Gebiet zur Einheit
+if ((await page.locator('#nav a').count()) !== 4) throw new Error('Menüleiste fehlt');
+if (await page.locator('#home a[href^="#/u/"]:not(.btn)').count()) throw new Error('Startseite listet wieder einzelne Einheiten auf');
+const startHeight = await page.evaluate(() => document.documentElement.scrollHeight);
+if (startHeight > 2200) throw new Error(`Startseite zu lang: ${startHeight}px`);
+await page.click('#nav a[data-tab="lernen"]'); await page.waitForSelector('a[href="#/g/analysis"]'); await shot('01b-lernen');
+if (!(await page.locator('#nav a[data-tab="lernen"].on').count())) throw new Error('Menü markiert „Lernen" nicht');
+await page.click('a[href="#/g/stochastik"]'); await page.waitForSelector('a[href="#/u/s-labor"]'); await shot('01c-gebiet');
+await page.click('a[href="#/u/s-labor"]'); await page.waitForSelector('.steps');
+if (!(await page.textContent('.back')).includes('Stochastik')) throw new Error('Zurück-Link nennt das Gebiet nicht');
+await page.click('.steps a'); await page.waitForSelector('#stage > *');
+if (await page.locator('#nav').isVisible()) throw new Error('Menü muss beim Spielen ausgeblendet sein');
+await page.click('.x'); await page.click('.back'); await page.click('.back'); await page.waitForSelector('#lv');
 // Schwierigkeit einstellen und prüfen, dass sie gemerkt wird
 await page.locator('#lv button').nth(LEVEL - 1).click();
 if (!(await page.locator('#lv button').nth(LEVEL - 1).evaluate((n) => n.classList.contains('on')))) throw new Error('Schwierigkeit wurde nicht übernommen');
@@ -78,6 +91,7 @@ if ((await page.getAttribute('html', 'data-look')) !== look1) throw new Error('H
 await shot('00-start-umgeschaltet');
 await page.click('#look');
 if ((await page.getAttribute('html', 'data-look')) !== look0) throw new Error('Zurückschalten klappt nicht');
+await page.click('#nav a[data-tab="start"]'); await page.waitForSelector('#home');
 const title = await page.textContent('h1');
 if (!title.includes('Verstehen')) throw new Error('Startseite fehlt');
 
@@ -307,11 +321,18 @@ if (!rep.includes('Bericht für Eltern') || !rep.includes('Abi-Modus') || !rep.i
 await page.goto(BASE);
 
 // Fortschritt gespeichert?
-await page.waitForSelector('.unit'); await page.waitForTimeout(400); await shot('20-start-fertig');
-const done = await page.locator('.unit.done').count();
+await page.waitForSelector('#home'); await page.waitForTimeout(400); await shot('20-start-fertig');
+async function countDone() {
+  let n = 0;
+  for (const hash of ['#/g/analysis', '#/g/stochastik', '#/g/geometrie', '#/pruefung']) { await page.goto(BASE + hash); await page.waitForSelector('.unit'); n += await page.locator('.unit.done').count(); }
+  return n;
+}
+const done = await countDone();
 if (done !== UNITS.length) throw new Error(`Erwartet ${UNITS.length} fertige Einheiten, gefunden ${done}`);
+await shot('20b-pruefung'); await page.goto(`${BASE}#/mehr`); await page.waitForSelector('a[href="#/einstellungen"]'); await shot('20c-mehr');
 await page.reload(); await page.waitForSelector('.unit');
-if ((await page.locator('.unit.done').count()) !== UNITS.length) throw new Error('Fortschritt nach Neuladen verloren');
+if ((await countDone()) !== UNITS.length) throw new Error('Fortschritt nach Neuladen verloren');
+await page.goto(BASE); await page.waitForSelector('#home');
 const xp = +(await page.textContent('.chip.xp'));
 if (!(xp > 100)) throw new Error(`Punkte unplausibel: ${xp}`);
 
@@ -328,8 +349,8 @@ if (missing.length) throw new Error('Nicht erreichbar: ' + missing.join(', '));
 // Offline: Service Worker aktiv → ohne Netz neu laden
 const sw = await page.evaluate(async () => { const r = await navigator.serviceWorker?.ready; return !!r?.active; });
 if (!sw) throw new Error('Service Worker nicht aktiv');
-await ctx.setOffline(true); await page.reload(); await page.waitForSelector('.unit');
-await page.click('a[href="#/u/formen"]'); await page.click('a[href="#/u/formen/0"]'); await page.waitForSelector('#mb-c');
+await ctx.setOffline(true); await page.reload(); await page.waitForSelector('#home');
+await page.click('#nav a[data-tab="lernen"]'); await page.click('a[href="#/g/analysis"]'); await page.click('a[href="#/u/formen"]'); await page.click('a[href="#/u/formen/0"]'); await page.waitForSelector('#mb-c');
 await ctx.setOffline(false);
 
 await browser.close();
