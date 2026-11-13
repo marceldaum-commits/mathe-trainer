@@ -40,4 +40,6 @@ keine Bereitstellung, Veröffentlichung nur über den Leitstand.
   (Speicherung nur im Gerät, kein Server-Log außer dem üblichen Webserver-Protokoll).
 - Wie die Übergabe des Standes gewünscht ist: Abholen von Branch `main`/Ordner `app/` oder ein Paket.
 
-**Offen bei Marcel** (als Auswahlfenster gefragt): Vorschau-Weg, Repo-Sichtbarkeit, Drive-Übergabe `TRAINER_`.
+**Marcels Antworten (13.11.2026, Auswahlfenster):** Ansehen **über den Leitstand** (Testseite), Repo **bleibt öffentlich**,
+Übergabe **zusätzlich in Drive**: `Claude_Website/TRAINER_Uebergabe_20261113.md` (angelegt und zurückgelesen).
+Die GitHub-Pages-Vorschau bleibt ausgeschaltet.
