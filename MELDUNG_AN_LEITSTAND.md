@@ -2,6 +2,17 @@
 
 Neueste Meldung oben. Keine Geheimnisse, keine Personendaten (dieses Repo ist öffentlich, siehe Punkt 1).
 
+## 13.11.2026 (24) – Version 0.15.0: Ruhiger Modus, Abenteuer-Modus, Karte mit Geschichte
+
+Marcel hat aus einer Marktübersicht vier Punkte gewählt; drei sind in 0.15.0 (Branch `test`, nach grünem Browser-Test):
+- **Ruhiger Modus** (Einstellungen): keine Lernserie, kein Wochen-Ziel, Boss ohne Herzen, Abi-Modus ohne Uhr.
+- **Abenteuer-Modus** (`#/abenteuer`): sieben Räume, Belohnungen, Türen, Abi-Drache. Läuft ganz im Gerät, keine Server-Anfrage.
+- **Karte mit Geschichte** (`#/karte`) und selbst gezeichnete Figuren (reiner Code, keine Bilddateien, keine fremden Quellen).
+
+Für den Server ändert sich nichts: keine neuen Adressen, keine neuen Dienste, CSP unverändert.
+Der vierte Punkt (**Android-Widget**) kommt mit einer neuen App-Datei; dafür bleibt die Bitte aus (23) – `assetlinks.json` – bestehen.
+Live-Schaltung wie immer erst nach Marcels Go durch euch.
+
 ## 13.11.2026 (23) – Android-App-Datei ist gebaut: bitte `assetlinks.json` auf `trainer.` ablegen
 
 Marcel hat einen Drive-Ordner für die App-Datei genannt; dort liegen jetzt die APK (zum direkten Installieren) und das AAB (für die Play Console), Version 1.0.0, Paket `com.mathenachhilfe_online.trainer`.
