@@ -517,10 +517,10 @@ await p2.waitForTimeout(300);
 const meld = calls.find(([path]) => path === '/api/ergebnis');
 if (!meld || meld[1].code !== 'K7M2QX' || meld[1].spieler !== 'p-123' || !Array.isArray(meld[1].antworten) || meld[1].antworten.length !== 6 || !Number.isInteger(meld[1].tag)) fail('Ergebnis wird dem Server nicht richtig gemeldet');
 // „Erklär's mir anders“ (KI eingeschaltet, Server nachgestellt): erscheint erst nach Fehlversuchen, zeigt Text ohne HTML, meldet das Tageslimit
-await p2.goto(`${BASE}#/u/regeln/4`); await p2.waitForSelector('#stage .q');
+await p2.goto(`${BASE}#/aufgabe/stochastik`); await p2.waitForSelector('#stage .opt');   // stellt immer Auswahl-Aufgaben
 for (let g = 0; g < 8 && !(await p2.locator('.ki').count()); g++) {
   for (let i = 0; i < 4 && !(await p2.locator('.ki').count()) && !(await p2.locator('#q-next').isVisible()); i++) await p2.locator('.opt').nth(i).click();
-  if (!(await p2.locator('.ki').count())) await p2.click('#q-next');
+  if (!(await p2.locator('.ki').count())) { await p2.click('#q-next'); if (await p2.locator('#sheet').isVisible()) { await p2.click('#sh-go'); await p2.waitForSelector('#stage .opt'); } }
 }
 if (!(await p2.locator('.ki').count())) fail('KI: „Erklär\'s mir anders“ erscheint nach Fehlversuchen nicht');
 await p2.locator('.ki .pick').first().click(); await p2.waitForSelector('.ki-out .note.ok');
