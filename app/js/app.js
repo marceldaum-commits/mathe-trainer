@@ -344,7 +344,7 @@ function nav() {
 new MutationObserver(() => { $('#nav').hidden = !!view.querySelector('.stephead'); }).observe(view, { childList: true, subtree: true });
 look.follow(); applySkin(); initMelden();
 window.addEventListener('hashchange', route);
-window.addEventListener('beforeinstallprompt', (ev) => { ev.preventDefault(); installEvent = ev; if (location.hash === '#/mehr') route(); });
+window.addEventListener('beforeinstallprompt', (ev) => { ev.preventDefault(); installEvent = ev; window.__mtInstall = ev; if (location.hash === '#/mehr') route(); });
 route();
 
 // Offline-Fähigkeit und automatische Updates.

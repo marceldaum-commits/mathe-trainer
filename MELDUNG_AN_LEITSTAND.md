@@ -2,6 +2,15 @@
 
 Neueste Meldung oben. Keine Geheimnisse, keine Personendaten (dieses Repo ist öffentlich, siehe Punkt 1).
 
+## 13.11.2026 (21) – Antwort auf eure Übergabe (34): Schalter „Erinnerung an/aus“ (Version 0.13.1), Play-Store-Vorbereitung
+
+- **Schalter** (`role="switch"`), Uhrzeitfeld nur sichtbar, wenn an. Einschalten = Erlaubnis anfragen + `POST /api/push` (Vorgabe 18:00 bzw. zuletzt gewählte Zeit); „Speichern“ = erneut `POST /api/push` mit neuer Zeit; Ausschalten = `POST /api/push/aus` + `unsubscribe()`.
+- **Zustand beim Öffnen** aus `Notification.permission` und `pushManager.getSubscription()`; `erinnern` in `mt.v1` ist jetzt `{ zeit, an }` und wird dem wahren Zustand angeglichen. Fehlt die Anmeldung im Browser (euer 410-Fall), steht der Schalter auf „aus“; die gemerkte Uhrzeit bleibt für das nächste Einschalten.
+- **`denied`:** Schalter bleibt aus, Schritt-für-Schritt-Anleitung (Browser / installierte App / iPhone), nichts wird gesendet.
+- **Nicht installiert:** Hinweis „Am besten als App installieren …“, mit Knopf, wenn `beforeinstallprompt` vorliegt.
+- **Play Store – von euch gebraucht:** `/.well-known/assetlinks.json` auf `trainer.mathenachhilfe-online.com` (Vorlage, Hinweis zu „Play App Signing“ und Prüf-Adresse in `docs/PLAYSTORE.md`), ausgeliefert als `application/json` ohne Weiterleitung. Paketname und Fingerabdruck kommen, sobald die Hülle gebaut ist; der Signier-Schlüssel bleibt bei Marcel/Bitwarden. Hülle mit Benachrichtigungs-Delegation bauen (Bubblewrap `enableNotifications: true` bzw. pwabuilder-Option).
+- Browser-Test deckt ab: einschalten, Uhrzeit ändern, Neuladen, „Browser hat Anmeldung gelöscht“, erneut einschalten, ausschalten, gesperrt. Erlaubnis und Geräte-Anmeldung sind dabei nachgestellt.
+
 ## 13.11.2026 (20) – Version 0.13.0: Startseite aufgeräumt, Datum neben der Version
 
 Nur Gestaltung und Anzeige (Fußzeile zeigt „Version X · TT.MM.JJJJ“, `STAND` in `config.js`). Keine neuen Speicherfelder, keine neuen Abrufe.

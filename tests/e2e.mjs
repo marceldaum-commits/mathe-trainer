@@ -353,7 +353,7 @@ await shot('74-zertifikat');
 
 /* ───────────── Einstellungen, Countdown, Farben ───────────── */
 await page.goto(`${BASE}#/einstellungen`); await page.waitForSelector('#st-land');
-if ((await page.inputValue('#st-push-time')) !== '18:00' || !(await page.textContent('#st-push-stand')).includes('ist aus') || await page.locator('#st-push-aus').isVisible()) fail('Erinnerung: Uhrzeitfeld (Vorgabe 18:00) fehlt oder Zustand ist nicht „aus“');
+if ((await page.getAttribute('#st-push-schalter', 'aria-checked')) !== 'false' || (await page.getAttribute('#st-push-schalter', 'role')) !== 'switch' || await page.locator('#st-push-zeile').isVisible()) fail('Erinnerung: Schalter fehlt oder steht nicht auf „aus“ (Uhrzeit darf erst sichtbar sein, wenn an)');
 await page.click('#st-land [data-k="HE-GK"]');   // Grundkurs: Zusatz-Stoff wird markiert und ans Ende gestellt
 await page.click('a[href="#/lehrplan"]'); await page.waitForSelector('h1'); if (!(await page.textContent('#view')).includes('Hessen – Grundkurs')) fail('Lehrplan-Seite fehlt'); await shot('69-lehrplan');
 await page.goto(`${BASE}#/g/stochastik`); await page.waitForSelector('a.unit');
@@ -543,23 +543,33 @@ for (const erlaubnis of ['granted', 'denied']) {
     window.PushManager = function PushManager() {};
     window.Notification = { permission: perm === 'denied' ? 'denied' : 'default', requestPermission: async () => { window.Notification.permission = perm; return perm; } };
   }, erlaubnis);
-  await p3.goto(`${BASE}#/einstellungen`); await p3.waitForSelector('#st-push-time');
+  await p3.goto(`${BASE}#/einstellungen`); await p3.waitForSelector('#st-push-schalter');
+  const schalter = () => p3.getAttribute('#st-push-schalter', 'aria-checked');
+  const zeiten = () => calls.filter(([path]) => path === '/api/push').map(([, body]) => body.zeit).join();
   if (erlaubnis === 'denied') {
-    if (!(await p3.textContent('#st-push-sperre')).includes('Berechtigungen')) fail('Erinnerung: Hinweis bei gesperrten Mitteilungen fehlt');
-    await p3.fill('#st-push-time', '06:45'); await p3.click('#st-push-an'); await p3.waitForSelector('#st-push-sperre');
-    if (!(await p3.textContent('#st-push-stand')).includes('ist aus') || calls.some(([path, body]) => path === '/api/push' && body.zeit === '06:45')) fail('Erinnerung: bei gesperrter Erlaubnis darf nichts gesendet werden');
-    if (await p3.locator('#st-push-time').isDisabled()) fail('Erinnerung: Uhrzeitfeld muss bedienbar bleiben');
+    await p3.waitForSelector('#st-push-sperre');
+    if ((await p3.locator('#st-push-sperre li').count()) < 3 || !(await p3.textContent('#st-push-sperre')).includes('Berechtigungen')) fail('Erinnerung: Schritt-für-Schritt-Anleitung bei gesperrten Mitteilungen fehlt');
+    const vorher = zeiten();
+    await p3.click('#st-push-schalter'); await p3.waitForTimeout(400);
+    if ((await schalter()) !== 'false' || zeiten() !== vorher || !(await p3.locator('#st-push-sperre').count())) fail('Erinnerung: bei gesperrter Erlaubnis bleibt der Schalter aus und es wird nichts gesendet');
+    if (await p3.locator('#st-push-schalter').isDisabled()) fail('Erinnerung: Schalter muss bedienbar bleiben');
     if (shots) { await p3.locator('#st-push').scrollIntoViewIfNeeded(); await p3.screenshot({ path: `${shots}/77-erinnerung-gesperrt.png` }); }
   } else {
-    await p3.fill('#st-push-time', '17:35'); await p3.click('#st-push-an'); await p3.waitForSelector('#st-push-note .note.ok');
-    if (!(await p3.textContent('#st-push-stand')).includes('17:35 Uhr (deutsche Zeit)')) fail('Erinnerung: gewählte Uhrzeit wird nicht angezeigt');
-    await p3.fill('#st-push-time', '21:10'); await p3.click('#st-push-an'); await p3.waitForFunction(() => document.querySelector('#st-push-stand').textContent.includes('21:10'));
-    const gesendet = calls.filter(([path]) => path === '/api/push').map(([, body]) => body);
-    if (gesendet.length !== 2 || gesendet[0].zeit !== '17:35' || gesendet[1].zeit !== '21:10' || !gesendet[1].abo?.endpoint || Object.keys(gesendet[1]).sort().join() !== 'abo,zeit') fail(`Erinnerung: freie Uhrzeit wird nicht richtig gesendet (${JSON.stringify(gesendet)})`);
+    if (!(await p3.textContent('#st-push-install')).includes('als App installieren')) fail('Erinnerung: Hinweis „als App installieren“ fehlt');
+    await p3.click('#st-push-schalter'); await p3.waitForFunction(() => document.querySelector('#st-push-schalter').getAttribute('aria-checked') === 'true');
+    if (!(await p3.locator('#st-push-zeile').isVisible()) || !(await p3.textContent('#st-push-stand')).includes('18:00 Uhr (deutsche Zeit)')) fail('Erinnerung: nach dem Einschalten fehlen Uhrzeitfeld oder Anzeige');
+    await p3.fill('#st-push-time', '17:35'); await p3.click('#st-push-an'); await p3.waitForFunction(() => document.querySelector('#st-push-stand').textContent.includes('17:35'));
+    if (zeiten() !== '18:00,17:35') fail(`Erinnerung: freie Uhrzeit wird nicht richtig gesendet (${zeiten()})`);
     if (shots) { await p3.locator('#st-push').scrollIntoViewIfNeeded(); await p3.screenshot({ path: `${shots}/78-erinnerung-an.png` }); }
-    await p3.reload(); await p3.waitForSelector('#st-push-time'); if ((await p3.inputValue('#st-push-time')) !== '21:10') fail('Erinnerung: Uhrzeit nach Neuladen vergessen');
-    await p3.click('#st-push-aus'); await p3.waitForFunction(() => document.querySelector('#st-push-stand').textContent.includes('ist aus'));
-    if (!calls.some(([path, body]) => path === '/api/push/aus' && body.endpoint)) fail('Erinnerung: Ausschalten meldet nicht beim Server ab');
+    await p3.reload(); await p3.waitForFunction(() => document.querySelector('#st-push-schalter')?.getAttribute('aria-checked') === 'true');
+    if ((await p3.inputValue('#st-push-time')) !== '17:35') fail('Erinnerung: Uhrzeit nach Neuladen vergessen');
+    // Der Browser hat die Anmeldung gelöscht (wie bei Marcels Test): Der Schalter muss das beim Öffnen merken und auf „aus“ stehen.
+    await p3.evaluate(() => sessionStorage.removeItem('test-abo')); await p3.reload(); await p3.waitForSelector('#st-push-schalter'); await p3.waitForTimeout(500);
+    if ((await schalter()) !== 'false' || (await p3.evaluate(() => JSON.parse(localStorage.getItem('mt.v1')).erinnern.an)) !== false) fail('Erinnerung: gelöschte Anmeldung wird nicht erkannt – der Schalter zeigt fälschlich „an“');
+    await p3.click('#st-push-schalter'); await p3.waitForFunction(() => document.querySelector('#st-push-schalter').getAttribute('aria-checked') === 'true');
+    if (zeiten() !== '18:00,17:35,17:35') fail(`Erinnerung: erneutes Einschalten meldet nicht mit der gemerkten Uhrzeit an (${zeiten()})`);
+    await p3.click('#st-push-schalter'); await p3.waitForFunction(() => document.querySelector('#st-push-schalter').getAttribute('aria-checked') === 'false');
+    if (!calls.some(([path, body]) => path === '/api/push/aus' && body.endpoint) || await p3.locator('#st-push-zeile').isVisible()) fail('Erinnerung: Ausschalten meldet nicht beim Server ab oder lässt die Uhrzeit stehen');
   }
   await p3.close();
 }

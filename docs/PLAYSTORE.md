@@ -16,6 +16,51 @@ neue Store-Version.
 - Läuft vollständig über HTTPS auf eigener Adresse, keine fremden Dienste, kein Tracking, keine Werbung Dritter.
 - Bedienung auf kleinen Bildschirmen geprüft (360 × 640), Hell/Dunkel, Hochformat.
 
+## Erinnerungen in der Play-Store-App (Marcel, 13.11.2026: „erst Schalter, dann Play Store“)
+
+Im Browser hängt die Erlaubnis für Mitteilungen am Browser – deshalb kann sie dort gesperrt oder gelöscht werden.
+In der Play-Store-App (TWA) verwaltet **Android** die Mitteilungen wie bei jeder App
+(Einstellungen → Apps → Mathe-Trainer → Benachrichtigungen). Dafür braucht die Hülle die
+**Benachrichtigungs-Delegation**:
+
+- Bubblewrap: beim Anlegen (`bubblewrap init`) die Frage nach „notification delegation“ mit Ja beantworten bzw. in
+  `twa-manifest.json` `"enableNotifications": true` setzen. pwabuilder.com: Option „Notification delegation“ anhaken.
+- Ab Android 13 fragt die App beim ersten Einschalten der Erinnerung selbst nach der Erlaubnis – der Schalter in
+  den Einstellungen des Trainers löst das aus; am Code der Web-App ändert sich nichts.
+- Der Versand bleibt derselbe (Web-Push über den Server des Leitstands).
+
+### Datei für den Server: `/.well-known/assetlinks.json` auf `trainer.mathenachhilfe-online.com`
+
+Inhalt (Paketname und Fingerabdruck trägt ein, wer die Hülle baut – der Fingerabdruck ist nicht geheim, der
+Signier-Schlüssel selbst schon):
+
+```json
+[{
+  "relation": ["delegate_permission/common.handle_all_urls"],
+  "target": {
+    "namespace": "android_app",
+    "package_name": "<PAKETNAME, z. B. com.mathenachhilfe_online.trainer>",
+    "sha256_cert_fingerprints": ["<SHA-256-FINGERABDRUCK DES SIGNIER-ZERTIFIKATS>"]
+  }
+}]
+```
+
+- Wird die App über „Play App Signing“ von Google signiert, gehört **Googles** Fingerabdruck hinein (Play Console →
+  Einrichten → App-Signatur); zusätzlich der eigene Upload-Schlüssel, solange lokal getestet wird.
+- Die Datei muss ohne Weiterleitung mit `Content-Type: application/json` ausgeliefert werden. Sie liegt außerhalb
+  von `app/` und gehört in die Server-Einrichtung (Leitstand/Verwaltung).
+- Prüfen: `https://digitalassetlinks.googleapis.com/v1/statements:list?source.web.site=https://trainer.mathenachhilfe-online.com&relation=delegate_permission/common.handle_all_urls`
+
+### Reihenfolge für Marcel
+
+1. Google-Play-Entwicklerkonto anlegen (25 US-Dollar, einmalig).
+2. Hülle bauen lassen (Leitstand oder Marcel mit pwabuilder.com): Adresse `https://trainer.mathenachhilfe-online.com/`,
+   Benachrichtigungs-Delegation an. Signier-Schlüssel und Passwort **nur** in Bitwarden.
+3. Fingerabdruck an den Leitstand → `assetlinks.json` auf den Server.
+4. In der Play Console: App anlegen, Datei in die Testspur laden, Tester einladen (Google verlangt bei neuen
+   persönlichen Konten eine Testphase mit mehreren Testern), Store-Eintrag und Pflichtangaben ausfüllen.
+5. Nach der Testphase: Veröffentlichung beantragen.
+
 ## Was nur Marcel oder der Leitstand tun kann
 
 1. **Google-Play-Entwicklerkonto** anlegen (einmalig 25 US-Dollar, Ausweis-Prüfung). Für neue persönliche Konten

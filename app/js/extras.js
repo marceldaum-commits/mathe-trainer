@@ -9,7 +9,7 @@ import { CONFIG } from './config.js';
 import { BADGES, TITLES, SKINS, titleOf, skinOpen, checkBadges } from './badges.js';
 import { tex } from './ui.js';
 import { api, serverOn, nameOk, codeOk } from './api.js';
-import { pushOn, pushCan, pushAn, pushAus, pushGesperrt, zeitOk, ZEIT_VORGABE, SPERR_HILFE } from './erinnern.js';
+import { pushOn, pushCan, pushAn, pushAus, pushStand, pushGesperrt, zeitOk, installiert, SPERR_HILFE, SPERR_SCHRITTE } from './erinnern.js';
 import { WOCHEN_ZIEL, WOCHEN_BONUS } from './store.js';
 
 const GEN = { ...G, ...H };
@@ -48,10 +48,10 @@ export function settingsView() {
     <section class="card stack"><h3>Farbe</h3><div class="skins" id="st-skin" role="radiogroup" aria-label="Akzentfarbe"></div>
       <small class="muted">Neue Farben schaltest du mit Punkten frei.</small></section>
     ${pushOn() ? `<section class="card stack" id="st-push"><h3>Erinnerung</h3><small class="muted">Einmal am Tag eine kurze Mitteilung „Zeit für deine Mathe-Runde“. Gespeichert wird beim Server nur die Adresse für die Mitteilung und die Uhrzeit – kein Name, kein Lernstand. Jederzeit abschaltbar.</small>
-      <p id="st-push-stand" class="push-stand"></p>
-      <div class="row push-row"><label for="st-push-time"><b>Uhrzeit</b></label><input class="field" id="st-push-time" type="time" step="300" aria-label="Uhrzeit der Erinnerung">
-        <button class="btn" id="st-push-an" type="button">Erinnern</button></div>
-      <button class="btn ghost" id="st-push-aus" type="button">Ausschalten</button><div id="st-push-note"></div></section>` : ''}
+      <button class="schalter" id="st-push-schalter" type="button" role="switch" aria-checked="false"><span class="knopf" aria-hidden="true"></span><span id="st-push-stand">Erinnerung ist aus</span></button>
+      <div class="row push-row" id="st-push-zeile" hidden><label for="st-push-time"><b>Uhrzeit</b></label><input class="field" id="st-push-time" type="time" step="300" aria-label="Uhrzeit der Erinnerung">
+        <button class="btn small" id="st-push-an" type="button">Speichern</button></div>
+      <div id="st-push-note"></div><div id="st-push-install"></div></section>` : ''}
     <section class="card stack"><h3>Fortschritt</h3><small class="muted">Alles liegt nur auf diesem Gerät. Es gibt kein Konto.</small>
       <button class="btn ghost" id="st-reset" type="button">Fortschritt zurücksetzen</button></section>
   </div>`);
@@ -74,24 +74,33 @@ export function settingsView() {
   });
   paint();
   if (pushOn()) {
-    const pn = $('#st-push-note', el), tf = $('#st-push-time', el), an = $('#st-push-an', el), aus = $('#st-push-aus', el), stand = $('#st-push-stand', el);
+    const pn = $('#st-push-note', el), tf = $('#st-push-time', el), sw = $('#st-push-schalter', el), save = $('#st-push-an', el), stand = $('#st-push-stand', el), zeile = $('#st-push-zeile', el), inst = $('#st-push-install', el);
+    const sperre = () => `<div class="note tip" id="st-push-sperre"><b>${esc(SPERR_HILFE)}</b> So gibst du sie frei:<ol>${SPERR_SCHRITTE.map(([wo, was]) => `<li><b>${esc(wo)}:</b> ${esc(was)}</li>`).join('')}</ol></div>`;
+    let st = { an: false, zeit: store.erinnern?.zeit || '18:00', kann: pushCan(), gesperrt: pushGesperrt() };
     const paintP = () => {
-      const z = store.erinnern?.zeit;
-      stand.textContent = z ? `Erinnerung täglich um ${z} Uhr (deutsche Zeit).` : 'Erinnerung ist aus.';
-      stand.classList.toggle('on', !!z); aus.hidden = !z; an.textContent = z ? 'Uhrzeit ändern' : 'Erinnern';
-      if (!tf.value) tf.value = z || ZEIT_VORGABE;
+      sw.setAttribute('aria-checked', st.an); sw.classList.toggle('an', st.an);
+      stand.textContent = st.an ? `Erinnerung täglich um ${st.zeit} Uhr (deutsche Zeit)` : 'Erinnerung ist aus';
+      zeile.hidden = !st.an; if (document.activeElement !== tf) tf.value = st.zeit;
     };
-    if (!pushCan()) pn.innerHTML = '<div class="note tip">Auf diesem Gerät geht das nur, wenn die App auf dem Startbildschirm installiert ist (iPhone: Teilen → „Zum Home-Bildschirm“).</div>';
-    else if (pushGesperrt()) pn.innerHTML = `<div class="note tip" id="st-push-sperre">${esc(SPERR_HILFE)}</div>`;
-    an.onclick = async () => {
-      if (!zeitOk(tf.value)) { pn.innerHTML = '<div class="note bad">Bitte eine Uhrzeit wählen.</div>'; return; }
-      an.disabled = true; pn.innerHTML = '';
-      const r = await pushAn(tf.value); an.disabled = false;
-      pn.innerHTML = r.ok ? '<div class="note ok">Eingeschaltet. Du bekommst höchstens eine Mitteilung am Tag.</div>' : `<div class="note ${r.gesperrt ? 'tip' : 'bad'}"${r.gesperrt ? ' id="st-push-sperre"' : ''}>${esc(r.grund)}</div>`;
-      paintP(); sfx(r.ok ? 'ok' : 'tap');
+    const sync = async () => { st = await pushStand(); paintP(); if (!st.kann) pn.innerHTML = '<div class="note tip">Auf diesem Gerät geht das nur, wenn die App auf dem Startbildschirm installiert ist (iPhone: Teilen → „Zum Home-Bildschirm“).</div>'; else if (st.gesperrt) pn.innerHTML = sperre(); };
+    const schalten = async (zeit) => {
+      sw.disabled = save.disabled = true; pn.innerHTML = '';
+      const r = await pushAn(zeit); sw.disabled = save.disabled = false;
+      if (!r.ok) pn.innerHTML = r.gesperrt ? sperre() : `<div class="note bad">${esc(r.grund)}</div>`;
+      await sync(); if (r.ok) pn.innerHTML = '<div class="note ok">Eingeschaltet. Du bekommst höchstens eine Mitteilung am Tag.</div>';
+      sfx(r.ok ? 'ok' : 'tap');
     };
-    aus.onclick = async () => { await pushAus(); pn.innerHTML = '<div class="note ok">Ausgeschaltet. Die Anmeldung beim Server ist gelöscht.</div>'; paintP(); sfx('tap'); };
-    paintP();
+    sw.onclick = async () => {
+      if (st.an) { sw.disabled = true; await pushAus(); sw.disabled = false; await sync(); pn.innerHTML = '<div class="note ok">Ausgeschaltet. Die Anmeldung beim Server ist gelöscht.</div>'; sfx('tap'); }
+      else await schalten(zeitOk(tf.value) ? tf.value : st.zeit);
+    };
+    save.onclick = () => { if (!zeitOk(tf.value)) { pn.innerHTML = '<div class="note bad">Bitte eine Uhrzeit wählen.</div>'; return; } schalten(tf.value); };
+    // Nicht installiert: dezenter Hinweis – als App kommt die Erinnerung wie bei jeder App.
+    if (!installiert()) {
+      inst.innerHTML = `<small class="muted">Am besten als App installieren – dann kommt die Erinnerung wie bei jeder App.</small>${window.__mtInstall ? ' <button class="btn ghost small" id="st-push-inst" type="button">App installieren</button>' : ''}`;
+      $('#st-push-inst', el)?.addEventListener('click', async () => { const ev = window.__mtInstall; if (!ev) return; ev.prompt(); await ev.userChoice; window.__mtInstall = null; inst.innerHTML = ''; });
+    }
+    paintP(); sync();
   }
   const tb = $('#st-tipp', el);
   const paintT = () => tb.querySelectorAll('button').forEach((b) => { const on = b.dataset.k === store.tippenWahl; b.classList.toggle('sel', on); b.setAttribute('aria-checked', on); });

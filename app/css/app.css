@@ -566,3 +566,13 @@ a.count{text-decoration:none}
 }
 @media (min-width:900px){.tiles{grid-template-columns:repeat(auto-fit,minmax(0,1fr))}.tiles .tile:last-child:nth-child(odd){grid-column:auto}.hero.klein h1{font-size:26px}}
 .count small{overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+
+/* Schalter „Erinnerung an/aus" */
+.schalter{display:flex;align-items:center;gap:14px;width:100%;padding:12px 14px;border-radius:16px;border:1.5px solid var(--line);background:var(--card);font-weight:800;color:var(--head);text-align:left}
+.schalter .knopf{flex:none;position:relative;width:54px;height:32px;border-radius:99px;background:var(--line);transition:background .2s}
+.schalter .knopf::after{content:"";position:absolute;top:3px;left:3px;width:26px;height:26px;border-radius:50%;background:#fff;box-shadow:0 2px 6px rgba(0,0,0,.25);transition:transform .2s}
+.schalter.an{border-color:var(--mint)}
+.schalter.an .knopf{background:var(--mint-ink)}
+.schalter.an .knopf::after{transform:translateX(22px)}
+.schalter:disabled{opacity:.6}
+#st-push-sperre ol{margin:8px 0 0;padding-left:20px;display:grid;gap:6px}

@@ -16,10 +16,27 @@ export const zeitOk = (z) => /^([01]\d|2[0-3]):[0-5]\d$/.test(String(z));
 export const ZEIT_VORGABE = '18:00';
 /** Sind Mitteilungen für diese Seite im Browser gesperrt? */
 export const pushGesperrt = () => typeof Notification !== 'undefined' && Notification.permission === 'denied';
-/** Erklärt, wie man eine gesperrte Erlaubnis wieder aufhebt. */
-export const SPERR_HILFE = 'Mitteilungen sind für diese Seite gesperrt. So hebst du die Sperre auf: Auf Android in Chrome links neben der Adresse auf das Schloss bzw. den Regler tippen → Berechtigungen → Benachrichtigungen → Zulassen, dann die Seite neu laden. Auf dem iPhone: die App zum Home-Bildschirm hinzufügen und dort öffnen.';
+/** Schritte, um eine gesperrte Erlaubnis wieder freizugeben. */
+export const SPERR_SCHRITTE = [
+  ['Im Browser (Android, Chrome)', 'Links neben der Adresse auf das Schloss bzw. den Regler tippen → „Berechtigungen“ → „Benachrichtigungen“ → „Zulassen“. Danach die Seite neu laden.'],
+  ['Als installierte App (Android)', 'Android-Einstellungen → „Apps“ → „Mathe-Trainer“ → „Benachrichtigungen“ einschalten.'],
+  ['iPhone', 'Mitteilungen gehen nur, wenn die App auf dem Home-Bildschirm liegt: Teilen → „Zum Home-Bildschirm“, dann dort öffnen.'],
+];
+export const SPERR_HILFE = 'Mitteilungen sind für den Mathe-Trainer gesperrt.';
+/** Läuft die App schon als installierte App? */
+export const installiert = () => typeof window !== 'undefined' && (window.matchMedia?.('(display-mode: standalone)').matches || navigator.standalone === true);
+/** Wahrer Zustand: an ist die Erinnerung nur, wenn der Browser es erlaubt UND das Gerät noch angemeldet ist. */
+export async function pushStand() {
+  const zeit = zeitOk(store.erinnern?.zeit) ? store.erinnern.zeit : ZEIT_VORGABE;
+  if (!pushOn() || !pushCan()) return { an: false, zeit, kann: false, gesperrt: false };
+  let abo = null;
+  try { abo = Notification.permission === 'granted' ? await (await bereit()).pushManager.getSubscription() : null; } catch { abo = null; }
+  const an = !!abo;
+  if (!!store.erinnern?.an !== an) store.erinnern = { zeit, an };   // Speicher dem wahren Zustand angleichen (z. B. wenn der Browser die Anmeldung gelöscht hat)
+  return { an, zeit, kann: true, gesperrt: pushGesperrt() };
+}
 /** Service Worker abwarten – aber nicht ewig (ohne ihn gibt es keine Mitteilungen). */
-const bereit = () => Promise.race([navigator.serviceWorker.ready, new Promise((_, no) => setTimeout(() => no(new Error('kein Service Worker')), 5000))]);
+function bereit() { return Promise.race([navigator.serviceWorker.ready, new Promise((_, no) => setTimeout(() => no(new Error('kein Service Worker')), 5000))]); }
 const post = (path, body) => fetch(`${CONFIG.api}${path}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
 
 /** Einschalten oder Uhrzeit ändern: Erlaubnis einholen, Abo anlegen, dem Server melden. Liefert { ok, grund, gesperrt? }. */
@@ -37,7 +54,7 @@ export async function pushAn(zeit) {
     }
     const res = await post('/push', { abo: abo.toJSON(), zeit });
     if (!res.ok) return { ok: false, grund: res.status === 429 ? 'Zu viele Versuche. Bitte später noch einmal.' : 'Der Server hat die Anmeldung abgelehnt.' };
-    store.erinnern = { zeit }; return { ok: true };
+    store.erinnern = { zeit, an: true }; return { ok: true };
   } catch { return { ok: false, grund: 'Anmeldung nicht möglich. Bitte später noch einmal versuchen.' }; }
 }
 /** Ausschalten: Abo beim Server abmelden und im Gerät löschen. */
@@ -46,5 +63,5 @@ export async function pushAus() {
     const reg = await bereit(), abo = await reg.pushManager.getSubscription();
     if (abo) { await post('/push/aus', { endpoint: abo.endpoint }).catch(() => {}); await abo.unsubscribe(); }
   } catch { /* im Gerät trotzdem ausschalten */ }
-  store.erinnern = null;
+  store.erinnern = { zeit: zeitOk(store.erinnern?.zeit) ? store.erinnern.zeit : ZEIT_VORGABE, an: false };
 }
