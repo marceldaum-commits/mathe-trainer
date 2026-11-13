@@ -43,6 +43,12 @@ Meldungen an den Leitstand: `MELDUNG_AN_LEITSTAND.md`.
 Branch `live` → `trainer.mathenachhilfe-online.com`, wird **nie von diesem Raum gesetzt**, nur nach Marcels Go über den
 Leitstand. Erlaubte Dateiarten in `app/`: html, css, js, mjs, json, webmanifest, svg, png, jpg, webp, ico, woff2, txt.
 
+## Google Drive (Marcel, 13.11.2026)
+
+Im Drive-Ordner für die App-Dateien (Unterordner „Mathe-Trainer“) darf ohne Rückfrage **hochgeladen, einsortiert und
+gelöscht** werden. Gilt für die eigenen Dateien dieser App (alte App-Dateien aufräumen); Dateien anderer Apps und den
+Signier-Schlüssel samt Passwort nicht löschen, solange Marcel sie nicht an einen sicheren Ort umgezogen hat.
+
 ## Ausbau-Fahrplan (Marcel, 13.11.2026)
 
 - **Bis 04.12.2026 (drei Wochen): jeden Tag sehr viel erweitern**, bis eine große Basis steht – neue Einheiten,
