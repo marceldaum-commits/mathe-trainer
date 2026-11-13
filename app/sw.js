@@ -1,6 +1,6 @@
 // Service Worker: macht die App offline nutzbar und liefert Updates aus.
 // CACHE muss zur VERSION in js/config.js passen; ASSETS pflegt `npm run fix` (tools/check.mjs).
-const CACHE = 'mt-0.10.0';
+const CACHE = 'mt-0.11.0';
 const ASSETS = [
   "./",
   "css/app.css",
@@ -16,6 +16,7 @@ const ASSETS = [
   "js/badges.js",
   "js/config.js",
   "js/eingabe.js",
+  "js/erinnern.js",
   "js/exam.js",
   "js/extras.js",
   "js/games/boss.js",
@@ -98,4 +99,15 @@ self.addEventListener('fetch', (ev) => {
   ev.respondWith(
     caches.match(req, { ignoreSearch: true }).then((hit) => hit || fetch(req).catch(() => (req.mode === 'navigate' ? caches.match('./') : Response.error()))),
   );
+});
+
+// Erinnerungen (nur wenn der Nutzer sie eingeschaltet hat): Mitteilung anzeigen, beim Antippen die App öffnen.
+self.addEventListener('push', (ev) => {
+  let text = 'Zeit für deine Mathe-Runde.';
+  try { const d = ev.data?.json(); if (d && typeof d.text === 'string') text = d.text.slice(0, 120); } catch { /* Standardtext */ }
+  ev.waitUntil(self.registration.showNotification('Mathe-Trainer', { body: text, icon: 'img/icon-192.png', badge: 'img/icon-192.png', tag: 'mt-erinnerung' }));
+});
+self.addEventListener('notificationclick', (ev) => {
+  ev.notification.close();
+  ev.waitUntil(self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((list) => (list[0] ? list[0].focus() : self.clients.openWindow('./'))));
 });

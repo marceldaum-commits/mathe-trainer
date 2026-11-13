@@ -4,6 +4,7 @@ import { h, tex, cssVar, buzz, sfx } from './ui.js';
 import { store } from './store.js';
 import { ft } from './math.js';
 import { inputSpec, parseInput, isRight, diagnose } from './eingabe.js';
+import { api, kiOn } from './api.js';
 
 /** sequence: Liste von Erzeugern (eine Aufgabe je Eintrag). */
 export function quiz(sequence, opts = {}) {
@@ -24,7 +25,24 @@ export function quiz(sequence, opts = {}) {
       let tipN = 0, solved = false, kombo = '', wrongHere = 0;
       // Rechenweg Schritt für Schritt: die gestuften Tipps als Schritte, am Ende das Ergebnis mit Begründung.
       const weg = (open = false) => `<details class="weg"${open ? ' open' : ''}><summary>Rechenweg Schritt für Schritt</summary><ol>${q.hints.map((t) => `<li>${t}</li>`).join('')}<li><b>Ergebnis:</b> ${q.explain}</li></ol></details>`;
-      const stuck = () => { wrongHere++; if (wrongHere === 2 && !solved) note.insertAdjacentHTML('beforeend', `<div class="weg-wrap">${weg()}</div>`); };
+      // „Erklär's mir anders“ (KI, nur mit eingeschaltetem Server): bekommt nur die Aufgabe und die gewählte Antwort.
+      let gewaehlt = '';
+      const richtigTex = () => q.options?.find((o) => o.correct)?.tex || '';
+      const erklaer = () => {
+        if (!kiOn() || note.querySelector('.ki')) return;
+        const box = h(`<div class="ki"><small class="muted">Noch nicht klar?</small><div class="picks">${[['einfacher', 'Einfacher erklären'], ['beispiel', 'Mit Beispiel'], ['eselsbruecke', 'Eselsbrücke']].map(([k, n]) => `<button class="pick" type="button" data-k="${k}">${n}</button>`).join('')}</div><div class="ki-out" aria-live="polite"></div></div>`);
+        box.querySelectorAll('button').forEach((b) => { b.onclick = async () => {
+          const out = box.querySelector('.ki-out'); box.querySelectorAll('button').forEach((x) => { x.disabled = true; });
+          out.innerHTML = '<div class="note tip">Einen Moment …</div>';
+          const r = await api.erklaer({ frage: String(q.prompt).replace(/<[^>]+>/g, '').slice(0, 400), formel: String(q.formula || '').slice(0, 300), richtig: richtigTex().slice(0, 200), gewaehlt: gewaehlt.slice(0, 200), art: b.dataset.k });
+          const div = h('<div class="note"></div>');
+          div.className = `note ${r.ok && r.text ? 'ok' : 'tip'}`;
+          div.textContent = r.ok && r.text ? String(r.text).replace(/<[^>]*>/g, '').slice(0, 900) : r.status === 429 ? 'Für heute sind die Erklärungen aufgebraucht. Morgen geht es weiter.' : (r.error || 'Die Erklärung ist gerade nicht erreichbar.');
+          out.replaceChildren(div); box.querySelectorAll('button').forEach((x) => { x.disabled = false; });
+        }; });
+        note.append(box);
+      };
+      const stuck = () => { wrongHere++; if (wrongHere >= 2) queueMicrotask(erklaer); if (wrongHere === 2 && !solved) note.insertAdjacentHTML('beforeend', `<div class="weg-wrap">${weg()}</div>`); };
       el.innerHTML = `
         <div class="q">
           ${opts.kopf ? `<div class="kopf">${opts.kopf}</div>` : ''}
@@ -55,6 +73,7 @@ export function quiz(sequence, opts = {}) {
           if (combo >= 2) { const b = Math.min(combo - 1, 5); store.bonus(b); kombo = `<span class="kombo" id="q-kombo">Kombo ×${combo} · +${b}</span> `; }
         } else { opts.onWrong?.(q); combo = 0; }
         note.innerHTML = `<div class="note ok">${kombo}<b>Richtig.</b> ${q.explain}</div>${firstTry ? '' : `<div class="weg-wrap">${weg()}</div>`}`;
+        if (!firstTry) erklaer();
         ctx.progress((qi + 1) / sequence.length);
         buzz();
       };
@@ -105,6 +124,7 @@ export function quiz(sequence, opts = {}) {
           if (v === null) { note.innerHTML = '<div class="note tip">Bitte eine Zahl eintippen, zum Beispiel 3,5 oder 7/4.</div>'; inp.focus(); return; }
           if (isRight(v, spec.num, sh.plain)) { inp.classList.add('ok'); inp.classList.remove('no'); inp.readOnly = true; form.querySelector('button').hidden = true; finish(); return; }
           mistakes++; wrongN++; sfx('bad'); miss(); inp.classList.add('no');
+          gewaehlt = inp.value.trim();
           const why = diagnose(v, q, spec.faktor);
           note.innerHTML = `<div class="note bad"><b>${why ? 'Typischer Fehler.' : 'Noch nicht.'}</b> ${why || 'Rechne noch einmal nach – oder nimm einen Tipp.'}</div>`;
           stuck();
@@ -130,7 +150,7 @@ export function quiz(sequence, opts = {}) {
               finish();
             } else {
               mistakes++; sfx('bad'); miss();
-              b.classList.add('wrong');
+              b.classList.add('wrong'); gewaehlt = o.tex || '';
               note.innerHTML = `<div class="note bad"><b>Typischer Fehler.</b> ${o.why}</div>`;
               stuck();
             }

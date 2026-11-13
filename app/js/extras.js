@@ -9,6 +9,7 @@ import { CONFIG } from './config.js';
 import { BADGES, TITLES, SKINS, titleOf, skinOpen, checkBadges } from './badges.js';
 import { tex } from './ui.js';
 import { api, serverOn, nameOk, codeOk } from './api.js';
+import { pushOn, pushCan, pushAn, pushAus, ZEITEN } from './erinnern.js';
 import { WOCHEN_ZIEL, WOCHEN_BONUS } from './store.js';
 
 const GEN = { ...G, ...H };
@@ -46,6 +47,8 @@ export function settingsView() {
       <small class="muted" id="st-abi-note"></small></section>
     <section class="card stack"><h3>Farbe</h3><div class="skins" id="st-skin" role="radiogroup" aria-label="Akzentfarbe"></div>
       <small class="muted">Neue Farben schaltest du mit Punkten frei.</small></section>
+    ${pushOn() ? `<section class="card stack" id="st-push"><h3>Erinnerung</h3><small class="muted">Einmal am Tag eine kurze Mitteilung „Zeit für deine Mathe-Runde“. Gespeichert wird beim Server nur die Adresse für die Mitteilung und die Uhrzeit – kein Name, kein Lernstand. Jederzeit abschaltbar.</small>
+      <div class="picks" id="st-push-zeit" role="radiogroup" aria-label="Uhrzeit der Erinnerung"></div><div id="st-push-note"></div></section>` : ''}
     <section class="card stack"><h3>Fortschritt</h3><small class="muted">Alles liegt nur auf diesem Gerät. Es gibt kein Konto.</small>
       <button class="btn ghost" id="st-reset" type="button">Fortschritt zurücksetzen</button></section>
   </div>`);
@@ -67,6 +70,15 @@ export function settingsView() {
     box.append(b);
   });
   paint();
+  if (pushOn()) {
+    const pz = $('#st-push-zeit', el), pn = $('#st-push-note', el);
+    if (!pushCan()) pn.innerHTML = '<div class="note tip">Auf diesem Gerät geht das nur, wenn die App auf dem Startbildschirm installiert ist.</div>';
+    const paintP = () => pz.querySelectorAll('button').forEach((b) => { const on = (store.erinnern?.zeit || 'aus') === b.dataset.k; b.classList.toggle('sel', on); b.setAttribute('aria-checked', on); });
+    [['aus', 'Aus'], ...ZEITEN.map((z) => [z, `${z} Uhr`])].forEach(([k, name]) => { const b = h(`<button class="pick" type="button" role="radio" data-k="${k}">${name}</button>`);
+      b.onclick = async () => { pn.innerHTML = ''; if (k === 'aus') await pushAus(); else { const r = await pushAn(k); if (!r.ok) pn.innerHTML = `<div class="note bad">${esc(r.grund)}</div>`; } paintP(); sfx('tap'); };
+      pz.append(b); });
+    paintP();
+  }
   const tb = $('#st-tipp', el);
   const paintT = () => tb.querySelectorAll('button').forEach((b) => { const on = b.dataset.k === store.tippenWahl; b.classList.toggle('sel', on); b.setAttribute('aria-checked', on); });
   [['auto', 'Automatisch'], ['an', 'Immer'], ['aus', 'Nie']].forEach(([k, name]) => { const b = h(`<button class="pick" type="button" role="radio" data-k="${k}">${name}</button>`); b.onclick = () => { store.tippenWahl = k; paintT(); sfx('tap'); }; tb.append(b); });
