@@ -1,6 +1,10 @@
 package com.mathenachhilfe_online.trainer;
 
+import android.Manifest;
 import android.app.Activity;
+import android.content.Context;
+import android.content.pm.PackageManager;
+import android.provider.Settings;
 import android.content.Intent;
 import android.graphics.Color;
 import android.net.Uri;
@@ -35,6 +39,59 @@ public class LauncherActivity extends Activity {
     public final class Bruecke {
         @JavascriptInterface public String version() { return BuildConfigInfo.version(LauncherActivity.this); }
         @JavascriptInterface public boolean offlineFest() { return true; }
+
+        /* Erinnerung – ganz im Gerät (siehe Erinnerung.java). */
+        /** Zustand als JSON: {"an":true,"zeit":"18:00","erlaubt":true} */
+        @JavascriptInterface public String erinnerungStand() {
+            Context c = LauncherActivity.this;
+            return "{\"an\":" + (Erinnerung.an(c) && Erinnerung.erlaubt(c)) + ",\"zeit\":\"" + Erinnerung.zeit(c) + "\",\"erlaubt\":" + Erinnerung.erlaubt(c) + "}";
+        }
+        /** Einschalten. Antwort: "ok", "frage" (Android fragt gerade nach der Erlaubnis – Ergebnis kommt als Ereignis mt-erinnerung) oder "gesperrt". */
+        @JavascriptInterface public String erinnerungAn(String zeit) {
+            Context c = LauncherActivity.this;
+            if (!Erinnerung.zeitOk(zeit)) return "zeit";
+            if (Erinnerung.erlaubt(c)) { Erinnerung.setze(c, true, zeit); return "ok"; }
+            if (Build.VERSION.SDK_INT >= 33 && checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+                wunschZeit = zeit;
+                runOnUiThread(() -> requestPermissions(new String[] { Manifest.permission.POST_NOTIFICATIONS }, 7));
+                return "frage";
+            }
+            return "gesperrt";
+        }
+        @JavascriptInterface public void erinnerungAus() { Erinnerung.setze(LauncherActivity.this, false, null); }
+        /** Die Web-App meldet: heute wurde geübt – dann kommt heute keine Mitteilung mehr. */
+        @JavascriptInterface public void geuebt() { Erinnerung.geuebt(LauncherActivity.this); }
+        /** Öffnet die Android-Einstellungen für die Mitteilungen dieser App. */
+        @JavascriptInterface public void mitteilungenEinstellen() {
+            runOnUiThread(() -> {
+                try {
+                    Intent i = Build.VERSION.SDK_INT >= 26
+                        ? new Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS).putExtra(Settings.EXTRA_APP_PACKAGE, getPackageName())
+                        : new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:" + getPackageName()));
+                    startActivity(i);
+                } catch (Exception nichtDa) { /* Einstellungen nicht erreichbar: nichts tun */ }
+            });
+        }
+    }
+    private volatile String wunschZeit;
+
+    @Override
+    public void onRequestPermissionsResult(int nr, String[] was, int[] antwort) {
+        super.onRequestPermissionsResult(nr, was, antwort);
+        if (nr != 7) return;
+        boolean ja = antwort.length > 0 && antwort[0] == PackageManager.PERMISSION_GRANTED;
+        if (ja && wunschZeit != null) Erinnerung.setze(this, true, wunschZeit);
+        wunschZeit = null;
+        melde();
+    }
+    /** Sagt der Web-App, dass sich an der Erinnerung etwas geändert hat. */
+    private void melde() { if (web != null) web.evaluateJavascript("window.dispatchEvent(new Event('mt-erinnerung'))", null); }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Erinnerung.plane(this);   // Wecker sicher gestellt halten
+        melde();                  // z. B. nach Rückkehr aus den Android-Einstellungen
     }
 
     @Override
