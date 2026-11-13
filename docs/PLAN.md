@@ -1,6 +1,15 @@
 # Mathe-Trainer – Plan
 
-Stand: 11.11.2026 · Status: **nur Planung – gebaut wird erst nach Marcels „los"**.
+Stand: 13.11.2026 · Status: **im Bau** (Marcels „los" am 13.11.2026).
+
+## Baulog (neueste zuerst)
+
+| Datum | Was | Stand |
+| --- | --- | --- |
+| 13.11.2026 | **Version 0.1.0 – Gerüst und erste vier Einheiten (Phase 0 und Anfang Phase 1).** Installierbare Web-App im Website-Design (hell/dunkel), offline nutzbar, Update-Hinweis. Lernpfad Analysis: (1) *Funktionen formen* – Murmelbahn (5 Bahnen), Erklär-Karten, Graph-und-Gleichung-Aufgaben; (2) *Steigung entdecken* – Tangenten-Surfer mit Spur der Steigung, Erklär-Karten, Graphen-Paare; (3) *Ableitung zeichnen* – Skizze mit dem Finger samt Vorzeichen-Rückmeldung; (4) *Ableitungsregeln* – Lücken- und Auswahl-Aufgaben (Potenz-, Ketten-, e-Regel) mit gestuften Tipps und Fehler-Diagnose. Punkte, Sterne, Serie ohne Druck (Wochenende zählt nicht), Probestunden-Kasten. Fortschritt nur auf dem Gerät. Geprüft: `npm run check` (11.883 Prüfungen) und kompletter Durchlauf im Handy-Browser hell und dunkel, auch offline (`tests/e2e.mjs`). Graphen laufen über eine eigene kleine Zeichenfläche statt JSXGraph (leichter, reicht bisher). | Im Repo, **noch nicht online** – siehe `docs/DEPLOY.md` |
+
+**Als Nächstes:** online stellen (Abstimmung Server), dann Extrempunkte/Kurvendiskussion, „Fläche füllen"
+(Integral), Extremwert-Werkstatt, Steckbrief; danach Phase 2 (Bundesland, Abi-Modus, Eltern-Bericht).
 
 **Richtungswechsel (Marcel, 11.11.2026):** Handy zuerst. Jugendliche nutzen kaum noch PCs.
 Statt eines Windows-Programms bauen wir eine **Web-App auf dem Server, als Lernspiel**.

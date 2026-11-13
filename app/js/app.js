@@ -1,0 +1,155 @@
+// Mathe-Trainer – Start, Navigation und Ansichten.
+import { UNITS, SOON } from './units.js';
+import { store } from './store.js';
+import { CONFIG, VERSION } from './config.js';
+import { $, h, esc, ICON, starsHtml, toast } from './ui.js';
+
+const view = $('#view');
+let cleanup = null;
+let installEvent = null;
+
+function chips() {
+  $('#chips').innerHTML =
+    `<span class="chip fire" title="Lern-Serie in Tagen">${ICON.fire}${store.streak}</span>` +
+    `<span class="chip xp" title="Punkte">${ICON.bolt}${store.xp}</span>`;
+}
+
+function nextSpot() {
+  for (const u of UNITS) for (let i = 0; i < u.steps.length; i++) if (!store.isDone(u.id, u.steps[i].id)) return { u, i };
+  return null;
+}
+
+function home() {
+  const spot = nextSpot();
+  const started = store.xp > 0;
+  const el = h(`<div class="view stack">
+    <section class="hero">
+      <span class="eyebrow">Oberstufen-Mathe zum Anfassen</span>
+      <h1>Verstehen<br>schafft <span class="orange">Sicherheit.</span></h1>
+      <p class="lead">Kurze Spiele statt Arbeitsblätter: erst ausprobieren, dann die Regel, dann wie in der Prüfung.</p>
+    </section>
+    <section class="board">
+      <div class="board-top"><span>${started ? 'WEITER MACHEN' : 'LOS GEHT’S'}</span><b>● ANALYSIS</b></div>
+      ${spot
+        ? `<h2>${esc(spot.u.steps[spot.i].title)}</h2><p>${esc(spot.u.title)} · Schritt ${spot.i + 1} von ${spot.u.steps.length}</p>
+           <a class="btn" href="#/u/${spot.u.id}/${spot.i}">${started ? 'Weiter' : 'Erste Runde starten'} ${ICON.right}</a>`
+        : '<h2>Alles geschafft!</h2><p>Neue Einheiten sind in Arbeit. Wiederhole gern eine Runde – die Aufgaben sind jedes Mal neu.</p>'}
+    </section>
+    <div class="sect"><h2>Lernpfad Analysis</h2></div>
+    <div class="stack" id="units"></div>
+    <div id="install"></div>
+    <section class="cta">
+      <h2>Hängt es an einer Stelle?</h2>
+      <p>In einer kostenlosen Probestunde klären wir gemeinsam, was gerade hilft – persönlich und ohne Druck.</p>
+      <a class="btn" href="${CONFIG.probestunde}" target="_blank" rel="noopener">Gratis Probestunde ${ICON.right}</a>
+    </section>
+    <footer class="foot">
+      <a href="${CONFIG.website}" target="_blank" rel="noopener">${esc(CONFIG.firma)}</a>
+      <a href="${CONFIG.impressum}" target="_blank" rel="noopener">Impressum</a>
+      <a href="${CONFIG.datenschutz}" target="_blank" rel="noopener">Datenschutz</a>
+      <span>Version ${VERSION}</span>
+    </footer>
+  </div>`);
+  const list = $('#units', el);
+  UNITS.forEach((u, k) => {
+    const p = store.unitProgress(u);
+    list.append(h(`<a class="card unit ${p.done ? 'done' : ''}" href="#/u/${u.id}">
+      <span class="num">${p.done ? ICON.check : String(k + 1).padStart(2, '0')}</span>
+      <span><h3>${esc(u.title)}</h3><small>${esc(u.sub)}</small><div class="bar"><i style="width:${(p.n / p.total) * 100}%"></i></div></span>
+      <span class="go">${ICON.right}</span></a>`));
+  });
+  SOON.forEach((t, k) => list.append(h(`<div class="card unit soon">
+      <span class="num">${String(UNITS.length + k + 1).padStart(2, '0')}</span>
+      <span><h3>${esc(t)}</h3><small>Kommt bald</small></span><span></span></div>`)));
+  if (installEvent) {
+    const box = h(`<div class="card install"><span class="grow"><h3>Als App aufs Handy</h3><small class="muted">Ein Tipp – dann liegt der Mathe-Trainer auf dem Startbildschirm.</small></span><button class="btn small" type="button">Installieren</button></div>`);
+    box.querySelector('button').onclick = async () => { installEvent.prompt(); await installEvent.userChoice; installEvent = null; box.remove(); };
+    $('#install', el).append(box);
+  }
+  return el;
+}
+
+function unitView(u) {
+  const el = h(`<div class="view stack">
+    <a class="back" href="#/">${ICON.left} Lernpfad</a>
+    <div><span class="eyebrow">Einheit ${UNITS.indexOf(u) + 1}</span><h1 style="margin-top:8px">${esc(u.title)}</h1><p class="lead" style="margin-top:8px">${esc(u.sub)}</p></div>
+    <div class="steps"></div>
+  </div>`);
+  u.steps.forEach((s, i) => {
+    const st = store.stars(u.id, s.id);
+    $('.steps', el).append(h(`<a class="card step ${st !== undefined ? 'done' : ''}" href="#/u/${u.id}/${i}">
+      <b class="n">${st !== undefined ? ICON.check : i + 1}</b>
+      <span><span class="kind">${esc(s.kind)}</span><h3>${esc(s.title)}</h3></span>
+      ${st !== undefined ? starsHtml(st) : `<span class="muted">${ICON.right}</span>`}</a>`));
+  });
+  return el;
+}
+
+function stepView(u, i) {
+  const s = u.steps[i];
+  const el = h(`<div class="view">
+    <div class="stephead"><a class="x" href="#/u/${u.id}" aria-label="Schließen">${ICON.close}</a><div class="prog"><i></i></div></div>
+    <div id="stage"></div>
+  </div>`);
+  const bar = $('.prog i', el);
+  const ctx = {
+    progress: (f) => { bar.style.width = `${Math.round(Math.max(0, Math.min(1, f)) * 100)}%`; },
+    done: (res) => finish(u, i, res),
+  };
+  queueMicrotask(() => { cleanup = s.run($('#stage', el), ctx) || null; });
+  return el;
+}
+
+function finish(u, i, res) {
+  const s = u.steps[i];
+  const stars = Math.max(0, Math.min(3, res.stars ?? 3));
+  const r = store.complete(u.id, s.id, stars);
+  chips();
+  const nextI = i + 1 < u.steps.length ? i + 1 : null;
+  const unitDone = store.unitProgress(u).done && nextI === null;
+  const sheet = $('#sheet');
+  sheet.innerHTML = `<div class="sheet-in" role="dialog" aria-modal="true" aria-label="Schritt geschafft">
+    ${starsHtml(stars)}
+    <h2>${unitDone ? 'Einheit geschafft!' : stars === 3 ? 'Stark!' : 'Geschafft!'}</h2>
+    <div class="gain"><span class="chip xp">${ICON.bolt}+${r.gain} Punkte</span><span class="chip fire">${ICON.fire}${r.streak} ${r.streak === 1 ? 'Tag' : 'Tage'} in Folge</span></div>
+    ${(res.mistakes ?? 0) >= 3 ? `<div class="promo">Das Thema hakt noch? Das ist normal. In einer <a href="${CONFIG.probestunde}" target="_blank" rel="noopener">kostenlosen Probestunde</a> gehen wir es gemeinsam durch.</div>` : ''}
+    <a class="btn block" id="sh-go" href="${nextI !== null ? `#/u/${u.id}/${nextI}` : '#/'}">${nextI !== null ? `Weiter: ${esc(u.steps[nextI].title)}` : 'Zum Lernpfad'}</a>
+    ${nextI !== null ? `<a class="btn ghost block" href="#/u/${u.id}">Zur Übersicht</a>` : ''}
+  </div>`;
+  sheet.hidden = false;
+  $('#sh-go', sheet).focus();
+}
+
+function route() {
+  cleanup?.(); cleanup = null;
+  $('#sheet').hidden = true;
+  const m = location.hash.match(/^#\/u\/([\w-]+)(?:\/(\d+))?$/);
+  const u = m && UNITS.find((x) => x.id === m[1]);
+  let el;
+  if (u && m[2] !== undefined && u.steps[+m[2]]) el = stepView(u, +m[2]);
+  else if (u) el = unitView(u);
+  else el = home();
+  view.replaceChildren(el);
+  chips();
+  window.scrollTo(0, 0);
+}
+
+window.addEventListener('hashchange', route);
+window.addEventListener('beforeinstallprompt', (ev) => { ev.preventDefault(); installEvent = ev; if (!location.hash || location.hash === '#/') route(); });
+route();
+
+// Offline-Fähigkeit und automatische Updates.
+if ('serviceWorker' in navigator && (location.protocol === 'https:' || ['localhost', '127.0.0.1'].includes(location.hostname))) {
+  const hadController = !!navigator.serviceWorker.controller;
+  navigator.serviceWorker.register('sw.js').then((reg) => {
+    const offer = (w) => toast('Neue Version verfügbar.', { label: 'Aktualisieren', run: () => w.postMessage('skip') });
+    if (reg.waiting && navigator.serviceWorker.controller) offer(reg.waiting);
+    reg.addEventListener('updatefound', () => {
+      const w = reg.installing;
+      w?.addEventListener('statechange', () => { if (w.state === 'installed' && navigator.serviceWorker.controller) offer(w); });
+    });
+    // Nur bei einem Update neu laden – nicht beim allerersten Besuch.
+    let reloaded = false;
+    navigator.serviceWorker.addEventListener('controllerchange', () => { if (hadController && !reloaded) { reloaded = true; location.reload(); } });
+  }).catch(() => { /* ohne Service Worker läuft die App trotzdem */ });
+}
