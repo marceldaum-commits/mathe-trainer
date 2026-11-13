@@ -1,5 +1,5 @@
 // Zentrale Einstellungen. VERSION muss mit CACHE in ../sw.js übereinstimmen (npm run check prüft das).
-export const VERSION = '0.12.3';
+export const VERSION = '0.13.0';
 // Datum dieser Version (TT.MM.JJJJ). Setzt `npm run fix` von selbst, sobald VERSION erhöht wurde; `npm run check` prüft das Format.
 export const STAND = '13.11.2026';
 

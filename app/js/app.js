@@ -82,14 +82,14 @@ function home() {
   const spot = nextSpot();
   const started = store.xp > 0;
   const el = h(`<div class="view stack" id="home">
-    <section class="hero">
+    <section class="hero ${started ? 'klein' : ''}">
       <span class="eyebrow">Oberstufen-Mathe zum Anfassen</span>
-      <h1>Verstehen<br>schafft <span class="orange">Sicherheit.</span></h1>
+      <h1>Verstehen <br>schafft <span class="orange">Sicherheit.</span></h1>
     </section>
     <div class="sect"><h2>Was möchtest du üben?</h2></div>
     <section class="areas">${AREAS.map((a) => areaCard(a, a.id === 'pruefung' ? '#/pruefung' : `#/g/${a.id}`)).join('')}</section>
     <section class="board">
-      <div class="board-top"><span>${!started ? 'NEU HIER? EMPFOHLENER EINSTIEG' : spot?.last ? 'ZULETZT GESPIELT – HIER GEHT ES WEITER' : 'DEIN NÄCHSTER SCHRITT'}</span><b>● ${spot ? esc(AREAS.find((a) => a.id === spot.u.area).title.toUpperCase()) : 'FERTIG'}</b></div>
+      <div class="board-top"><span>${!started ? 'EMPFOHLENER EINSTIEG' : spot?.last ? 'ZULETZT GESPIELT' : 'NÄCHSTER SCHRITT'}</span><b>● ${spot ? esc(AREAS.find((a) => a.id === spot.u.area).title.toUpperCase()) : 'FERTIG'}</b></div>
       ${spot
         ? `<h2>${esc(spot.u.steps[spot.i].title)}</h2><p>${esc(spot.u.title)} · Schritt ${spot.i + 1} von ${spot.u.steps.length}</p>
            <a class="btn" href="#/u/${spot.u.id}/${spot.i}">${started ? 'Weiter' : 'Erste Runde starten'} ${ICON.right}</a>`
@@ -100,21 +100,27 @@ function home() {
       <h2>Hängt es an einer Stelle?</h2>
       <p>In einer kostenlosen Probestunde klären wir gemeinsam, was gerade hilft.</p>
       <a class="btn" href="${CONFIG.probestunde}" target="_blank" rel="noopener">Gratis Probestunde ${ICON.right}</a>
-      <a class="btn line site" href="${CONFIG.website}" target="_blank" rel="noopener">Zur Website von ${esc(CONFIG.firma)}</a>
+      <a class="btn line site" href="${CONFIG.website}" target="_blank" rel="noopener">Zur Website ↗</a>
     </section>
     ${footer()}
   </div>`);
   const days = store.abiDays(), due = store.karteDue().length, tb = store.tagBest();
   const today = $('#today', el);
+  const tile = (href, num, title, sub) => `<a class="card tile" href="${href}"><span class="num">${num}</span><h3>${esc(title)}</h3><small>${sub}</small></a>`;
+  // Abi-Countdown und Lernplan in einer Karte
   if (days !== null) {
-    const goal = dailyGoal(openSteps(), days);
-    today.append(h(`<section class="card count"><b class="big">${days}</b><span><h3>${days === 1 ? 'Tag' : 'Tage'} bis zum Mathe-Abi</h3><small class="muted">${goal ? `Tagesziel: ${goal} ${goal === 1 ? 'Schritt' : 'Schritte'} im Lernpfad.` : 'Alle Schritte geschafft – jetzt Abi-Modus und Wiederholen.'}</small></span></section>`));
+    const goal = dailyGoal(openSteps(), days), w = planNow();
+    today.append(h(`<a class="card count" href="#/plan"><b class="big">${days}</b><span><h3>${days === 1 ? 'Tag' : 'Tage'} bis zum Mathe-Abi</h3><small class="muted">${w?.units.length ? `Diese Woche: ${esc(w.units.map((u) => u.title.replace(/^Grundlagen: /, '')).join(' · '))}` : goal ? `Tagesziel: ${goal} ${goal === 1 ? 'Schritt' : 'Schritte'} im Lernpfad.` : 'Alle Schritte geschafft – jetzt Abi-Modus und Wiederholen.'}</small></span></a>`));
   }
-  if (!started && !store.einstufung) today.append(h(linkCard('#/einstufung/ergebnis', '?', 'Erst einstufen?', 'Zwölf Aufgaben zeigen dir, wo du am besten anfängst.')));
-  { const w = planNow(); if (w?.units.length) today.append(h(linkCard('#/plan', ICON.right, 'Lernplan: diese Woche', esc(w.units.map((u) => u.title).join(' · '))))); }
-  if (due) today.append(h(linkCard('#/wiederholen', due, 'Wiederholen', `${due === 1 ? 'Eine Aufgabenart ist' : `${due} Aufgabenarten sind`} heute fällig.`)));
+  // Kleine Kacheln nebeneinander statt langer Liste
+  const tiles = [];
+  if (!started && !store.einstufung) tiles.push(tile('#/einstufung/ergebnis', '?', 'Einstufungstest', 'Wo fängst du am besten an?'));
+  tiles.push(tile('#/tag', ICON.bolt, 'Tages-Runde', tb !== undefined ? `Heute: ${tb} Punkte` : 'Heute für alle gleich'));
+  if (due) tiles.push(tile('#/wiederholen', due, 'Wiederholen', `${due === 1 ? 'Eine Aufgabenart' : `${due} Aufgabenarten`} fällig`));
+  if (started) tiles.push(tile('#/aufgabe', 'a–e', 'Abi-Aufgabe', 'Am Stück, wie in der Prüfung'));
+  if (days === null && started) tiles.push(tile('#/plan', ICON.right, 'Lernplan', 'Abi-Termin eintragen'));
+  today.append(h(`<div class="tiles">${tiles.join('')}</div>`));
   today.append(weekCard(() => { chips(); badgeCheck(); route(); }));
-  today.append(h(linkCard('#/tag', ICON.bolt, 'Tages-Runde', tb !== undefined ? `Heute: ${tb} Punkte – noch einmal?` : 'Sechs Aufgaben, heute für alle gleich.')));
   return el;
 }
 
@@ -185,7 +191,7 @@ function mehrView() {
       <h2>Persönliche Nachhilfe</h2>
       <p>Wenn es an einem Thema länger hakt: In einer kostenlosen Probestunde klären wir gemeinsam, was hilft.</p>
       <a class="btn" href="${CONFIG.probestunde}" target="_blank" rel="noopener">Gratis Probestunde ${ICON.right}</a>
-      <a class="btn line site" href="${CONFIG.website}" target="_blank" rel="noopener">Zur Website von ${esc(CONFIG.firma)}</a>
+      <a class="btn line site" href="${CONFIG.website}" target="_blank" rel="noopener">Zur Website ↗</a>
     </section>
     ${footer()}
   </div>`);
