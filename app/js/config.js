@@ -1,5 +1,5 @@
 // Zentrale Einstellungen. VERSION muss mit CACHE in ../sw.js übereinstimmen (npm run check prüft das).
-export const VERSION = '0.9.1';
+export const VERSION = '0.9.2';
 
 export const CONFIG = {
   // Server-Teil: leer = abgeschaltet. Erst setzen, wenn es den Server gibt (gleiche Adresse, z. B. '/api').

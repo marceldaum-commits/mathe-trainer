@@ -75,6 +75,7 @@ export const store = {
     mem.done[k] = Math.max(mem.done[k] ?? 0, stars);
     const gain = first ? XP_STEP + stars * 2 : 2;
     mem.xp += gain;
+    mem.last = unitId;   // für „Zuletzt gespielt“ auf der Startseite
     touchDay();
     save();
     return { gain, first, streak: mem.streak.n };
@@ -173,6 +174,8 @@ export const store = {
   get meldungen() { return Array.isArray(mem.meldungen) ? mem.meldungen : []; },
   meldungNeu(r) { mem.meldungen = [...this.meldungen, r].slice(-20); save(); },
   meldungWeg(zeit) { mem.meldungen = this.meldungen.filter((r) => r.zeit !== zeit); save(); },
+  /** Zuletzt gespielte Einheit (id) oder ''. */
+  get last() { return typeof mem.last === 'string' ? mem.last : ''; },
   get klasse() { return mem.klasse; },
   set klasse(v) { mem.klasse = v; save(); },
 };

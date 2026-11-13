@@ -35,7 +35,10 @@ function badgeCheck() {
 }
 
 function nextSpot() {
+  // Zuerst dort weiter, wo zuletzt gespielt wurde; sonst der erste offene Schritt.
   // Erst der Prüfungsstoff des gewählten Kurses, danach die Zusatz-Schritte.
+  const last = UNITS.find((u) => u.id === store.last);
+  if (last) { const i = last.steps.findIndex((s) => !store.isDone(last.id, s.id)); if (i >= 0) return { u: last, i, last: true }; }
   for (const extra of [false, true]) for (const u of UNITS) for (let i = 0; i < u.steps.length; i++) {
     if ((unitExtra(u) || stepExtra(u.steps[i])) === extra && !store.isDone(u.id, u.steps[i].id)) return { u, i };
   }
@@ -82,16 +85,16 @@ function home() {
       <span class="eyebrow">Oberstufen-Mathe zum Anfassen</span>
       <h1>Verstehen<br>schafft <span class="orange">Sicherheit.</span></h1>
     </section>
+    <div class="sect"><h2>Was möchtest du üben?</h2></div>
+    <section class="areas">${AREAS.map((a) => areaCard(a, a.id === 'pruefung' ? '#/pruefung' : `#/g/${a.id}`)).join('')}</section>
     <section class="board">
-      <div class="board-top"><span>${started ? 'WEITER MACHEN' : 'LOS GEHT’S'}</span><b>● ${spot ? esc(AREAS.find((a) => a.id === spot.u.area).title.toUpperCase()) : 'FERTIG'}</b></div>
+      <div class="board-top"><span>${!started ? 'NEU HIER? EMPFOHLENER EINSTIEG' : spot?.last ? 'ZULETZT GESPIELT – HIER GEHT ES WEITER' : 'DEIN NÄCHSTER SCHRITT'}</span><b>● ${spot ? esc(AREAS.find((a) => a.id === spot.u.area).title.toUpperCase()) : 'FERTIG'}</b></div>
       ${spot
         ? `<h2>${esc(spot.u.steps[spot.i].title)}</h2><p>${esc(spot.u.title)} · Schritt ${spot.i + 1} von ${spot.u.steps.length}</p>
            <a class="btn" href="#/u/${spot.u.id}/${spot.i}">${started ? 'Weiter' : 'Erste Runde starten'} ${ICON.right}</a>`
         : '<h2>Alles geschafft!</h2><p>Wiederhole gern eine Runde – die Aufgaben sind jedes Mal neu. Oder teste dich im Abi-Modus.</p>'}
     </section>
     <div id="today" class="stack"></div>
-    <div class="sect"><h2>Was möchtest du üben?</h2></div>
-    <section class="areas">${AREAS.map((a) => areaCard(a, a.id === 'pruefung' ? '#/pruefung' : `#/g/${a.id}`)).join('')}</section>
     <section class="cta">
       <h2>Hängt es an einer Stelle?</h2>
       <p>In einer kostenlosen Probestunde klären wir gemeinsam, was gerade hilft.</p>
