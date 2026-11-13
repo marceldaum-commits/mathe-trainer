@@ -38,7 +38,7 @@ export function settingsView() {
     <div><span class="eyebrow">Einstellungen</span><h1 style="margin-top:8px">Für dein Abi</h1></div>
     <div id="st-level"></div>
     <section class="card stack"><h3>Bundesland und Kurs</h3><div class="picks col" id="st-land" role="radiogroup" aria-label="Bundesland und Kurs"></div>
-      <small class="muted">Die Auswahl steuert Umfang und Niveau im Abi-Modus. Alle Lernpfade bleiben für alle offen.</small></section>
+      <small class="muted">Die Auswahl steuert Umfang und Stoff im Abi-Modus und kennzeichnet, was in deinem Kurs kein Prüfungsstoff ist. Alle Lernpfade bleiben offen. <a href="#/lehrplan">Was gilt wo?</a></small></section>
     <section class="card stack"><h3>Ergebnis selbst eintippen</h3><div class="picks" id="st-tipp" role="radiogroup" aria-label="Ergebnis selbst eintippen"></div>
       <small class="muted">Bei Rechenaufgaben tippst du das Ergebnis ein, statt aus vier Antworten zu wählen. „Automatisch“ schaltet das ab Schwierigkeit 4 ein.</small></section>
     <section class="card stack"><h3>Abi-Termin Mathe</h3>
@@ -245,5 +245,21 @@ export function klasseView() {
     };
   }
   if (store.klasse) board(); else form();
+  return { el };
+}
+
+/* ───────────── Lehrplan: Was gilt wo? ───────────── */
+export const LEHRPLAN = [
+  ['Bayern', 'LehrplanPLUS Gymnasium, Jahrgangsstufen 11–13. In Mathematik gibt es nur das erhöhte Anforderungsniveau.', 'Alle Einheiten der App gehören zum Prüfungsstoff. Der Hypothesentest wird nur einseitig verlangt.'],
+  ['Hessen – Leistungskurs', 'Kerncurriculum gymnasiale Oberstufe (Ausgabe 2024) und Abiturerlasse 2027/2028.', 'Alle Einheiten der App gehören zum Prüfungsstoff.'],
+  ['Hessen – Grundkurs', 'Kerncurriculum gymnasiale Oberstufe (Ausgabe 2024) und Abiturerlasse 2027/2028.', 'Kein Prüfungsstoff: Hypothesentests, Normalverteilung und Sigma-Regeln, Ableiten der ln-Funktion, Kreuzprodukt. Diese Teile sind in der App mit „nicht im Grundkurs“ markiert und kommen im Abi-Modus, im Boss und im freien Üben nicht vor.'],
+];
+export function lehrplanView() {
+  const el = h(`<div class="view stack">
+    <a class="back" href="#/einstellungen">${ICON.left} Einstellungen</a>
+    <div><span class="eyebrow">Lehrplan</span><h1 style="margin-top:8px">Was gilt wo?</h1><p class="lead" style="margin-top:8px">Abgleich der Einheiten mit den offiziellen Vorgaben, Stand 13.11.2026.</p></div>
+    ${LEHRPLAN.map(([land, quelle, text]) => `<section class="card stack"><h3>${esc(land)}</h3><p>${esc(text)}</p><small class="muted">Grundlage: ${esc(quelle)}</small></section>`).join('')}
+    <section class="card stack"><h3>Bitte beachten</h3><small class="muted">Der Abgleich ist sorgfältig aus den amtlichen Texten erstellt, ersetzt aber nicht die Auskunft deiner Lehrkraft. Schulen dürfen die Reihenfolge der Themen verschieben, und Vorgaben ändern sich von Jahrgang zu Jahrgang. Die Grundlagen-Einheiten wiederholen Stoff der Mittelstufe.</small></section>
+  </div>`);
   return { el };
 }

@@ -309,7 +309,18 @@ await page.goto(`${BASE}#/ueben/analysis`); await page.waitForSelector('#stage .
 
 /* ───────────── Einstellungen, Countdown, Farben ───────────── */
 await page.goto(`${BASE}#/einstellungen`); await page.waitForSelector('#st-land');
+await page.click('#st-land [data-k="HE-GK"]');   // Grundkurs: Zusatz-Stoff wird markiert und ans Ende gestellt
+await page.click('a[href="#/lehrplan"]'); await page.waitForSelector('h1'); if (!(await page.textContent('#view')).includes('Hessen – Grundkurs')) fail('Lehrplan-Seite fehlt'); await shot('69-lehrplan');
+await page.goto(`${BASE}#/g/stochastik`); await page.waitForSelector('a.unit');
+const sUnits = page.locator('a.unit[href^="#/u/"]');
+if ((await sUnits.last().getAttribute('href')) !== '#/u/s-test' || !(await sUnits.last().locator('.extra').count())) fail('Grundkurs: Hypothesentests nicht als Zusatz am Ende');
+await shot('70-grundkurs-stochastik');
+await page.goto(`${BASE}#/u/s-verteilung`); await page.waitForSelector('.steps');
+if ((await page.locator('.steps .extra').count()) !== 1) fail('Grundkurs: Sigma-Schritt nicht markiert');
+await page.goto(`${BASE}#/einstellungen`); await page.waitForSelector('#st-land');
 await page.click('#st-land [data-k="HE-LK"]');
+await page.goto(`${BASE}#/g/stochastik`); await page.waitForSelector('a.unit'); if (await page.locator('.extra').count()) fail('Leistungskurs: nichts darf markiert sein');
+await page.goto(`${BASE}#/einstellungen`); await page.waitForSelector('#st-land');
 const in90 = new Date(Date.now() + 90 * 86400000).toISOString().slice(0, 10);
 await page.fill('#st-abi', in90); await page.locator('#st-abi').dispatchEvent('change');
 if (!(await page.locator('.skin:disabled').count())) fail('Farben: es müssen noch gesperrte übrig sein');

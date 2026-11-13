@@ -1,5 +1,5 @@
 // Mathe-Trainer – Start, Navigation und Ansichten.
-import { UNITS, AREAS, practiceGens } from './units.js';
+import { UNITS, AREAS, practiceGens, stepExtra, unitExtra, NICHT_TEXT } from './units.js';
 import { quiz } from './quiz.js';
 import { initMelden } from './melden.js';
 import { mixOf } from './gen.js';
@@ -9,7 +9,7 @@ import { $, h, esc, ICON, starsHtml, toast, sfx, sound, confetti, look } from '.
 import { abiView, rundeView, blitzView } from './exam.js';
 import { checkBadges, titleOf } from './badges.js';
 import { api, serverOn } from './api.js';
-import { settingsView, berichtView, karteiView, dailyGoal, openSteps, levelCard, erfolgeView, formelnView, klasseView, weekCard, readiness, applySkin } from './extras.js';
+import { settingsView, berichtView, karteiView, dailyGoal, openSteps, levelCard, erfolgeView, formelnView, klasseView, weekCard, readiness, applySkin, lehrplanView } from './extras.js';
 
 const view = $('#view');
 let cleanup = null;
@@ -35,7 +35,10 @@ function badgeCheck() {
 }
 
 function nextSpot() {
-  for (const u of UNITS) for (let i = 0; i < u.steps.length; i++) if (!store.isDone(u.id, u.steps[i].id)) return { u, i };
+  // Erst der Prüfungsstoff des gewählten Kurses, danach die Zusatz-Schritte.
+  for (const extra of [false, true]) for (const u of UNITS) for (let i = 0; i < u.steps.length; i++) {
+    if ((unitExtra(u) || stepExtra(u.steps[i])) === extra && !store.isDone(u.id, u.steps[i].id)) return { u, i };
+  }
   return null;
 }
 
@@ -47,7 +50,7 @@ const AREA_INFO = {
 };
 const LERN_AREAS = () => AREAS.filter((a) => a.id !== 'pruefung');
 const areaStat = (area) => {
-  const us = UNITS.filter((u) => u.area === area.id).sort((x, y) => (y.grund ? 1 : 0) - (x.grund ? 1 : 0));   // Grundlagen zuerst
+  const us = UNITS.filter((u) => u.area === area.id).sort((x, y) => (y.grund ? 1 : 0) - (x.grund ? 1 : 0) || (unitExtra(x) ? 1 : 0) - (unitExtra(y) ? 1 : 0));   // Grundlagen zuerst, Zusatz-Stoff zuletzt
   const steps = us.reduce((s, u) => s + u.steps.length, 0), done = us.reduce((s, u) => s + store.unitProgress(u).n, 0);
   return { units: us, n: us.length, doneUnits: us.filter((u) => store.unitProgress(u).done).length, pct: steps ? (done / steps) * 100 : 0 };
 };
@@ -60,7 +63,7 @@ const unitCard = (u, k) => {
   const p = store.unitProgress(u);
   return `<a class="card unit ${p.done ? 'done' : ''}" href="#/u/${u.id}">
     <span class="num">${p.done ? ICON.check : String(k + 1).padStart(2, '0')}</span>
-    <span><h3>${esc(u.title)}</h3><small>${esc(u.sub)}</small><div class="bar"><i style="width:${(p.n / p.total) * 100}%"></i></div></span>
+    <span><h3>${esc(u.title)}</h3><small>${unitExtra(u) ? `<b class="extra">${NICHT_TEXT[store.land]}</b> ` : ''}${esc(u.sub)}</small><div class="bar"><i style="width:${(p.n / p.total) * 100}%"></i></div></span>
     <span class="go">${ICON.right}</span></a>`;
 };
 const linkCard = (href, num, title, sub) => `<a class="card unit" href="${href}"><span class="num">${num}</span><span><h3>${esc(title)}</h3><small>${sub}</small></span><span class="go">${ICON.right}</span></a>`;
@@ -194,7 +197,7 @@ function unitView(u) {
     const st = store.stars(u.id, s.id);
     $('.steps', el).append(h(`<a class="card step ${st !== undefined ? 'done' : ''}" href="#/u/${u.id}/${i}">
       <b class="n">${st !== undefined ? ICON.check : i + 1}</b>
-      <span><span class="kind">${esc(s.kind)}</span><h3>${esc(s.title)}</h3></span>
+      <span><span class="kind">${esc(s.kind)}${unitExtra(u) || stepExtra(s) ? ` · <b class="extra">${NICHT_TEXT[store.land]}</b>` : ''}</span><h3>${esc(s.title)}</h3></span>
       ${st !== undefined ? starsHtml(st) : `<span class="muted">${ICON.right}</span>`}</a>`));
   });
   return el;
@@ -282,7 +285,7 @@ function route() {
   const hash = location.hash;
   const m = hash.match(/^#\/u\/([\w-]+)(?:\/(\d+))?$/);
   const u = m && UNITS.find((x) => x.id === m[1]);
-  const x = hash.match(/^#\/(abi|tag|duell|blitz|bericht|einstellungen|wiederholen|erfolge|formeln|klasse)(?:\/([\w-]+))?$/);
+  const x = hash.match(/^#\/(abi|tag|duell|blitz|bericht|einstellungen|wiederholen|erfolge|formeln|klasse|lehrplan)(?:\/([\w-]+))?$/);
   const gm = hash.match(/^#\/g\/(\w+)$/), g = gm && LERN_AREAS().find((a) => a.id === gm[1]);
   const pm = hash.match(/^#\/ueben\/(\w+?)(-grund)?$/), pa = pm && LERN_AREAS().find((a) => a.id === pm[1]);
   let el;
@@ -291,7 +294,7 @@ function route() {
   else if (x) {
     const after = () => { chips(); setTimeout(badgeCheck, 600); };
     const r = { abi: () => abiView(['A', 'B'].includes(x[2]) ? x[2] : null, after), tag: () => rundeView('tag', undefined, (res) => { after(); meldeTag(res); }), duell: () => rundeView('duell', x[2], after), blitz: () => blitzView(after),
-      bericht: berichtView, einstellungen: settingsView, wiederholen: karteiView, erfolge: erfolgeView, formeln: formelnView, klasse: klasseView }[x[1]]();
+      bericht: berichtView, einstellungen: settingsView, wiederholen: karteiView, erfolge: erfolgeView, formeln: formelnView, klasse: klasseView, lehrplan: lehrplanView }[x[1]]();
     el = r.el; cleanup = r.cleanup || null;
   } else if (hash === '#/lernen') el = lernenView();
   else if (hash === '#/pruefung') el = pruefungView();
@@ -315,7 +318,7 @@ function nav() {
   const hash = location.hash || '#/';
   const um = hash.match(/^#\/u\/([\w-]+)/), unit = um && UNITS.find((x) => x.id === um[1]);
   const tab = unit ? (unit.area === 'pruefung' ? 'pruefung' : 'lernen')
-    : /^#\/(lernen|g\/|ueben\/)/.test(hash) ? 'lernen' : /^#\/(pruefung|abi|tag|duell|blitz|klasse)/.test(hash) ? 'pruefung' : /^#\/(mehr|bericht|einstellungen|wiederholen|erfolge|formeln)/.test(hash) ? 'mehr' : 'start';
+    : /^#\/(lernen|g\/|ueben\/)/.test(hash) ? 'lernen' : /^#\/(pruefung|abi|tag|duell|blitz|klasse)/.test(hash) ? 'pruefung' : /^#\/(mehr|bericht|einstellungen|wiederholen|erfolge|formeln|lehrplan)/.test(hash) ? 'mehr' : 'start';
   document.querySelectorAll('#nav a').forEach((a) => { const on = a.dataset.tab === tab; a.classList.toggle('on', on); if (on) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current'); });
   $('#nav').hidden = !!view.querySelector('.stephead');
 }

@@ -1,5 +1,6 @@
 // Lernpfad. Jede Einheit folgt dem Bauplan: entdecken → benennen → Brücke zur Prüfungs-Schreibweise → festigen.
 import { tex } from './ui.js';
+import { store } from './store.js';
 import { quiz, info } from './quiz.js';
 import { murmelbahn } from './games/murmelbahn.js';
 import { tangente } from './games/tangente.js';
@@ -30,6 +31,22 @@ import {
 } from './gen.js';
 
 const T = (s) => `<div class="big">${tex(s, true)}</div>`;
+
+/**
+ * Lehrplan-Abgleich (docs/LEHRPLAN.md): Diese Aufgaben-Arten sind im hessischen Grundkurs kein Prüfungsstoff.
+ * Bayern und Hessen-Leistungskurs: alles gilt.
+ */
+const NICHT = { 'HE-GK': [genLn, genSigma, genNormal, genKreuz, genHypothese] };
+export const NICHT_TEXT = { 'HE-GK': 'nicht im Grundkurs' };
+/** Gilt die Aufgaben-Art im gewählten Land/Kurs? */
+export const landOk = (fn, land = store.land) => !(NICHT[land] || []).includes(fn);
+/** Liste nach Land filtern – bleibt nichts übrig, gilt die ganze Liste (die Einheit ist dann ohnehin als Zusatz markiert). */
+export const landList = (fns, land = store.land) => { const ok = fns.filter((f) => landOk(f, land)); return ok.length ? ok : fns; };
+/** Gemischte Runde, die sich nach dem gewählten Land richtet. */
+const mixLand = (fns) => (lv = 3) => mixOf([landList(fns)])(lv);
+/** Ist ein Schritt bzw. eine ganze Einheit im gewählten Land/Kurs kein Prüfungsstoff? */
+export const stepExtra = (s, land = store.land) => !!s.nicht?.includes(land);
+export const unitExtra = (u, land = store.land) => !!u.nicht?.includes(land);
 
 /** Grundlagen-Aufgaben je Gebiet (für die Grundlagen-Einheiten und das freie Üben). */
 export const GRUND = {
@@ -180,7 +197,7 @@ export const UNITS = [
       ]) },
       { id: 'wende', kind: 'Brücke', title: 'Wendepunkte und Monotonie', run: quiz([genWendestelle, genWendestelle, genMonotonie, genMonotonie]) },
       { id: 'sym', kind: 'Brücke', title: 'Symmetrie und Grenzwerte', run: quiz([genSymmetrie, genSymmetrie, genGrenzwert, genGrenzwert]) },
-      { id: 'mix', kind: 'Festigen', title: 'Kurvendiskussion am Stück', run: quiz(Array(6).fill(mixOf([[genSymmetrie, genGrenzwert, genExtremstellen, genHochTief, genWendestelle, genMonotonie]]))) },
+      { id: 'mix', kind: 'Festigen', title: 'Kurvendiskussion am Stück', run: quiz(Array(6).fill(mixLand([genSymmetrie, genGrenzwert, genExtremstellen, genHochTief, genWendestelle, genMonotonie]))) },
     ],
   },
   {
@@ -214,7 +231,7 @@ export const UNITS = [
         { eyebrow: 'Merken', title: 'Die ln-Funktion', html: `${T("(\\ln x)'=\\dfrac1x\\qquad \\bigl(\\ln(ax+b)\\bigr)'=\\dfrac{a}{ax+b}")}<p>${tex('\\ln')} ist die Umkehrung von ${tex('e^x')}: Aus ${tex('e^{kt}=2')} wird ${tex('kt=\\ln(2)')}.</p>` },
         { title: 'Exponentielles Wachstum', html: `${T('N(t)=N_0\\cdot a^t=N_0\\cdot e^{kt}')}<p>Pro Zeitschritt wird mit demselben Faktor multipliziert. Bei ${tex('p\\,\\%')} Zunahme ist ${tex('a=1+\\tfrac{p}{100}')}, bei Abnahme ${tex('a=1-\\tfrac{p}{100}')}.</p>` },
       ]) },
-      { id: 'ln', kind: 'Brücke', title: 'ln ableiten', run: quiz([genLn, genLn, genLn]) },
+      { id: 'ln', nicht: ['HE-GK'], kind: 'Brücke', title: 'ln ableiten', run: quiz([genLn, genLn, genLn]) },
       { id: 'wachstum', kind: 'Brücke', title: 'Wachstum und Zerfall', run: quiz([genWachstum, genWachstum, genWachstum]) },
     ],
   },
@@ -239,11 +256,11 @@ export const UNITS = [
         { title: 'Normalverteilung', html: `${T('z=\\dfrac{x-\\mu}{\\sigma}')}<p>Mit ${tex('z')} misst man, wie viele Standardabweichungen ein Wert vom Erwartungswert entfernt liegt. So wird jede Normalverteilung vergleichbar.</p>` },
       ]) },
       { id: 'kumuliert', kind: 'Brücke', title: 'Die richtige Übersetzung', run: quiz([genKumuliert, genKumuliert, genKumuliert]) },
-      { id: 'sigma', kind: 'Brücke', title: 'Sigma-Regeln und Normalverteilung', run: quiz([genSigma, genSigma, genNormal, genNormal]) },
+      { id: 'sigma', nicht: ['HE-GK'], kind: 'Brücke', title: 'Sigma-Regeln und Normalverteilung', run: quiz([genSigma, genSigma, genNormal, genNormal]) },
     ],
   },
   {
-    id: 's-test', area: 'stochastik', title: 'Hypothesentests', sub: 'Begriffe und Ablehnungsbereich',
+    id: 's-test', area: 'stochastik', nicht: ['HE-GK'], title: 'Hypothesentests', sub: 'Begriffe und Ablehnungsbereich',
     steps: [
       { id: 'regel', kind: 'Benennen', title: 'So funktioniert ein Test', run: info([
         { title: 'Die Idee', html: `<p>Man nimmt eine Behauptung an (Nullhypothese ${tex('H_0')}) und prüft, ob das Ergebnis der Stichprobe dazu passt. Ist es unter ${tex('H_0')} sehr unwahrscheinlich, wird ${tex('H_0')} abgelehnt.</p>` },
@@ -260,7 +277,7 @@ export const UNITS = [
         { title: 'Reihenfolge? Wiederholung?', html: `<p>Mit Wiederholung, Reihenfolge wichtig: ${tex('n^k')}</p><p>Ohne Wiederholung, Reihenfolge wichtig: ${tex('\\dfrac{n!}{(n-k)!}')}</p><p>Ohne Wiederholung, Reihenfolge egal: ${tex('\\binom{n}{k}')}</p><p>Alle anordnen: ${tex('n!')}</p>` },
       ]) },
       { id: 'zaehlen', kind: 'Brücke', title: 'Das passende Zählmodell', run: quiz([genKombinatorik, genKombinatorik, genKombinatorik, genKombinatorik]) },
-      { id: 'mix', kind: 'Festigen', title: 'Stochastik – alles gemischt', run: quiz(Array(6).fill(mixOf([[genErwartung, genBinomial, genBaum, genVierfelder, genBedingt, genKumuliert, genSigma, genHypothese, genNormal, genKombinatorik]]))) },
+      { id: 'mix', kind: 'Festigen', title: 'Stochastik – alles gemischt', run: quiz(Array(6).fill(mixLand([genErwartung, genBinomial, genBaum, genVierfelder, genBedingt, genKumuliert, genSigma, genHypothese, genNormal, genKombinatorik]))) },
     ],
   },
   {
@@ -286,7 +303,7 @@ export const UNITS = [
       ]) },
       { id: 'punkt', kind: 'Brücke', title: 'Punkte in der Ebene', run: quiz([genEbene, genEbene, genEbene]) },
       { id: 'schnitt', kind: 'Brücke', title: 'Schnittpunkt Gerade–Ebene', run: quiz([genSchnittpunkt, genSchnittpunkt, genSchnittpunkt]) },
-      { id: 'kreuz', kind: 'Brücke', title: 'Kreuzprodukt', run: quiz([genKreuz, genKreuz, genKreuz]) },
+      { id: 'kreuz', nicht: ['HE-GK'], kind: 'Brücke', title: 'Kreuzprodukt', run: quiz([genKreuz, genKreuz, genKreuz]) },
     ],
   },
   {
@@ -298,7 +315,7 @@ export const UNITS = [
       ]) },
       { id: 'abstand', kind: 'Brücke', title: 'Abstände', run: quiz([genAbstand, genAbstand, genAbstand]) },
       { id: 'winkel', kind: 'Brücke', title: 'Winkel', run: quiz([genWinkel, genWinkel, genWinkel]) },
-      { id: 'mix', kind: 'Festigen', title: 'Geometrie – alles gemischt', run: quiz(Array(6).fill(mixOf([[genVektorAB, genBetrag, genSkalar, genGeradePunkt, genEbene, genLage, genSchnittpunkt, genAbstand, genWinkel, genKreuz]]))) },
+      { id: 'mix', kind: 'Festigen', title: 'Geometrie – alles gemischt', run: quiz(Array(6).fill(mixLand([genVektorAB, genBetrag, genSkalar, genGeradePunkt, genEbene, genLage, genSchnittpunkt, genAbstand, genWinkel, genKreuz]))) },
     ],
   },
   {
@@ -434,8 +451,8 @@ const META = {
 for (const u of UNITS) {
   const m = META[u.id]; if (!m) continue;
   u.why = m.why; u.formeln = m.formeln; u.bossName = m.boss[0]; u.bossGens = m.boss[2];
-  u.steps.push({ id: 'boss', kind: 'Boss', title: `Boss: ${m.boss[0]}`, run: boss(m.boss[2], m.boss[0], m.boss[1]) });
+  u.steps.push({ id: 'boss', kind: 'Boss', title: `Boss: ${m.boss[0]}`, run: (el, ctx) => boss(landList(m.boss[2]), m.boss[0], m.boss[1])(el, ctx) });
 }
 
 /** Freies Üben: alle Auswahl-Aufgaben eines Gebiets (aus den Boss-Listen der Einheiten). */
-export const practiceGens = (areaId, nurGrund = false) => (nurGrund ? GRUND[areaId] : [...new Set(UNITS.filter((u) => u.area === areaId).flatMap((u) => u.bossGens || []))]);
+export const practiceGens = (areaId, nurGrund = false, land = store.land) => (nurGrund ? GRUND[areaId] : landList([...new Set(UNITS.filter((u) => u.area === areaId).flatMap((u) => u.bossGens || []))], land));

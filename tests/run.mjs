@@ -15,7 +15,7 @@ const { sums, gap } = GAMES.flaeche, FL = all(GAMES.flaeche);
 const { solved } = GAMES.labor, LB = all(GAMES.labor);
 const { goal, endPoint } = GAMES.lotse, LO = all(GAMES.lotse);
 const { nextStreak, store } = await import('../app/js/store.js');
-const { UNITS, AREAS, practiceGens } = await import('../app/js/units.js');
+const { UNITS, AREAS, practiceGens, landOk, landList, stepExtra, unitExtra } = await import('../app/js/units.js');
 
 let fails = 0, n = 0;
 const seen = new Set();
@@ -292,6 +292,20 @@ for (const [name, fn] of Object.entries({ ...G, ...H, ...K })) {
   const rep2 = M.buildReport('aufgabe', 'Lösung falsch', { aufgabe: { gen: 'genKette', thema: 'Kettenregel', stufe: 5, frage: 'f', formel: 'g', geheim: 1 } });
   ok(rep2.aufgabe.gen === 'genKette' && !('geheim' in rep2.aufgabe) && Object.keys(rep2).sort().join() === 'art,aufgabe,ort,stufe,text,version,zeit', 'Meldung: Aufgabe hängt an, nur erlaubte Felder');
   ok(M.meldenOn() === false, 'Meldung: Versand ist aus, solange keine Adresse eingetragen ist');
+}
+
+// 6e) Lehrplan-Filter (docs/LEHRPLAN.md): Hessen-Grundkurs ohne Hypothesentest, Normalverteilung, ln-Ableitung, Kreuzprodukt
+{ const GK = 'HE-GK', raus = [H.genLn, H.genSigma, H.genNormal, H.genKreuz, H.genHypothese];
+  ok(raus.every((f) => !landOk(f, GK) && landOk(f, 'BY') && landOk(f, 'HE-LK') && landOk(f, '')), 'Lehrplan: fünf Aufgaben-Arten gelten nur im Grundkurs nicht');
+  ok(landOk(H.genKumuliert, GK) && landOk(H.genWachstum, GK) && landOk(H.genEbene, GK) && landOk(H.genVierfelder, GK), 'Lehrplan: der übrige Stoff gilt auch im Grundkurs');
+  for (const a of ['analysis', 'stochastik', 'geometrie']) ok(practiceGens(a, false, GK).every((f) => landOk(f, GK)) && practiceGens(a, false, GK).length >= 8 && practiceGens(a, false, 'BY').length > practiceGens(a, false, GK).length, `Lehrplan: freies Üben ${a} ohne Grundkurs-fremden Stoff`);
+  const ex = await import('../app/js/exam.js');
+  for (let i = 0; i < 40; i++) ok(ex.makeTasks(15, 3, null, GK).every((q) => !raus.some((f) => f.name === q.gen)), 'Lehrplan: Abi-Modus Grundkurs ohne fremden Stoff');
+  ok(JSON.stringify(ex.makeTasks(6, 3, 20261113).map((q) => q.formula)) === JSON.stringify(ex.makeTasks(6, 3, 20261113, '').map((q) => q.formula)), 'Lehrplan: Tages-Runde bleibt für alle gleich');
+  const test = UNITS.find((u) => u.id === 's-test');
+  ok(unitExtra(test, GK) && !unitExtra(test, 'BY') && landList(test.bossGens, GK).length === test.bossGens.length, 'Lehrplan: Hypothesentests im Grundkurs als Zusatz markiert, bleiben spielbar');
+  const extra = UNITS.flatMap((u) => u.steps.filter((s) => stepExtra(s, GK)).map((s) => `${u.id}/${s.id}`));
+  ok(extra.join() === 'expln/ln,s-verteilung/sigma,g-ebene/kreuz' && UNITS.every((u) => u.steps.every((s) => !stepExtra(s, 'BY') && !stepExtra(s, 'HE-LK'))), `Lehrplan: markierte Schritte (${extra.join()})`);
 }
 
 // 7) Murmelbahn: Ziel-Parameter sind einstellbar und gewinnen; die Startwerte gewinnen nicht.

@@ -6,6 +6,7 @@ import { seedRandom, shuffle, fmt } from './math.js';
 import { store, LEVELS, LAENDER, dayKey } from './store.js';
 import { $, h, tex, esc, ICON, sfx, confetti, toast } from './ui.js';
 import { CONFIG } from './config.js';
+import { landOk } from './units.js';
 import { cardBox } from './share.js';
 
 /** Auswahl-Aufgaben je Gebiet (ohne Lücken- und Graph-Aufgaben, die brauchen mehr Platz und Zeit). */
@@ -17,9 +18,10 @@ export const POOL = {
 };
 
 /** Erzeugt n Aufgaben, reihum aus den drei Gebieten. Mit seed bekommen alle dieselben Aufgaben. */
-export function makeTasks(n, lv, seed = null) {
+export function makeTasks(n, lv, seed = null, land = '') {
   seedRandom(seed);
-  const areas = Object.keys(POOL), bags = Object.fromEntries(areas.map((a) => [a, shuffle(POOL[a])]));
+  // land nur im Abi-Modus: lässt weg, was im gewählten Kurs kein Prüfungsstoff ist. Tages-Runde und Duell bleiben für alle gleich.
+  const areas = Object.keys(POOL), bags = Object.fromEntries(areas.map((a) => [a, shuffle(POOL[a].filter((fn) => landOk(fn, land)))]));
   const tasks = [];
   for (let i = 0; i < n; i++) {
     const a = areas[i % areas.length], fn = bags[a][Math.floor(i / areas.length) % bags[a].length];
@@ -114,7 +116,7 @@ export function abiView(part, opts_onEnd) {
   const plan = abiPlan(part);
   el.innerHTML = `<div class="stephead"><a class="x" href="#/abi" aria-label="Abbrechen">${ICON.close}</a><b>${plan.title}</b></div><div id="stage"></div>`;
   queueMicrotask(() => {
-    stop = round($('#stage', el), { tasks: makeTasks(plan.n, plan.lv), seconds: plan.seconds, onEnd: (r) => {
+    stop = round($('#stage', el), { tasks: makeTasks(plan.n, plan.lv, null, store.land), seconds: plan.seconds, onEnd: (r) => {
       const pct = Math.round((r.correct / r.total) * 100), np = notenpunkte(pct);
       store.addExam({ part, pct, np, correct: r.correct, total: r.total, xp: r.correct * 3 });
       sfx('win'); if (np >= 8) confetti(np >= 12 ? 60 : 30);
