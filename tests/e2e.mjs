@@ -18,7 +18,8 @@ const ctx = await browser.newContext({ ...devices['Pixel 7'], colorScheme: proce
 await ctx.addInitScript(() => { window.__mtTest = true; });   // markiert in Boss und Blitz die richtige Antwort
 const page = await ctx.newPage();
 const errors = [];
-page.on('console', (m) => { if (m.type() === 'error') errors.push(m.text()); });
+let serverAus = false;   // solange der nachgestellte Melde-Server „nicht erreichbar“ spielt, sind seine Lade-Fehler erwartet
+page.on('console', (m) => { if (m.type() === 'error' && !(serverAus && /Failed to load resource/.test(m.text()))) errors.push(m.text()); });
 page.on('pageerror', (e) => errors.push(String(e)));
 const shot = async (name) => { if (shots) await page.screenshot({ path: `${shots}/${name}.png` }); };
 process.on('uncaughtException', async (e) => { console.error(String(e).split('\n')[0]); if (shots) await page.screenshot({ path: `${shots}/fehler.png` }).catch(() => {}); process.exit(1); });
@@ -243,6 +244,8 @@ await page.click('#look');
 
 /* ───────────── Hilfe-Knopf: Menü, Fehler melden (Versand aus → Meldung wartet im Gerät) ───────────── */
 if (!(await page.locator('#fab').isVisible())) fail('Hilfe-Knopf fehlt');
+serverAus = true; let versuche = 0;
+await page.route('**/api/meldung', (r) => { versuche++; r.fulfill({ status: 503, contentType: 'application/json', body: '{"error":"nicht erreichbar"}' }); });   // Server fällt aus → Meldung muss im Gerät warten
 await page.click('#fab'); await page.waitForSelector('#help:not([hidden]) #hp-menu'); await shot('67-hilfe-menue');
 await page.click('#hp-menu button[data-art="idee"]'); await page.waitForSelector('#hp-form:not([hidden])');
 await page.click('#hp-form button[type="submit"]'); await page.waitForSelector('#hp-note .note.tip');   // leerer Text wird abgelehnt
@@ -251,6 +254,7 @@ await page.click('#hp-form button[type="submit"]'); await page.waitForSelector('
 await page.waitForSelector('#toast:not([hidden])');
 const wartend = await page.evaluate(() => JSON.parse(localStorage.getItem('mt.v1')).meldungen);
 if (wartend?.length !== 1 || wartend[0].art !== 'idee' || !wartend[0].version || 'aufgabe' in wartend[0]) fail('Meldung wurde nicht richtig gespeichert');
+if (!versuche) fail('Meldung: kein Sende-Versuch an /api/meldung');
 if (LEVEL === 3) { await page.goto(`${BASE}#/einstellungen`); await page.click('#st-tipp [data-k="an"]'); await page.reload(); await page.waitForSelector('#st-tipp [data-k="an"].sel'); }
 
 /* ───────────── Alle Einheiten, alle Schritte ───────────── */
@@ -283,6 +287,7 @@ await page.goto(`${BASE}#/u/regeln/3`); await page.waitForSelector('#stage .q');
 if (await page.locator('#fab').isVisible()) fail('Im Spiel darf der schwebende Hilfe-Knopf nichts verdecken (er sitzt oben)');
 // Jetzt antwortet ein nachgestellter Server: Die wartende und die neue Meldung müssen ankommen, die Warteschlange wird leer.
 const gesendet = [];
+await page.unroute('**/api/meldung'); serverAus = false;
 await page.route('**/api/meldung', (r) => { gesendet.push(JSON.parse(r.request().postData())); r.fulfill({ status: 200, contentType: 'application/json', body: '{"ok":true}' }); });
 await page.click('.stephead .help-x'); await page.click('#hp-menu button[data-art="aufgabe"]');
 if (!(await page.textContent('#hp-ctx')).includes('Zuletzt gezeigte Aufgabe')) fail('Meldung: Aufgabe wird nicht mitgenommen');
