@@ -248,6 +248,7 @@ await page.click('#look');
 
 /* ───────────── Hilfe-Knopf: Menü, Fehler melden (Versand aus → Meldung wartet im Gerät) ───────────── */
 if (!(await page.locator('#fab').isVisible())) fail('Hilfe-Knopf fehlt');
+{ const sb = page.locator('.sitebar'); if (!(await sb.isVisible()) || (await sb.getAttribute('href')) !== 'https://www.mathenachhilfe-online.com/' || (await sb.boundingBox()).y > 4) fail('Knopf zur Website fehlt ganz oben'); }
 serverAus = true; let versuche = 0;
 await page.route('**/api/meldung', (r) => { versuche++; r.fulfill({ status: 503, contentType: 'application/json', body: '{"error":"nicht erreichbar"}' }); });   // Server fällt aus → Meldung muss im Gerät warten
 await page.click('#fab'); await page.waitForSelector('#help:not([hidden]) #hp-menu'); await shot('67-hilfe-menue');
@@ -272,6 +273,7 @@ for (const u of UNITS) {
   for (let i = 0; i < u.steps.length; i++) {
     if (!(u === UNITS[0] && i === 0)) { await page.goto(`${BASE}#/u/${u.id}/${i}`); await page.waitForSelector('#stage > *'); }
     await page.evaluate(() => window.scrollTo(0, 0));
+    if (await page.locator('.sitebar').isVisible()) fail('Website-Leiste muss beim Spielen ausgeblendet sein');
     { const btn = page.locator('#stage .row:last-child:not([hidden]) .btn:not([hidden])').last();   // Haupt-Knopf muss ohne Scrollen im Bild sein
       if (await btn.count() && await btn.isVisible()) { const r = await btn.boundingBox(), vh = page.viewportSize().height;
         if (!(r.y >= 0 && r.y + r.height <= vh + 1)) fail(`${u.id}/${u.steps[i].id}: Haupt-Knopf nicht ohne Scrollen sichtbar (y=${Math.round(r.y)}, Höhe Fenster ${vh})`); } }
@@ -348,7 +350,7 @@ await shot('74-zertifikat');
 
 /* ───────────── Einstellungen, Countdown, Farben ───────────── */
 await page.goto(`${BASE}#/einstellungen`); await page.waitForSelector('#st-land');
-if (await page.locator('#st-push').count()) fail('Erinnerung darf ohne Server-Schlüssel nicht angeboten werden');
+if ((await page.locator('#st-push-zeit .pick').count()) !== 5 || !(await page.locator('#st-push-zeit .pick[data-k="aus"].sel').count())) fail('Erinnerung: Auswahl der Uhrzeit fehlt oder ist nicht „Aus“');
 await page.click('#st-land [data-k="HE-GK"]');   // Grundkurs: Zusatz-Stoff wird markiert und ans Ende gestellt
 await page.click('a[href="#/lehrplan"]'); await page.waitForSelector('h1'); if (!(await page.textContent('#view')).includes('Hessen – Grundkurs')) fail('Lehrplan-Seite fehlt'); await shot('69-lehrplan');
 await page.goto(`${BASE}#/g/stochastik`); await page.waitForSelector('a.unit');
@@ -494,6 +496,7 @@ await p2.route('**/api/**', async (route) => {
   const u = new URL(route.request().url()), body = route.request().postDataJSON?.() ?? null; calls.push([u.pathname, body]);
   if (u.pathname === '/api/klasse/beitreten') return route.fulfill({ json: body.code === 'K7M2QX' ? { klasse: 'Q12 Mathe', spieler: 'p-123' } : { error: 'Diesen Code gibt es nicht.' }, status: body.code === 'K7M2QX' ? 200 : 404 });
   if (u.pathname === '/api/ki/erklaer') { kiRufe++; return kiRufe === 1 ? route.fulfill({ json: { text: 'Stell dir vor: <b>fett</b> erst außen, dann innen.' } }) : route.fulfill({ status: 429, json: { error: 'Limit' } }); }
+  if (u.pathname === '/api/push/schluessel') return route.fulfill({ json: { key: 'BEl62iUYgUivxIkv69yViEuiBIa-Ib9-SkvMeAtA3LFgDzkrxZJjSgSnfckjBJuBkr3qBUYIHBQFLXYp5Nksh8U' } });
   if (u.pathname === '/api/klasse') return route.fulfill({ json: body.name?.length >= 2 ? { code: 'K7M2QX' } : { error: 'Name fehlt.' } });
   if (u.pathname.endsWith('/rangliste')) return route.fulfill({ json: { woche: '2026-11-09', liste: [{ name: 'Mia', punkte: 540 }, { name: 'Testfuchs', punkte: 480, ich: true }, { name: '<b>Frech</b>', punkte: 10 }] } });
   return route.fulfill({ json: { ok: true } });
@@ -525,6 +528,11 @@ const kiAnfrage = calls.find(([path]) => path === '/api/ki/erklaer')[1];
 if (Object.keys(kiAnfrage).sort().join() !== 'art,formel,frage,gewaehlt,richtig') fail(`KI: Anfrage enthält andere Felder: ${Object.keys(kiAnfrage)}`);
 if (shots) await p2.screenshot({ path: `${shots}/76-ki-erklaerung.png` });
 await p2.locator('.ki .pick').nth(1).click(); await p2.waitForFunction(() => document.querySelector('.ki-out')?.textContent.includes('aufgebraucht'));
+await ctx2.grantPermissions(['notifications']);
+await p2.goto(`${BASE}#/einstellungen`); await p2.waitForSelector('#st-push-zeit'); await p2.click('#st-push-zeit .pick[data-k="18:00"]');
+await p2.waitForFunction(() => document.querySelector('#st-push-zeit .pick.sel') && (document.querySelector('#st-push-note').textContent.length > 0 || document.querySelector('#st-push-zeit .pick[data-k="18:00"].sel')), null, { timeout: 15000 });
+const pushStand = await p2.evaluate(() => ({ note: document.querySelector('#st-push-note').textContent, an: !!document.querySelector('#st-push-zeit .pick[data-k="18:00"].sel'), mem: JSON.parse(localStorage.getItem('mt.v1')).erinnern }));
+if (pushStand.an !== !!pushStand.mem || (!pushStand.an && !pushStand.note)) fail(`Erinnerung: Anzeige und Speicher passen nicht zusammen (${JSON.stringify(pushStand)})`);
 p2.on('dialog', (d) => d.accept());
 await p2.goto(`${BASE}#/klasse`); await p2.waitForSelector('#kl-leave'); await p2.click('#kl-leave'); await p2.waitForSelector('#kl-code');
 const raus = calls.find(([path]) => path === '/api/klasse/verlassen');

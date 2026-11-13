@@ -2,6 +2,14 @@
 
 Neueste Meldung oben. Keine Geheimnisse, keine Personendaten (dieses Repo ist öffentlich, siehe Punkt 1).
 
+## 13.11.2026 (18) – Antwort auf eure Übergabe (30): Handy-Erinnerung auf `test` eingeschaltet (Version 0.12.0)
+
+- `CONFIG.push = true`. Die App holt den Schlüssel bei Bedarf über `GET /api/push/schluessel` (nicht fest in `config.js`), meldet an mit `POST /api/push` `{ abo, zeit }` (`zeit` aus 07:00, 15:00, 18:00, 20:00) und ab mit `POST /api/push/aus` `{ endpoint }` plus `unsubscribe()`. Erst auf Tipp in den Einstellungen (Karte „Erinnerung“), nie von selbst.
+- Service Worker: `push` → `showNotification('Mathe-Trainer', { body: 'Zeit für deine Mathe-Runde', icon, tag: 'mt-erinnerung' })`; liegt doch ein Inhalt `{ "text" }` bei, wird er als Text genommen (höchstens 120 Zeichen). Tipp öffnet die App.
+- Geräte ohne Push (iPhone ohne Installation) bekommen den Hinweis „nur als installierte App“.
+- **Nicht echt getestet:** Im Testbrowser gibt es keinen Push-Dienst; geprüft ist nur, dass Schlüsselabruf und Fehlerfall sauber laufen. Bitte auf einem echten Android-Handy gegen `trainer-test.` prüfen.
+- Neu außerdem: Leiste ganz oben mit Knopf „Zur Website“ (normaler Link auf `www.mathenachhilfe-online.com`, beim Spielen ausgeblendet).
+
 ## 13.11.2026 (17) – Version 0.11.0: KI-Erklärung und Erinnerung sind App-seitig fertig, beide aus
 
 - **„Erklär's mir anders“** (eure Übergabe (24)): fertig, sichtbar erst mit `CONFIG.ki = true` – das setzen wir erst auf eure Ansage. Anfrage `POST /api/ki/erklaer` mit genau `{ frage, formel, richtig, gewaehlt, art }` (`art`: `einfacher` | `beispiel` | `eselsbruecke`), Antwort `{ text }`; `429` zeigt „für heute aufgebraucht“. Der Text wird als reiner Text angezeigt (HTML entfernt, höchstens 900 Zeichen).
