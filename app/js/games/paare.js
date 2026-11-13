@@ -1,6 +1,6 @@
 // Graphen-Paare: Jedem Graphen von f den Graphen seiner Ableitung zuordnen.
 import { Plot } from '../plot.js';
-import { h, cssVar, buzz } from '../ui.js';
+import { h, cssVar, buzz, sfx } from '../ui.js';
 import { shuffle } from '../math.js';
 
 const VIEW = { x0: -3, x1: 3, y0: -3, y1: 3 };
@@ -51,7 +51,7 @@ export function paare(el, ctx) {
       c.addEventListener('click', () => {
         if (c.classList.contains('ok')) return;
         fBox.querySelectorAll('.sel').forEach((n) => n.classList.remove('sel'));
-        c.classList.add('sel'); sel = c;
+        c.classList.add('sel'); sel = c; sfx('tap');
       });
       fBox.append(c);
     });
@@ -69,7 +69,7 @@ export function paare(el, ctx) {
           ctx.progress((round * 3 + matched) / (ROUNDS * 3));
           if (matched === 3) nextRow.hidden = false;
         } else {
-          mistakes++;
+          mistakes++; sfx('bad');
           c.classList.add('no'); setTimeout(() => c.classList.remove('no'), 350);
           note.innerHTML = '<div class="note tip"><b>Noch nicht.</b> Wo f einen Hoch- oder Tiefpunkt hat, muss f′ die x-Achse schneiden. Wo f steigt, liegt f′ oberhalb.</div>';
         }

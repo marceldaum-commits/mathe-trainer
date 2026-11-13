@@ -1,5 +1,5 @@
 // Zentrale Einstellungen. VERSION muss mit CACHE in ../sw.js übereinstimmen (npm run check prüft das).
-export const VERSION = '0.1.0';
+export const VERSION = '0.2.0';
 
 export const CONFIG = {
   firma: 'Mathenachhilfe Online',

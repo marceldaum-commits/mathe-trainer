@@ -1,8 +1,8 @@
 // Mathe-Trainer – Start, Navigation und Ansichten.
-import { UNITS, SOON } from './units.js';
-import { store } from './store.js';
+import { UNITS, AREAS } from './units.js';
+import { store, LEVELS } from './store.js';
 import { CONFIG, VERSION } from './config.js';
-import { $, h, esc, ICON, starsHtml, toast } from './ui.js';
+import { $, h, esc, ICON, starsHtml, toast, sfx, sound, confetti } from './ui.js';
 
 const view = $('#view');
 let cleanup = null;
@@ -10,8 +10,10 @@ let installEvent = null;
 
 function chips() {
   $('#chips').innerHTML =
+    `<button class="chip snd" type="button" id="snd" aria-pressed="${sound.on}" aria-label="Ton ${sound.on ? 'ausschalten' : 'einschalten'}">${sound.on ? ICON.speaker : ICON.mute}</button>` +
     `<span class="chip fire" title="Lern-Serie in Tagen">${ICON.fire}${store.streak}</span>` +
     `<span class="chip xp" title="Punkte">${ICON.bolt}${store.xp}</span>`;
+  $('#snd').onclick = () => { sound.on = !sound.on; chips(); sfx('ok'); };
 }
 
 function nextSpot() {
@@ -29,14 +31,18 @@ function home() {
       <p class="lead">Kurze Spiele statt Arbeitsblätter: erst ausprobieren, dann die Regel, dann wie in der Prüfung.</p>
     </section>
     <section class="board">
-      <div class="board-top"><span>${started ? 'WEITER MACHEN' : 'LOS GEHT’S'}</span><b>● ANALYSIS</b></div>
+      <div class="board-top"><span>${started ? 'WEITER MACHEN' : 'LOS GEHT’S'}</span><b>● ${spot ? esc(AREAS.find((a) => a.id === spot.u.area).title.toUpperCase()) : 'FERTIG'}</b></div>
       ${spot
         ? `<h2>${esc(spot.u.steps[spot.i].title)}</h2><p>${esc(spot.u.title)} · Schritt ${spot.i + 1} von ${spot.u.steps.length}</p>
            <a class="btn" href="#/u/${spot.u.id}/${spot.i}">${started ? 'Weiter' : 'Erste Runde starten'} ${ICON.right}</a>`
         : '<h2>Alles geschafft!</h2><p>Neue Einheiten sind in Arbeit. Wiederhole gern eine Runde – die Aufgaben sind jedes Mal neu.</p>'}
     </section>
-    <div class="sect"><h2>Lernpfad Analysis</h2></div>
-    <div class="stack" id="units"></div>
+    <section class="card level" aria-label="Schwierigkeit">
+      <div class="row"><h3 class="grow">Schwierigkeit</h3><b id="lv-name" class="orange"></b></div>
+      <div class="seg" id="lv" role="radiogroup" aria-label="Schwierigkeit wählen"></div>
+      <small class="muted" id="lv-note"></small>
+    </section>
+    <div id="areas" class="stack"></div>
     <div id="install"></div>
     <section class="cta">
       <h2>Hängt es an einer Stelle?</h2>
@@ -50,17 +56,36 @@ function home() {
       <span>Version ${VERSION}</span>
     </footer>
   </div>`);
-  const list = $('#units', el);
-  UNITS.forEach((u, k) => {
-    const p = store.unitProgress(u);
-    list.append(h(`<a class="card unit ${p.done ? 'done' : ''}" href="#/u/${u.id}">
-      <span class="num">${p.done ? ICON.check : String(k + 1).padStart(2, '0')}</span>
-      <span><h3>${esc(u.title)}</h3><small>${esc(u.sub)}</small><div class="bar"><i style="width:${(p.n / p.total) * 100}%"></i></div></span>
-      <span class="go">${ICON.right}</span></a>`));
+  // Schwierigkeit
+  const NOTES = ['Kleine Zahlen, großzügige Bewertung, alle Tipps.', 'Einfache Zahlen, alle Tipps.', 'Wie im Unterricht.', 'Größere Zahlen, mehr Regeln gemischt, weniger Hinweise.', 'Prüfungsniveau und darüber – ohne Tipps.'];
+  const seg = $('#lv', el);
+  const paint = () => {
+    seg.querySelectorAll('button').forEach((b, i) => { const on = i + 1 === store.level; b.classList.toggle('on', on); b.setAttribute('aria-checked', on); });
+    $('#lv-name', el).textContent = LEVELS[store.level - 1];
+    $('#lv-note', el).textContent = NOTES[store.level - 1];
+  };
+  LEVELS.forEach((name, i) => {
+    const b = h(`<button type="button" role="radio" aria-label="${name}">${i + 1}</button>`);
+    b.onclick = () => { store.level = i + 1; paint(); sfx('tap'); };
+    seg.append(b);
   });
-  SOON.forEach((t, k) => list.append(h(`<div class="card unit soon">
-      <span class="num">${String(UNITS.length + k + 1).padStart(2, '0')}</span>
-      <span><h3>${esc(t)}</h3><small>Kommt bald</small></span><span></span></div>`)));
+  paint();
+  // Lernpfade je Gebiet
+  AREAS.forEach((area) => {
+    const units = UNITS.filter((u) => u.area === area.id);
+    const doneN = units.filter((u) => store.unitProgress(u).done).length;
+    const sec = h(`<section class="stack"><div class="sect"><h2>${esc(area.title)}</h2><small class="muted">${doneN}/${units.length} Einheiten</small></div><div class="stack list"></div></section>`);
+    const list = $('.list', sec);
+    units.forEach((u, k) => {
+      const p = store.unitProgress(u);
+      list.append(h(`<a class="card unit ${p.done ? 'done' : ''}" href="#/u/${u.id}">
+        <span class="num">${p.done ? ICON.check : String(k + 1).padStart(2, '0')}</span>
+        <span><h3>${esc(u.title)}</h3><small>${esc(u.sub)}</small><div class="bar"><i style="width:${(p.n / p.total) * 100}%"></i></div></span>
+        <span class="go">${ICON.right}</span></a>`));
+    });
+    list.append(h(`<div class="card unit soon"><span class="num">+</span><span><h3>Kommt bald</h3><small>${esc(area.soon.join(' · '))}</small></span><span></span></div>`));
+    $('#areas', el).append(sec);
+  });
   if (installEvent) {
     const box = h(`<div class="card install"><span class="grow"><h3>Als App aufs Handy</h3><small class="muted">Ein Tipp – dann liegt der Mathe-Trainer auf dem Startbildschirm.</small></span><button class="btn small" type="button">Installieren</button></div>`);
     box.querySelector('button').onclick = async () => { installEvent.prompt(); await installEvent.userChoice; installEvent = null; box.remove(); };
@@ -72,7 +97,7 @@ function home() {
 function unitView(u) {
   const el = h(`<div class="view stack">
     <a class="back" href="#/">${ICON.left} Lernpfad</a>
-    <div><span class="eyebrow">Einheit ${UNITS.indexOf(u) + 1}</span><h1 style="margin-top:8px">${esc(u.title)}</h1><p class="lead" style="margin-top:8px">${esc(u.sub)}</p></div>
+    <div><span class="eyebrow">${esc(AREAS.find((a) => a.id === u.area).title)}</span><h1 style="margin-top:8px">${esc(u.title)}</h1><p class="lead" style="margin-top:8px">${esc(u.sub)}</p></div>
     <div class="steps"></div>
   </div>`);
   u.steps.forEach((s, i) => {
@@ -110,6 +135,7 @@ function finish(u, i, res) {
   const sheet = $('#sheet');
   sheet.innerHTML = `<div class="sheet-in" role="dialog" aria-modal="true" aria-label="Schritt geschafft">
     ${starsHtml(stars)}
+    <small class="muted">Schwierigkeit: ${LEVELS[store.level - 1]}</small>
     <h2>${unitDone ? 'Einheit geschafft!' : stars === 3 ? 'Stark!' : 'Geschafft!'}</h2>
     <div class="gain"><span class="chip xp">${ICON.bolt}+${r.gain} Punkte</span><span class="chip fire">${ICON.fire}${r.streak} ${r.streak === 1 ? 'Tag' : 'Tage'} in Folge</span></div>
     ${(res.mistakes ?? 0) >= 3 ? `<div class="promo">Das Thema hakt noch? Das ist normal. In einer <a href="${CONFIG.probestunde}" target="_blank" rel="noopener">kostenlosen Probestunde</a> gehen wir es gemeinsam durch.</div>` : ''}
@@ -117,6 +143,7 @@ function finish(u, i, res) {
     ${nextI !== null ? `<a class="btn ghost block" href="#/u/${u.id}">Zur Übersicht</a>` : ''}
   </div>`;
   sheet.hidden = false;
+  sfx('win'); if (stars >= 2) confetti(unitDone ? 60 : 32);
   $('#sh-go', sheet).focus();
 }
 

@@ -1,6 +1,8 @@
 // Aufgaben-Runde: Auswahl- und Lücken-Aufgaben mit gestuften Tipps und Fehler-Diagnose.
 import { Plot } from './plot.js';
-import { h, tex, cssVar, buzz } from './ui.js';
+import { h, tex, cssVar, buzz, sfx } from './ui.js';
+import { store } from './store.js';
+import { ft } from './math.js';
 
 /** sequence: Liste von Erzeugern (eine Aufgabe je Eintrag). */
 export function quiz(sequence) {
@@ -9,7 +11,8 @@ export function quiz(sequence) {
 
     function show() {
       plot?.destroy(); plot = null;
-      const q = sequence[qi]();
+      const lv = store.level;
+      const q = sequence[qi](lv);
       let tipN = 0, solved = false;
       el.innerHTML = `
         <div class="q">
@@ -18,7 +21,7 @@ export function quiz(sequence) {
           ${q.formula ? `<div class="formula" id="q-f">${tex(q.formula, true)}</div>` : ''}
           <div id="q-body"></div>
           <div id="q-note"></div>
-          <div class="row"><button class="btn ghost small" id="q-tip" type="button">Tipp</button><span class="grow"></span>
+          <div class="row"><button class="btn ghost small" id="q-tip" type="button" ${lv >= 5 ? 'hidden' : ''}>Tipp</button><span class="grow"></span>
             <button class="btn" id="q-next" type="button" hidden>Weiter</button></div>
         </div>`;
       const body = el.querySelector('#q-body'), note = el.querySelector('#q-note'), next = el.querySelector('#q-next'), tip = el.querySelector('#q-tip');
@@ -46,7 +49,7 @@ export function quiz(sequence) {
         q.slots.forEach((slot, si) => {
           const row = h(`<div class="gaprow"><span>${slot.label}</span><div class="picks"></div></div>`);
           slot.choices.forEach((c) => {
-            const b = h(`<button class="pick" type="button">${tex(String(c).replace('-', '-'))}</button>`);
+            const b = h(`<button class="pick" type="button">${tex(ft(c))}</button>`);
             b.addEventListener('click', () => {
               if (solved) return;
               row.querySelectorAll('.pick').forEach((n) => n.classList.remove('sel', 'wrong'));
@@ -65,7 +68,7 @@ export function quiz(sequence) {
             body.querySelectorAll('.pick.sel').forEach((n) => n.classList.add('right'));
             check.hidden = true; finish(); return;
           }
-          mistakes++;
+          mistakes++; sfx('bad');
           body.querySelectorAll('.gaprow').forEach((row, i) => { if (bad[i]) row.querySelector('.pick.sel')?.classList.add('wrong'); });
           note.innerHTML = `<div class="note bad"><b>Noch nicht.</b> ${bad[0] ? 'Der Vorfaktor stimmt nicht: alter Vorfaktor mal alter Exponent.' : 'Der Exponent stimmt nicht: Er wird um 1 kleiner.'}</div>`;
         });
@@ -81,7 +84,7 @@ export function quiz(sequence) {
               box.querySelectorAll('.opt').forEach((n) => { n.disabled = true; });
               finish();
             } else {
-              mistakes++;
+              mistakes++; sfx('bad');
               b.classList.add('wrong');
               note.innerHTML = `<div class="note bad"><b>Typischer Fehler.</b> ${o.why}</div>`;
             }
@@ -93,6 +96,7 @@ export function quiz(sequence) {
 
       tip.addEventListener('click', () => {
         if (tipN >= q.hints.length) return;
+        sfx('tap');
         note.innerHTML = `<div class="note tip"><b>Tipp ${tipN + 1}.</b> ${q.hints[tipN]}</div>`;
         tipN++;
         if (tipN >= q.hints.length) tip.disabled = true; else tip.textContent = 'Noch ein Tipp';

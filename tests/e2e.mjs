@@ -6,7 +6,11 @@ globalThis.window = { katex: { renderToString: (s) => s } };
 const { LEVELS: MB } = await import('../app/js/games/murmelbahn.js');
 const { LEVELS: TG } = await import('../app/js/games/tangente.js');
 const { ROUNDS: ZR } = await import('../app/js/games/zeichnen.js');
-const { UNITS } = await import('../app/js/units.js').catch(() => ({ UNITS: null }));
+const { UNITS } = await import('../app/js/units.js');
+const { LEVELS: FL } = await import('../app/js/games/flaeche.js');
+const { MISSIONS: LB } = await import('../app/js/games/labor.js');
+const { MISSIONS: LO } = await import('../app/js/games/lotse.js');
+const LEVEL = +(process.env.LEVEL || 3);
 
 const BASE = process.env.BASE || 'http://localhost:8123/';
 const shots = process.argv[2];
@@ -55,6 +59,11 @@ async function quiz() {
 
 // Start
 await page.goto(BASE); await page.waitForSelector('.unit'); await shot('01-start');
+// Schwierigkeit einstellen und prüfen, dass sie gemerkt wird
+await page.locator('#lv button').nth(LEVEL - 1).click();
+if (!(await page.locator('#lv button').nth(LEVEL - 1).evaluate((n) => n.classList.contains('on')))) throw new Error('Schwierigkeit wurde nicht übernommen');
+await page.reload(); await page.waitForSelector('.unit');
+if (!(await page.locator('#lv button').nth(LEVEL - 1).evaluate((n) => n.classList.contains('on')))) throw new Error('Schwierigkeit nach Neuladen vergessen');
 const title = await page.textContent('h1');
 if (!title.includes('Verstehen')) throw new Error('Startseite fehlt');
 
@@ -148,19 +157,60 @@ for (let r = 0; r < ZR.length; r++) {
 }
 await sheetNext(); await info(); await sheetNext();
 
-// Einheit 4: Regeln
+// Alle weiteren Einheiten: jeden Schritt öffnen und je nach Art durchspielen.
+const setRange = (sel, v) => page.locator(sel).evaluate((el, val) => { el.value = val; el.dispatchEvent(new Event('input')); }, v);
+async function playFlaeche() {
+  for (let i = 0; i < FL.length; i++) {
+    await setRange('#fl-r', 60); await page.waitForSelector('#fl-body .opt');
+    if (i === 0) await shot('21-flaeche');
+    for (let k = 0; k < 3; k++) { if (await page.locator('#fl-next').isVisible()) break; await page.locator('#fl-body .opt').nth(k).click(); }
+    await page.click('#fl-next button');
+  }
+}
+async function playLabor() {
+  for (let i = 0; i < LB.length; i++) {
+    if (await page.locator('#lb-rn').isVisible()) await setRange('#lb-in', LB[i].sol.n);
+    if (await page.locator('#lb-rp').isVisible()) await setRange('#lb-ip', LB[i].sol.p);
+    await page.click('#lb-go'); await page.waitForSelector('#lb-note .note.ok', { timeout: 15000 });
+    if (i === 0) await shot('22-labor');
+    await page.click('#lb-go');
+  }
+  await page.waitForSelector('#lb-body .opt');
+  for (let k = 0; k < 4; k++) { if (await page.locator('#lb-go').isVisible()) break; await page.locator('#lb-body .opt').nth(k).click(); }
+  await page.click('#lb-go');
+}
+async function playLotse() {
+  for (let i = 0; i < LO.length; i++) {
+    if (i === 2) { await setRange('#lo-a', 1); await page.click('#lo-go'); await page.waitForSelector('#lo-note .note.tip'); }
+    await setRange('#lo-a', LO[i].sol[0]); await setRange('#lo-b', LO[i].sol[1]);
+    await page.click('#lo-go'); await page.waitForSelector('#lo-note .note.ok');
+    if (i === 3) await shot('23-lotse');
+    await page.click('#lo-go');
+  }
+}
 await page.waitForSelector('.unit'); await page.click('a[href="#/u/regeln"]'); await shot('16-einheit');
-await page.click('a[href="#/u/regeln/0"]'); await page.waitForSelector('.gaprow'); await shot('17-luecke');
-await quiz(); await sheetNext(); await info(); await sheetNext();
-await page.waitForSelector('.opt'); await shot('18-kette'); await quiz(); await sheetNext(); await quiz();
-await page.waitForSelector('#sheet:not([hidden])'); await shot('19-einheit-geschafft'); await sheetNext();
+let shotQuiz = { regeln: '17-luecke', extrema: '24-extrema', 's-baum': '25-baum', 'g-skalar': '26-skalar' };
+for (const u of UNITS.filter((x) => !['formen', 'steigung', 'zeichnen'].includes(x.id))) {
+  for (let i = 0; i < u.steps.length; i++) {
+    await page.goto(`${BASE}#/u/${u.id}/${i}`); await page.waitForSelector('#stage > *');
+    if (await page.locator('#i-next').count()) await info();
+    else if (await page.locator('#fl-c').count()) await playFlaeche();
+    else if (await page.locator('#lb-c').count()) await playLabor();
+    else if (await page.locator('#lo-c').count()) await playLotse();
+    else { if (shotQuiz[u.id] && i <= 1) { await shot(shotQuiz[u.id]); delete shotQuiz[u.id]; } await quiz(); }
+    await page.waitForSelector('#sheet:not([hidden])');
+    if (u.id === 'g-skalar' && i === u.steps.length - 1) await shot('19-einheit-geschafft');
+    await sheetNext();
+  }
+}
+await page.goto(BASE);
 
 // Fortschritt gespeichert?
 await page.waitForSelector('.unit'); await page.waitForTimeout(400); await shot('20-start-fertig');
 const done = await page.locator('.unit.done').count();
-if (done !== 4) throw new Error(`Erwartet 4 fertige Einheiten, gefunden ${done}`);
+if (done !== UNITS.length) throw new Error(`Erwartet ${UNITS.length} fertige Einheiten, gefunden ${done}`);
 await page.reload(); await page.waitForSelector('.unit');
-if ((await page.locator('.unit.done').count()) !== 4) throw new Error('Fortschritt nach Neuladen verloren');
+if ((await page.locator('.unit.done').count()) !== UNITS.length) throw new Error('Fortschritt nach Neuladen verloren');
 const xp = +(await page.textContent('.chip.xp'));
 if (!(xp > 100)) throw new Error(`Punkte unplausibel: ${xp}`);
 
@@ -173,4 +223,4 @@ await ctx.setOffline(false);
 
 await browser.close();
 if (errors.length) { console.error('Konsolen-Fehler:\n' + errors.join('\n')); process.exit(1); }
-console.log(`e2e: kompletter Durchlauf ohne Fehler (${xp} Punkte, 4 Einheiten, offline ok)`);
+console.log(`e2e: kompletter Durchlauf ohne Fehler (Stufe ${LEVEL}, ${xp} Punkte, ${UNITS.length} Einheiten, offline ok)`);

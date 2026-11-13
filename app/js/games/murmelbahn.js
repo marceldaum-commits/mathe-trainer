@@ -1,7 +1,8 @@
 // Murmelbahn: Die Funktion ist die Bahn. Nur wer die Parameter versteht, trifft alle Sterne.
 import { Plot } from '../plot.js';
-import { h, tex, cssVar, buzz } from '../ui.js';
+import { h, tex, cssVar, buzz, sfx } from '../ui.js';
 import { lineTex, vertexTex, fmt } from '../math.js';
+import { store } from '../store.js';
 
 const VIEW = { x0: -6, x1: 6, y0: -2, y1: 10 };
 
@@ -107,7 +108,7 @@ export function murmelbahn(el, ctx) {
     L.params.forEach((q) => { p[q.k] = q.init; });
     attempts = 0; collected = new Set(); ball = null; solved = false;
     el.querySelector('#mb-lv').textContent = `${li + 1}/${LEVELS.length}`;
-    el.querySelector('#mb-hint').textContent = L.hint;
+    el.querySelector('#mb-hint').textContent = store.level >= 4 ? '' : L.hint;
     const box = el.querySelector('#mb-sl');
     box.innerHTML = '';
     L.params.forEach((q) => {
@@ -135,10 +136,11 @@ export function murmelbahn(el, ctx) {
     attempts++;
     const sim = simulate(lvl().kind, p, stars());
     if (sim.reason === 'start') {
+      sfx('bad');
       note.innerHTML = '<div class="note bad">Die Kurve liegt links außerhalb des Bildes – die Murmel findet keinen Start.</div>';
       return;
     }
-    running = true; go.disabled = true; collected = new Set(); note.innerHTML = '';
+    running = true; go.disabled = true; collected = new Set(); note.innerHTML = ''; sfx('roll');
     const st = stars();
     let i = 0;
     const tick = () => {
@@ -149,13 +151,15 @@ export function murmelbahn(el, ctx) {
       if (i < sim.path.length - 1) { raf = requestAnimationFrame(tick); return; }
       running = false; go.disabled = false;
       if (sim.reason === 'win') {
-        solved = true;
-        const s = attempts <= 2 ? 3 : attempts <= 4 ? 2 : 1;
+        solved = true; sfx('ok');
+        const easy = store.level <= 2 ? 2 : 0;
+        const s = attempts <= 2 + easy ? 3 : attempts <= 4 + easy ? 2 : 1;
         totalStars += s;
         const last = li === LEVELS.length - 1;
         note.innerHTML = `<div class="note ok"><b>Alle Sterne!</b> ${tex(`f(x)=${K().tex(p)}`)} passt genau.</div>`;
         go.textContent = last ? 'Fertig' : 'Nächste Bahn';
       } else {
+        sfx('bad');
         const miss = st.length - sim.got.length;
         const why = sim.reason === 'rest' ? 'Die Murmel bleibt liegen – sie braucht Gefälle.'
           : sim.reason === 'out' && sim.path[sim.path.length - 1][0] < sim.x0 ? 'Die Murmel rollt nach links aus dem Bild – die Bahn muss vom Start aus nach rechts abfallen.'

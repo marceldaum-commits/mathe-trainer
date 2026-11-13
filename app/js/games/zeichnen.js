@@ -1,7 +1,8 @@
 // Ableitung zeichnen: Zum Graphen von f die Ableitung mit dem Finger skizzieren.
 import { Plot } from '../plot.js';
-import { tex, cssVar } from '../ui.js';
+import { tex, cssVar, sfx } from '../ui.js';
 import { fmt } from '../math.js';
+import { store } from '../store.js';
 
 const VIEW = { x0: -4, x1: 4, y0: -2.4, y1: 2.4 };
 const N = 161;
@@ -15,7 +16,8 @@ export const ROUNDS = [
 export const colX = (i) => VIEW.x0 + ((VIEW.x1 - VIEW.x0) * i) / (N - 1);
 
 /** Bewertet die Skizze. ys: gezeichnete Werte je Spalte (NaN = nichts). */
-export function grade(round, ys) {
+export function grade(round, ys, lv = 3) {
+  const k = [1.45, 1.2, 1, 0.85, 0.7][lv - 1];
   let n = 0, err = 0, wrongRun = null, best = null;
   for (let i = 0; i < N; i++) {
     const y = ys[i];
@@ -31,7 +33,7 @@ export function grade(round, ys) {
   const coverage = n / N;
   if (coverage < 0.7) return { coverage, stars: 0, err: Infinity, wrong: null };
   const mean = err / n;
-  const stars = mean <= 0.28 ? 3 : mean <= 0.5 ? 2 : mean <= 0.75 ? 1 : 0;
+  const stars = mean <= 0.28 * k ? 3 : mean <= 0.5 * k ? 2 : mean <= 0.75 * k ? 1 : 0;
   const wrong = best && best.b - best.a >= 10 ? { x0: colX(best.a), x1: colX(best.b), sign: best.sign } : null;
   return { coverage, stars, err: mean, wrong };
 }
@@ -71,7 +73,7 @@ export function zeichnen(el, ctx) {
   function load() {
     ys = new Float32Array(N).fill(NaN); checked = null; tries = 0;
     el.querySelector('#z-n').textContent = `${ri + 1}/${ROUNDS.length}`;
-    el.querySelector('#z-tip').textContent = R().tip;
+    el.querySelector('#z-tip').textContent = store.level >= 5 ? '' : R().tip;
     el.querySelector('#z-fx').innerHTML = tex(R().tex);
     note.innerHTML = ''; btn.textContent = 'Prüfen'; btn.disabled = true; clr.hidden = false;
     draw();
@@ -110,8 +112,8 @@ export function zeichnen(el, ctx) {
       return;
     }
     tries++;
-    checked = grade(R(), ys);
-    clr.hidden = true;
+    checked = grade(R(), ys, store.level);
+    clr.hidden = true; sfx(checked.stars ? 'ok' : 'bad');
     let msg;
     if (checked.wrong) {
       const w = checked.wrong;

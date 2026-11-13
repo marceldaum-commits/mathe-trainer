@@ -5,7 +5,9 @@ const XP_STEP = 10;
 function load() {
   try { return JSON.parse(localStorage.getItem(KEY)) || {}; } catch { return {}; }
 }
-let mem = Object.assign({ done: {}, xp: 0, streak: { n: 0, last: '' } }, load());
+let mem = Object.assign({ done: {}, xp: 0, streak: { n: 0, last: '' }, level: 3 }, load());
+
+export const LEVELS = ['Sehr leicht', 'Leicht', 'Mittel', 'Schwer', 'Sehr schwer'];
 
 function save() {
   try { localStorage.setItem(KEY, JSON.stringify(mem)); } catch { /* privater Modus: läuft ohne Speichern weiter */ }
@@ -35,6 +37,9 @@ export function nextStreak(streak, today = new Date()) {
 
 export const store = {
   get xp() { return mem.xp; },
+  /** Schwierigkeit 1 (sehr leicht) bis 5 (sehr schwer). */
+  get level() { return Math.min(5, Math.max(1, mem.level | 0 || 3)); },
+  set level(v) { mem.level = Math.min(5, Math.max(1, v | 0)); save(); },
   get streak() {
     // Anzeige: Serie gilt noch, wenn heute oder am letzten Werktag gespielt wurde.
     const probe = nextStreak(mem.streak);
@@ -56,5 +61,5 @@ export const store = {
     const n = unit.steps.filter((s) => this.isDone(unit.id, s.id)).length;
     return { n, total: unit.steps.length, done: n === unit.steps.length };
   },
-  reset() { mem = { done: {}, xp: 0, streak: { n: 0, last: '' } }; save(); },
+  reset() { mem = { done: {}, xp: 0, streak: { n: 0, last: '' }, level: 3 }; save(); },
 };

@@ -2,6 +2,7 @@
 import { Plot } from '../plot.js';
 import { h, tex, cssVar, buzz, ICON } from '../ui.js';
 import { fmt } from '../math.js';
+import { store } from '../store.js';
 
 export const LEVELS = [
   {
@@ -25,14 +26,15 @@ export const LEVELS = [
 ];
 
 /** Prüft, ob die Stelle x die Mission erfüllt. Liefert den Index des getroffenen Ziels oder -1. */
-export function hit(level, mission, x, found) {
+export function hit(level, mission, x, found, lv = 3) {
+  const k = [1.6, 1.3, 1, 0.8, 0.6][lv - 1];
   const m = level.d(x);
   if (mission.type === 'zero') {
-    if (Math.abs(m) > 0.09) return -1;
+    if (Math.abs(m) > 0.09 * k) return -1;
     return mission.xs.findIndex((t, i) => !found.has(i) && Math.abs(t - x) < 0.25);
   }
-  if (mission.type === 'at') return Math.abs(x - mission.xs[0]) < mission.tol ? 0 : -1;
-  return Math.abs(m - mission.m) < 0.12 ? 0 : -1;
+  if (mission.type === 'at') return Math.abs(x - mission.xs[0]) < mission.tol * k ? 0 : -1;
+  return Math.abs(m - mission.m) < 0.12 * k ? 0 : -1;
 }
 
 export function tangente(el, ctx) {
@@ -82,7 +84,7 @@ export function tangente(el, ctx) {
     found = new Set(); hold = 0; holdIdx = -1;
     el.querySelector('#tg-n').textContent = `${doneMissions() + 1}/${totalMissions}`;
     el.querySelector('#tg-t').textContent = M().text;
-    el.querySelector('#tg-s').textContent = M().sub;
+    el.querySelector('#tg-s').textContent = store.level >= 5 ? '' : M().sub;
     note.innerHTML = ''; nextRow.hidden = true;
     draw();
   }
@@ -113,7 +115,7 @@ export function tangente(el, ctx) {
 
   function probe() {
     if (!nextRow.hidden) return;
-    const idx = hit(L(), M(), x, found);
+    const idx = hit(L(), M(), x, found, store.level);
     if (idx < 0) { hold = 0; holdIdx = -1; return; }
     if (idx !== holdIdx) { holdIdx = idx; hold = performance.now(); return; }
     if (performance.now() - hold < 320) return;
@@ -147,7 +149,7 @@ export function tangente(el, ctx) {
     const v = L().view;
     x = Math.max(v.x0 + 0.1, Math.min(v.x1 - 0.1, +(x + (ev.key === 'ArrowLeft' ? -0.05 : 0.05)).toFixed(2)));
     trace.push([x, L().d(x)]);
-    holdIdx = hit(L(), M(), x, found); hold = holdIdx >= 0 ? performance.now() - 400 : 0;
+    holdIdx = hit(L(), M(), x, found, store.level); hold = holdIdx >= 0 ? performance.now() - 400 : 0;
     probe(); draw();
   });
 
