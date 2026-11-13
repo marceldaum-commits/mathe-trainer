@@ -229,7 +229,8 @@ const startHeight = await page.evaluate(() => document.documentElement.scrollHei
 if (startHeight > 2400) fail(`Startseite zu lang: ${startHeight}px`);
 if (!(await page.locator('.week').count())) fail('Wochen-Ziel fehlt auf der Startseite');
 await page.click('#nav a[data-tab="lernen"]'); await page.waitForSelector('a[href="#/g/analysis"]');
-if (!(await page.locator('#nav a[data-tab="lernen"].on').count())) fail('Menü markiert „Lernen" nicht');
+await page.waitForSelector('#nav a[data-tab="lernen"].on', { timeout: 5000 }).catch(() => fail('Menü markiert „Lernen" nicht'));
+await page.waitForFunction(() => document.querySelector('#view h1')?.textContent.includes('Wähle ein Gebiet'));
 await page.click('a[href="#/g/stochastik"]'); await page.waitForSelector('a[href="#/u/s-labor"]');
 await page.click('a[href="#/u/s-labor"]'); await page.waitForSelector('.steps');
 if (!(await page.textContent('.back')).includes('Stochastik')) fail('Zurück-Link nennt das Gebiet nicht');
