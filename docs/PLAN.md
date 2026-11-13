@@ -32,6 +32,73 @@ Gebiete im Wechsel, je Einheit dasselbe Prüfniveau (`npm run check` + Browser-D
 | 5 | e- und ln-Funktionen, Wachstum | Kombinatorik | Kugeln, Spiegelungen |
 | danach | Abi-Modus je Bundesland (Phase 2), dann Mittelstufe (Algebra, Funktionen-Grundlagen) | | |
 
+## Free und Premium (Marcel, 13.11.2026) – nur Plan, noch nicht beauftragt
+
+Marcels Idee: Die kostenlose Fassung bleibt, wie sie ist, und wird stetig erweitert. Später kommt eine
+Bezahl-Fassung, in der eine KI immer neue Aufgaben erzeugt.
+
+**Einordnung:** Schon die kostenlose Fassung erzeugt ihre Aufgaben selbst (gewürfelte Zahlen, nie dieselbe Aufgabe).
+Sie kann aber nur Aufgaben-*Arten*, die programmiert wurden. Die KI bringt, was Regeln nicht können: neue
+Aufgabenarten, Textaufgaben mit wechselnden Sachzusammenhängen, Erklärungen passend zum eigenen Fehler, Rückfragen.
+
+| | Free | Premium (KI) |
+| --- | --- | --- |
+| Lernpfade, Spiele, Erklär-Karten | alle, wird laufend erweitert | alle |
+| Aufgaben | unbegrenzt, aus programmierten Erzeugern | zusätzlich KI-Aufgaben: Sachaufgaben, Abi-Stil, gemischte Themen |
+| Schwierigkeit | 5 Stufen, selbst gewählt | passt sich automatisch an Stärken und Schwächen an |
+| Hilfe | gestufte Tipps, Fehler-Diagnose | KI-Tutor: „Erklär mir das anders", Rückfragen zum eigenen Rechenweg |
+| Prüfung | Abi-Modus auf Zeit (Phase 2) | individuelle Probeklausur aus den eigenen Schwächen, mit Auswertung |
+| Eltern | Bericht zum Teilen (Phase 2) | Wochenbericht, Lernplan bis zum Abi-Termin |
+| Konto | keines, alles im Gerät | Konto nötig (Zugang, Geräte-Wechsel) |
+| Internet | nur zum ersten Laden | für KI-Funktionen nötig |
+
+**So bleibt die KI verlässlich (wichtigster Punkt):** KI-Modelle verrechnen sich. Deshalb liefert die KI nie
+ungeprüft aus.
+1. Die KI liefert eine Aufgabe in fester Form: Text, Funktion/Zahlen, Lösung, typische Fehler, Tipps.
+2. Der Server **rechnet die Lösung selbst nach** (derselbe Prüf-Ansatz wie in `tests/run.mjs`: Ableitung numerisch,
+   Integral numerisch, Wahrscheinlichkeit nachgezählt, Vektoren nachgerechnet).
+3. Nur geprüfte Aufgaben gehen an den Schüler; durchgefallene werden verworfen und neu erzeugt.
+4. Geprüfte Aufgaben wandern in einen Vorrat – das spart Kosten und macht die App schnell.
+5. Für Bereiche, die sich nicht automatisch nachrechnen lassen (Begründungen), bleibt es bei Aufgaben mit
+   Musterlösung und Selbstkontrolle, klar gekennzeichnet.
+
+**Was technisch dazukommt** (die Free-Fassung braucht davon nichts):
+- **Server-Teil** für die KI-Anfragen. Der KI-Schlüssel liegt nur dort – nie in der App und nie in diesem
+  öffentlichen Repo. Premium-Code käme in ein eigenes, privates Repo.
+- **Konto und Zugang:** am einfachsten über den bestehenden Shop der Website (Kauf → Zugangscode oder Login).
+  Das läuft über den Leitstand (Shop, Zahlung, Kundendaten sind dort zuständig).
+- **Kostenbremse:** Tageslimit je Konto (wie beim Hacklab), Vorrat geprüfter Aufgaben, kleines Modell für
+  Aufgaben, größeres nur für den Tutor.
+- **Datenschutz:** Nutzer sind oft minderjährig → Einwilligung der Eltern beim Kauf, Vertrag zur
+  Auftragsverarbeitung mit dem KI-Anbieter, keine Namen oder persönlichen Angaben in den KI-Anfragen,
+  eigener Abschnitt in der Datenschutzerklärung. Vor dem Bau rechtlich prüfen lassen.
+- **App-Stores (falls später):** Käufe in der App kosten dort 15–30 % Gebühr; Kauf über die Website vermeidet das.
+
+**Stufen (jede einzeln entscheidbar, keine ist beauftragt):**
+
+| Stufe | Inhalt | Voraussetzung |
+| --- | --- | --- |
+| P0 | Free fertig ausbauen: Daueraufgabe unten, Abi-Modus, Eltern-Bericht | läuft |
+| P1 | Probe ohne Bezahlung: KI-Aufgaben mit Nachrechnen, nur intern auf der Testseite; Fehlerquote und Kosten je Aufgabe messen | KI-Schlüssel (Geheimnis, ein Schritt von Marcel), kleiner Server-Teil |
+| P2 | Konto und Zugang über den Shop, Tageslimit, Vorrat | Leitstand/Verwaltung, Datenschutz geklärt |
+| P3 | Premium-Start: KI-Aufgaben und KI-Tutor | Preis und Angebot (Marketing-Raum) |
+| P4 | Anpassende Schwierigkeit, Probeklausur, Wochenbericht, Lernplan | Erfahrungen aus P3 |
+
+**Offene Entscheidungen für später:** Abo oder Einmalkauf; eigenes Produkt oder Zugabe für Nachhilfe-Kunden
+(z. B. Premium gratis für aktive Schüler – starkes Werbe-Argument); welche Funktionen genau hinter die Bezahlschranke;
+Preis. Die Preis- und Angebotsfragen gehören in Marcels Marketing-Raum.
+
+## Was bis zur „kompletten" Free-Fassung noch fehlt (Stand 13.11.2026)
+
+Reihenfolge = Tabelle „Daueraufgabe" unten; der tägliche Ausbau arbeitet sie ab.
+
+| Gebiet | Schon da | Fehlt noch |
+| --- | --- | --- |
+| Analysis | Parameter/Scheitelform, Ableitungsbegriff, grafisches Ableiten, Potenz-/Ketten-/Produkt-/e-Regel, Extremstellen, Hoch-/Tiefpunkt, Stammfunktion, bestimmtes Integral | Extremwertaufgaben (Werkstatt), Wendepunkte, Monotonie, Symmetrie, Kurvendiskussion am Stück, Steckbrief, Funktionenscharen, ln-Funktion, Wachstum, Fläche zwischen Graphen, Tangente/Normale rechnerisch, Grenzwerte |
+| Stochastik | Erwartungswert, Standardabweichung, Bernoulli-Formel, „mindestens ein Treffer", Baumdiagramm | Bedingte Wahrscheinlichkeit, Vierfeldertafel, kumulierte Binomialverteilung, Sigma-Regeln, Hypothesentests, Normalverteilung, Kombinatorik |
+| Analytische Geometrie | Verbindungsvektor, Linearkombination (2D), Betrag, Skalarprodukt/Orthogonalität | 3D-Ansicht, Geraden, Ebenen (Parameter-/Koordinatenform), Lagebeziehungen, Schnittpunkte, Abstände, Winkel, Kreuzprodukt |
+| Übergreifend | Schwierigkeit 1–5, Töne, Serie, Punkte, Offline, Testseite | Bundesland-Schalter (Bayern, Hessen GK/LK), Prüfungsteil ohne/mit Hilfsmittel, Abi-Modus auf Zeit mit Punkte-Prognose, Eltern-Bericht, Fehler-Kartei (Wiederholen in Abständen), Operatoren-Training, Abi-Countdown, Duell/Bestenliste/Tages-Aufgabe (braucht Server), Lehrplan-Abgleich mit den offiziellen Vorgaben, Test auf echten Handys |
+
 **Täglicher Ausbau (Marcel, 13.11.2026):** Eine Routine erweitert jeden Tag die Aufgaben und setzt neue dazu.
 Regeln dafür: in der Reihenfolge der „Kommt bald"-Listen in `app/js/units.js` (Gebiete abwechselnd), jede neue
 Aufgabe mit Fehler-Diagnose, Tipps und allen fünf Schwierigkeiten, jede mit Selbstprüfung in `tests/run.mjs`;
