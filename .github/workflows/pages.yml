@@ -1,10 +1,8 @@
 # Stellt den Ordner app/ als Vorschau über GitHub Pages bereit.
-# Einmalig nötig: Repo → Settings → Pages → Source: „GitHub Actions".
+# Voraussetzung: Repo → Settings → Pages → Source: „GitHub Actions". Nicht automatisch aktiv.
 name: Vorschau (GitHub Pages)
+# Läuft nur auf Knopfdruck (Actions → „Run workflow"): Veröffentlichen ist Marcels Entscheidung.
 on:
-  push:
-    branches: [main]
-    paths: ['app/**', '.github/workflows/pages.yml']
   workflow_dispatch:
 permissions:
   contents: read

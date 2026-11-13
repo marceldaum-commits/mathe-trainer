@@ -8,7 +8,13 @@ Stand: 13.11.2026 · Status: **im Bau** (Marcels „los" am 13.11.2026).
 | --- | --- | --- |
 | 13.11.2026 | **Version 0.1.0 – Gerüst und erste vier Einheiten (Phase 0 und Anfang Phase 1).** Installierbare Web-App im Website-Design (hell/dunkel), offline nutzbar, Update-Hinweis. Lernpfad Analysis: (1) *Funktionen formen* – Murmelbahn (5 Bahnen), Erklär-Karten, Graph-und-Gleichung-Aufgaben; (2) *Steigung entdecken* – Tangenten-Surfer mit Spur der Steigung, Erklär-Karten, Graphen-Paare; (3) *Ableitung zeichnen* – Skizze mit dem Finger samt Vorzeichen-Rückmeldung; (4) *Ableitungsregeln* – Lücken- und Auswahl-Aufgaben (Potenz-, Ketten-, e-Regel) mit gestuften Tipps und Fehler-Diagnose. Punkte, Sterne, Serie ohne Druck (Wochenende zählt nicht), Probestunden-Kasten. Fortschritt nur auf dem Gerät. Geprüft: `npm run check` (11.883 Prüfungen) und kompletter Durchlauf im Handy-Browser hell und dunkel, auch offline (`tests/e2e.mjs`). Graphen laufen über eine eigene kleine Zeichenfläche statt JSXGraph (leichter, reicht bisher). | Im Repo, **noch nicht online** – siehe `docs/DEPLOY.md` |
 
-**Als Nächstes:** online stellen (Abstimmung Server), dann Extrempunkte/Kurvendiskussion, „Fläche füllen"
+**Zusammenarbeit (13.11.2026):** Dieser Chat ist der Raum „Plattform · Mathe-Trainer" im Projekt
+„Nachhilfe – online". Es gelten die Regeln aus `AGENTS.md` im Repo `Website_Backup` (Branch `premium-design`):
+kein Serverzugriff, Veröffentlichung nur über den Leitstand (Testseite → Marcels Go → live), keine Tracking-/
+Werbedienste ohne Freigabe, Entscheidungsfragen als Auswahlfenster, neue Ideen sammeln statt vorziehen.
+Meldungen an den Leitstand: `MELDUNG_AN_LEITSTAND.md`.
+
+**Als Nächstes:** online stellen (über den Leitstand), dann Extrempunkte/Kurvendiskussion, „Fläche füllen"
 (Integral), Extremwert-Werkstatt, Steckbrief; danach Phase 2 (Bundesland, Abi-Modus, Eltern-Bericht).
 
 **Richtungswechsel (Marcel, 11.11.2026):** Handy zuerst. Jugendliche nutzen kaum noch PCs.

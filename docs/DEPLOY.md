@@ -1,7 +1,8 @@
 # Online stellen
 
-Stand: 13.11.2026. Die App ist fertig zum Ausliefern; **wo** sie läuft, ist noch offen
-(Abstimmung mit der Website-Sitzung „Nachhilfe Online – Premium-Design").
+Stand: 13.11.2026. Die App ist fertig zum Ausliefern. **Veröffentlicht wird nur über den Leitstand**
+(Chat „Nachhilfe Online – Premium-Design"): Testseite → Marcels Go → live. Dieser Raum hat keinen Serverzugriff.
+Meldungen an den Leitstand stehen in `MELDUNG_AN_LEITSTAND.md`.
 
 ## Was ausgeliefert wird
 
@@ -25,9 +26,9 @@ Kein PHP, keine Datenbank, kein Build-Schritt, keine Cookies, keine Anfragen an 
 
 1. **Eigener Server (Ziel):** Subdomain anlegen, Inhalt von `app/` hineinlegen. Selbst-einrichtend wäre:
    Der Server holt regelmäßig den Branch `live` dieses Repos und kopiert `app/` ins Web-Verzeichnis.
-2. **GitHub Pages (Vorschau, sofort möglich):** Einmal im Repo unter Settings → Pages → Source
-   „GitHub Actions" wählen. Danach stellt `.github/workflows/pages.yml` jede Änderung an `app/` automatisch
-   bereit unter `https://marceldaum-commits.github.io/mathe-trainer/`.
+2. **GitHub Pages (nur als Vorschau, nur mit Marcels Go):** Im Repo unter Settings → Pages → Source
+   „GitHub Actions" wählen und den Lauf „Vorschau (GitHub Pages)" von Hand starten. Adresse dann:
+   `https://marceldaum-commits.github.io/mathe-trainer/`. Läuft nicht automatisch.
 
 ## Offene Fragen an die Website-Sitzung
 
