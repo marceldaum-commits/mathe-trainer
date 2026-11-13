@@ -34,10 +34,14 @@ nur dann bekommen installierte Apps das Update.
 | Ort | Inhalt |
 | --- | --- |
 | `app/js/units.js` | Lernpfad: Einheiten und Schritte (entdecken → benennen → Brücke → festigen) |
-| `app/js/games/` | Spiele: Murmelbahn, Tangenten-Surfer, Ableitung zeichnen, Graphen-Paare, Fläche füllen, Extremwert-Werkstatt, Zufalls-Labor, Vektor-Lotse, Raum-Blick |
+| `app/js/games/` | Spiele: Murmelbahn, Kurven-Flug, Tangenten-Surfer, Ableitung zeichnen, Graphen-Paare, Fläche füllen, Extremwert-Werkstatt, Zufalls-Labor, Vektor-Lotse, Raum-Blick, Boss-Aufgabe |
 | `app/js/gen.js`, `app/js/gen2.js` | Aufgaben-Erzeuger mit Fehler-Diagnose, fünf Schwierigkeitsstufen |
 | `app/js/exam.js` | Runden auf Zeit: Abi-Modus, Tages-Runde, Duell per Link |
 | `app/js/extras.js` | Einstellungen, Eltern-Bericht, Fehler-Kartei |
+| `app/js/badges.js` | Abzeichen, Titel, freischaltbare Farben |
+| `app/js/share.js` | Erfolgskarte als Bild |
+| `app/js/api.js` | Gegenstelle zum Server-Teil (abgeschaltet, siehe docs/SERVER.md) |
+| `app/js/ki/` | Format, Rechenausdruck-Leser und Prüfer für KI-Aufgaben (siehe docs/KI.md) |
 | `app/js/quiz.js` | Aufgaben-Runde und Erklär-Karten |
 | `app/js/plot.js` | Zeichenfläche für Graphen |
 | `app/js/store.js` | Fortschritt (nur auf dem Gerät) |
