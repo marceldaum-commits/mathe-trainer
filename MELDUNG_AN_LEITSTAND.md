@@ -13,6 +13,13 @@ Für den Server ändert sich nichts: keine neuen Adressen, keine neuen Dienste, 
 Der vierte Punkt (**Android-Widget**) kommt mit einer neuen App-Datei; dafür bleibt die Bitte aus (23) – `assetlinks.json` – bestehen.
 Live-Schaltung wie immer erst nach Marcels Go durch euch.
 
+**Zu eurer Übergabe (39) – Web-App und APK auf demselben Stand:** verstanden, eine Quelle, jede Freigabe gilt für beide.
+- **Neue APK nötig? Für 0.15.0 selbst: nein** (nur Web-Inhalt). **Für das Widget: ja**, weil sich die Hülle ändert
+  (neuer Empfänger im Android-Manifest, keine neue Berechtigung). App-Datei **1.1.0 (versionCode 2)** ist gebaut,
+  gleicher Schlüssel und gleicher Fingerabdruck wie in (23), liegt in Marcels Drive-Ordner. Quellen: `android/widget/`.
+- **Installierte Ansicht:** Der Browser-Test prüft Manifest, Kurzbefehle und Vollbild-Angaben. Ein echtes Android-Gerät
+  gibt es in diesem Raum nicht – APK und Widget sind **nicht auf einem Handy geprüft**; das muss Marcel am Gerät tun.
+
 ## 13.11.2026 (23) – Android-App-Datei ist gebaut: bitte `assetlinks.json` auf `trainer.` ablegen
 
 Marcel hat einen Drive-Ordner für die App-Datei genannt; dort liegen jetzt die APK (zum direkten Installieren) und das AAB (für die Play Console), Version 1.0.0, Paket `com.mathenachhilfe_online.trainer`.
