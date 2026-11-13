@@ -1,10 +1,18 @@
 // Rechen- und Formel-Helfer. Polynome als Koeffizienten-Liste: c[i] gehört zu x^i.
 
-export const ri = (a, b) => a + Math.floor(Math.random() * (b - a + 1));
-export const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
+let rng = Math.random;
+/** Zufallszahl in [0,1). Mit seedRandom(zahl) wird die Folge festgelegt (gleiche Aufgaben für alle), mit seedRandom(null) wieder frei. */
+export const rand = () => rng();
+export function seedRandom(seed) {
+  if (seed === null || seed === undefined) { rng = Math.random; return; }
+  let a = (seed >>> 0) || 1;
+  rng = () => { a |= 0; a = (a + 0x6d2b79f5) | 0; let x = Math.imul(a ^ (a >>> 15), 1 | a); x = (x + Math.imul(x ^ (x >>> 7), 61 | x)) ^ x; return ((x ^ (x >>> 14)) >>> 0) / 4294967296; };
+}
+export const ri = (a, b) => a + Math.floor(rand() * (b - a + 1));
+export const pick = (arr) => arr[Math.floor(rand() * arr.length)];
 export function shuffle(arr) {
   const a = [...arr];
-  for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; }
+  for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(rand() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; }
   return a;
 }
 

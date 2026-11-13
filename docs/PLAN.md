@@ -6,6 +6,7 @@ Stand: 13.11.2026 · Status: **im Bau** (Marcels „los" am 13.11.2026).
 
 | Datum | Was | Stand |
 | --- | --- | --- |
+| 13.11.2026 | **Version 0.3.0 – Trainer inhaltlich komplett (Marcel: „das machst du jetzt, damit der Trainer soweit komplett ist").** Alle Punkte der Fehl-Liste gebaut. **Analysis:** Kurvendiskussion (Wendepunkte, Monotonie, Symmetrie, Grenzwerte, gemischte Runde), Extremwertaufgaben mit Spiel **Extremwert-Werkstatt**, Tangentengleichung, Steckbrief, Funktionenscharen, ln-Funktion, Wachstum, Fläche zwischen Graphen. **Stochastik:** Vierfeldertafel, bedingte Wahrscheinlichkeit, kumulierte Binomialverteilung, Sigma-Regeln, Normalverteilung, Hypothesentests (Begriffe, Ablehnungsbereich), Kombinatorik. **Geometrie:** drehbare 3D-Ansicht (Spiel **Raum-Blick**), Punktprobe, Lage von Geraden, Ebenen, Schnittpunkt Gerade–Ebene, Kreuzprodukt, Abstände, Winkel. **Prüfung:** Operatoren-Training. **Übergreifend:** Bundesland-/Kurs-Schalter und Abi-Termin (Einstellungen), **Abi-Modus** auf Zeit in Teil A (ohne Hilfsmittel) und Teil B (mit Hilfsmitteln) mit Notenpunkte-Prognose und Fehler-Rückblick, **Abi-Countdown** mit Tagesziel, **Fehler-Kartei** (Wiederholen nach 1, 3, 7, 16 Tagen), **Eltern-Bericht** (Stärken, Schwächen, Abi-Ergebnisse; Drucken/Teilen), **Tages-Runde** (für alle dieselben Aufgaben) und **Duell per Link** (Gegner bekommt dieselben Aufgaben), eigene Bestwerte. Jetzt **22 Einheiten, 76 Schritte, 9 Spiele, 42 Aufgaben-Erzeuger**. Geprüft: `npm run check` (264.971 Prüfungen, alle Stufen) und Browser-Durchlauf aller Einheiten und Funktionen auf Stufe 1, 3 und 5. **Grenzen, ehrlich:** Duell und Tages-Runde laufen ohne Server (über einen Link bzw. das Datum) – eine gemeinsame Bestenliste für alle gibt es erst mit Server. Der Bundesland-Schalter steuert bisher nur den Abi-Modus; der Abgleich jeder Einheit mit den Lehrplänen von Bayern und Hessen steht aus. Die Notenpunkte sind eine Orientierung aus Auswahl-Aufgaben. Kein Test auf einem echten Handy. | Auf `test` → trainer-test |
 | 13.11.2026 | **Version 0.2.1 – Befunde der Testseite behoben (Leitstand).** Ordner `app/icons/` → `app/img/` (auf dem Server ist `/icons/` belegt), Service Worker installiert auch, wenn eine Nebendatei fehlt, Probestunden-Link → `/probestunde/`, Datenschutz-Link → `/datenschutz/#mathe-trainer`, Lizenzdateien als `.txt`. `npm run check` prüft jetzt auch die auf dem Server erlaubten Dateiarten; der Browser-Durchlauf prüft, dass jede vorgeladene Datei erreichbar ist. Branch `test` angelegt. | Auf `test` → trainer-test |
 | 13.11.2026 | **Version 0.2.0 – Schwierigkeit, Stochastik, Geometrie, mehr Analysis, Töne (Marcel: „von sehr einfach bis sehr schwer", „Stochastik und Geometrie auch", „Sounds einbauen").** (1) **Schwierigkeit 1–5** auf der Startseite (sehr leicht … sehr schwer), wird gemerkt; steuert Zahlen und Aufgabentypen aller Erzeuger, die Strenge beim Zeichnen, die Toleranz im Surfer, Hinweise und Tipps (Stufe 5 ohne Tipps). (2) **Analysis** erweitert: Produktregel, Einheit *Extrempunkte* (Extremstellen, Hoch-/Tiefpunkt), Einheit *Fläche und Integral* mit Spiel **Fläche füllen** (Unter-/Obersumme), Stammfunktionen, bestimmte Integrale. (3) **Stochastik** neu: Spiel **Zufalls-Labor** (400 Versuchsreihen, Erwartungswert entdecken), Erwartungswert/Standardabweichung, Bernoulli-Formel, Baumdiagramme mit/ohne Zurücklegen. (4) **Analytische Geometrie** neu: Spiel **Vektor-Lotse** (Verbindungsvektor, Linearkombination), Verbindungsvektoren, Betrag, Skalarprodukt/Orthogonalität. (5) **Töne** (im Browser erzeugt, keine Dateien) für Tippen, Stern, richtig, falsch, Abschluss; Schalter zum Stummschalten oben rechts; **Konfetti** beim Abschluss. Startseite nach Gebieten gegliedert. Jetzt 10 Einheiten, 36 Schritte, 7 Spiele, 16 Aufgaben-Erzeuger. Geprüft: `npm run check` (102.204 Prüfungen über alle fünf Stufen) und Browser-Durchlauf aller Einheiten auf Stufe 1, 3 und 5. **Täglicher Ausbau** per Routine eingerichtet (siehe unten). | Im Repo, noch nicht online |
 | 13.11.2026 | **Version 0.1.0 – Gerüst und erste vier Einheiten (Phase 0 und Anfang Phase 1).** Installierbare Web-App im Website-Design (hell/dunkel), offline nutzbar, Update-Hinweis. Lernpfad Analysis: (1) *Funktionen formen* – Murmelbahn (5 Bahnen), Erklär-Karten, Graph-und-Gleichung-Aufgaben; (2) *Steigung entdecken* – Tangenten-Surfer mit Spur der Steigung, Erklär-Karten, Graphen-Paare; (3) *Ableitung zeichnen* – Skizze mit dem Finger samt Vorzeichen-Rückmeldung; (4) *Ableitungsregeln* – Lücken- und Auswahl-Aufgaben (Potenz-, Ketten-, e-Regel) mit gestuften Tipps und Fehler-Diagnose. Punkte, Sterne, Serie ohne Druck (Wochenende zählt nicht), Probestunden-Kasten. Fortschritt nur auf dem Gerät. Geprüft: `npm run check` (11.883 Prüfungen) und kompletter Durchlauf im Handy-Browser hell und dunkel, auch offline (`tests/e2e.mjs`). Graphen laufen über eine eigene kleine Zeichenfläche statt JSXGraph (leichter, reicht bisher). | Im Repo, **noch nicht online** – siehe `docs/DEPLOY.md` |
@@ -19,18 +20,6 @@ Meldungen an den Leitstand: `MELDUNG_AN_LEITSTAND.md`.
 **Wege nach draußen (Leitstand, 13.11.2026):** Branch `test` → automatisch auf `trainer-test.mathenachhilfe-online.com`.
 Branch `live` → `trainer.mathenachhilfe-online.com`, wird **nie von diesem Raum gesetzt**, nur nach Marcels Go über den
 Leitstand. Erlaubte Dateiarten in `app/`: html, css, js, mjs, json, webmanifest, svg, png, jpg, webp, ico, woff2, txt.
-
-**Daueraufgabe (Marcel, 13.11.2026: „Es muss definitiv dazu, dass die App stetig erweitert wird"):** feste Reihenfolge,
-Gebiete im Wechsel, je Einheit dasselbe Prüfniveau (`npm run check` + Browser-Durchlauf), jede Version erst auf `test`.
-
-| Runde | Analysis | Stochastik | Analytische Geometrie |
-| --- | --- | --- | --- |
-| 1 | Extremwert-Werkstatt | Bedingte Wahrscheinlichkeit, Vierfeldertafel | Geraden im Raum |
-| 2 | Kurvendiskussion komplett (Wendepunkte, Monotonie, Symmetrie) | Hypothesentests | Ebenen |
-| 3 | Steckbriefaufgaben | Normalverteilung | Abstände und Winkel |
-| 4 | Funktionenscharen | Kumulierte Binomialverteilung, Sigma-Regeln | Lagebeziehungen |
-| 5 | e- und ln-Funktionen, Wachstum | Kombinatorik | Kugeln, Spiegelungen |
-| danach | Abi-Modus je Bundesland (Phase 2), dann Mittelstufe (Algebra, Funktionen-Grundlagen) | | |
 
 ## Free und Premium (Marcel, 13.11.2026) – nur Plan, noch nicht beauftragt
 
@@ -78,7 +67,7 @@ ungeprüft aus.
 
 | Stufe | Inhalt | Voraussetzung |
 | --- | --- | --- |
-| P0 | Free fertig ausbauen: Daueraufgabe unten, Abi-Modus, Eltern-Bericht | läuft |
+| P0 | Free-Fassung: inhaltlich komplett seit Version 0.3.0, wird laufend erweitert (Daueraufgabe unten) | läuft |
 | P1 | Probe ohne Bezahlung: KI-Aufgaben mit Nachrechnen, nur intern auf der Testseite; Fehlerquote und Kosten je Aufgabe messen | KI-Schlüssel (Geheimnis, ein Schritt von Marcel), kleiner Server-Teil |
 | P2 | Konto und Zugang über den Shop, Tageslimit, Vorrat | Leitstand/Verwaltung, Datenschutz geklärt |
 | P3 | Premium-Start: KI-Aufgaben und KI-Tutor | Preis und Angebot (Marketing-Raum) |
@@ -88,16 +77,34 @@ ungeprüft aus.
 (z. B. Premium gratis für aktive Schüler – starkes Werbe-Argument); welche Funktionen genau hinter die Bezahlschranke;
 Preis. Die Preis- und Angebotsfragen gehören in Marcels Marketing-Raum.
 
-## Was bis zur „kompletten" Free-Fassung noch fehlt (Stand 13.11.2026)
+## Stand der Free-Fassung (13.11.2026, Version 0.3.0)
 
-Reihenfolge = Tabelle „Daueraufgabe" unten; der tägliche Ausbau arbeitet sie ab.
+Die Fehl-Liste vom 13.11. ist abgearbeitet. Ab jetzt wird nur noch erweitert.
 
-| Gebiet | Schon da | Fehlt noch |
-| --- | --- | --- |
-| Analysis | Parameter/Scheitelform, Ableitungsbegriff, grafisches Ableiten, Potenz-/Ketten-/Produkt-/e-Regel, Extremstellen, Hoch-/Tiefpunkt, Stammfunktion, bestimmtes Integral | Extremwertaufgaben (Werkstatt), Wendepunkte, Monotonie, Symmetrie, Kurvendiskussion am Stück, Steckbrief, Funktionenscharen, ln-Funktion, Wachstum, Fläche zwischen Graphen, Tangente/Normale rechnerisch, Grenzwerte |
-| Stochastik | Erwartungswert, Standardabweichung, Bernoulli-Formel, „mindestens ein Treffer", Baumdiagramm | Bedingte Wahrscheinlichkeit, Vierfeldertafel, kumulierte Binomialverteilung, Sigma-Regeln, Hypothesentests, Normalverteilung, Kombinatorik |
-| Analytische Geometrie | Verbindungsvektor, Linearkombination (2D), Betrag, Skalarprodukt/Orthogonalität | 3D-Ansicht, Geraden, Ebenen (Parameter-/Koordinatenform), Lagebeziehungen, Schnittpunkte, Abstände, Winkel, Kreuzprodukt |
-| Übergreifend | Schwierigkeit 1–5, Töne, Serie, Punkte, Offline, Testseite | Bundesland-Schalter (Bayern, Hessen GK/LK), Prüfungsteil ohne/mit Hilfsmittel, Abi-Modus auf Zeit mit Punkte-Prognose, Eltern-Bericht, Fehler-Kartei (Wiederholen in Abständen), Operatoren-Training, Abi-Countdown, Duell/Bestenliste/Tages-Aufgabe (braucht Server), Lehrplan-Abgleich mit den offiziellen Vorgaben, Test auf echten Handys |
+| Gebiet | Enthalten |
+| --- | --- |
+| Analysis (10 Einheiten) | Parameter/Scheitelform, Ableitungsbegriff, grafisches Ableiten, Potenz-/Ketten-/Produkt-/e-Regel, Extrempunkte, Kurvendiskussion (Wendepunkte, Monotonie, Symmetrie, Grenzwerte), Extremwertaufgaben, Tangente, Steckbrief, Scharen, ln, Wachstum, Stammfunktion, Integral, Fläche zwischen Graphen |
+| Stochastik (6 Einheiten) | Erwartungswert, Standardabweichung, Bernoulli-Formel, Baumdiagramm, Vierfeldertafel, bedingte Wahrscheinlichkeit, kumulierte Binomialverteilung, Sigma-Regeln, Normalverteilung, Hypothesentests, Kombinatorik |
+| Analytische Geometrie (5 Einheiten) | Verbindungsvektor, Linearkombination, Betrag, Skalarprodukt, 3D-Ansicht, Punktprobe, Lage von Geraden, Ebenen, Schnittpunkt, Kreuzprodukt, Abstände, Winkel |
+| Prüfung (1 Einheit + Modi) | Operatoren, Abi-Modus Teil A/B mit Prognose, Tages-Runde, Duell per Link |
+| Übergreifend | Schwierigkeit 1–5, Töne, Serie, Fehler-Kartei, Eltern-Bericht, Bundesland/Kurs, Abi-Countdown, Offline |
+
+**Bewusst offen (braucht Entscheidung oder Zuarbeit):**
+- Gemeinsame Bestenliste und Duell in Echtzeit: brauchen einen Server-Teil (über den Leitstand).
+- Lehrplan-Abgleich Bayern/Hessen je Einheit: gegen die offiziellen Vorgaben prüfen, dann den Schalter auf die Lernpfade ausdehnen.
+- Test auf echten Handys (Android und iPhone), vor allem Zeichnen, Drehen, Töne.
+- Aufgaben mit freier Eingabe (Rechenweg Zeile für Zeile, Formel-Tastatur) – bisher Auswahl-, Lücken- und Spiel-Aufgaben.
+
+**Daueraufgabe (Marcel, 13.11.2026: „Es muss definitiv dazu, dass die App stetig erweitert wird"; „du erweiterst es dann nur immer"):**
+feste Reihenfolge, Gebiete im Wechsel, je Paket dasselbe Prüfniveau (`npm run check` + Browser-Durchlauf), jede Version erst auf `test`.
+
+| Runde | Analysis | Stochastik | Analytische Geometrie | Prüfung/Übergreifend |
+| --- | --- | --- | --- | --- |
+| 1 | Normale, Schnittwinkel, Berührpunkte | Zweiseitige Tests | Ebenen in Parameterform, Umrechnen | Mehr Varianten je Erzeuger (Sachtexte) |
+| 2 | Trigonometrische Funktionen ableiten/integrieren | Zufallsgrößen: Erwartungswert und Varianz allgemein | Abstand Punkt–Gerade, windschiefe Geraden | Rechenweg-Puzzle (Schritte ordnen) |
+| 3 | Rotationskörper, Mittelwert einer Funktion | Konfidenzintervalle (wo im Lehrplan) | Spiegelungen, Lotfußpunkt | Freie Zahleneingabe mit Toleranz |
+| 4 | Integration durch Substitution/partielle Integration (LK) | Stochastische Unabhängigkeit | Kugeln, Lage Ebene–Ebene | Lehrplan-Abgleich und Bundesland-Filter |
+| 5 | Sachaufgaben im Abi-Stil (Bestand, Änderungsrate) | Urnenmodelle vertieft | Flächen- und Volumenberechnung mit Vektoren | Mittelstufe: Algebra- und Funktionen-Grundlagen |
 
 **Täglicher Ausbau (Marcel, 13.11.2026):** Eine Routine erweitert jeden Tag die Aufgaben und setzt neue dazu.
 Regeln dafür: in der Reihenfolge der „Kommt bald"-Listen in `app/js/units.js` (Gebiete abwechselnd), jede neue

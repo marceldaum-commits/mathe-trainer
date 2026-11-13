@@ -1,7 +1,7 @@
 // Aufgaben-Erzeuger: jede Aufgabe wird frisch gewürfelt. Falsche Antworten bilden typische Fehler ab
 // und tragen eine Diagnose. Jeder Erzeuger bekommt die Schwierigkeit lv (1 = sehr leicht … 5 = sehr schwer).
 // Felder wie `val`, `num`, `xs`, `vec` sind die Antworten in Rechenform – für die Selbstprüfung in tests/.
-import { ri, pick, shuffle, ft, fmt, polyTex, polyEval, polyDeriv, vertexTex } from './math.js';
+import { ri, pick, shuffle, rand, ft, fmt, polyTex, polyEval, polyDeriv, vertexTex } from './math.js';
 import { tex } from './ui.js';
 
 const uniq = (opts) => new Set(opts.map((o) => o.tex)).size === opts.length;
@@ -43,7 +43,7 @@ export function genScheitel(lv = 3) {
 /** Lücken-Aufgabe: Potenzregel für einen einzelnen Term (ab „schwer" auch negative Exponenten). */
 export function genPotenzLuecke(lv = 3) {
   const a = pick(tier(lv, [1, 2, 3], [2, 3, 4, 5], [2, 3, 4, 5, 6, -2, -3, -4], [3, 5, 6, -2, -4, 0.5], [-3, -5, 6, 0.5, 1.5]));
-  const n = lv >= 4 && Math.random() < 0.5 ? -ri(1, 3) : ri(2, tier(lv, 3, 4, 5, 6, 7));
+  const n = lv >= 4 && rand() < 0.5 ? -ri(1, 3) : ri(2, tier(lv, 3, 4, 5, 6, 7));
   const coefs = shuffle([...new Set([a * n, a, n, a * (n - 1)])]);
   const exps = shuffle([...new Set([n - 1, n, n + 1])]);
   const A = a === 1 ? '' : a === -1 ? '-' : ft(a);
@@ -302,7 +302,7 @@ const SIGMA_OK = [[16, 0.5], [36, 0.5], [64, 0.5], [100, 0.5], [25, 0.2], [100, 
 /** Erwartungswert oder Standardabweichung einer binomialverteilten Größe. */
 export function genErwartung(lv = 3) {
   for (;;) {
-    const askSigma = lv >= 3 && Math.random() < (lv >= 4 ? 0.6 : 0.35);
+    const askSigma = lv >= 3 && rand() < (lv >= 4 ? 0.6 : 0.35);
     const [n, p] = askSigma ? pick(SIGMA_OK) : [pick(tier(lv, [10, 20], [10, 20, 40], [20, 40, 50, 60], [30, 60, 80, 120], [45, 80, 150, 240])), pick(lv <= 2 ? [0.5, 0.2, 0.1] : [0.2, 0.25, 0.4, 0.6, 0.75, 0.3])];
     const q = 1 - p, mu = n * p, vr = n * p * q, sg = Math.sqrt(vr);
     const mk = (num, correct, why) => ({ tex: ft(num), correct, why, num: +num.toFixed(2) });
@@ -330,7 +330,7 @@ export function genBinomial(lv = 3) {
   const p = pick([0.2, 0.3, 0.4, 0.6, 0.7]), q = +(1 - p).toFixed(1);
   const n = ri(tier(lv, 3, 4, 5, 6, 8), tier(lv, 4, 6, 8, 10, 12));
   const P = ft(p), Q = ft(q);
-  if (lv >= 4 && Math.random() < 0.5) {
+  if (lv >= 4 && rand() < 0.5) {
     const opts = [
       { tex: `1-${Q}^{${n}}`, correct: true, num: 1 - q ** n },
       { tex: `${P}^{${n}}`, correct: false, why: 'Das ist die Wahrscheinlichkeit für <b>nur</b> Treffer.', num: p ** n },
@@ -364,8 +364,8 @@ export function genBinomial(lv = 3) {
 export function genBaum(lv = 3) {
   for (;;) {
     const r = ri(2, tier(lv, 3, 4, 5, 6, 7)), b = ri(2, tier(lv, 3, 4, 5, 6, 8)), N = r + b;
-    const ohne = lv >= 3 ? Math.random() < 0.75 : false;
-    const versch = lv >= 4 && Math.random() < 0.5;
+    const ohne = lv >= 3 ? rand() < 0.75 : false;
+    const versch = lv >= 4 && rand() < 0.5;
     const mk = (t, num, correct, why) => ({ tex: t, num, correct, why });
     let opts, ask, explain;
     if (versch && ohne) {
@@ -442,7 +442,7 @@ const TRIPLES = [[[0, 3, 4], 5], [[1, 2, 2], 3], [[2, 3, 6], 7], [[4, 4, 7], 9],
 export function genBetrag(lv = 3) {
   for (;;) {
     const [base, len] = pick(TRIPLES.slice(0, tier(lv, 3, 4, 6, 8, 9)));
-    const v = shuffle(base).map((c) => (lv >= 2 && Math.random() < 0.5 ? -c : c));
+    const v = shuffle(base).map((c) => (lv >= 2 && rand() < 0.5 ? -c : c));
     const abs = v.map(Math.abs), sumAbs = abs[0] + abs[1] + abs[2], sq = len * len;
     const mk = (num, correct, why) => ({ tex: ft(num), num, correct, why });
     const opts = [
@@ -469,7 +469,7 @@ export function genSkalar(lv = 3) {
     const R = tier(lv, 3, 4, 5, 6, 8);
     const u = rv(R);
     let v = rv(R);
-    if (lv >= 2 && Math.random() < 0.4 && u[2] !== 0) {
+    if (lv >= 2 && rand() < 0.4 && u[2] !== 0) {
       // orthogonal bauen: letzte Koordinate so wählen, dass das Skalarprodukt 0 wird
       const t = -(u[0] * v[0] + u[1] * v[1]) / u[2];
       if (Number.isInteger(t) && Math.abs(t) <= 12) v = [v[0], v[1], t];
@@ -495,12 +495,23 @@ export function genSkalar(lv = 3) {
   }
 }
 
+/* ───────────── Themen-Namen (für Bericht und Fehler-Kartei) ───────────── */
+const TOPICS = [[genScheitel, 'Scheitelform'], [genPotenzLuecke, 'Potenzregel'], [genPolynom, 'Potenz- und Summenregel'], [genKette, 'Kettenregel'],
+  [genExp, 'e-Funktion ableiten'], [genProdukt, 'Produktregel'], [genExtremstellen, 'Extremstellen'], [genHochTief, 'Hoch- und Tiefpunkte'],
+  [genStammfunktion, 'Stammfunktionen'], [genIntegral, 'Bestimmtes Integral'], [genErwartung, 'Erwartungswert und Streuung'],
+  [genBinomial, 'Bernoulli-Formel'], [genBaum, 'Baumdiagramme'], [genVektorAB, 'Verbindungsvektoren'], [genBetrag, 'Betrag eines Vektors'], [genSkalar, 'Skalarprodukt']];
+for (const [fn, topic] of TOPICS) fn.topic = topic;
+
+/** Wählt je nach Stufe einen Erzeuger und merkt sich, welcher es war. */
+export function mixOf(lists) {
+  return (lv = 3) => { const fn = pick(lists[Math.min(lists.length, Math.max(1, lv)) - 1]); const q = fn(lv); q.gen = fn.name; q.topic = fn.topic; return q; };
+}
+
 /* ───────────── Gemischte Runden ───────────── */
 
-const mix = (lv, lists) => pick(tier(lv, ...lists))(lv);
-export const genMix = (lv = 3) => mix(lv, [[genPotenzLuecke, genPolynom], [genPotenzLuecke, genPolynom, genPolynom], [genPolynom, genPolynom, genKette, genExp, genPotenzLuecke], [genPolynom, genKette, genExp, genProdukt, genPotenzLuecke], [genKette, genExp, genProdukt, genProdukt, genPolynom]]);
-export const genExtremaMix = (lv = 3) => pick([genExtremstellen, genHochTief])(lv);
-export const genIntegralMix = (lv = 3) => pick([genStammfunktion, genIntegral])(lv);
-export const genStochastikMix = (lv = 3) => pick([genErwartung, genBinomial, genBaum])(lv);
-export const genGeometrieMix = (lv = 3) => pick([genVektorAB, genBetrag, genSkalar])(lv);
-export { fmt };
+export const genMix = mixOf([[genPotenzLuecke, genPolynom], [genPotenzLuecke, genPolynom, genPolynom], [genPolynom, genPolynom, genKette, genExp, genPotenzLuecke], [genPolynom, genKette, genExp, genProdukt, genPotenzLuecke], [genKette, genExp, genProdukt, genProdukt, genPolynom]]);
+export const genExtremaMix = mixOf([[genExtremstellen, genHochTief]]);
+export const genIntegralMix = mixOf([[genStammfunktion, genIntegral]]);
+export const genStochastikMix = mixOf([[genErwartung, genBinomial, genBaum]]);
+export const genGeometrieMix = mixOf([[genVektorAB, genBetrag, genSkalar]]);
+export { fmt, tier, par, vecTex, frac, uniq, uniqNum, rv, same, binom, kubik, fac, SIGMA_OK };

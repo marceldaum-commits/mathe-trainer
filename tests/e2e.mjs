@@ -10,6 +10,8 @@ const { UNITS } = await import('../app/js/units.js');
 const { LEVELS: FL } = await import('../app/js/games/flaeche.js');
 const { MISSIONS: LB } = await import('../app/js/games/labor.js');
 const { MISSIONS: LO } = await import('../app/js/games/lotse.js');
+const { LEVELS: WK } = await import('../app/js/games/werkstatt.js');
+const { MISSIONS: RM, lookAlong } = await import('../app/js/games/raum.js');
 const LEVEL = +(process.env.LEVEL || 3);
 
 const BASE = process.env.BASE || 'http://localhost:8123/';
@@ -188,8 +190,33 @@ async function playLotse() {
     await page.click('#lo-go');
   }
 }
+async function playWerkstatt() {
+  for (let i = 0; i < WK.length; i++) {
+    await page.click('#wk-go'); await page.waitForSelector('#wk-note .note.tip');
+    await setRange('#wk-r', WK[i].sol); await page.click('#wk-go'); await page.waitForSelector('#wk-note .note.ok');
+    if (i === 0) await shot('27-werkstatt');
+    await page.click('#wk-go');
+  }
+}
+async function playRaum() {
+  for (let i = 0; i < RM.length; i++) {
+    if (RM[i].type === 'look') {
+      const a = lookAlong(RM[i].lines[0].u);
+      // erst echt mit dem Finger drehen (Zeigerereignisse), dann die Zielrichtung einstellen
+      const b = await page.locator('#rm-c').boundingBox();
+      await page.mouse.move(b.x + b.width / 2, b.y + b.height / 2); await page.mouse.down(); await page.mouse.move(b.x + b.width / 2 + 60, b.y + b.height / 2 - 30, { steps: 8 }); await page.mouse.up();
+      if (await page.locator('#rm-next').isVisible()) throw new Error('Raum: zufälliges Drehen darf nicht lösen');
+      await page.locator('#rm-c').evaluate((el, v) => el.setView(v.yaw, v.pitch), a);
+      await page.waitForSelector('#rm-next:not([hidden])'); await shot('28-raum-blick');
+    } else {
+      if (i === 1) await shot('29-raum-frage');
+      for (let k = 0; k < 3; k++) { if (await page.locator('#rm-next').isVisible()) break; await page.locator('#rm-body .opt').nth(k).click(); }
+    }
+    await page.click('#rm-next button');
+  }
+}
 await page.waitForSelector('.unit'); await page.click('a[href="#/u/regeln"]'); await shot('16-einheit');
-let shotQuiz = { regeln: '17-luecke', extrema: '24-extrema', 's-baum': '25-baum', 'g-skalar': '26-skalar' };
+let shotQuiz = { regeln: '17-luecke', extrema: '24-extrema', 's-baum': '25-baum', 'g-skalar': '26-skalar', 's-bedingt': '30-vierfelder', 'g-gerade': '31-lage', 's-test': '32-test', operatoren: '33-operatoren', anwenden: '34-tangente' };
 for (const u of UNITS.filter((x) => !['formen', 'steigung', 'zeichnen'].includes(x.id))) {
   for (let i = 0; i < u.steps.length; i++) {
     await page.goto(`${BASE}#/u/${u.id}/${i}`); await page.waitForSelector('#stage > *');
@@ -197,12 +224,74 @@ for (const u of UNITS.filter((x) => !['formen', 'steigung', 'zeichnen'].includes
     else if (await page.locator('#fl-c').count()) await playFlaeche();
     else if (await page.locator('#lb-c').count()) await playLabor();
     else if (await page.locator('#lo-c').count()) await playLotse();
+    else if (await page.locator('#wk-c').count()) await playWerkstatt();
+    else if (await page.locator('#rm-c').count()) await playRaum();
     else { if (shotQuiz[u.id] && i <= 1) { await shot(shotQuiz[u.id]); delete shotQuiz[u.id]; } await quiz(); }
     await page.waitForSelector('#sheet:not([hidden])');
-    if (u.id === 'g-skalar' && i === u.steps.length - 1) await shot('19-einheit-geschafft');
+    if (u.id === 'operatoren' && i === u.steps.length - 1) await shot('19-einheit-geschafft');
     await sheetNext();
   }
 }
+await page.goto(BASE);
+
+// Einstellungen: Bundesland und Abi-Termin → Countdown auf der Startseite
+await page.goto(`${BASE}#/einstellungen`); await page.waitForSelector('#st-land');
+await page.click('#st-land [data-k="HE-LK"]');
+const in90 = new Date(Date.now() + 90 * 86400000).toISOString().slice(0, 10);
+await page.fill('#st-abi', in90); await page.locator('#st-abi').dispatchEvent('change'); await shot('35-einstellungen');
+await page.goto(BASE); await page.waitForSelector('.count');
+const cd = +(await page.textContent('.count .big'));
+if (!(cd >= 89 && cd <= 91)) throw new Error(`Countdown falsch: ${cd}`);
+await shot('36-start-countdown');
+
+// Runde auf Zeit durchspielen: immer die erste Antwort (manche richtig, manche falsch)
+async function playRound(endSel) {
+  for (let guard = 0; guard < 40; guard++) {
+    if (await page.locator(endSel).count()) return;
+    const first = page.locator('#ex-q .opt').first();
+    if (await first.count()) await first.click({ timeout: 3000 }).catch(() => {});
+    await page.waitForTimeout(950);
+  }
+  throw new Error('Runde endet nicht');
+}
+// Abi-Modus
+await page.goto(`${BASE}#/abi`); await page.waitForSelector('a[href="#/abi/A"]'); await shot('37-abi');
+await page.click('a[href="#/abi/A"]'); await page.waitForSelector('#ex-q .opt'); await shot('38-abi-aufgabe');
+await playRound('#ex-np'); await shot('39-abi-ergebnis');
+const np = +(await page.textContent('#ex-np'));
+if (!(np >= 0 && np <= 15)) throw new Error(`Notenpunkte unplausibel: ${np}`);
+// Tages-Runde
+await page.goto(`${BASE}#/tag`); await page.click('#rd-go'); await page.waitForSelector('#ex-q .opt'); await playRound('#rd-score');
+const tagScore = +(await page.textContent('#rd-score'));
+// Duell: spielen, Link nehmen, als Herausgeforderter öffnen
+await page.goto(`${BASE}#/duell`); await page.click('#rd-go'); await page.waitForSelector('#ex-q .opt');
+const firstPrompt = await page.textContent('#ex-q');
+await playRound('#rd-score'); await shot('40-duell-ergebnis');
+const link = await page.inputValue('#rd-link');
+if (!/#\/duell\/\d+-[1-5]-\d+$/.test(link)) throw new Error(`Duell-Link falsch: ${link}`);
+await page.goto(link); await page.reload(); await page.waitForSelector('#rd-go');
+if (!(await page.textContent('.lead')).includes('herausgefordert')) throw new Error('Herausforderung wird nicht angezeigt');
+await page.click('#rd-go'); await page.waitForSelector('#ex-q .opt');
+if ((await page.textContent('#ex-q')) !== firstPrompt) throw new Error('Duell: Gegner bekommt nicht dieselbe erste Aufgabe');
+await playRound('#rd-score');
+if (!(await page.textContent('.board')).includes('Dein Gegner hatte')) throw new Error('Duell-Vergleich fehlt');
+// Fehler-Kartei: fällig machen (Datum zurückdrehen), wiederholen
+const kn = await page.evaluate(() => { const m = JSON.parse(localStorage.getItem('mt.v1')); for (const k of Object.values(m.kartei)) k.due = '2020-01-01'; localStorage.setItem('mt.v1', JSON.stringify(m)); return Object.keys(m.kartei).length; });
+if (!kn) throw new Error('Fehler-Kartei ist leer, obwohl Fehler gemacht wurden');
+await page.goto(BASE); await page.reload(); await page.waitForSelector('a[href="#/wiederholen"]'); await shot('41-start-wiederholen');
+await page.click('a[href="#/wiederholen"]'); await page.waitForSelector('#stage > *');
+for (let guard = 0; guard < 12 && !(await page.locator('#kt-done').count()); guard++) {
+  if (await page.locator('.gaprow').count()) {
+    const rows = page.locator('.gaprow'); const a = await rows.nth(0).locator('.pick').count(), b = await rows.nth(1).locator('.pick').count();
+    search: for (let i = 0; i < a; i++) for (let j = 0; j < b; j++) { await rows.nth(0).locator('.pick').nth(i).click(); await rows.nth(1).locator('.pick').nth(j).click(); await page.click('#q-body .btn'); if (await page.locator('#q-next').isVisible()) break search; }
+  } else for (let i = 0; i < 4; i++) { if (await page.locator('#q-next').isVisible()) break; await page.locator('.opt').nth(i).click(); }
+  await page.click('#q-next'); await page.waitForTimeout(80);
+}
+await page.waitForSelector('#kt-done');
+// Bericht
+await page.goto(`${BASE}#/bericht`); await page.waitForSelector('.rep-grid'); await shot('42-bericht');
+const rep = await page.textContent('.report');
+if (!rep.includes('Bericht für Eltern') || !rep.includes('Abi-Modus') || !rep.includes('Hier hakt es noch')) throw new Error('Bericht unvollständig');
 await page.goto(BASE);
 
 // Fortschritt gespeichert?
@@ -233,4 +322,4 @@ await ctx.setOffline(false);
 
 await browser.close();
 if (errors.length) { console.error('Konsolen-Fehler:\n' + errors.join('\n')); process.exit(1); }
-console.log(`e2e: kompletter Durchlauf ohne Fehler (Stufe ${LEVEL}, ${xp} Punkte, ${UNITS.length} Einheiten, offline ok)`);
+console.log(`e2e: kompletter Durchlauf ohne Fehler (Stufe ${LEVEL}, ${xp} Punkte, ${UNITS.length} Einheiten, Abi-Modus ${np} NP, Tages-Runde ${tagScore}, Duell, Kartei, Bericht, offline ok)`);

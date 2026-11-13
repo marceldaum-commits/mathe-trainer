@@ -8,6 +8,14 @@ import { paare } from './games/paare.js';
 import { flaeche } from './games/flaeche.js';
 import { labor } from './games/labor.js';
 import { lotse } from './games/lotse.js';
+import { werkstatt } from './games/werkstatt.js';
+import { raum } from './games/raum.js';
+import { mixOf } from './gen.js';
+import {
+  genWendestelle, genMonotonie, genSymmetrie, genGrenzwert, genTangente, genSteckbrief, genSchar, genExtremwert, genLn, genWachstum, genFlaecheZwischen,
+  genVierfelder, genBedingt, genKumuliert, genSigma, genHypothese, genNormal, genKombinatorik,
+  genGeradePunkt, genEbene, genLage, genSchnittpunkt, genAbstand, genWinkel, genKreuz, genOperator,
+} from './gen2.js';
 import {
   genScheitel, genPotenzLuecke, genPolynom, genKette, genExp, genProdukt, genMix,
   genExtremstellen, genHochTief, genExtremaMix, genStammfunktion, genIntegral, genIntegralMix,
@@ -89,6 +97,7 @@ export const UNITS = [
       ]) },
       { id: 'stamm', kind: 'Brücke', title: 'Stammfunktionen', run: quiz([genStammfunktion, genStammfunktion, genStammfunktion]) },
       { id: 'bestimmt', kind: 'Brücke', title: 'Integrale berechnen', run: quiz([genIntegral, genIntegral, genIntegral]) },
+      { id: 'zwischen', kind: 'Brücke', title: 'Fläche zwischen zwei Graphen', run: quiz([genFlaecheZwischen, genFlaecheZwischen, genFlaecheZwischen]) },
       { id: 'mix', kind: 'Festigen', title: 'Gemischte Runde', run: quiz([genIntegralMix, genIntegralMix, genIntegralMix, genIntegralMix]) },
     ],
   },
@@ -141,10 +150,153 @@ export const UNITS = [
       { id: 'mix', kind: 'Festigen', title: 'Geometrie gemischt', run: quiz([genGeometrieMix, genGeometrieMix, genGeometrieMix, genGeometrieMix, genGeometrieMix]) },
     ],
   },
+  {
+    id: 'kurve', area: 'analysis', title: 'Kurvendiskussion', sub: 'Wendepunkte, Monotonie, Symmetrie, Verhalten im Unendlichen',
+    steps: [
+      { id: 'regel', kind: 'Benennen', title: 'Der Fahrplan', run: info([
+        { eyebrow: 'Fahrplan', title: 'Eine Kurvendiskussion in sechs Schritten', html: `<p><b>1.</b> Symmetrie · <b>2.</b> Verhalten für große ${tex('x')} · <b>3.</b> Nullstellen · <b>4.</b> Extrempunkte · <b>5.</b> Wendepunkte · <b>6.</b> Skizze</p><p class="muted">Extrempunkte kennst du schon. Hier kommen die übrigen Bausteine.</p>` },
+        { title: 'Wendepunkte', html: `${T("f''(x_0)=0\\quad\\text{und}\\quad f'''(x_0)\\neq 0")}<p>Am Wendepunkt wechselt der Graph die Krümmung – von einer Links- in eine Rechtskurve oder umgekehrt. Dort ist er am steilsten.</p>` },
+        { title: 'Monotonie und Symmetrie', html: `<p>${tex("f'(x)>0")}: steigend, ${tex("f'(x)<0")}: fallend.</p><p>Nur gerade Exponenten: achsensymmetrisch zur y-Achse. Nur ungerade: punktsymmetrisch zum Ursprung.</p>${T('f(-x)=f(x)\\qquad f(-x)=-f(x)')}` },
+        { title: 'Verhalten im Unendlichen', html: `<p>Bei Brüchen aus Polynomen entscheidet der höchste Exponent:</p><p>Nenner höher: Grenzwert 0. Gleich hoch: Verhältnis der Leitkoeffizienten. Zähler höher: unendlich.</p>` },
+      ]) },
+      { id: 'wende', kind: 'Brücke', title: 'Wendepunkte und Monotonie', run: quiz([genWendestelle, genWendestelle, genMonotonie, genMonotonie]) },
+      { id: 'sym', kind: 'Brücke', title: 'Symmetrie und Grenzwerte', run: quiz([genSymmetrie, genSymmetrie, genGrenzwert, genGrenzwert]) },
+      { id: 'mix', kind: 'Festigen', title: 'Kurvendiskussion am Stück', run: quiz(Array(6).fill(mixOf([[genSymmetrie, genGrenzwert, genExtremstellen, genHochTief, genWendestelle, genMonotonie]]))) },
+    ],
+  },
+  {
+    id: 'extremwert', area: 'analysis', title: 'Extremwertaufgaben', sub: 'Die beste Lösung finden',
+    steps: [
+      { id: 'werkstatt', kind: 'Entdecken', title: 'Extremwert-Werkstatt', run: werkstatt },
+      { id: 'regel', kind: 'Benennen', title: 'So gehst du vor', run: info([
+        { eyebrow: 'In vier Schritten', title: 'Von der Aufgabe zur Zielfunktion', html: `<p><b>1.</b> Was soll möglichst groß oder klein werden? Das ist die Zielgröße.</p><p><b>2.</b> Nebenbedingung nutzen, bis nur noch eine Variable übrig ist.</p><p><b>3.</b> Zielfunktion ableiten und null setzen.</p><p><b>4.</b> Prüfen: Liegt die Lösung im sinnvollen Bereich? Was passiert am Rand?</p>` },
+        { title: 'Beispiel Zaun an der Mauer', html: `${T("A(x)=x\\cdot(20-2x)=20x-2x^2")}${T("A'(x)=20-4x=0\\ \\Rightarrow\\ x=5")}<p>Genau das hast du in der Werkstatt mit dem Regler gefunden.</p>` },
+      ]) },
+      { id: 'aufgaben', kind: 'Brücke', title: 'Optimale Abmessungen', run: quiz([genExtremwert, genExtremwert, genExtremwert, genExtremwert]) },
+    ],
+  },
+  {
+    id: 'anwenden', area: 'analysis', title: 'Tangente, Steckbrief, Scharen', sub: 'Typische Abi-Aufgaben',
+    steps: [
+      { id: 'regel', kind: 'Benennen', title: 'Drei Werkzeuge', run: info([
+        { title: 'Tangente', html: `${T("t(x)=f'(x_0)\\cdot(x-x_0)+f(x_0)")}<p>Steigung aus der Ableitung, dann den Berührpunkt einsetzen. Die Normale steht senkrecht dazu: ${tex("m_n=-\\tfrac{1}{m_t}")}.</p>` },
+        { title: 'Steckbrief', html: `<p>Jede Angabe wird zu einer Gleichung:</p><p>Punkt ${tex('P(a\\mid b)')}: ${tex('f(a)=b')} · Extrempunkt bei ${tex('a')}: ${tex("f'(a)=0")} · Wendepunkt bei ${tex('a')}: ${tex("f''(a)=0")} · Steigung ${tex('m')} bei ${tex('a')}: ${tex("f'(a)=m")}</p>` },
+        { title: 'Funktionenscharen', html: `<p>Der Parameter ${tex('k')} ist eine feste, aber unbekannte Zahl. Abgeleitet wird nach ${tex('x')} – ${tex('k')} bleibt wie eine Zahl stehen.</p>${T("f_k(x)=x^2-2kx\\ \\Rightarrow\\ f_k'(x)=2x-2k")}` },
+      ]) },
+      { id: 'tangente', kind: 'Brücke', title: 'Tangentengleichung', run: quiz([genTangente, genTangente, genTangente]) },
+      { id: 'steckbrief', kind: 'Brücke', title: 'Bedingungen aufstellen', run: quiz([genSteckbrief, genSteckbrief, genSteckbrief]) },
+      { id: 'schar', kind: 'Brücke', title: 'Scharen untersuchen', run: quiz([genSchar, genSchar, genSchar]) },
+    ],
+  },
+  {
+    id: 'expln', area: 'analysis', title: 'ln-Funktion und Wachstum', sub: 'Logarithmus ableiten, Wachstum beschreiben',
+    steps: [
+      { id: 'regel', kind: 'Benennen', title: 'ln und Wachstum', run: info([
+        { eyebrow: 'Merken', title: 'Die ln-Funktion', html: `${T("(\\ln x)'=\\dfrac1x\\qquad \\bigl(\\ln(ax+b)\\bigr)'=\\dfrac{a}{ax+b}")}<p>${tex('\\ln')} ist die Umkehrung von ${tex('e^x')}: Aus ${tex('e^{kt}=2')} wird ${tex('kt=\\ln(2)')}.</p>` },
+        { title: 'Exponentielles Wachstum', html: `${T('N(t)=N_0\\cdot a^t=N_0\\cdot e^{kt}')}<p>Pro Zeitschritt wird mit demselben Faktor multipliziert. Bei ${tex('p\\,\\%')} Zunahme ist ${tex('a=1+\\tfrac{p}{100}')}, bei Abnahme ${tex('a=1-\\tfrac{p}{100}')}.</p>` },
+      ]) },
+      { id: 'ln', kind: 'Brücke', title: 'ln ableiten', run: quiz([genLn, genLn, genLn]) },
+      { id: 'wachstum', kind: 'Brücke', title: 'Wachstum und Zerfall', run: quiz([genWachstum, genWachstum, genWachstum]) },
+    ],
+  },
+  {
+    id: 's-bedingt', area: 'stochastik', title: 'Bedingte Wahrscheinlichkeit', sub: 'Vierfeldertafel und „rückwärts" schließen',
+    steps: [
+      { id: 'regel', kind: 'Benennen', title: 'Die Grundmenge wechselt', run: info([
+        { title: 'Bedingte Wahrscheinlichkeit', html: `${T('P_B(A)=\\dfrac{P(A\\cap B)}{P(B)}')}<p>„Unter der Bedingung ${tex('B')}" heißt: Wir schauen nur noch auf die Fälle, in denen ${tex('B')} zutrifft. Die Grundmenge wird kleiner.</p>` },
+        { title: 'Vierfeldertafel', html: `<p>In den vier inneren Feldern stehen die Schnittmengen, am Rand die Summen. Für ${tex('P_B(A)')} teilst du das Feld ${tex('A\\cap B')} durch die <b>Spaltensumme</b> von ${tex('B')}.</p>` },
+        { title: 'Vorsicht, Umkehrung', html: `<p>${tex('P_B(A)')} und ${tex('P_A(B)')} sind verschieden. „Kranke werden zu 90 % erkannt" heißt nicht, dass 90 % der positiv Getesteten krank sind.</p>` },
+      ]) },
+      { id: 'tafel', kind: 'Brücke', title: 'Vierfeldertafel lesen', run: quiz([genVierfelder, genVierfelder, genVierfelder]) },
+      { id: 'test', kind: 'Brücke', title: 'Vom Testergebnis zurückschließen', run: quiz([genBedingt, genBedingt, genBedingt]) },
+    ],
+  },
+  {
+    id: 's-verteilung', area: 'stochastik', title: 'Verteilungen', sub: 'Kumuliert rechnen, Sigma-Regeln, Normalverteilung',
+    steps: [
+      { id: 'regel', kind: 'Benennen', title: 'Höchstens, mindestens, zwischen', run: info([
+        { title: 'Kumulierte Wahrscheinlichkeit', html: `${T('P(X\\le k)=P(X=0)+\\dots+P(X=k)')}<p>Tabellen und Taschenrechner liefern ${tex('P(X\\le k)')}. Alles andere wird darauf zurückgeführt:</p><p>${tex('P(X\\ge k)=1-P(X\\le k-1)')}<br>${tex('P(a\\le X\\le b)=P(X\\le b)-P(X\\le a-1)')}</p>` },
+        { eyebrow: 'Merken', title: 'Sigma-Regeln', html: `<p>Um den Erwartungswert ${tex('\\mu')} liegen</p><p>in ${tex('\\mu\\pm\\sigma')} etwa 68,3 %, in ${tex('\\mu\\pm2\\sigma')} etwa 95,4 %, in ${tex('\\mu\\pm3\\sigma')} etwa 99,7 % der Werte.</p>` },
+        { title: 'Normalverteilung', html: `${T('z=\\dfrac{x-\\mu}{\\sigma}')}<p>Mit ${tex('z')} misst man, wie viele Standardabweichungen ein Wert vom Erwartungswert entfernt liegt. So wird jede Normalverteilung vergleichbar.</p>` },
+      ]) },
+      { id: 'kumuliert', kind: 'Brücke', title: 'Die richtige Übersetzung', run: quiz([genKumuliert, genKumuliert, genKumuliert]) },
+      { id: 'sigma', kind: 'Brücke', title: 'Sigma-Regeln und Normalverteilung', run: quiz([genSigma, genSigma, genNormal, genNormal]) },
+    ],
+  },
+  {
+    id: 's-test', area: 'stochastik', title: 'Hypothesentests', sub: 'Begriffe und Ablehnungsbereich',
+    steps: [
+      { id: 'regel', kind: 'Benennen', title: 'So funktioniert ein Test', run: info([
+        { title: 'Die Idee', html: `<p>Man nimmt eine Behauptung an (Nullhypothese ${tex('H_0')}) und prüft, ob das Ergebnis der Stichprobe dazu passt. Ist es unter ${tex('H_0')} sehr unwahrscheinlich, wird ${tex('H_0')} abgelehnt.</p>` },
+        { title: 'Zwei mögliche Fehler', html: `<p><b>Fehler 1. Art:</b> ${tex('H_0')} wird abgelehnt, obwohl sie stimmt. Seine Wahrscheinlichkeit ist höchstens das Signifikanzniveau ${tex('\\alpha')}.</p><p><b>Fehler 2. Art:</b> ${tex('H_0')} wird beibehalten, obwohl sie falsch ist.</p>` },
+        { title: 'Ablehnungsbereich (rechtsseitig)', html: `<p>Vermutet man ${tex('p>p_0')}, sprechen große Trefferzahlen gegen ${tex('H_0')}. Gesucht ist das kleinste ${tex('k')} mit</p>${T('P(X\\ge k)\\le\\alpha')}` },
+      ]) },
+      { id: 'test', kind: 'Brücke', title: 'Tests verstehen und auswerten', run: quiz([genHypothese, genHypothese, genHypothese, genHypothese]) },
+    ],
+  },
+  {
+    id: 's-kombi', area: 'stochastik', title: 'Kombinatorik', sub: 'Geschickt zählen',
+    steps: [
+      { id: 'regel', kind: 'Benennen', title: 'Zwei Fragen entscheiden', run: info([
+        { title: 'Reihenfolge? Wiederholung?', html: `<p>Mit Wiederholung, Reihenfolge wichtig: ${tex('n^k')}</p><p>Ohne Wiederholung, Reihenfolge wichtig: ${tex('\\dfrac{n!}{(n-k)!}')}</p><p>Ohne Wiederholung, Reihenfolge egal: ${tex('\\binom{n}{k}')}</p><p>Alle anordnen: ${tex('n!')}</p>` },
+      ]) },
+      { id: 'zaehlen', kind: 'Brücke', title: 'Das passende Zählmodell', run: quiz([genKombinatorik, genKombinatorik, genKombinatorik, genKombinatorik]) },
+      { id: 'mix', kind: 'Festigen', title: 'Stochastik – alles gemischt', run: quiz(Array(6).fill(mixOf([[genErwartung, genBinomial, genBaum, genVierfelder, genBedingt, genKumuliert, genSigma, genHypothese, genNormal, genKombinatorik]]))) },
+    ],
+  },
+  {
+    id: 'g-gerade', area: 'geometrie', title: 'Geraden im Raum', sub: '3D-Ansicht, Punktprobe, Lagebeziehungen',
+    steps: [
+      { id: 'raum', kind: 'Entdecken', title: 'Raum-Blick', run: raum },
+      { id: 'regel', kind: 'Benennen', title: 'Geraden beschreiben', run: info([
+        { title: 'Stützpunkt und Richtung', html: `${T('g\\colon\\ \\vec x=\\vec p+t\\cdot\\vec u')}<p>${tex('\\vec p')} sagt, wo die Gerade liegt, ${tex('\\vec u')}, wohin sie läuft. Für jedes ${tex('t')} entsteht ein Punkt der Geraden.</p>` },
+        { title: 'Punktprobe', html: `<p>Liegt ${tex('Q')} auf ${tex('g')}? Aus einer Zeile ${tex('t')} bestimmen, dann die anderen beiden Zeilen prüfen. Alle drei müssen mit demselben ${tex('t')} stimmen.</p>` },
+        { title: 'Vier mögliche Lagen', html: `<p><b>Richtungen Vielfache?</b> Ja: parallel oder identisch (Punktprobe entscheidet).</p><p>Nein: Gleichsetzen. Lösbar: Schnittpunkt. Widerspruch: windschief.</p>` },
+      ]) },
+      { id: 'punkt', kind: 'Brücke', title: 'Punktprobe', run: quiz([genGeradePunkt, genGeradePunkt, genGeradePunkt]) },
+      { id: 'lage', kind: 'Brücke', title: 'Lage zweier Geraden', run: quiz([genLage, genLage, genLage, genLage]) },
+    ],
+  },
+  {
+    id: 'g-ebene', area: 'geometrie', title: 'Ebenen', sub: 'Koordinatenform, Schnittpunkte, Kreuzprodukt',
+    steps: [
+      { id: 'regel', kind: 'Benennen', title: 'Ebenen beschreiben', run: info([
+        { title: 'Koordinatenform', html: `${T('E\\colon\\ n_1x_1+n_2x_2+n_3x_3=d')}<p>Die Zahlen vor ${tex('x_1,x_2,x_3')} bilden den Normalenvektor ${tex('\\vec n')}: Er steht senkrecht auf der Ebene. Ein Punkt liegt in ${tex('E')}, wenn seine Koordinaten die Gleichung erfüllen.</p>` },
+        { title: 'Gerade trifft Ebene', html: `<p>Die drei Zeilen der Geraden in die Ebenengleichung einsetzen. Es bleibt eine Gleichung für ${tex('t')}. Dieses ${tex('t')} in die Gerade einsetzen – fertig ist der Schnittpunkt.</p>` },
+        { eyebrow: 'Merken', title: 'Kreuzprodukt', html: `${T('\\vec u\\times\\vec v=\\begin{pmatrix}u_2v_3-u_3v_2\\\\u_3v_1-u_1v_3\\\\u_1v_2-u_2v_1\\end{pmatrix}')}<p>Das Ergebnis steht senkrecht auf beiden Vektoren. So bekommt man aus zwei Spannvektoren den Normalenvektor.</p>` },
+      ]) },
+      { id: 'punkt', kind: 'Brücke', title: 'Punkte in der Ebene', run: quiz([genEbene, genEbene, genEbene]) },
+      { id: 'schnitt', kind: 'Brücke', title: 'Schnittpunkt Gerade–Ebene', run: quiz([genSchnittpunkt, genSchnittpunkt, genSchnittpunkt]) },
+      { id: 'kreuz', kind: 'Brücke', title: 'Kreuzprodukt', run: quiz([genKreuz, genKreuz, genKreuz]) },
+    ],
+  },
+  {
+    id: 'g-mass', area: 'geometrie', title: 'Abstände und Winkel', sub: 'Messen im Raum',
+    steps: [
+      { id: 'regel', kind: 'Benennen', title: 'Messen im Raum', run: info([
+        { title: 'Abstand Punkt–Ebene', html: `${T('d(P;E)=\\dfrac{|n_1p_1+n_2p_2+n_3p_3-d|}{|\\vec n|}')}<p>Punkt in die Ebenengleichung einsetzen, die rechte Seite abziehen, Betrag bilden und durch die Länge des Normalenvektors teilen.</p>` },
+        { title: 'Winkel zwischen Vektoren', html: `${T('\\cos\\varphi=\\dfrac{\\vec u\\cdot\\vec v}{|\\vec u|\\cdot|\\vec v|}')}<p>Oben das Skalarprodukt, unten das Produkt der beiden Längen. Bei ${tex('\\vec u\\cdot\\vec v=0')} ist der Winkel 90°.</p>` },
+      ]) },
+      { id: 'abstand', kind: 'Brücke', title: 'Abstände', run: quiz([genAbstand, genAbstand, genAbstand]) },
+      { id: 'winkel', kind: 'Brücke', title: 'Winkel', run: quiz([genWinkel, genWinkel, genWinkel]) },
+      { id: 'mix', kind: 'Festigen', title: 'Geometrie – alles gemischt', run: quiz(Array(6).fill(mixOf([[genVektorAB, genBetrag, genSkalar, genGeradePunkt, genEbene, genLage, genSchnittpunkt, genAbstand, genWinkel, genKreuz]]))) },
+    ],
+  },
+  {
+    id: 'operatoren', area: 'pruefung', title: 'Operatoren', sub: 'Was die Aufgabe wirklich verlangt',
+    steps: [
+      { id: 'regel', kind: 'Benennen', title: 'Warum Operatoren Punkte kosten', run: info([
+        { title: 'Das Verb entscheidet', html: `<p>„Geben Sie an" und „Zeigen Sie" verlangen ganz verschiedene Dinge. Wer nur das Ergebnis hinschreibt, wo ein Nachweis verlangt ist, verschenkt Punkte – und wer alles begründet, wo „angeben" steht, verliert Zeit.</p>` },
+        { title: 'Drei Stufen', html: `<p><b>Nur Ergebnis:</b> angeben, nennen.</p><p><b>Mit Weg:</b> berechnen, bestimmen, ermitteln, zeichnen.</p><p><b>Mit Begründung:</b> zeigen, nachweisen, begründen, beurteilen.</p><p class="muted">Die Formulierungen lehnen sich an die Operatorenlisten der Länder an; im Detail unterscheiden sie sich leicht.</p>` },
+      ]) },
+      { id: 'training', kind: 'Festigen', title: 'Operatoren-Training', run: quiz([genOperator, genOperator, genOperator, genOperator, genOperator, genOperator]) },
+    ],
+  },
 ];
 
 export const AREAS = [
-  { id: 'analysis', title: 'Analysis', soon: ['Kurvendiskussion komplett', 'Extremwert-Werkstatt', 'Steckbriefaufgaben', 'Funktionenscharen'] },
-  { id: 'stochastik', title: 'Stochastik', soon: ['Bedingte Wahrscheinlichkeit und Vierfeldertafel', 'Hypothesentests', 'Normalverteilung'] },
-  { id: 'geometrie', title: 'Analytische Geometrie', soon: ['Geraden im Raum', 'Ebenen', 'Abstände und Winkel'] },
+  { id: 'analysis', title: 'Analysis', soon: ['Kurvenscharen vertieft', 'Rotationskörper', 'Integrationsverfahren', 'Trigonometrische Funktionen'] },
+  { id: 'stochastik', title: 'Stochastik', soon: ['Zweiseitige Tests', 'Konfidenzintervalle', 'Zufallsgrößen und Erwartungswert allgemein'] },
+  { id: 'geometrie', title: 'Analytische Geometrie', soon: ['Ebenen in Parameterform', 'Spiegelungen', 'Kugeln', 'Abstand windschiefer Geraden'] },
+  { id: 'pruefung', title: 'Prüfung', soon: ['Musterlösungen lesen', 'Zeit einteilen'] },
 ];

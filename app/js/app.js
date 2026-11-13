@@ -3,6 +3,8 @@ import { UNITS, AREAS } from './units.js';
 import { store, LEVELS } from './store.js';
 import { CONFIG, VERSION } from './config.js';
 import { $, h, esc, ICON, starsHtml, toast, sfx, sound, confetti } from './ui.js';
+import { abiView, rundeView } from './exam.js';
+import { settingsView, berichtView, karteiView, dailyGoal, openSteps } from './extras.js';
 
 const view = $('#view');
 let cleanup = null;
@@ -37,6 +39,12 @@ function home() {
            <a class="btn" href="#/u/${spot.u.id}/${spot.i}">${started ? 'Weiter' : 'Erste Runde starten'} ${ICON.right}</a>`
         : '<h2>Alles geschafft!</h2><p>Neue Einheiten sind in Arbeit. Wiederhole gern eine Runde – die Aufgaben sind jedes Mal neu.</p>'}
     </section>
+    <div id="today" class="stack"></div>
+    <section class="tiles" aria-label="Runden">
+      <a class="tile" href="#/tag"><b>Tages-Runde</b><small id="tl-tag">Heute für alle gleich</small></a>
+      <a class="tile" href="#/abi"><b>Abi-Modus</b><small id="tl-abi">Auf Zeit, mit Prognose</small></a>
+      <a class="tile" href="#/duell"><b>Duell</b><small>Mitschüler herausfordern</small></a>
+    </section>
     <section class="card level" aria-label="Schwierigkeit">
       <div class="row"><h3 class="grow">Schwierigkeit</h3><b id="lv-name" class="orange"></b></div>
       <div class="seg" id="lv" role="radiogroup" aria-label="Schwierigkeit wählen"></div>
@@ -44,6 +52,10 @@ function home() {
     </section>
     <div id="areas" class="stack"></div>
     <div id="install"></div>
+    <section class="tiles two" aria-label="Mehr">
+      <a class="tile" href="#/bericht"><b>Bericht für Eltern</b><small>Lernstand zum Drucken oder Teilen</small></a>
+      <a class="tile" href="#/einstellungen"><b>Einstellungen</b><small id="tl-set">Bundesland, Abi-Termin</small></a>
+    </section>
     <section class="cta">
       <h2>Hängt es an einer Stelle?</h2>
       <p>In einer kostenlosen Probestunde klären wir gemeinsam, was gerade hilft – persönlich und ohne Druck.</p>
@@ -56,6 +68,15 @@ function home() {
       <span>Version ${VERSION}</span>
     </footer>
   </div>`);
+  // Heute: Abi-Countdown mit Tagesziel und fällige Wiederholungen
+  const days = store.abiDays(), due = store.karteDue().length, tb = store.tagBest(), ex = store.exams[0];
+  if (days !== null) {
+    const goal = dailyGoal(openSteps(), days);
+    $('#today', el).append(h(`<section class="card count"><b class="big">${days}</b><span><h3>${days === 1 ? 'Tag' : 'Tage'} bis zum Mathe-Abi</h3><small class="muted">${goal ? `Tagesziel: ${goal} ${goal === 1 ? 'Schritt' : 'Schritte'} im Lernpfad – dann bist du rechtzeitig durch.` : 'Alle Schritte geschafft – jetzt Abi-Modus und Wiederholen.'}</small></span></section>`));
+  }
+  if (due) $('#today', el).append(h(`<a class="card unit" href="#/wiederholen"><span class="num">${due}</span><span><h3>Wiederholen</h3><small>${due === 1 ? 'Eine Aufgabenart ist' : `${due} Aufgabenarten sind`} heute in der Fehler-Kartei fällig.</small></span><span class="go">${ICON.right}</span></a>`));
+  if (tb !== undefined) $('#tl-tag', el).textContent = `Heute: ${tb} Punkte`;
+  if (ex) $('#tl-abi', el).textContent = `Zuletzt: ${ex.np} Notenpunkte`;
   // Schwierigkeit
   const NOTES = ['Kleine Zahlen, großzügige Bewertung, alle Tipps.', 'Einfache Zahlen, alle Tipps.', 'Wie im Unterricht.', 'Größere Zahlen, mehr Regeln gemischt, weniger Hinweise.', 'Prüfungsniveau und darüber – ohne Tipps.'];
   const seg = $('#lv', el);
@@ -150,12 +171,18 @@ function finish(u, i, res) {
 function route() {
   cleanup?.(); cleanup = null;
   $('#sheet').hidden = true;
-  const m = location.hash.match(/^#\/u\/([\w-]+)(?:\/(\d+))?$/);
+  const hash = location.hash;
+  const m = hash.match(/^#\/u\/([\w-]+)(?:\/(\d+))?$/);
   const u = m && UNITS.find((x) => x.id === m[1]);
+  const x = hash.match(/^#\/(abi|tag|duell|bericht|einstellungen|wiederholen)(?:\/([\w-]+))?$/);
   let el;
   if (u && m[2] !== undefined && u.steps[+m[2]]) el = stepView(u, +m[2]);
   else if (u) el = unitView(u);
-  else el = home();
+  else if (x) {
+    const r = { abi: () => abiView(['A', 'B'].includes(x[2]) ? x[2] : null), tag: () => rundeView('tag'), duell: () => rundeView('duell', x[2]),
+      bericht: berichtView, einstellungen: settingsView, wiederholen: karteiView }[x[1]]();
+    el = r.el; cleanup = r.cleanup || null;
+  } else el = home();
   view.replaceChildren(el);
   chips();
   window.scrollTo(0, 0);

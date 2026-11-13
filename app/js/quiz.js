@@ -5,14 +5,18 @@ import { store } from './store.js';
 import { ft } from './math.js';
 
 /** sequence: Liste von Erzeugern (eine Aufgabe je Eintrag). */
-export function quiz(sequence) {
+export function quiz(sequence, opts = {}) {
   return (el, ctx) => {
     let qi = 0, mistakes = 0, plot = null;
 
     function show() {
       plot?.destroy(); plot = null;
       const lv = store.level;
-      const q = sequence[qi](lv);
+      const fn = sequence[qi];
+      const q = fn(lv);
+      q.gen ??= fn.name; q.topic ??= fn.topic;
+      let firstTry = true;
+      const miss = () => { if (firstTry) { firstTry = false; store.record(q.topic, false); store.kartePut(q.gen, q.topic); } };
       let tipN = 0, solved = false;
       el.innerHTML = `
         <div class="q">
@@ -37,6 +41,7 @@ export function quiz(sequence) {
 
       const finish = () => {
         solved = true; tip.hidden = true; next.hidden = false;
+        if (firstTry) { store.record(q.topic, true); opts.onRight?.(q); } else opts.onWrong?.(q);
         note.innerHTML = `<div class="note ok"><b>Richtig.</b> ${q.explain}</div>`;
         ctx.progress((qi + 1) / sequence.length);
         buzz();
@@ -68,7 +73,7 @@ export function quiz(sequence) {
             body.querySelectorAll('.pick.sel').forEach((n) => n.classList.add('right'));
             check.hidden = true; finish(); return;
           }
-          mistakes++; sfx('bad');
+          mistakes++; sfx('bad'); miss();
           body.querySelectorAll('.gaprow').forEach((row, i) => { if (bad[i]) row.querySelector('.pick.sel')?.classList.add('wrong'); });
           note.innerHTML = `<div class="note bad"><b>Noch nicht.</b> ${bad[0] ? 'Der Vorfaktor stimmt nicht: alter Vorfaktor mal alter Exponent.' : 'Der Exponent stimmt nicht: Er wird um 1 kleiner.'}</div>`;
         });
@@ -76,7 +81,7 @@ export function quiz(sequence) {
       } else {
         const box = h('<div class="opts"></div>');
         q.options.forEach((o, i) => {
-          const b = h(`<button class="opt" type="button"><span class="k">${'ABCD'[i]}</span><span>${tex(o.tex)}</span></button>`);
+          const b = h(`<button class="opt" type="button"><span class="k">${'ABCD'[i]}</span><span>${o.html ?? tex(o.tex)}</span></button>`);
           b.addEventListener('click', () => {
             if (solved || b.classList.contains('wrong')) return;
             if (o.correct) {
@@ -84,7 +89,7 @@ export function quiz(sequence) {
               box.querySelectorAll('.opt').forEach((n) => { n.disabled = true; });
               finish();
             } else {
-              mistakes++; sfx('bad');
+              mistakes++; sfx('bad'); miss();
               b.classList.add('wrong');
               note.innerHTML = `<div class="note bad"><b>Typischer Fehler.</b> ${o.why}</div>`;
             }

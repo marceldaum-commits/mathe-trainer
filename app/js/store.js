@@ -5,7 +5,13 @@ const XP_STEP = 10;
 function load() {
   try { return JSON.parse(localStorage.getItem(KEY)) || {}; } catch { return {}; }
 }
-let mem = Object.assign({ done: {}, xp: 0, streak: { n: 0, last: '' }, level: 3 }, load());
+const FRESH = () => ({ done: {}, xp: 0, streak: { n: 0, last: '' }, level: 3, stats: {}, kartei: {}, land: '', abi: '', exams: [], runs: [], tag: {} });
+let mem = Object.assign(FRESH(), load());
+
+export const LAENDER = { '': 'Nicht gewählt', BY: 'Bayern', 'HE-GK': 'Hessen – Grundkurs', 'HE-LK': 'Hessen – Leistungskurs' };
+/** Abstände der Fehler-Kartei in Tagen: nach jeder richtigen Wiederholung eine Stufe weiter. */
+export const KARTEI_TAGE = [1, 3, 7, 16];
+const addDays = (d, n) => { const x = new Date(d); x.setDate(x.getDate() + n); return x; };
 
 export const LEVELS = ['Sehr leicht', 'Leicht', 'Mittel', 'Schwer', 'Sehr schwer'];
 
@@ -61,5 +67,58 @@ export const store = {
     const n = unit.steps.filter((s) => this.isDone(unit.id, s.id)).length;
     return { n, total: unit.steps.length, done: n === unit.steps.length };
   },
-  reset() { mem = { done: {}, xp: 0, streak: { n: 0, last: '' }, level: 3 }; save(); },
+  reset() { mem = FRESH(); save(); },
+
+  /* Statistik je Thema (für Bericht und Schwächen-Erkennung) */
+  record(topic, firstTry) {
+    if (!topic) return;
+    const s = (mem.stats[topic] ||= { ok: 0, bad: 0 });
+    if (firstTry) s.ok++; else s.bad++;
+    s.last = dayKey(); save();
+  },
+  get stats() { return mem.stats; },
+  /** Themen mit den meisten Fehlern zuerst (mindestens 3 Versuche). */
+  weak(n = 5) {
+    return Object.entries(mem.stats).map(([topic, s]) => ({ topic, ...s, rate: s.bad / (s.ok + s.bad) }))
+      .filter((s) => s.ok + s.bad >= 3 && s.bad > 0).sort((a, b) => b.rate - a.rate || b.bad - a.bad).slice(0, n);
+  },
+
+  /* Fehler-Kartei: falsch gelöste Aufgabenarten kommen in wachsenden Abständen wieder */
+  kartePut(gen, topic, today = new Date()) {
+    if (!gen) return;
+    mem.kartei[gen] = { topic, step: 0, due: dayKey(addDays(today, KARTEI_TAGE[0])) }; save();
+  },
+  karteResult(gen, ok, today = new Date()) {
+    const k = mem.kartei[gen]; if (!k) return;
+    if (!ok) { k.step = 0; k.due = dayKey(addDays(today, KARTEI_TAGE[0])); }
+    else if (k.step + 1 >= KARTEI_TAGE.length) delete mem.kartei[gen];
+    else { k.step++; k.due = dayKey(addDays(today, KARTEI_TAGE[k.step])); }
+    save();
+  },
+  karteDue(today = new Date()) { const t = dayKey(today); return Object.entries(mem.kartei).filter(([, k]) => k.due <= t).map(([gen, k]) => ({ gen, ...k })); },
+  get karteCount() { return Object.keys(mem.kartei).length; },
+
+  /* Einstellungen */
+  get land() { return mem.land in LAENDER ? mem.land : ''; },
+  set land(v) { mem.land = v in LAENDER ? v : ''; save(); },
+  get abi() { return /^\d{4}-\d{2}-\d{2}$/.test(mem.abi) ? mem.abi : ''; },
+  set abi(v) { mem.abi = /^\d{4}-\d{2}-\d{2}$/.test(v) ? v : ''; save(); },
+  /** Tage bis zum Abi-Termin (null, wenn keiner gesetzt oder vorbei). */
+  abiDays(today = new Date()) {
+    if (!this.abi) return null;
+    const [y, m, d] = this.abi.split('-').map(Number);
+    const n = Math.round((new Date(y, m - 1, d) - new Date(today.getFullYear(), today.getMonth(), today.getDate())) / 86400000);
+    return n >= 0 ? n : null;
+  },
+
+  /* Ergebnisse: Abi-Modus und Runden (nur die letzten 20) */
+  addExam(r) { mem.exams.unshift({ date: dayKey(), ...r }); mem.exams = mem.exams.slice(0, 20); mem.streak = nextStreak(mem.streak); mem.xp += r.xp || 0; save(); },
+  get exams() { return mem.exams; },
+  addRun(r) { mem.runs.unshift({ date: dayKey(), ...r }); mem.runs = mem.runs.slice(0, 20); mem.streak = nextStreak(mem.streak); mem.xp += r.xp || 0; save(); },
+  get runs() { return mem.runs; },
+  /** Bestwerte der eigenen Runden. */
+  best(n = 5) { return [...mem.runs].sort((a, b) => b.score - a.score).slice(0, n); },
+  tagBest(day = dayKey()) { return mem.tag[day]; },
+  setTag(score, day = dayKey()) { if (!(mem.tag[day] >= score)) mem.tag = { [day]: score }; save(); },
+  get lastDay() { return mem.streak.last; },
 };
