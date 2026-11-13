@@ -491,9 +491,9 @@ const ctx2 = await browser.newContext({ ...devices['Pixel 7'], serviceWorkers: '
 const p2 = await ctx2.newPage();
 p2.on('pageerror', (e) => errors.push(`Klasse: ${e}`));
 const calls = [];
-await p2.route('**/js/config.js', async (route) => { const r = await route.fetch(); await route.fulfill({ response: r, body: (await r.text()).replace("api: ''", "api: '/api'").replace('ki: false', 'ki: true') }); });
+await ctx2.route('**/js/config.js', async (route) => { const r = await route.fetch(); await route.fulfill({ response: r, body: (await r.text()).replace("api: ''", "api: '/api'").replace('ki: false', 'ki: true') }); });
 let kiRufe = 0;
-await p2.route('**/api/**', async (route) => {
+await ctx2.route('**/api/**', async (route) => {
   const u = new URL(route.request().url()), body = route.request().postDataJSON?.() ?? null; calls.push([u.pathname, body]);
   if (u.pathname === '/api/klasse/beitreten') return route.fulfill({ json: body.code === 'K7M2QX' ? { klasse: 'Q12 Mathe', spieler: 'p-123' } : { error: 'Diesen Code gibt es nicht.' }, status: body.code === 'K7M2QX' ? 200 : 404 });
   if (u.pathname === '/api/ki/erklaer') { kiRufe++; return kiRufe === 1 ? route.fulfill({ json: { text: 'Stell dir vor: <b>fett</b> erst außen, dann innen.' } }) : route.fulfill({ status: 429, json: { error: 'Limit' } }); }
