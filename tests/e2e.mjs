@@ -813,7 +813,7 @@ await ctx2.close();
 /* ───────────── Klasse 5 bis 10: Stufe wählen, jede Einheit jeder Klasse spielen, zurück zur Oberstufe ───────────── */
 { const { ALLE_UNITS } = await import('../app/js/units.js');
   const osFertig = await countDone();
-  const zaehle = async () => { await page.goto(`${BASE}#/lernen`); await page.waitForSelector('a[href^="#/g/"]'); const hs = await page.evaluate(() => [...document.querySelectorAll('a[href^="#/g/"]')].map((a) => a.getAttribute('href'))); let n = 0; for (const hh of hs) { await page.goto(BASE + hh); await page.waitForSelector('a.back[href="#/lernen"]'); await page.waitForSelector('a.unit[href^="#/u/"]'); n += await page.locator('a.unit.done[href^="#/u/"]').count(); } return n; };
+  const zaehle = async () => { await page.goto(`${BASE}#/lernen`); await page.waitForSelector('a[href^="#/g/"]'); const hs = await page.evaluate(() => [...document.querySelectorAll('a[href^="#/g/"]')].map((a) => a.getAttribute('href'))); let n = 0; for (const hh of hs) { await page.goto(BASE + hh); await page.reload(); await page.waitForSelector('a.back[href="#/lernen"]'); await page.waitForSelector('a.unit[href^="#/u/"]'); n += await page.locator('a.unit.done[href^="#/u/"]').count(); } return n; };
   await page.goto(BASE); await page.waitForSelector('#home');
   if (!(await page.locator('#jg-frage').isVisible())) fail('Klassenstufe: Wer noch nichts gewählt hat, wird auf der Startseite nicht gefragt');
   for (const jg of ['5', '6', '7', '8', '9', '10']) {
