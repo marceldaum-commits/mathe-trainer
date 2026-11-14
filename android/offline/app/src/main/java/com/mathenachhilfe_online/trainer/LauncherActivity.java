@@ -24,6 +24,8 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.FrameLayout;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
@@ -31,6 +33,7 @@ import java.util.Map;
 
 /**
  * Die App: ein Fenster, das die fest eingepackte Web-App zeigt – ohne Internet.
+ * Mit Internet holt sie sich neuere Inhalte selbst (Update.java); sie gelten ab dem nächsten Start.
  * Alle Dateien der Web-App liegen in der App-Datei (Ordner www) und werden unter der echten Adresse
  * ausgeliefert. Nur Anfragen an /api/ (Rangliste, Fehler melden) gehen ins Netz, wenn es eines gibt.
  */
@@ -38,6 +41,42 @@ public class LauncherActivity extends Activity {
     static final String HOST = "trainer.mathenachhilfe-online.com";
     static final String BASIS = "https://" + HOST + "/";
     private WebView web;
+
+    /* Selbst-Aktualisierung der Inhalte (siehe Update.java). Kanal „test“ lädt den Test-Stand, „store“ den freigegebenen. */
+    static final String REPO = "https://raw.githubusercontent.com/marceldaum-commits/mathe-trainer/";
+    static final String APK = REPO + "apk/Mathe-Trainer.apk";
+    /** Ordner mit dem geladenen Stand in Benutzung – oder null: dann gilt die eingepackte Fassung. */
+    private volatile File geladen;
+    private volatile String inhalt = "", bereit = "";
+    private volatile boolean huelleNeu;
+    private String kanal() { return getString(R.string.mt_kanal); }
+    private String quelle() {
+        String k = kanal();
+        return "test".equals(k) ? REPO + "test/app/" : "store".equals(k) ? REPO + "live/app/" : null;
+    }
+    private File updateOrdner() { return new File(getFilesDir(), "update"); }
+    /** Beim Start: fertig Geladenes übernehmen. */
+    private void updateStarte() {
+        try {
+            String v = Update.starte(updateOrdner(), BuildConfigInfo.version(this));
+            geladen = v == null ? null : Update.aktiv(updateOrdner());
+            inhalt = v == null ? "" : v;
+            bereit = "";
+        } catch (RuntimeException egal) { geladen = null; inhalt = ""; }
+    }
+    /** Im Hintergrund bei der Quelle nachsehen; die Web-App erfährt das Ergebnis über das Ereignis mt-update. */
+    private void updateSuche() {
+        final String q = quelle();
+        if (q == null) return;
+        new Thread(() -> {
+            try {
+                Update.Ergebnis e = Update.lade(updateOrdner(), q, BuildConfigInfo.version(this), pfad -> getAssets().open("www/" + pfad), Update.NETZ);
+                bereit = e.bereit == null ? "" : e.bereit;
+                huelleNeu = "test".equals(kanal()) && e.huelle > getResources().getInteger(R.integer.mt_huelle);
+                if (!bereit.isEmpty() || huelleNeu) runOnUiThread(() -> { if (web != null) web.evaluateJavascript("window.dispatchEvent(new Event('mt-update'))", null); });
+            } catch (Exception ohneNetz) { /* kein Netz oder Quelle nicht erreichbar: beim nächsten Start wieder */ }
+        }, "mt-update").start();
+    }
 
     /** Für die Web-App sichtbar als window.MTApp: Sie weiß dann, dass sie in der Offline-App läuft. */
     public final class Bruecke {
@@ -74,6 +113,19 @@ public class LauncherActivity extends Activity {
                     if (pm != null) pm.print(name, web.createPrintDocumentAdapter(name), new PrintAttributes.Builder().setMediaSize(PrintAttributes.MediaSize.ISO_A4).build());
                 } catch (Exception keinDruck) { /* kein Druckdienst: nichts tun */ }
             });
+        }
+        /** Stand der Selbst-Aktualisierung als JSON: {"kanal":"test","inhalt":"0.22.0","bereit":"0.23.0","huelle":false} */
+        @JavascriptInterface public String updateStand() {
+            return "{\"kanal\":\"" + kanal() + "\",\"inhalt\":\"" + inhalt + "\",\"bereit\":\"" + bereit + "\",\"huelle\":" + huelleNeu + "}";
+        }
+        /** Geladene Inhalte jetzt übernehmen: Die App startet ihre Seite neu. */
+        @JavascriptInterface public void updateAnwenden() {
+            runOnUiThread(() -> { updateStarte(); web.clearCache(true); web.loadUrl(BASIS); });
+        }
+        /** Neue App-Datei im Browser herunterladen (nur Test-Fassung – im Store kommt die App über den Store). */
+        @JavascriptInterface public void apkHolen() {
+            if (!"test".equals(kanal())) return;
+            runOnUiThread(() -> { try { startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(APK))); } catch (Exception keinBrowser) { /* nichts tun */ } });
         }
         /** Öffnet die Android-Einstellungen für die Mitteilungen dieser App. */
         @JavascriptInterface public void mitteilungenEinstellen() {
@@ -121,6 +173,7 @@ public class LauncherActivity extends Activity {
     @Override
     protected void onCreate(Bundle zustand) {
         super.onCreate(zustand);
+        updateStarte();
         FrameLayout rahmen = new FrameLayout(this);
         rahmen.setBackgroundColor(Color.rgb(13, 23, 51));
         web = new WebView(this);
@@ -160,6 +213,7 @@ public class LauncherActivity extends Activity {
                 } catch (Exception keineAuswahl) { dateiAntwort = null; return false; }
             }
         });
+        updateSuche();
         if (zustand != null && web.restoreState(zustand) != null) return;
         web.loadUrl(ziel(getIntent()));
     }
@@ -216,7 +270,8 @@ public class LauncherActivity extends Activity {
             if (p == null || p.isEmpty() || p.equals("/")) p = "/index.html";
             if (p.startsWith("/api/") || p.contains("..")) return null;   // Server-Anfragen gehen ins Netz
             try {
-                InputStream in = getAssets().open("www" + p);
+                File g = geladen;
+                InputStream in = g != null ? new FileInputStream(new File(g, p.substring(1))) : getAssets().open("www" + p);
                 String m = mime(p);
                 Map<String, String> kopf = new HashMap<>();
                 kopf.put("Cache-Control", "no-cache");

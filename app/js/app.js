@@ -18,6 +18,7 @@ import { $, h, esc, ICON, starsHtml, toast, sfx, sound, confetti, look } from '.
 import { abiView, rundeView, blitzView } from './exam.js';
 import { checkBadges, titleOf } from './badges.js';
 import { api, serverOn, kiBereit, kiArt } from './api.js';
+import { updateLeiste } from './update.js';
 import { settingsView, berichtView, karteiView, dailyGoal, openSteps, levelCard, erfolgeView, formelnView, klasseView, weekCard, readiness, applySkin, lehrplanView } from './extras.js';
 
 const view = $('#view');
@@ -86,7 +87,7 @@ const footer = () => `<footer class="foot">
     <a class="site" href="${CONFIG.website}" target="_blank" rel="noopener">${esc(CONFIG.firma)}</a>
     <a href="${CONFIG.impressum}" target="_blank" rel="noopener">Impressum</a>
     <a href="${CONFIG.datenschutz}" target="_blank" rel="noopener">Datenschutz</a>
-    <span id="ver">Version ${VERSION} · ${STAND}</span></footer>`;
+    <span id="ver">Version ${VERSION} · ${STAND}${typeof window.MTApp?.updateStand === 'function' ? ' · hält sich selbst aktuell' : ''}</span></footer>`;
 
 /** Startseite: kurz – weitermachen, was heute ansteht, Gebiet wählen. */
 /** Was Pi auf der Startseite sagt: kurz, freundlich, passend zu Tageszeit und Lernstand. Ohne Druck. */
@@ -393,6 +394,8 @@ window.addEventListener('hashchange', route);
 window.addEventListener('beforeinstallprompt', (ev) => { ev.preventDefault(); installEvent = ev; window.__mtInstall = ev; if (['#/mehr', '', '#/'].includes(location.hash)) route(); });
 window.addEventListener('appinstalled', () => { installEvent = null; window.__mtInstall = null; toast('Installiert. Der Mathe-Trainer liegt jetzt bei deinen Apps.'); });
 route();
+// Android-App: Hinweis, wenn sie sich neue Inhalte geholt hat (siehe update.js).
+if (window.MTApp) document.getElementById('view').before(updateLeiste());
 
 // Offline-Fähigkeit und automatische Updates.
 // In der Offline-App (Android) sind alle Dateien fest eingepackt – dort braucht es keinen Service Worker.

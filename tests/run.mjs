@@ -816,5 +816,26 @@ ok(nextStreak({ n: 3, last: '2026-11-13' }, D('2026-11-13')).n === 3, 'Serie: gl
 ok(nextStreak({ n: 3, last: '2026-11-13' }, D('2026-11-16')).n === 4, 'Serie: Wochenende darf ausfallen (Fr → Mo)');
 ok(nextStreak({ n: 3, last: '2026-11-10' }, D('2026-11-12')).n === 1, 'Serie: ausgelassener Werktag setzt zurück');
 
+// Selbst-Aktualisierung der Android-App: Stand aus der App-Hülle lesen, Dateiliste mit Prüfsummen
+{ const U = await import('../app/js/update.js');
+  const app = (o) => ({ updateStand: () => (typeof o === 'string' ? o : JSON.stringify(o)) });
+  ok(U.updateStand(undefined) === null && U.updateStand({}) === null, 'Update: im Browser gibt es keinen Stand');
+  ok(U.updateStand(app('kaputt')) === null, 'Update: unlesbarer Stand wird ignoriert');
+  const s = U.updateStand(app({ kanal: 'test', inhalt: '0.22.0', bereit: '0.23.0', huelle: true }));
+  ok(s.kanal === 'test' && s.inhalt === '0.22.0' && s.bereit === '0.23.0' && s.huelle === true, 'Update: Stand gelesen');
+  ok(U.updateStand(app({ kanal: 'store', bereit: '<b>x</b>', huelle: true })).bereit === '' , 'Update: nur echte Versionsnummern');
+  ok(U.updateStand(app({ kanal: 'store', bereit: '1.0.0', huelle: true })).huelle === false, 'Update: im Store-Kanal kein Hinweis auf eine App-Datei');
+  ok(U.updateStand(app({ kanal: 'irgendwas' })).kanal === 'aus', 'Update: unbekannter Kanal zählt als aus');
+  const { readFileSync } = await import('node:fs'); const { createHash } = await import('node:crypto');
+  const st = JSON.parse(readFileSync(new URL('../app/stand.json', import.meta.url), 'utf8')), cfg = readFileSync(new URL('../app/js/config.js', import.meta.url), 'utf8');
+  ok(st.version === cfg.match(/VERSION = '([^']+)'/)[1], 'stand.json: Version passt zur App');
+  ok(st.huelle >= 1 && st.huelle === JSON.parse(readFileSync(new URL('../android/huelle.json', import.meta.url), 'utf8')).nr, 'stand.json: Nummer der App-Hülle passt');
+  ok(st.dateien['index.html'] && st.dateien['sw.js'] && st.dateien['js/app.js'] && !st.dateien['stand.json'], 'stand.json: wichtige Dateien dabei, sich selbst nicht');
+  for (const [f, sha] of Object.entries(st.dateien)) {
+    ok(/^[A-Za-z0-9_][A-Za-z0-9_.-]*(\/[A-Za-z0-9_][A-Za-z0-9_.-]*)*$/.test(f) && !f.includes('..'), `stand.json: Dateiname für die App lesbar (${f})`);
+    ok(createHash('sha256').update(readFileSync(new URL(`../app/${f}`, import.meta.url))).digest('hex') === sha, `stand.json: Prüfsumme stimmt (${f})`);
+  }
+}
+
 console.log(fails ? `${fails} verschiedene Fehler bei ${n} Prüfungen` : `tests: alle ${n} Prüfungen bestanden`);
 process.exit(fails ? 1 : 0);

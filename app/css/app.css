@@ -796,3 +796,10 @@ textarea.field{resize:vertical;min-height:72px;font:inherit;padding:10px 12px}
 .funken i{position:absolute;left:-4px;top:-4px;width:8px;height:8px;border-radius:50%;animation:funke .65s cubic-bezier(.2,.7,.3,1) forwards}
 @keyframes funke{from{transform:translate(0,0) scale(1.2);opacity:1}to{transform:translate(var(--fx),var(--fy)) scale(.2);opacity:0}}
 @media print{.funken{display:none}}
+
+/* Android-App: Hinweis auf selbst geladene Inhalte */
+.upd{margin:10px 16px 0;padding:10px 12px;border-radius:14px;background:var(--mint-soft);border:1px solid var(--mint);display:grid;gap:8px;font-size:14px;line-height:1.4}
+.upd[hidden]{display:none}
+.upd-zeile{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.upd-zeile .btn{flex:none}
+@media print{.upd{display:none}}

@@ -1,6 +1,7 @@
 // Prüft (oder aktualisiert mit --fix) die Dateiliste des Service Workers und die Versionsnummern.
 import { readdirSync, readFileSync, writeFileSync, statSync } from 'node:fs';
 import { join, relative } from 'node:path';
+import { createHash } from 'node:crypto';
 
 const APP = new URL('../app/', import.meta.url).pathname;
 const fix = process.argv.includes('--fix');
@@ -11,7 +12,7 @@ function walk(dir) {
     return statSync(p).isDirectory() ? walk(p) : [relative(APP, p)];
   });
 }
-const files = walk(APP).filter((f) => f !== 'sw.js' && !/LICENSE/.test(f)).sort();
+const files = walk(APP).filter((f) => f !== 'sw.js' && f !== 'stand.json' && !/LICENSE/.test(f)).sort();
 // Bilder für den Installations-Dialog (img/shots) braucht die App offline nicht.
 const assets = ['./', ...files.filter((f) => f !== 'index.html' && !f.startsWith('img/shots/'))];
 
@@ -39,6 +40,25 @@ if (fix) {
   if (!sw.includes(want)) errors.push('Dateiliste in app/sw.js ist veraltet → npm run fix');
   if (!sw.includes(wantCache)) errors.push(`CACHE in app/sw.js passt nicht zu VERSION ${version} → npm run fix`);
 }
+// Selbst-Aktualisierung der Android-App: android/huelle.json zählt die Fassungen der App-Hülle (steigt von selbst,
+// sobald sich android/ ändert); app/stand.json nennt Version, Hülle und die Prüfsumme jeder Datei der Web-App.
+const sha = (buf) => createHash('sha256').update(buf).digest('hex');
+const ANDROID = new URL('../android/', import.meta.url).pathname;
+const walkAll = (dir, base) => readdirSync(dir).flatMap((n) => { const p = join(dir, n); return ['build', '.gradle', 'huelle.json'].includes(n) ? [] : statSync(p).isDirectory() ? walkAll(p, base) : [relative(base, p)]; });
+const huelleSha = sha(walkAll(ANDROID, ANDROID).filter((f) => f.startsWith('offline/') || f.startsWith('widget/')).sort().map((f) => `${f}:${sha(readFileSync(join(ANDROID, f)))}`).join('\n'));
+const huellePath = join(ANDROID, 'huelle.json');
+let huelle = { nr: 0, sha: '' }; try { huelle = JSON.parse(readFileSync(huellePath, 'utf8')); } catch { /* fehlt noch */ }
+if (huelle.sha !== huelleSha) {
+  if (fix) { huelle = { nr: huelle.nr + 1, sha: huelleSha }; writeFileSync(huellePath, `${JSON.stringify(huelle)}\n`); console.log(`android/huelle.json: Hülle Nr. ${huelle.nr}`); }
+  else errors.push('android/ hat sich geändert, android/huelle.json passt nicht mehr → npm run fix');
+}
+const standPath = join(APP, 'stand.json');
+const dateien = {};
+for (const f of walk(APP).filter((f) => f !== 'stand.json' && !f.startsWith('img/shots/')).sort()) dateien[f] = sha(readFileSync(join(APP, f)));
+const wantStand = `${JSON.stringify({ version, huelle: huelle.nr, dateien }, null, 1)}\n`;
+let istStand = ''; try { istStand = readFileSync(standPath, 'utf8'); } catch { /* fehlt noch */ }
+if (istStand !== wantStand) { if (fix) { writeFileSync(standPath, wantStand); console.log('stand.json aktualisiert'); } else errors.push('app/stand.json ist veraltet → npm run fix'); }
+
 // Jede Datei, die index.html lädt, muss existieren.
 const html = readFileSync(join(APP, 'index.html'), 'utf8');
 for (const m of html.matchAll(/(?:href|src)="([^"#:]+)"/g)) if (!files.includes(m[1])) errors.push(`index.html verweist auf fehlende Datei: ${m[1]}`);

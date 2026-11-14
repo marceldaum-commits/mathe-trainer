@@ -7,6 +7,11 @@ assert m.find() : 'VERSION in app/js/config.js nicht gefunden'
 def vName = "${m.group(1)}.${m.group(2)}.${m.group(3)}"
 def vCode = m.group(1).toInteger() * 10000 + m.group(2).toInteger() * 100 + m.group(3).toInteger()
 
+// Selbst-Aktualisierung: Nummer der App-Hülle (zählt tools/check.mjs hoch) und Kanal (test = Test-Stand, store = freigegebener Stand, aus = nie).
+def huelleNr = new groovy.json.JsonSlurper().parse(rootProject.file('../huelle.json')).nr
+def kanal = System.getenv('MT_KANAL') ?: 'test'
+assert kanal in ['test', 'store', 'aus']
+
 // Die Web-App wird beim Bauen in die App-Datei kopiert (Ordner www). Bilder für den Store bleiben draußen.
 def webZiel = layout.buildDirectory.dir('webapp')
 tasks.register('webAppKopieren', Sync) {
@@ -23,6 +28,8 @@ android {
         targetSdkVersion 36
         versionCode vCode
         versionName vName
+        resValue 'integer', 'mt_huelle', "${huelleNr}"
+        resValue 'string', 'mt_kanal', kanal
     }
     sourceSets { main {
         assets.srcDirs = [webZiel]

@@ -791,6 +791,24 @@ await ctx2.close();
   }
   if (shots) await pc.screenshot({ path: `${shots}/81-pc-spiel.png` });
 }
+/* ───────────── Android-App: Hinweis, wenn sie sich neue Inhalte geholt hat ───────────── */
+{ const ac = await browser.newContext({ ...devices['Pixel 7'], serviceWorkers: 'block' }); const ap = await ac.newPage();
+  ap.on('pageerror', (e) => errors.push(`App-Hülle: ${e.message}`));
+  await ap.addInitScript(() => { window.__st = { kanal: 'test', inhalt: '', bereit: '', huelle: false }; window.MTApp = { updateStand: () => JSON.stringify(window.__st), updateAnwenden: () => { window.__los = true; }, apkHolen: () => { window.__apk = true; } }; });
+  await ap.goto(BASE); await ap.waitForSelector('#home');
+  if (await ap.locator('#upd').isVisible()) fail('Update: Hinweis ohne Neuigkeit sichtbar');
+  if (!/hält sich selbst aktuell/.test(await ap.textContent('#ver'))) fail('Update: Fußzeile nennt die Selbst-Aktualisierung nicht');
+  await ap.evaluate(() => { window.__st.bereit = '9.8.7'; window.__st.huelle = true; window.dispatchEvent(new Event('mt-update')); });
+  await ap.waitForSelector('#upd-los');
+  if (!/9\.8\.7/.test(await ap.textContent('#upd'))) fail('Update: neue Version wird nicht genannt');
+  if (await ap.evaluate(() => document.documentElement.scrollWidth - innerWidth > 1)) fail('Update: Hinweis macht die Seite zu breit');
+  if (shots) await ap.screenshot({ path: `${shots}/82-update.png` });
+  await ap.click('#upd-los'); await ap.click('#upd-apk');
+  if (!(await ap.evaluate(() => window.__los === true && window.__apk === true))) fail('Update: Knöpfe rufen die App-Hülle nicht');
+  await ap.goto(`${BASE}#/lernen`); await ap.waitForTimeout(200);
+  if (!(await ap.locator('#upd').isVisible())) fail('Update: Hinweis verschwindet beim Seitenwechsel');
+  await ac.close();
+}
 await browser.close();
 if (errors.length) { console.error('Konsolen-Fehler:\n' + errors.join('\n')); process.exit(1); }
 console.log(`e2e: kompletter Durchlauf ohne Fehler (Stufe ${LEVEL}, ${xp} Punkte, ${UNITS.length} Einheiten mit Boss, Abi ${np} NP, Tages-Runde ${tagScore}, Blitz ${blitz}, ${got} Abzeichen, Duell, Kartei, Bericht, Formeln, Wochen-Ziel, Klasse mit nachgestelltem Server, offline ok)`);
