@@ -27,7 +27,7 @@ await page.route('**/api/status', (r) => r.fulfill({ json: { ok: true, stufe: 'l
 const apiCalls = [];
 page.on('request', (r) => { const p = new URL(r.url()).pathname; if (p.startsWith('/api/') && p !== '/api/meldung') apiCalls.push(p); });
 const shot = async (name) => { if (shots) await page.screenshot({ path: `${shots}/${name}.png` }); };
-process.on('uncaughtException', async (e) => { console.error(String(e).split('\n')[0]); if (shots) await page.screenshot({ path: `${shots}/fehler.png` }).catch(() => {}); process.exit(1); });
+process.on('uncaughtException', async (e) => { console.error(String(e).split('\n')[0]); console.error((String(e?.stack || '').split('\n').find((z) => /e2e\.mjs:\d+/.test(z)) || '').trim()); if (shots) await page.screenshot({ path: `${shots}/fehler.png` }).catch(() => {}); process.exit(1); });
 const fail = (msg) => { throw new Error(msg); };
 const sheetNext = async () => { await page.waitForSelector('#sheet:not([hidden]) #sh-go'); await page.waitForTimeout(250); await page.click('#sh-go'); await page.waitForSelector('#sheet', { state: 'hidden' }); };
 const px = async (sel, view, x, y) => {
