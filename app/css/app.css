@@ -824,3 +824,12 @@ textarea.field{resize:vertical;min-height:72px;font:inherit;padding:10px 12px}
 /* Jede abgesetzte Formel darf seitlich gewischt werden, falls sie trotz Einpassen nicht ganz passt. Im Ausdruck gilt die normale Größe. */
 .katex-display{max-width:100%;overflow-x:auto;overflow-y:hidden;padding-bottom:2px}
 @media print{.katex-display{font-size:1em!important;overflow:visible}}
+
+/* Ausführliche Theorie: Beispiele, Vertiefung und Sonderfälle sind auf einen Blick zu unterscheiden */
+.theorie .t-inhalt{font-size:calc(12.5px*var(--fs,1));font-weight:700;letter-spacing:.02em;color:var(--muted);margin:2px 0 0}
+.theorie .t-teil.t-bsp h2::before,.theorie .t-teil.t-sonder h2::before,.theorie .t-teil.t-tief h2::before{display:inline-block;margin-right:8px;padding:2px 8px;border-radius:99px;font-size:calc(10px*var(--fs,1));font-weight:900;letter-spacing:.08em;vertical-align:2px}
+.theorie .t-teil.t-bsp h2::before{content:"BEISPIEL";background:var(--mint-soft);color:var(--mint-ink)}
+.theorie .t-teil.t-sonder h2::before{content:"ACHTUNG";background:var(--orange-soft);color:var(--orange)}
+.theorie .t-teil.t-tief h2::before{content:"WARUM";background:var(--soft);color:var(--muted)}
+@media screen{.theorie .t-teil.t-bsp{border-left:4px solid var(--mint)}.theorie .t-teil.t-sonder{border-left:4px solid var(--orange)}}
+@media print{.theorie .t-teil.t-bsp h2::before,.theorie .t-teil.t-sonder h2::before,.theorie .t-teil.t-tief h2::before{background:none;color:#555;border:1px solid #999}}

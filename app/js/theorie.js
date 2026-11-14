@@ -2,6 +2,7 @@
 // „Kurz“ entsteht aus den Erklär-Karten und Formeln der Einheit (immer aktuell, für alle).
 // „Ausführlich“ ist eigens geschriebener Text mit Herleitung und durchgerechnetem Beispiel (Pro) – wächst Thema für Thema.
 import { $, h, tex, esc, ICON, sfx, drucken } from './ui.js';
+import { MEHR } from './theorie-mehr.js';
 import { store } from './store.js';
 import { UNITS, AREAS, unitExtra, NICHT_TEXT } from './units.js';
 import { CONFIG } from './config.js';
@@ -260,6 +261,13 @@ export const LANG = {
 /** Karten einer Einheit (aus den „Benennen“-Schritten) – die Kurzfassung. */
 export const karten = (u) => u.steps.flatMap((s) => s.run.cards || []);
 export const hatLang = (u) => Array.isArray(LANG[u.id]);
+/** Alle Abschnitte der ausführlichen Fassung: Grundkapitel plus Vertiefung (weitere Beispiele, Sonderfälle). Die Vertiefung steht vor dem Schluss-Abschnitt („Typische Fehler“, „So gehst du vor“ …). */
+export function abschnitte(id) {
+  const L = LANG[id] || [], M = MEHR[id] || [];
+  if (!M.length) return L;
+  const schluss = L.length && /^(Typische Fehler|So gehst du vor|Reihenfolge für die Prüfung)/.test(L[L.length - 1][0]) ? 1 : 0;
+  return [...L.slice(0, L.length - schluss), ...M, ...L.slice(L.length - schluss)];
+}
 /** Ausführlich und PDF gehören zur Pro-Fassung; solange der Verkauf nicht gestartet ist, ist alles offen. */
 export const proOffen = () => store.zugangGilt() || !premiumOn();
 
@@ -269,8 +277,9 @@ const kopf = (u, art) => `<header class="b-kopf"><img class="b-logo" src="img/lo
 
 /** Das Kapitel als Lesetext (Vorschau = Druckbild). lang = true: ausführliche Fassung, falls vorhanden. */
 export function kapitelHtml(u, lang) {
-  const K = karten(u), L = lang && hatLang(u) ? LANG[u.id] : null;
-  const teile = L ? L.map(([titel, html]) => `<section class="t-teil"><h2>${esc(titel)}</h2>${html}</section>`).join('')
+  const K = karten(u), L = lang && hatLang(u) ? abschnitte(u.id) : null;
+  const art = (titel) => (/^(Beispiel|Durchgerechnetes Beispiel)/.test(titel) ? ' t-bsp' : /^Sonderfälle/.test(titel) ? ' t-sonder' : /^Genauer hingeschaut/.test(titel) ? ' t-tief' : '');
+  const teile = L ? `<p class="t-inhalt">${L.length} Abschnitte · ${L.filter(([x]) => /Beispiel/.test(x)).length} durchgerechnete Beispiele</p>` + L.map(([titel, html]) => `<section class="t-teil${art(titel)}"><h2>${esc(titel)}</h2>${html}</section>`).join('')
     : K.map((c) => `<section class="t-teil"><h2>${esc(c.title)}</h2>${c.html}</section>`).join('');
   const formeln = u.formeln?.length ? `<section class="t-teil t-merk"><h2>Formeln zum Merken</h2>${u.formeln.map(([n, f]) => `<div class="t-zeile"${hatMerkbild(n) ? ` data-merk="${esc(n)}"` : ''}><small>${esc(n)}</small><div class="t-formel">${tex(f, true)}</div></div>`).join('')}</section>` : '';
   const wozu = u.why ? `<section class="t-teil"><h2>Wo brauche ich das?</h2><p>${esc(u.why)}</p></section>` : '';

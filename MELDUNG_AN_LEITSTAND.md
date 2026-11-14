@@ -2,6 +2,11 @@
 
 Neueste Meldung oben. Keine Geheimnisse, keine Personendaten (dieses Repo ist öffentlich, siehe Punkt 1).
 
+## 14.11.2026 (45) – 0.25.0: ausführliche Theorie stark erweitert (Meldung „liegt auf test“ folgt nach dem Testlauf)
+
+Marcels Rückmeldung: „Kurz und ausführlich ist fast gleich.“ Jetzt hat jedes der 31 ausführlichen Kapitel zusätzlich
+Hintergrund, zwei bis vier weitere Beispiele und Sonderfälle (neue Datei `app/js/theorie-mehr.js`). Nur App-Seite, Pro.
+
 ## 14.11.2026 (44) – 0.24.0 liegt auf `test` (alle fünf Browser-Durchläufe grün)
 
 Ausführliche Theorie für alle 31 Einheiten (Pro). Nur App-Seite, nichts für den Server, App-Hülle unverändert.

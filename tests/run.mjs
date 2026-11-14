@@ -832,6 +832,21 @@ ok(nextStreak({ n: 3, last: '2026-11-10' }, D('2026-11-12')).n === 1, 'Serie: au
   const Th2 = await import('../app/js/theorie.js'); ok(UNITS.filter((u) => u.area !== 'pruefung').every((u) => Th2.hatLang(u) && Th2.LANG[u.id].length >= 5), 'Theorie: jede Lern-Einheit hat ein ausführliches Kapitel mit mindestens fünf Abschnitten');
   for (const [id, L] of Object.entries(Th2.LANG)) for (const [titel, html] of L) { ok(!/\$\{|undefined|NaN/.test(html), `Theorie ${id}: Abschnitt „${titel}“ ohne Platzhalter-Reste`); ok((html.match(/<(p|ul|ol|li)[ >]/g) || []).length === (html.match(/<\/(p|ul|ol|li)>/g) || []).length, `Theorie ${id}: Abschnitt „${titel}“ – HTML-Marken paarig`); } }
 
+// Ausführliche Theorie ist deutlich mehr als die Kurzfassung (Marcel, 14.11.2026): Vertiefung mit weiteren Beispielen und Sonderfällen
+{ const Th3 = await import('../app/js/theorie.js'); const { MEHR } = await import('../app/js/theorie-mehr.js');
+  for (const u of UNITS.filter((x) => x.area !== 'pruefung')) {
+    const M = MEHR[u.id] || [], A = Th3.abschnitte(u.id), titel = A.map(([x]) => x);
+    ok(M.length >= 4, `Theorie ${u.id}: Vertiefung mit mindestens vier Abschnitten`);
+    ok(M.filter(([x]) => /^Beispiel/.test(x)).length >= 2, `Theorie ${u.id}: mindestens zwei weitere Beispiele`);
+    ok(M.some(([x]) => /^Sonderfälle/.test(x)) && M.some(([x]) => /^Genauer hingeschaut/.test(x)), `Theorie ${u.id}: Sonderfälle und Hintergrund`);
+    ok(A.length === Th3.LANG[u.id].length + M.length && A.length >= 9 && new Set(titel).size === titel.length, `Theorie ${u.id}: mindestens neun verschiedene Abschnitte`);
+    ok(!/^Typische Fehler|^So gehst du vor/.test(Th3.LANG[u.id].at(-1)[0]) || titel.at(-1) === Th3.LANG[u.id].at(-1)[0], `Theorie ${u.id}: Schluss-Abschnitt bleibt am Ende`);
+    const lang = Th3.kapitelHtml(u, true), kurz = Th3.kapitelHtml(u, false);
+    ok(lang.length > kurz.length * 1.8 && lang.includes('t-bsp') && lang.includes('t-sonder') && !kurz.includes('t-bsp'), `Theorie ${u.id}: ausführlich ist deutlich länger als kurz`);
+    for (const [x, html] of M) { ok(!/\$\{|undefined|NaN/.test(html) && html.length > 150, `Theorie ${u.id}: „${x}“ ohne Platzhalter-Reste`); ok((html.match(/<(p|ul|ol|li)[ >]/g) || []).length === (html.match(/<\/(p|ul|ol|li)>/g) || []).length, `Theorie ${u.id}: „${x}“ – HTML-Marken paarig`); }
+  }
+  ok(Object.keys(MEHR).every((id) => UNITS.some((u) => u.id === id)), 'Theorie: Vertiefung nur für vorhandene Einheiten'); }
+
 // Schriftgröße: nur drei Werte, bleibt beim Zurücksetzen erhalten; jede Schrift im Stil folgt dem Faktor
 { store.reset(); ok(store.schrift === 'normal', 'Schrift: Standard ist normal');
   store.schrift = 'klein'; ok(store.schrift === 'klein', 'Schrift: klein wird gemerkt'); store.schrift = 'riesig'; ok(store.schrift === 'normal', 'Schrift: Unbekanntes zählt als normal');
