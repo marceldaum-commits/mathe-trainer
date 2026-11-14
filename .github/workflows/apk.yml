@@ -6,8 +6,8 @@
 name: App-Datei bauen
 on:
   push:
-    branches: [test]
-    paths: ['android/huelle.json']
+    branches: [test, arbeit]
+    paths: ['android/huelle.json', '.github/workflows/apk.yml']
   workflow_dispatch:
     inputs:
       kanal:
