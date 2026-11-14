@@ -42,7 +42,7 @@ export function proView() {
   const ak = el.querySelector('#pro-aktion');
   premiumBereit().then((an) => {
     if (!el.isConnected) return;
-    if (an || z) ak.innerHTML = `<a class="btn small" href="#/einstellungen">${z ? 'Zugangscode ändern' : 'Zugangscode eingeben'}</a>${!st && !window.MTApp ? ` <a class="btn small line" href="${CONFIG.website}" target="_blank" rel="noopener">Zur Website ↗</a>` : ''}`;
+    if (an || z) ak.innerHTML = `<a class="btn small" href="#/einstellungen">${z ? 'Zugangscode ändern' : 'Zugangscode eingeben'}</a>${!st && !window.MTApp ? ` <a class="btn small line" href="${CONFIG.shop}" target="_blank" rel="noopener">Pro holen ↗</a>` : ''}`;
     else ak.innerHTML = '<small>Die Pro-Fassung startet bald. Bis dahin sind die Pro-Funktionen hier zum Ausprobieren frei.</small>';
   });
   return { el };

@@ -4,13 +4,13 @@
 import { CONFIG } from './config.js';
 
 export const serverOn = () => typeof CONFIG.api === 'string' && CONFIG.api.length > 0;
-let stufe = '', premium = false, arten = [];   // was der Server über sich sagt
+let stufe = '', kiServer = false, premium = false, arten = [];   // was der Server über sich sagt
 const kiEin = () => CONFIG.ki === true || CONFIG.ki === 'test';
-export const kiOn = () => serverOn() && (CONFIG.ki === true || (CONFIG.ki === 'test' && stufe === 'test'));
+export const kiOn = () => serverOn() && ((CONFIG.ki === true && kiServer) || (CONFIG.ki === 'test' && stufe === 'test'));
 /** Verkauft der Server schon Zugänge? Erst dann zeigt die App das Feld „Zugangscode“. */
 export const premiumOn = () => serverOn() && kiEin() && premium;
 /** Antwort von GET /api/status auswerten. Nur „Testseite und KI bereit“ schaltet bei ki: 'test' die Erklärungen frei. */
-export const statusLesen = (r) => { const gut = !!r && r.ok === true; stufe = gut && r.ki === true && r.stufe === 'test' ? 'test' : ''; premium = gut && r.premium === true;
+export const statusLesen = (r) => { const gut = !!r && r.ok === true; kiServer = gut && r.ki === true; stufe = kiServer && r.stufe === 'test' ? 'test' : ''; premium = gut && r.premium === true;
   arten = gut && Array.isArray(r.kiArten) ? r.kiArten.filter((x) => typeof x === 'string') : [];
   return stufe; };
 /** Kann der Server diese KI-Funktion schon? (z. B. 'frage' = Rückfragen an den Tutor) */
@@ -33,7 +33,7 @@ export function codeNorm(s) {
   return /^MT[A-Z0-9]{12}$/.test(t) ? `MT-${t.slice(2, 6)}-${t.slice(6, 10)}-${t.slice(10, 14)}` : '';
 }
 /** Verweise nach einem „gehört zu Pro“-Hinweis: Code-Feld (sobald es Zugänge gibt) und – außer in der Android-App – die Website. */
-export const kaufLinks = () => `${premiumOn() ? ' <a href="#/einstellungen">Zugangscode eingeben</a>' : ''}${typeof window !== 'undefined' && window.MTApp ? '' : ` <a href="${CONFIG.website}" target="_blank" rel="noopener">Zur Website</a>`}`;
+export const kaufLinks = () => `${premiumOn() ? ' <a href="#/einstellungen">Zugangscode eingeben</a>' : ''}${typeof window !== 'undefined' && window.MTApp ? '' : ` <a href="${CONFIG.shop}" target="_blank" rel="noopener">Pro holen</a>`}`;
 export const ZUGANG_ART = { pass: 'Abi-Pass', tage30: '30-Tage-Pass', frei: 'Freier Zugang' };
 
 async function call(path, body) {
