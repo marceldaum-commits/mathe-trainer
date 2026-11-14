@@ -10,7 +10,36 @@ export function h(html) {
 
 /** LaTeX → HTML (KaTeX ist als globales Skript geladen). */
 export function tex(src, display = false) {
+  // Abgesetzte Formeln mit mehreren Teilen („\\qquad“) stehen untereinander – nebeneinander liefen sie auf dem Handy aus dem Bild.
+  if (display) { const teile = texTeile(src); if (teile.length > 1) return teile.map((t) => window.katex.renderToString(t, { throwOnError: false, displayMode: true })).join(''); }
   return window.katex.renderToString(src, { throwOnError: false, displayMode: display });
+}
+/** Teilt eine Formel an jedem „\\qquad“, das nicht in Klammern oder einer Umgebung (\\begin…\\end) steht. */
+export function texTeile(src) {
+  const s = String(src), teile = []; let tief = 0, start = 0;
+  for (let i = 0; i < s.length; i++) {
+    const c = s[i];
+    if (c === '\\') {
+      if (s.startsWith('\\begin', i)) tief++; else if (s.startsWith('\\end', i)) tief--;
+      else if (s.startsWith('\\left', i) && !/[a-z]/i.test(s[i + 5] || '')) tief++; else if (s.startsWith('\\right', i) && !/[a-z]/i.test(s[i + 6] || '')) tief--;
+      else if (tief === 0 && s.startsWith('\\qquad', i) && !/[a-z]/i.test(s[i + 6] || '')) { teile.push(s.slice(start, i)); start = i + 6; i += 5; continue; }
+      i++; continue;   // maskiertes Zeichen (\\{, \\\\ …) überspringen
+    }
+    if (c === '{') tief++; else if (c === '}') tief--;
+  }
+  teile.push(s.slice(start));
+  const aus = teile.map((t) => t.trim()).filter(Boolean);
+  return aus.length ? aus : [s];
+}
+/** Abgesetzte Formeln, die breiter sind als ihr Platz, etwas kleiner setzen (bis etwa zwei Drittel); der Rest bleibt wischbar. */
+export function formelnEinpassen(root = document) {
+  for (const el of root.querySelectorAll('.katex-display')) {
+    const platz = el.clientWidth; if (!platz || el.dataset.fit === String(platz)) continue;
+    el.style.fontSize = ''; el.dataset.fit = String(platz);
+    const breit = el.scrollWidth; if (breit <= platz + 1) continue;
+    const fs = parseFloat(getComputedStyle(el).fontSize) || 16;
+    el.style.fontSize = `${Math.max(fs * 0.66, (fs * platz) / breit - 0.3).toFixed(2)}px`;
+  }
 }
 
 export const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));

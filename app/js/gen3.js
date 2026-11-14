@@ -77,10 +77,10 @@ export function genLinGl(lv = 3) {
     const d = (a - c) * x0 + b;
     const L = lineTex(a, b), R = c === 0 ? ft(d) : lineTex(c, d);
     const X = (num, correct, why) => ({ tex: `x=${ft(num, 3)}`, num, correct, why });
-    const opts = [X(x0, true), X(-x0, false, 'Achte beim Umstellen auf die Vorzeichen.'), X((d + b) / (a - c), false, `Beim Rüberbringen wechselt das Vorzeichen: Auf der rechten Seite steht dann ${tex(`${ft(d)}-${par(b)}`)}.`), X(c === 0 ? (d - b) * a : (d - b) / (a + c || 1), false, c === 0 ? `Am Ende wird durch den Faktor vor ${tex('x')} geteilt, nicht damit multipliziert.` : `Die x-Glieder werden subtrahiert: ${tex(`${ft(a)}x-${par(c)}x`)}.`)];
+    const opts = [X(x0, true), X(-x0, false, 'Achte beim Umstellen auf die Vorzeichen.'), X((d + b) / (a - c), false, `Beim Rüberbringen wechselt das Vorzeichen: Auf der rechten Seite steht dann ${tex(`${ft(d)}-${par(b)}`)}.`), X(c === 0 ? (d - b) * a : (d - b) / (a + c || 1), false, c === 0 ? `Am Ende wird durch den Faktor vor ${tex('x')} geteilt, nicht damit multipliziert.` : `Die x-Glieder werden subtrahiert: ${tex(`${a === 1 ? '' : a === -1 ? '-' : ft(a)}x-${c === 1 ? '' : par(c)}x`)}.`)];
     if (!uniqNum(opts)) continue;
     return { prompt: 'Löse die Gleichung.', formula: `${L}=${R}`, options: shuffle(opts),
-      hints: ['Bringe alle Glieder mit x auf eine Seite, alle Zahlen auf die andere.', `Es bleibt ${tex(`${ft(a - c)}x=${ft(d - b)}`)}.`], explain: `${tex(`${ft(a - c)}x=${ft(d - b)}`)}, also ${tex(`x=${ft(x0)}`)}. Probe: Beide Seiten ergeben ${tex(ft(a * x0 + b))}.`,
+      hints: ['Bringe alle Glieder mit x auf eine Seite, alle Zahlen auf die andere.', `Es bleibt ${tex(`${a - c === 1 ? '' : a - c === -1 ? '-' : ft(a - c)}x=${ft(d - b)}`)}.`], explain: `${tex(`${a - c === 1 ? '' : a - c === -1 ? '-' : ft(a - c)}x=${ft(d - b)}`)}, also ${tex(`x=${ft(x0)}`)}. Probe: Beide Seiten ergeben ${tex(ft(a * x0 + b))}.`,
       left: (x) => a * x + b, right: (x) => c * x + d };
   }
 }
@@ -97,7 +97,7 @@ export function genQuadGl(lv = 3) {
     const opts = [mk([r1, r2], true), mk([-r2, -r1], false, `Vorzeichen: Bei ${tex('x^2+px+q=0')} ist ${tex('x_{1,2}=-\\tfrac p2\\pm\\dots')} – das Minus vor ${tex('\\tfrac p2')} nicht vergessen.`), mk(sp, false, 'Das sind Summe und Produkt der Lösungen, nicht die Lösungen selbst.'), mk([r1, -r2].sort((x, y) => x - y), false, 'Eine Lösung hat das falsche Vorzeichen. Mach die Probe durch Einsetzen.')];
     if (!uniq(opts)) continue;
     return { prompt: 'Löse die Gleichung.', formula: `${polyTex(coef)}=0`, options: shuffle(opts),
-      hints: [k === 1 ? 'pq-Formel oder: Welche zwei Zahlen ergeben als Produkt die Zahl am Ende?' : `Teile zuerst durch ${tex(ft(k))}.`, `${tex(`x^2${-(r1 + r2) < 0 ? '' : '+'}${ft(-(r1 + r2))}x${r1 * r2 < 0 ? '' : '+'}${ft(r1 * r2)}=0`)} – Probe durch Einsetzen.`],
+      hints: [k === 1 ? 'pq-Formel oder: Welche zwei Zahlen ergeben als Produkt die Zahl am Ende?' : `Teile zuerst durch ${tex(ft(k))}.`, `${tex(`${polyTex([r1 * r2, -(r1 + r2), 1])}=0`)} – Probe durch Einsetzen.`],
       explain: `${tex(`(x${r1 < 0 ? '+' : '-'}${Math.abs(r1)})(x${r2 < 0 ? '+' : '-'}${Math.abs(r2)})=0`)}, also ${tex(`x_1=${r1}`)} und ${tex(`x_2=${r2}`)}.`, f: (x) => polyEval(coef, x) };
   }
 }
@@ -107,7 +107,7 @@ export function genPotenz(lv = 3) {
   for (;;) {
     const kind = pick(tier(lv, ['mal', 'hoch'], ['mal', 'hoch', 'durch'], ['mal', 'hoch', 'durch', 'neg'], ['hoch', 'durch', 'neg', 'wurzel'], ['wurzel', 'kombi', 'negdurch']));
     const a = ri(2, 6), b = ri(2, 5);
-    const E = (e, correct, why, t) => ({ tex: t ?? `x^{${typeof e === 'string' ? e : ft(e)}}`, e, correct, why, val: (x) => x ** (typeof e === 'number' ? e : NaN) });
+    const E = (e, correct, why, t) => ({ tex: t ?? (e === 1 ? 'x' : e === 0 ? '1' : `x^{${typeof e === 'string' ? e : ft(e)}}`), e, correct, why, val: (x) => x ** (typeof e === 'number' ? e : NaN) });
     let formula, f, opts;
     if (kind === 'mal') { formula = `x^{${a}}\\cdot x^{${b}}`; f = (x) => x ** a * x ** b; opts = [E(a + b, true), E(a * b, false, 'Beim Multiplizieren gleicher Basen werden die Exponenten addiert.'), E(a - b, false, 'Subtrahiert wird beim Dividieren.'), { tex: `2x^{${a + b}}`, correct: false, why: 'Es entsteht kein zusätzlicher Faktor 2.', val: (x) => 2 * x ** (a + b) }]; }
     else if (kind === 'hoch') { formula = `\\left(x^{${a}}\\right)^{${b}}`; f = (x) => (x ** a) ** b; opts = [E(a * b, true), E(a + b, false, 'Beim Potenzieren einer Potenz werden die Exponenten multipliziert.'), E(a ** b > 99 ? a + b + 1 : a ** b, false, 'Die Exponenten werden multipliziert, nicht potenziert.'), E(a * b + 1, false, `Rechne ${tex(`${a}\\cdot${b}`)}.`)]; }
@@ -117,8 +117,8 @@ export function genPotenz(lv = 3) {
     else if (kind === 'negdurch') { formula = `\\dfrac{x^{-${a}}}{x^{${b}}}`; f = (x) => x ** -a / x ** b;
       opts = [E(-(a + b), true), E(b - a, false, `Exponent des Zählers minus Exponent des Nenners: ${tex(`-${a}-${b}`)}.`), E(-(a * b), false, 'Beim Dividieren werden die Exponenten subtrahiert, nicht multipliziert.'), E(a + b, false, 'Das Vorzeichen fehlt: Der Exponent bleibt negativ.')]; }
     else if (kind === 'neg') { formula = `x^{-${a}}`; f = (x) => x ** -a; opts = [{ tex: `\\dfrac{1}{x^{${a}}}`, correct: true, val: (x) => 1 / x ** a }, { tex: `-x^{${a}}`, correct: false, why: 'Ein negativer Exponent bedeutet „Kehrwert", nicht „negatives Vorzeichen".', val: (x) => -(x ** a) }, { tex: `-${a}x`, correct: false, why: 'Der Exponent ist kein Faktor.', val: (x) => -a * x }, { tex: `\\dfrac{1}{x^{-${a}}}`, correct: false, why: `Das wäre ${tex(`x^{${a}}`)}.`, val: (x) => x ** a }]; }
-    else { const n = pick([2, 3, 4]), m = pick([1, 2, 3, 5].filter((v) => v !== n)); formula = n === 2 ? `\\sqrt{x^{${m}}}` : `\\sqrt[${n}]{x^{${m}}}`; f = (x) => (x ** m) ** (1 / n);
-      const Q = (num, den, correct, why) => ({ tex: `x^{${fracTex(num, den).replace('\\dfrac', '\\frac')}}`, correct, why, val: (x) => x ** (num / den) });
+    else { const n = pick([2, 3, 4]), m = pick([1, 2, 3, 5].filter((v) => v !== n)); const xm = m === 1 ? 'x' : `x^{${m}}`; formula = n === 2 ? `\\sqrt{${xm}}` : `\\sqrt[${n}]{${xm}}`; f = (x) => (x ** m) ** (1 / n);
+      const Q = (num, den, correct, why) => ({ tex: num === den ? 'x' : `x^{${fracTex(num, den).replace('\\dfrac', '\\frac')}}`, correct, why, val: (x) => x ** (num / den) });
       opts = [Q(m, n, true), Q(n, m, false, 'Der Wurzelexponent steht im Nenner des Bruchs.'), Q(m * n, 1, false, 'Eine Wurzel verkleinert den Exponenten: Er wird geteilt, nicht multipliziert.'), Q(m - n, 1, false, 'Der Exponent wird durch den Wurzelexponenten geteilt, nicht vermindert.')]; }
     const X0 = 1.7;
     if (!uniq(opts) || opts.some((o, i) => opts.some((p, j) => i < j && Math.abs(o.val(X0) - p.val(X0)) < 1e-9))) continue;

@@ -108,7 +108,7 @@ export function genTrigAbl(lv = 3) {
       opts = isSin ? [T(`${s}+${xc}`, (x) => a * Math.sin(x) + a * x * Math.cos(x), true), T(co, (x) => a * Math.cos(x), false, `Das ist ${tex("u'\\cdot v'")}. Produktregel: ${tex("u'v+uv'")}.`), T(`${s}-${xc}`, (x) => a * Math.sin(x) - a * x * Math.cos(x), false, `${tex("(\\sin x)'=\\cos x")} – ohne Minus.`), T(xc, (x) => a * x * Math.cos(x), false, `Der erste Teil ${tex("u'v")} fehlt.`)]
         : [T(`${co}-${xs}`, (x) => a * Math.cos(x) - a * x * Math.sin(x), true), T(`-${s}`, (x) => -a * Math.sin(x), false, `Das ist ${tex("u'\\cdot v'")}. Produktregel: ${tex("u'v+uv'")}.`), T(`${co}+${xs}`, (x) => a * Math.cos(x) + a * x * Math.sin(x), false, `${tex("(\\cos x)'=-\\sin x")} – mit Minus.`), T(`-${xs}`, (x) => -a * x * Math.sin(x), false, `Der erste Teil ${tex("u'v")} fehlt.`)];
     } else {
-      const ct = c ? (lv === 4 ? `${sgn(c)}x` : sgn(c)) : '', dc = lv === 4 ? c : 0;
+      const ct = c ? (lv === 4 ? `${c === 1 ? '+' : c === -1 ? '-' : sgn(c)}x` : sgn(c)) : '', dc = lv === 4 ? c : 0;
       formula = `${K(a)}\\${isSin ? 'sin' : 'cos'}${arg(b)}${ct}`; f = (x) => a * (isSin ? Math.sin(b * x) : Math.cos(b * x)) + (lv === 4 ? c * x : c);
       const D = (coef, fn, correct, why) => T(`${K(coef)}\\${fn}${arg(b)}${dc ? sgn(dc) : ''}`, (x) => coef * (fn === 'sin' ? Math.sin(b * x) : Math.cos(b * x)) + dc, correct, why);
       const right = isSin ? [a * b, 'cos'] : [-a * b, 'sin'];

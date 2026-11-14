@@ -105,7 +105,7 @@ export function genKette(lv = 3) {
     if (a === n) continue;
     const inner = `(${polyTex([b, a])})`;
     const K = (k) => (k === 1 ? '' : k === -1 ? '-' : ft(k));
-    const mk = (k, e, correct, why) => ({ tex: `f'(x)=${K(k)}${inner}^{${e}}`, correct, why, val: (x) => k * (a * x + b) ** e });
+    const mk = (k, e, correct, why) => ({ tex: `f'(x)=${K(k)}${inner}${e === 1 ? '' : `^{${e}}`}`, correct, why, val: (x) => k * (a * x + b) ** e });
     const opts = [
       mk(c * n * a, n - 1, true),
       mk(c * n, n - 1, false, `Die innere Ableitung fehlt: ${tex(`(${polyTex([b, a])})'=${ft(a)}`)} muss als Faktor dazu (Kettenregel).`),
@@ -118,7 +118,7 @@ export function genKette(lv = 3) {
       formula: `f(x)=${K(c)}${inner}^{${n}}`,
       options: shuffle(opts),
       hints: ['Hier steckt eine Funktion in einer anderen: außen „hoch n", innen die Klammer.', 'Kettenregel: äußere Ableitung mal innere Ableitung.', `Innere Ableitung: ${tex(ft(a))}.`],
-      explain: `Kettenregel: ${tex(`f'(x)=${c === 1 ? '' : `${par(c)}\\cdot`}${n}\\cdot${inner}^{${n - 1}}\\cdot${par(a)}=${K(c * n * a)}${inner}^{${n - 1}}`)}.`,
+      explain: `Kettenregel: ${tex(`f'(x)=${c === 1 ? '' : `${par(c)}\\cdot`}${n}\\cdot${inner}${n === 2 ? '' : `^{${n - 1}}`}\\cdot${par(a)}=${K(c * n * a)}${inner}${n === 2 ? '' : `^{${n - 1}}`}`)}.`,
       f: (x) => c * (a * x + b) ** n,
     };
   }

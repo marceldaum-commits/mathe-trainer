@@ -817,6 +817,20 @@ ok(nextStreak({ n: 3, last: '2026-11-13' }, D('2026-11-13')).n === 3, 'Serie: gl
 ok(nextStreak({ n: 3, last: '2026-11-13' }, D('2026-11-16')).n === 4, 'Serie: Wochenende darf ausfallen (Fr → Mo)');
 ok(nextStreak({ n: 3, last: '2026-11-10' }, D('2026-11-12')).n === 1, 'Serie: ausgelassener Werktag setzt zurück');
 
+// Schreibweise: kein „hoch 1“, kein „1x“ in Aufgaben, Antworten, Tipps und Erklärungen dieser Arten (Fund vom 14.11.2026)
+{ const K3 = await import('../app/js/gen3.js');
+  for (const [name, fn] of [['genKette', G.genKette], ['genPotenz', K3.genPotenz], ['genQuadGl', K3.genQuadGl], ['genLinGl', K3.genLinGl], ['genTrigAbl', K4.genTrigAbl]]) for (const lv of [1, 2, 3, 4, 5]) for (let i = 0; i < 60; i++) {
+    const q = fn(lv), t = [q.formula, q.explain, ...(q.hints || []), ...q.options.flatMap((o) => [o.tex, o.why])].filter((x) => typeof x === 'string').join(' ¦ ');
+    ok(!/\)\^\{1\}|x\^\{1\}(?![0-9])/.test(t), `${name}: kein „hoch 1“`); ok(!/(^|[^0-9,{.a-z_])1x(?![0-9_])/.test(t), `${name}: kein „1x“`); } }
+
+// Abgesetzte Formeln: mehrteilige („\qquad“) werden in Zeilen geteilt – aber nie innerhalb von Klammern oder Umgebungen
+{ const U = await import('../app/js/ui.js');
+  ok(U.texTeile('a=b\\qquad c=d').join('|') === 'a=b|c=d', 'Formel teilen: an \\qquad');
+  ok(U.texTeile('\\begin{array}{l}a\\qquad b\\end{array}').length === 1 && U.texTeile('{a\\qquad b}').length === 1 && U.texTeile('\\left(a\\qquad b\\right)\\qquad x').length === 2, 'Formel teilen: nicht in Klammern oder Umgebungen');
+  ok(U.texTeile('x').join() === 'x' && U.texTeile('\\qquad').length === 1 && U.texTeile('a\\quad b').length === 1 && U.texTeile('\\{a\\}\\qquad b').length === 2, 'Formel teilen: Sonderfälle');
+  ok(U.tex('a\\qquad b') === 'a\\qquad b' && U.tex('a\\qquad b', true) === 'ab', 'Formel teilen: nur abgesetzte Formeln');
+  const Th2 = await import('../app/js/theorie.js'); ok(Object.keys(Th2.LANG).length >= 16, 'Theorie: mindestens 16 ausführliche Kapitel'); }
+
 // Schriftgröße: nur drei Werte, bleibt beim Zurücksetzen erhalten; jede Schrift im Stil folgt dem Faktor
 { store.reset(); ok(store.schrift === 'normal', 'Schrift: Standard ist normal');
   store.schrift = 'klein'; ok(store.schrift === 'klein', 'Schrift: klein wird gemerkt'); store.schrift = 'riesig'; ok(store.schrift === 'normal', 'Schrift: Unbekanntes zählt als normal');

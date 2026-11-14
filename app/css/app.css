@@ -812,3 +812,15 @@ textarea.field{resize:vertical;min-height:72px;font:inherit;padding:10px 12px}
 .st-info{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;font-size:calc(14.5px*var(--fs,1));margin:0}
 .st-info dt{color:var(--muted)}
 .st-info dd{margin:0;font-weight:700}
+
+/* Kopfzeile und Menü wachsen mit „Schrift groß“ nicht mit – sonst wird der App-Name abgeschnitten. */
+:root[data-schrift="gross"] .top,:root[data-schrift="gross"] .nav,:root[data-schrift="gross"] .site-top{--fs:1}
+@media (max-width:400px){.top{gap:6px}.brand{gap:7px}.brand-logo{width:32px;height:32px}.brand-text b{font-size:calc(15px*var(--fs,1))}}
+/* Formelsammlung: langer Titel darf umbrechen, der Knopf bleibt im Bild */
+.fcard .row{align-items:flex-start}.fcard .row h3{min-width:0;overflow-wrap:anywhere}.fcard .row .btn{flex:none}
+@media (max-width:380px){.top{padding-left:12px;padding-right:12px;gap:5px}.brand-text b{font-size:calc(14px*var(--fs,1))}.chips{gap:4px}.chip{padding:6px 7px;gap:4px}}
+/* Abgesetzte Formeln wachsen mit „Schrift groß“ nicht mit – sie liefen sonst aus der Karte. */
+:root[data-schrift="gross"] .katex-display{font-size:.9em}
+/* Jede abgesetzte Formel darf seitlich gewischt werden, falls sie trotz Einpassen nicht ganz passt. Im Ausdruck gilt die normale Größe. */
+.katex-display{max-width:100%;overflow-x:auto;overflow-y:hidden;padding-bottom:2px}
+@media print{.katex-display{font-size:1em!important;overflow:visible}}

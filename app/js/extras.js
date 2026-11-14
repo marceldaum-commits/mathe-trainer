@@ -187,7 +187,7 @@ export function berichtView() {
     ${exams.length ? `<section class="card stack"><h3>Abi-Modus</h3>${exams.map((e) => `<div class="rep-row"><span>Teil ${esc(e.part)} · ${esc(e.date)}</span><small class="muted">${e.correct}/${e.total} richtig</small><b>${e.np} NP</b></div>`).join('')}<small class="muted">Prognose aus Auswahl-Aufgaben – eine Orientierung, kein Notenersatz.</small></section>` : ''}
     <section class="cta"><h2>Gemeinsam geht es schneller.</h2><p>${weak.length ? `Bei ${esc(weak.slice(0, 2).map((s) => s.topic).join(' und '))} unterstützen wir gezielt.` : 'Wir zeigen in einer Probestunde, wie persönliche Nachhilfe den nächsten Schritt leichter macht.'} Die erste Stunde ist kostenlos.</p>
       <a class="btn" href="${CONFIG.probestunde}" target="_blank" rel="noopener">Gratis Probestunde ${ICON.right}</a><small>${esc(CONFIG.website.replace(/^https?:\/\/|\/$/g, ''))}</small></section>
-    <div class="row noprint"><button class="btn ghost grow" id="rp-print" type="button">Drucken oder als PDF sichern</button><button class="btn grow" id="rp-share" type="button">Teilen</button></div>
+    <div class="row noprint"><button class="btn ghost grow" id="rp-print" type="button">Drucken / PDF</button><button class="btn grow" id="rp-share" type="button">Teilen</button></div>
     <small class="muted noprint">Der Bericht entsteht nur auf diesem Gerät. Es werden keine Daten übertragen.</small>
   </div>`);
   $('#rp-print', el).onclick = () => drucken();
@@ -284,7 +284,7 @@ export function formelnView() {
       const ok = store.unitProgress(u).done;
       return `<div class="card fcard ${ok ? '' : 'locked noprint'}"><div class="row"><h3 class="grow">${esc(u.title)}</h3>${ok ? '' : `<a class="btn small ghost" href="#/u/${u.id}">Freischalten</a>`}</div>
         ${ok ? u.formeln.map(([n, f]) => `<div class="fline"${hatMerkbild(n) ? ` data-merk="${esc(n)}"` : ''}><small>${esc(n)}</small><div class="formula">${tex(f, true)}</div></div>`).join('') : `<small class="muted">${u.formeln.length} ${u.formeln.length === 1 ? 'Formel' : 'Formeln'} – schließe die Einheit ab.</small>`}</div>`; }).join('')}</section>` : ''; }).join('')}
-    ${open ? '<button class="btn ghost block noprint" id="fm-print" type="button">Drucken oder als PDF sichern</button>' : ''}
+    ${open ? '<button class="btn ghost block noprint" id="fm-print" type="button">Drucken / PDF</button>' : ''}
   </div>`);
   const pb = $('#fm-print', el); if (pb) pb.onclick = () => drucken();
   queueMicrotask(() => merkbilderEinsetzen(el));

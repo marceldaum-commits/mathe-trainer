@@ -33,6 +33,9 @@ function buehne({ titel, regler, zeichne, text, hoehe = 190, dauer = 5200, start
   return el;
 }
 
+/** Hochzahl als hochgestellte Ziffern (für die Texte unter den Bildern). */
+const hoch = (n) => String(n).replace(/[0-9-]/g, (z) => '⁰¹²³⁴⁵⁶⁷⁸⁹'[z] ?? '⁻');
+
 /* Hilfen zum Zeichnen */
 function achsen(g, F, X, Y, x0, x1, y0, y1) {
   g.strokeStyle = F.gitter; g.lineWidth = 1; g.beginPath();
@@ -274,7 +277,7 @@ function gerade() {
 }
 
 function potenz() {
-  return buehne({ titel: 'Potenzregel: Die Hochzahl hüpft nach vorn', regler: { label: 'Hochzahl n', min: 2, max: 6 }, start: 3, dauer: 9000, text: (n) => `(x^${Math.round(n)})′ = ${Math.round(n)} · x^${Math.round(n) - 1}: Die ${Math.round(n)} kommt als Faktor nach vorn, oben bleibt eins weniger.`,
+  return buehne({ titel: 'Potenzregel: Die Hochzahl hüpft nach vorn', regler: { label: 'Hochzahl n', min: 2, max: 6 }, start: 3, dauer: 9000, text: (n) => `(x${hoch(Math.round(n))})′ = ${Math.round(n)} · x${hoch(Math.round(n) - 1)}: Die ${Math.round(n)} kommt als Faktor nach vorn, oben bleibt eins weniger.`,
     zeichne(g, B, H, nn, t, F) {
       const n = Math.round(nn), p = Math.min(1, ((t % 3.2) / 3.2) * 1.6), e = p * p * (3 - 2 * p), cx = B / 2, cy = H / 2 + 14;
       schrift(g, 'x', cx - 70, cy, F.leise, 54); schrift(g, String(n), cx - 38, cy - 34, F.leise, 26);
@@ -286,7 +289,7 @@ function potenz() {
     } });
 }
 function efunk() {
-  return buehne({ titel: 'e-Funktion: so hoch wie steil', regler: { label: 'Stelle x', min: -1.6, max: 1.5 }, text: (x) => `Bei x = ${zahl(x)}: Höhe e^x = ${zahl(Math.exp(x), 2)} – und die Steigung ist genau dieselbe Zahl: ${zahl(Math.exp(x), 2)}.`,
+  return buehne({ titel: 'e-Funktion: so hoch wie steil', regler: { label: 'Stelle x', min: -1.6, max: 1.5 }, text: (x) => `Bei x = ${zahl(x)}: Höhe eˣ = ${zahl(Math.exp(x), 2)} – und die Steigung ist genau dieselbe Zahl: ${zahl(Math.exp(x), 2)}.`,
     zeichne(g, B, H, x, _t, F) {
       const X = (a) => ((a + 2.2) / 4.4) * B, Y = (b) => H - 20 - b * ((H - 34) / 5);
       achsen(g, F, X, Y, -2.2, 2.2, 0, 5); kurve(g, Math.exp, X, Y, -2.2, 1.65, F.blau);

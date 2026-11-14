@@ -14,7 +14,7 @@ import { einstufungView, einstufungErgebnis, verbundView, planView, planNow, zer
 import { mixOf } from './gen.js';
 import { store, LEVELS } from './store.js';
 import { CONFIG, VERSION, STAND } from './config.js';
-import { $, h, esc, ICON, starsHtml, toast, sfx, sound, confetti, look } from './ui.js';
+import { $, h, esc, ICON, starsHtml, toast, sfx, sound, confetti, look, formelnEinpassen } from './ui.js';
 import { abiView, rundeView, blitzView } from './exam.js';
 import { checkBadges, titleOf } from './badges.js';
 import { api, serverOn, kiBereit, kiArt } from './api.js';
@@ -394,6 +394,13 @@ window.addEventListener('hashchange', route);
 window.addEventListener('beforeinstallprompt', (ev) => { ev.preventDefault(); installEvent = ev; window.__mtInstall = ev; if (['#/mehr', '', '#/'].includes(location.hash)) route(); });
 window.addEventListener('appinstalled', () => { installEvent = null; window.__mtInstall = null; toast('Installiert. Der Mathe-Trainer liegt jetzt bei deinen Apps.'); });
 route();
+// Zu breite Formeln einpassen – nach jedem Umbau der Seite und wenn sich die Breite ändert.
+{ let dran = false; const los = () => { if (dran) return; dran = true; requestAnimationFrame(() => { dran = false; formelnEinpassen(); }); };
+  new MutationObserver(los).observe(document.body, { childList: true, subtree: true });
+  const neu = () => { document.querySelectorAll('.katex-display').forEach((e) => { delete e.dataset.fit; }); los(); };
+  window.addEventListener('resize', neu);
+  document.fonts?.addEventListener?.('loadingdone', neu);   // Formel-Schriften kommen später – dann stimmt die Breite erst
+  los(); }
 // Android-App: Hinweis, wenn sie sich neue Inhalte geholt hat (siehe update.js).
 if (window.MTApp) document.getElementById('view').before(updateLeiste());
 
