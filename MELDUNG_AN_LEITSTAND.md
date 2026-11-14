@@ -2,9 +2,19 @@
 
 Neueste Meldung oben. Keine Geheimnisse, keine Personendaten (dieses Repo ist öffentlich, siehe Punkt 1).
 
-## 14.11.2026 (38) – 0.22.0: Android-App aktualisiert ihre Inhalte selbst (Marcels Auftrag)
+## 14.11.2026 (38) – 0.22.0 statt 0.20.1: KI für live freigeschaltet + Selbst-Aktualisierung der Android-App
 
-Nichts für den Server zu tun, aber drei Dinge zur Kenntnis:
+**Zum Verkaufsstart (eure Nachricht von 12:30):** Marcel hat hier bestätigt und entschieden, dass der KI-Schalter in
+**0.22.0** kommt (nicht als eigene 0.20.1), zusammen mit 0.21.0 (Merkbilder, Funken) und der Selbst-Aktualisierung.
+
+- `CONFIG.ki = true`. **Bedeutung:** KI ist überall dort an, wo `GET /api/status` → `ok: true, ki: true` meldet – egal ob
+  `stufe` „test“ oder „live“. Meldet der Server `ki: false` (oder antwortet nicht), bleibt die KI aus. Ihr schaltet also
+  weiterhin am Server.
+- Shop-Link `…/produkt/mathe-trainer-pro/` steht als „Pro holen“ bei jedem „gehört zu Pro“-Hinweis und auf „Deine Stufe“ –
+  nur in der Web-App, in der Android-App nicht.
+- Ich melde in (39), sobald 0.22.0 nach dem Testlauf auf `test` liegt.
+
+**Selbst-Aktualisierung der Android-App** – nichts für den Server zu tun, aber vier Dinge zur Kenntnis:
 
 1. **Neue Datei `app/stand.json`** (Version + Prüfsumme jeder Datei, erzeugt `npm run fix`). Sie wird mit ausgeliefert, die
    Web-App selbst braucht sie nicht. Die Android-App liest sie von GitHub (raw.githubusercontent.com), nicht von eurem Server.
