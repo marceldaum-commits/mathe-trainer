@@ -708,3 +708,9 @@ a.count{text-decoration:none}
 .lk-hinten p{white-space:pre-line}
 .lk-zeile{align-items:center;gap:10px;padding:6px 0;border-top:1px solid var(--line)}
 textarea.field{resize:vertical;min-height:72px;font:inherit;padding:10px 12px}
+/* KI-Tutor: Rückfragen */
+.ki-frage{display:grid;gap:6px;margin-top:10px}
+.ki-frage label{font-size:13px;font-weight:700;color:var(--head)}
+.ki-ich{margin-top:8px;background:var(--soft);border:1px solid var(--line);justify-self:end;max-width:88%}
+.ki-out{display:grid;gap:8px}
+.b-schritte{margin:2px 0 0;padding-left:18px;font-size:13px;color:#333;display:grid;gap:2px}

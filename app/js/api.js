@@ -4,13 +4,17 @@
 import { CONFIG } from './config.js';
 
 export const serverOn = () => typeof CONFIG.api === 'string' && CONFIG.api.length > 0;
-let stufe = '', premium = false;   // was der Server über sich sagt
+let stufe = '', premium = false, arten = [];   // was der Server über sich sagt
 const kiEin = () => CONFIG.ki === true || CONFIG.ki === 'test';
 export const kiOn = () => serverOn() && (CONFIG.ki === true || (CONFIG.ki === 'test' && stufe === 'test'));
 /** Verkauft der Server schon Zugänge? Erst dann zeigt die App das Feld „Zugangscode“. */
 export const premiumOn = () => serverOn() && kiEin() && premium;
 /** Antwort von GET /api/status auswerten. Nur „Testseite und KI bereit“ schaltet bei ki: 'test' die Erklärungen frei. */
-export const statusLesen = (r) => { const gut = !!r && r.ok === true; stufe = gut && r.ki === true && r.stufe === 'test' ? 'test' : ''; premium = gut && r.premium === true; return stufe; };
+export const statusLesen = (r) => { const gut = !!r && r.ok === true; stufe = gut && r.ki === true && r.stufe === 'test' ? 'test' : ''; premium = gut && r.premium === true;
+  arten = gut && Array.isArray(r.kiArten) ? r.kiArten.filter((x) => typeof x === 'string') : [];
+  return stufe; };
+/** Kann der Server diese KI-Funktion schon? (z. B. 'frage' = Rückfragen an den Tutor) */
+export const kiArt = (name) => kiOn() && arten.includes(name);
 let gefragt = null;
 /** Den Server höchstens einmal je Sitzung nach seinem Stand fragen – und erst dann, wenn es jemand braucht
  *  (hängt an einer Aufgabe, öffnet die Einstellungen). Wer nur spielt, löst keine Anfrage aus. Bei Netzfehler wird später neu gefragt. */
@@ -58,6 +62,8 @@ export const api = {
   rangliste: (code, spieler) => call(`/klasse/${encodeURIComponent(code)}/rangliste?spieler=${encodeURIComponent(spieler || '')}`),
   /** KI: Erklärung in anderen Worten → { text, rest, art: 'zugang'|'probe' }; 402 = Proben verbraucht, 429 = Limit */
   erklaer: (q) => call('/ki/erklaer', q),
+  /** KI-Tutor: Rückfrage zur selben Aufgabe → { text, rest }; 402 { grund: 'pro' } = braucht „Pro + KI“, 429 = Tagesguthaben verbraucht */
+  frage: (q) => call('/ki/frage', q),
   /** Zugangscode prüfen → { art: 'pass'|'tage30'|'frei', bis: 'JJJJ-MM-TT' }; 404 = unbekannt oder abgelaufen */
   zugang: (code) => call('/zugang', { code }),
   /** KI: neue, vom Server nachgerechnete Aufgabe → { aufgabe } */

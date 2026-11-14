@@ -377,6 +377,12 @@ if (!(await page.$('#b-ergebnis'))) fail('Arbeitsblatt: Lösen in der App endet 
 await page.goto(`${BASE}#/blatt/klausur_${LEVEL}_4711`); await page.waitForSelector('#blatt');
 if ((await page.locator('.b-aufgabe').count()) !== 12 || !/48 Punkte/.test(await page.textContent('.b-titel')) || !(await page.locator('.b-np').count())) fail('Probeklausur: 12 Aufgaben, 48 Punkte und Notenpunkte-Tabelle erwartet');
 await page.goto(`${BASE}#/blatt/kaputt_1_2`); await page.waitForSelector('#b-go');   // kaputte Adresse → Auswahl statt Fehler
+// Schwächen-Blatt: entsteht aus der Fehler-Kartei (der Test hat bis hierher absichtlich Fehler gemacht)
+if (await page.evaluate(() => Object.keys(JSON.parse(localStorage.getItem('mt.v1')).kartei || {}).length) === 0) fail('Schwächen-Blatt: Fehler-Kartei ist leer, obwohl der Test Fehler gemacht hat');
+if (await page.locator('#b-schwach').isHidden()) fail('Schwächen-Blatt: Knopf fehlt trotz gefüllter Fehler-Kartei');
+await page.click('#b-schwach'); await page.waitForSelector('#blatt');
+if (!/Schwächen-Blatt/.test(await page.textContent('.b-titel')) || !(await page.locator('.b-schritte').count()) || !(await page.locator('.b-aufgabe').count())) fail('Schwächen-Blatt: Titel, Aufgaben oder Rechenweg fehlen');
+if (await page.evaluate(() => document.documentElement.scrollWidth - innerWidth > 1)) fail('Schwächen-Blatt: Seite zu breit');
 await page.goto(`${BASE}#/lernen`); await page.click('a[href="#/theorie"]'); await page.waitForSelector('a[href="#/theorie/extrema"]');
 if ((await page.locator('a[href^="#/theorie/"]').count()) !== UNITS.filter((u) => u.area !== 'pruefung').length) fail('Theorie: nicht jede Lern-Einheit hat ein Kapitel');
 await page.click('a[href="#/theorie/extrema"]'); await page.waitForSelector('#kapitel');
@@ -593,7 +599,8 @@ let kiRufe = 0;
 await ctx2.route('**/api/**', async (route) => {
   const u = new URL(route.request().url()), body = route.request().postDataJSON?.() ?? null; calls.push([u.pathname, body]);
   if (u.pathname === '/api/klasse/beitreten') return route.fulfill({ json: body.code === 'K7M2QX' ? { klasse: 'Q12 Mathe', spieler: 'p-123' } : { error: 'Diesen Code gibt es nicht.' }, status: body.code === 'K7M2QX' ? 200 : 404 });
-  if (u.pathname === '/api/status') return route.fulfill({ json: { ok: true, stufe: 'test', ki: true, premium: true } });
+  if (u.pathname === '/api/status') return route.fulfill({ json: { ok: true, stufe: 'test', ki: true, premium: true, kiArten: ['erklaer', 'frage'] } });
+  if (u.pathname === '/api/ki/frage') return body.zugang ? route.fulfill({ json: { text: 'Denk an die innere Ableitung.\nWas ist sie hier?', rest: 13 } }) : route.fulfill({ status: 402, json: { grund: 'pro', error: 'nur Pro + KI' } });
   if (u.pathname === '/api/zugang') return body.code === 'MT-AB12-CD34-EF56' ? route.fulfill({ json: { art: 'tage30', bis: '2099-12-31' } }) : route.fulfill({ status: 404, json: { error: 'unbekannt' } });
   if (u.pathname === '/api/ki/erklaer') { kiRufe++; return kiRufe === 1 ? route.fulfill({ json: { text: 'Stell dir vor: <b>fett</b> erst außen,\ndann innen.', rest: 2, art: 'probe' } }) : kiRufe === 2 ? route.fulfill({ status: 402, json: { grund: 'probe', error: 'Proben verbraucht' } }) : route.fulfill({ status: 429, json: { error: 'Limit' } }); }
   if (u.pathname === '/api/push/schluessel') return route.fulfill({ json: { key: 'BEl62iUYgUivxIkv69yViEuiBIa-Ib9-SkvMeAtA3LFgDzkrxZJjSgSnfckjBJuBkr3qBUYIHBQFLXYp5Nksh8U' } });
@@ -627,11 +634,17 @@ if (!(await p2.textContent('.ki-out')).includes('Stell dir vor') || await p2.loc
 const kiAnfrage = calls.find(([path]) => path === '/api/ki/erklaer')[1];
 if (Object.keys(kiAnfrage).sort().join() !== 'art,formel,frage,geraet,gewaehlt,richtig' || !/^[A-Za-z0-9_-]{16,64}$/.test(kiAnfrage.geraet)) fail(`KI: Anfrage enthält andere Felder: ${Object.keys(kiAnfrage)}`);
 if (!/Noch 2 von 3 kostenlosen/.test(await p2.textContent('.ki-rest'))) fail('KI: Rest der kostenlosen Proben wird nicht angezeigt');
+if (!(await p2.locator('.ki-frage').count())) fail('KI-Tutor: Feld für Rückfragen fehlt nach der Erklärung');
+await p2.fill('#ki-text', 'Warum mal 2?'); await p2.click('.ki-frage button'); await p2.waitForFunction(() => /Pro \+ KI/.test(document.querySelector('.ki-out')?.textContent || ''));   // ohne Code: 402
+{ const fr = calls.find(([path]) => path === '/api/ki/frage')[1];
+  if (Object.keys(fr).sort().join() !== 'formel,frage,geraet,gewaehlt,richtig,text,verlauf' || fr.text !== 'Warum mal 2?' || !Array.isArray(fr.verlauf) || fr.verlauf.length !== 1 || fr.verlauf[0].wer !== 'ki') fail(`KI-Tutor: Anfrage hat andere Felder: ${JSON.stringify(Object.keys(fr))}`);
+  if (!(await p2.locator('.ki-frage input').isDisabled())) fail('KI-Tutor: nach 402 muss das Feld gesperrt sein'); }
 if ((await p2.evaluate(() => getComputedStyle(document.querySelector('.ki-out .note')).whiteSpace)) !== 'pre-line') fail('KI: Zeilenumbrüche der Erklärung gehen verloren');
 if (shots) await p2.screenshot({ path: `${shots}/76-ki-erklaerung.png` });
 await p2.locator('.ki .pick').nth(1).click(); await p2.waitForFunction(() => document.querySelector('.ki-out')?.textContent.includes('kostenlosen Erklärungen sind aufgebraucht'));   // 402: Proben verbraucht
 if (!(await p2.locator('.ki-out a[href="#/einstellungen"]').count())) fail('Pro: Hinweis nach den Proben nennt das Code-Feld nicht');
-await p2.locator('.ki .pick').nth(2).click(); await p2.waitForFunction(() => document.querySelector('.ki-out')?.textContent.includes('für heute aufgebraucht'));   // 429: Tageslimit
+// KI-Tutor: nach der ersten Erklärung gibt es ein Feld für Rückfragen; ohne „Pro + KI“-Code antwortet der Server mit 402
+await p2.locator('.ki .pick').nth(2).click(); await p2.waitForFunction(() => document.querySelector('.ki-out')?.textContent.includes('KI-Guthaben für heute'));   // 429: Tagesguthaben
 // Zugangscode: Feld erscheint, weil der Server „premium“ meldet; falsche Form und unbekannter Code werden erklärt, der richtige wird gespeichert
 await p2.goto(`${BASE}#/einstellungen`); await p2.waitForSelector('#st-pro:not([hidden])');
 await p2.fill('#st-pro-code', 'abc'); await p2.click('#st-pro-go'); if (!/Form MT-/.test(await p2.textContent('#st-pro-note'))) fail('Pro: falsche Code-Form wird nicht erklärt');

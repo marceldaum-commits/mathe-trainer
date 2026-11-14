@@ -114,6 +114,8 @@ export const store = {
     else { k.step++; k.due = dayKey(addDays(today, KARTEI_TAGE[k.step])); }
     save();
   },
+  /** Alle Einträge der Fehler-Kartei (auch die, die heute nicht fällig sind). */
+  get karteAlle() { return Object.entries(mem.kartei).map(([gen, k]) => ({ gen, ...k })); },
   karteDue(today = new Date()) { const t = dayKey(today); return Object.entries(mem.kartei).filter(([, k]) => k.due <= t).map(([gen, k]) => ({ gen, ...k })); },
   get karteCount() { return Object.keys(mem.kartei).length; },
 

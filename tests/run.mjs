@@ -761,6 +761,21 @@ for (const u of UNITS) {
   { const u = UNITS.find((x) => x.id === 'extrema'); ok(Th.kapitelHtml(u, true).includes('Durchgerechnetes Beispiel') && !Th.kapitelHtml(u, false).includes('Durchgerechnetes Beispiel') && Th.kapitelHtml(UNITS.find((x) => x.id === 'a-trig'), true).includes('(kurz)'), 'Theorie: ausführlich nur, wo geschrieben – sonst die Kurzfassung'); }
   store.reset(); }
 
+// 14e2) Schwächen-Blatt, voller Rechenweg, KI-Arten
+{ const B = await import('../app/js/blatt.js'), A = await import('../app/js/api.js'); store.reset();
+  ok(B.schwaechen().length === 0 && B.bauSchwach({ lv: 3, n: 5, seed: 1 }).length === 0, 'Schwächen-Blatt: ohne Fehler-Kartei kein Blatt');
+  store.kartePut('genKette', 'Kettenregel'); store.kartePut('genBaum', 'Baumdiagramm'); store.kartePut('gibtEsNicht', 'x');
+  ok(B.schwaechen().join() === 'genKette,genBaum', 'Schwächen-Blatt: nur bekannte Aufgaben-Arten aus der Fehler-Kartei');
+  for (const lv of LV) { const c = { schwach: true, lv, n: 8, seed: 500 + lv }, f = B.bau(c), g = B.bau(c);
+    ok(f.length === 8 && f.every((q) => ['genKette', 'genBaum'].includes(q.gen)) && new Set(f.map((q) => q.gen)).size === 2, `Schwächen-Blatt Stufe ${lv}: nur die Schwächen, beide kommen vor`);
+    ok(JSON.stringify(f.map((q) => q.formula || q.prompt)) === JSON.stringify(g.map((q) => q.formula || q.prompt)) && JSON.stringify(B.leseHash(B.blattHash(c).slice(8))) === JSON.stringify(c), 'Schwächen-Blatt: wiederholbar, Adresse lesbar');
+    const html = B.blattHtml(c, f); ok(html.includes('Schwächen-Blatt') && (html.match(/class="b-schritte"/g) || []).length === 8 && html.includes('<b>Lösung:</b>'), 'Lösungsblatt: jeder Aufgabe folgt der Rechenweg in Schritten und die Lösung'); }
+  ok(B.genNachName().size >= 60 && [...B.genNachName().values()].every((x) => typeof x.fn === 'function' && x.unit), 'Schwächen-Blatt: Verzeichnis der Aufgaben-Arten vollständig');
+  A.statusLesen({ ok: true, stufe: 'test', ki: true, kiArten: ['erklaer', 'frage', 7] }); ok(A.kiArt('frage') && A.kiArt('erklaer') && !A.kiArt('rechenweg'), 'KI-Arten: nur was der Server meldet');
+  A.statusLesen({ ok: true, stufe: 'live', ki: true, kiArten: ['frage'] }); ok(!A.kiArt('frage'), 'KI-Arten: ohne KI-Freigabe nichts');
+  A.statusLesen({ ok: true, stufe: 'test', ki: true }); ok(!A.kiArt('frage'), 'KI-Arten: fehlt die Liste, gibt es keine Rückfragen');
+  A.statusLesen(null); store.reset(); }
+
 // 14f) Lernkarten
 { const Kt = await import('../app/js/karten.js'); store.reset(); const T0 = new Date(2026, 10, 14, 12), tag = (n) => Kt.plusTage(T0, n);
   const alle = Kt.stapel(); ok(alle.length >= 3 && alle.every((k) => k.key && k.vorn && k.hinten) && new Set(alle.map((k) => k.key)).size === alle.length, 'Lernkarten: ohne Fortschritt die Grundlagen-Formeln, Schlüssel eindeutig');

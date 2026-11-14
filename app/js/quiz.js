@@ -5,7 +5,7 @@ import { store } from './store.js';
 import { CONFIG } from './config.js';
 import { ft } from './math.js';
 import { inputSpec, parseInput, isRight, diagnose } from './eingabe.js';
-import { api, kiBereit, premiumOn } from './api.js';
+import { api, kiBereit, premiumOn, kiArt } from './api.js';
 
 /** sequence: Liste von Erzeugern (eine Aufgabe je Eintrag). */
 export function quiz(sequence, opts = {}) {
@@ -29,6 +29,31 @@ export function quiz(sequence, opts = {}) {
       // „Erklär's mir anders“ (KI, nur mit eingeschaltetem Server): bekommt nur die Aufgabe und die gewählte Antwort.
       let gewaehlt = '';
       const richtigTex = () => q.options?.find((o) => o.correct)?.tex || '';
+      const kauf = () => `${premiumOn() ? ' <a href="#/einstellungen">Zugangscode eingeben</a>' : ''}${window.MTApp ? '' : ` <a href="${CONFIG.website}" target="_blank" rel="noopener">Zur Website</a>`}`;
+      // KI-Tutor: Rückfragen zur selben Aufgabe (Stufe „Pro + KI“). Der Verlauf bleibt nur hier im Bild, gespeichert wird nichts.
+      const nachfragen = (out, erste) => {
+        const verlauf = [{ wer: 'ki', text: erste }];
+        const form = h(`<form class="ki-frage" novalidate><label for="ki-text">Noch eine Frage dazu?</label><div class="row"><input class="field grow" id="ki-text" type="text" maxlength="300" autocomplete="off" placeholder="z. B. Warum mal 2?"><button class="btn small" type="submit">Fragen</button></div></form>`);
+        form.onsubmit = async (ev) => {
+          ev.preventDefault();
+          const feld = form.querySelector('input'), knopf = form.querySelector('button'), text = feld.value.trim();
+          if (text.length < 2 || knopf.disabled) return;
+          knopf.disabled = true; feld.disabled = true;
+          const ich = h('<div class="note ki-ich"></div>'); ich.textContent = text; form.before(ich);
+          const warte = h('<div class="note tip ki-laedt">Der Tutor antwortet<span aria-hidden="true"></span></div>'); form.before(warte);
+          const r = await api.frage({ frage: String(q.prompt).replace(/<[^>]+>/g, '').slice(0, 400), formel: String(q.formula || '').slice(0, 300), richtig: richtigTex().slice(0, 200), gewaehlt: gewaehlt.slice(0, 200),
+            verlauf: verlauf.slice(-6), text, geraet: store.geraet, ...(store.zugangGilt() ? { zugang: store.zugang.code } : {}) });
+          const div = h('<div class="note"></div>'); div.className = `note ${r.ok && r.text ? 'ok' : 'tip'}`;
+          if (r.ok && r.text) { div.textContent = String(r.text).replace(/<[^>]*>/g, '').slice(0, 900); verlauf.push({ wer: 'ich', text }, { wer: 'ki', text: div.textContent }); feld.value = ''; }
+          else if (r.status === 402) div.innerHTML = `<b>Rückfragen an den Tutor gehören zur Stufe „Pro + KI“.</b>${kauf()}`;
+          else div.textContent = r.status === 429 ? 'Dein KI-Guthaben für heute ist aufgebraucht. Morgen geht es weiter.' : (r.error || 'Der Tutor ist gerade nicht erreichbar.');
+          warte.replaceWith(div);
+          if (r.ok && Number.isInteger(r.rest)) { form.querySelector('.ki-rest')?.remove(); form.append(h(`<small class="muted ki-rest">Heute noch ${r.rest} KI-Punkte.</small>`)); }
+          const zu = r.status === 402 || r.status === 429 || verlauf.length >= 13;   // nach sechs Rückfragen ist Schluss – dann lieber die Aufgabe noch einmal rechnen
+          knopf.disabled = zu; feld.disabled = zu; if (!zu) feld.focus();
+        };
+        out.append(form);
+      };
       const erklaer = async () => {
         if (note.querySelector('.ki') || !(await kiBereit()) || note.querySelector('.ki') || !note.isConnected) return;
         const box = h(`<div class="ki"><small class="muted">Noch nicht klar?</small><div class="picks">${[['einfacher', 'Einfacher erklären'], ['beispiel', 'Mit Beispiel'], ['eselsbruecke', 'Eselsbrücke']].map(([k, n]) => `<button class="pick" type="button" data-k="${k}">${n}</button>`).join('')}</div><div class="ki-out" aria-live="polite"></div><small class="muted ki-hinweis">Dafür gehen nur die Aufgabe und deine Antwort an einen KI-Dienst – kein Name, kein Lernstand.</small></div>`);
@@ -40,10 +65,11 @@ export function quiz(sequence, opts = {}) {
           div.className = `note ${r.ok && r.text ? 'ok' : 'tip'}`;
           if (r.status === 402) {   // die drei kostenlosen Proben sind verbraucht
             // In der Android-App kein Verweis auf einen Kauf außerhalb (Regel des Play Store) – dort nur das Code-Feld.
-            div.innerHTML = `<b>Deine drei kostenlosen Erklärungen sind aufgebraucht.</b> Mit der Pro-Fassung geht es weiter.${premiumOn() ? ' <a href="#/einstellungen">Zugangscode eingeben</a>' : ''}${window.MTApp ? '' : ` <a href="${CONFIG.website}" target="_blank" rel="noopener">Zur Website</a>`}`;
-          } else div.textContent = r.ok && r.text ? String(r.text).replace(/<[^>]*>/g, '').slice(0, 900) : r.status === 429 ? 'Die Erklärungen sind für heute aufgebraucht. Morgen geht es weiter.' : (r.error || 'Die Erklärung ist gerade nicht erreichbar.');
-          const rest = r.ok && Number.isInteger(r.rest) && r.rest >= 0 ? h(`<small class="muted ki-rest">${r.art === 'probe' ? (r.rest === 0 ? 'Das war deine letzte kostenlose Erklärung.' : `Noch ${r.rest} von 3 kostenlosen Erklärungen.`) : `Heute noch ${r.rest} ${r.rest === 1 ? 'Erklärung' : 'Erklärungen'}.`}</small>`) : '';
-          out.replaceChildren(div, rest); box.querySelectorAll('button').forEach((x) => { x.disabled = false; });
+            div.innerHTML = `<b>Deine drei kostenlosen Erklärungen sind aufgebraucht.</b> Mit „Pro + KI“ geht es weiter.${kauf()}`;
+          } else div.textContent = r.ok && r.text ? String(r.text).replace(/<[^>]*>/g, '').slice(0, 900) : r.status === 429 ? 'Dein KI-Guthaben für heute ist aufgebraucht. Morgen geht es weiter.' : (r.error || 'Die Erklärung ist gerade nicht erreichbar.');
+          const rest = r.ok && Number.isInteger(r.rest) && r.rest >= 0 ? h(`<small class="muted ki-rest">${r.art === 'probe' ? (r.rest === 0 ? 'Das war deine letzte kostenlose Erklärung.' : `Noch ${r.rest} von 3 kostenlosen Erklärungen.`) : `Heute noch ${r.rest} KI-Punkte.`}</small>`) : '';
+          out.replaceChildren(div, rest);
+          if (r.ok && r.text && kiArt('frage')) nachfragen(out, String(r.text).slice(0, 900), b.dataset.k); box.querySelectorAll('button').forEach((x) => { x.disabled = false; });
         }; });
         note.append(box);
       };

@@ -50,12 +50,40 @@ export function bauKlausur({ lv, seed }, land = store.land) {
   return fragen;
 }
 
+/** Aufgaben-Arten nach Namen (aus allen Lern-Einheiten) – für das Schwächen-Blatt. */
+export function genNachName() {
+  const m = new Map();
+  for (const u of UNITS) if (u.area !== 'pruefung') for (const fn of u.bossGens || []) if (!m.has(fn.name)) m.set(fn.name, { fn, unit: u.title });
+  return m;
+}
+/** Was steht in der Fehler-Kartei und lässt sich als Aufgabe stellen? */
+export const schwaechen = () => { const m = genNachName(); return store.karteAlle.map((k) => k.gen).filter((g) => m.has(g)); };
+/** Schwächen-Blatt: nur Aufgaben-Arten, bei denen es zuletzt Fehler gab. Hängt vom Lernstand dieses Geräts ab. */
+export function bauSchwach({ lv, n, seed }, arten = schwaechen()) {
+  const m = genNachName(), liste = arten.map((g) => m.get(g)).filter(Boolean);
+  if (!liste.length) return [];
+  seedRandom(seed);
+  try {
+    const fragen = [], reihe = shuffle(liste);
+    for (let k = 0; fragen.length < n && k < n * 4; k++) {
+      const { fn, unit } = reihe[k % reihe.length], q = fn(lv);
+      if (!q?.options?.length) continue;
+      q.gen ??= fn.name; q.topic ??= fn.topic || unit; q.unit = unit; fragen.push(q);
+    }
+    return fragen;
+  } finally { seedRandom(null); }
+}
+/** Baut das Blatt zu einer Beschreibung (Arbeitsblatt, Probeklausur oder Schwächen-Blatt). */
+export const bau = (c) => (c.klausur ? bauKlausur(c) : c.schwach ? bauSchwach(c) : bauBlatt(c));
+export const blattName = (c) => (c.klausur ? 'Probeklausur' : c.schwach ? 'Schwächen-Blatt' : 'Arbeitsblatt');
+
 /** Adresse eines Blatts: #/blatt/<Themen mit Punkt getrennt>_<Stufe>_<Anzahl>_<Nummer> bzw. #/blatt/klausur_<Stufe>_<Nummer> */
-export const blattHash = (c) => (c.klausur ? `#/blatt/klausur_${c.lv}_${c.seed}` : `#/blatt/${c.units.join('.')}_${c.lv}_${c.n}_${c.seed}`);
+export const blattHash = (c) => (c.klausur ? `#/blatt/klausur_${c.lv}_${c.seed}` : c.schwach ? `#/blatt/schwach_${c.lv}_${c.n}_${c.seed}` : `#/blatt/${c.units.join('.')}_${c.lv}_${c.n}_${c.seed}`);
 export function leseHash(teil) {
   const p = String(teil || '').split('_'), zahl = (s) => (/^\d{1,9}$/.test(s) ? +s : NaN);
   if (p[0] === 'klausur' && p.length === 3) { const lv = zahl(p[1]), seed = zahl(p[2]); return lv >= 1 && lv <= 5 && seed > 0 ? { klausur: true, lv, seed } : null; }
   if (p.length !== 4) return null;
+  if (p[0] === 'schwach') { const lv = zahl(p[1]), n = zahl(p[2]), seed = zahl(p[3]); return lv >= 1 && lv <= 5 && n >= 1 && n <= 20 && seed > 0 ? { schwach: true, lv, n, seed } : null; }
   const units = p[0].split('.').filter((id) => UNITS.some((u) => u.id === id && u.bossGens?.length)), lv = zahl(p[1]), n = zahl(p[2]), seed = zahl(p[3]);
   return units.length && units.length <= 12 && lv >= 1 && lv <= 5 && n >= 1 && n <= 20 && seed > 0 ? { units, lv, n, seed } : null;
 }
@@ -87,11 +115,11 @@ export function zeichne(c, g) {
 const heute = () => new Date().toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' });
 const kopf = (titel, unter) => `<header class="b-kopf"><img class="b-logo" src="img/logo.svg" alt="Logo ${esc(CONFIG.firma)}"><div class="b-firma"><b>${esc(CONFIG.firma)}</b><span>${esc(CONFIG.website.replace(/^https?:\/\/|\/$/g, ''))}</span></div>
   <div class="b-titel"><h1>${esc(titel)}</h1><span>${unter}</span></div></header>`;
-const fuss = (c) => `<footer class="b-fuss"><span>${esc(CONFIG.firma)} · ${esc(CONFIG.website.replace(/^https?:\/\/|\/$/g, ''))}</span><span>${c.klausur ? 'Probeklausur' : 'Arbeitsblatt'} Nr. ${c.seed} · erstellt am ${heute()}</span></footer>`;
+const fuss = (c) => `<footer class="b-fuss"><span>${esc(CONFIG.firma)} · ${esc(CONFIG.website.replace(/^https?:\/\/|\/$/g, ''))}</span><span>${blattName(c)} Nr. ${c.seed} · erstellt am ${heute()}</span></footer>`;
 
 /** Das Blatt selbst (Vorschau = Druckbild): Aufgaben-Seiten und Lösungsblatt. */
 export function blattHtml(c, fragen) {
-  const titel = c.klausur ? 'Probeklausur Mathematik' : 'Arbeitsblatt Mathematik', be = fragen.reduce((s, q) => s + (q.be || 0), 0);
+  const titel = `${blattName(c)} Mathematik`, be = fragen.reduce((s, q) => s + (q.be || 0), 0);
   const themenText = c.klausur ? 'Analysis · Stochastik · Analytische Geometrie' : [...new Set(fragen.map((q) => q.unit))].map(esc).join(' · ');
   const unter = `${themenText}<br>Schwierigkeit: ${LEVELS[c.lv - 1]} · ${fragen.length} Aufgaben${c.klausur ? ` · ${be} Punkte (BE) · Zeit: ${fragen.length * 5} Minuten · ohne Hilfsmittel` : ''}`;
   const aufgabe = (q, i) => `<li class="b-aufgabe"><div class="b-nr"><b>${i + 1}</b>${q.be ? `<small>${q.be} BE</small>` : ''}</div><div class="b-inhalt">
@@ -99,7 +127,7 @@ export function blattHtml(c, fragen) {
       <div class="b-opts">${q.options.map((o, k) => `<span class="b-opt"><i>${'ABCD'[k]}</i><span>${o.html ?? tex(o.tex)}</span></span>`).join('')}</div>
       <div class="b-platz" aria-hidden="true">Platz für deine Rechnung</div></div></li>`;
   const loesung = (q, i) => { const k = q.options.findIndex((o) => o.correct), o = q.options[k];
-    return `<li class="b-lsg"><div class="b-nr"><b>${i + 1}</b></div><div class="b-inhalt"><p><b>${'ABCD'[k]}</b> &nbsp; ${o.html ?? tex(o.tex)}</p><p class="b-weg">${q.explain || ''}</p></div></li>`; };
+    return `<li class="b-lsg"><div class="b-nr"><b>${i + 1}</b></div><div class="b-inhalt"><p><b>${'ABCD'[k]}</b> &nbsp; ${o.html ?? tex(o.tex)}</p>${q.hints?.length ? `<ol class="b-schritte">${q.hints.map((t) => `<li>${t}</li>`).join('')}</ol>` : ''}<p class="b-weg"><b>Lösung:</b> ${q.explain || ''}</p></div></li>`; };
   const np = c.klausur ? `<table class="b-np"><tr><th>Punkte (BE)</th>${NP_GRENZEN.slice(0, 8).map(([p]) => `<td>ab ${Math.ceil((p * be) / 100)}</td>`).join('')}</tr><tr><th>Notenpunkte</th>${NP_GRENZEN.slice(0, 8).map(([, n]) => `<td>${n}</td>`).join('')}</tr>
       <tr><th>Punkte (BE)</th>${NP_GRENZEN.slice(8).map(([p]) => `<td>ab ${Math.ceil((p * be) / 100)}</td>`).join('')}</tr><tr><th>Notenpunkte</th>${NP_GRENZEN.slice(8).map(([, n]) => `<td>${n}</td>`).join('')}</tr></table>
       <p class="b-hinweis">Bewertung zur Orientierung: Im echten Abitur zählen auch Rechenweg und Begründung.</p>` : '';
@@ -107,7 +135,7 @@ export function blattHtml(c, fragen) {
     <section class="b-seite">${kopf(titel, unter)}
       <div class="b-name"><span>Name: <i></i></span><span>Klasse: <i class="kurz"></i></span><span>Datum: <i class="kurz"></i></span>${c.klausur ? '<span>Punkte: <i class="kurz"></i></span>' : ''}</div>
       <ol class="b-liste">${fragen.map(aufgabe).join('')}</ol>${fuss(c)}</section>
-    <section class="b-seite b-loesung">${kopf(`Lösungen – ${c.klausur ? 'Probeklausur' : 'Arbeitsblatt'} Nr. ${c.seed}`, `${themenText}<br>Schwierigkeit: ${LEVELS[c.lv - 1]}`)}
+    <section class="b-seite b-loesung">${kopf(`Lösungen – ${blattName(c)} Nr. ${c.seed}`, `${themenText}<br>Schwierigkeit: ${LEVELS[c.lv - 1]}`)}
       <ol class="b-liste">${fragen.map(loesung).join('')}</ol>${np}${fuss(c)}</section></article>`;
 }
 
@@ -125,6 +153,7 @@ function wahlView() {
     <div id="b-note"></div>
     <div class="row"><button class="btn block" id="b-go" type="button">Arbeitsblatt erstellen</button></div>
     <a class="btn ghost block" id="b-klausur" href="#/blatt">Probeklausur erstellen (12 Aufgaben, alle Gebiete)</a>
+    <section class="card stack" id="b-schwach-box"><h3>Mein Schwächen-Blatt</h3><small class="muted" id="b-schwach-text"></small><a class="btn ghost" id="b-schwach" href="#/blatt">Schwächen-Blatt erstellen</a></section>
   </div>`);
   let lv = store.level, n = 8; const wahl = new Set();
   const paint = () => {
@@ -132,6 +161,9 @@ function wahlView() {
     el.querySelectorAll('#b-lv .pick').forEach((b) => { const on = +b.dataset.lv === lv; b.classList.toggle('sel', on); b.setAttribute('aria-checked', on); });
     el.querySelectorAll('#b-n .pick').forEach((b) => { const on = +b.dataset.n === n; b.classList.toggle('sel', on); b.setAttribute('aria-checked', on); });
     $('#b-klausur', el).href = blattHash({ klausur: true, lv, seed: nr });
+    const sw = schwaechen(), sb = $('#b-schwach', el);
+    $('#b-schwach-text', el).textContent = sw.length ? `Aus deiner Fehler-Kartei: ${sw.length} ${sw.length === 1 ? 'Aufgaben-Art' : 'Aufgaben-Arten'}, bei denen es zuletzt gehakt hat. Stufe und Anzahl wie oben gewählt.` : 'Noch leer: Sobald du bei Aufgaben Fehler machst, sammelt die App sie – daraus entsteht dein persönliches Blatt.';
+    sb.hidden = !sw.length; sb.href = blattHash({ schwach: true, lv, n, seed: nr });
   };
   const nr = neueNummer();
   el.querySelectorAll('.b-themen .pick').forEach((b) => { b.onclick = () => { if (wahl.has(b.dataset.u)) wahl.delete(b.dataset.u); else if (wahl.size < 12) wahl.add(b.dataset.u); sfx('tap'); $('#b-note', el).innerHTML = ''; paint(); }; });
@@ -148,11 +180,12 @@ function wahlView() {
 
 /** Vorschau des Blatts mit den Knöpfen „In der App lösen“ und „Drucken / als PDF“. */
 function vorschauView(c) {
-  const fragen = c.klausur ? bauKlausur(c) : bauBlatt(c);
+  const fragen = bau(c);
+  if (!fragen.length) return wahlView();
   const el = h(`<div class="view stack blatt-view">
     <a class="back noprint" href="#/blatt">${ICON.left} Neues Blatt</a>
-    <section class="card stack noprint" id="b-aktion"><h3>${c.klausur ? 'Probeklausur' : 'Arbeitsblatt'} Nr. ${c.seed}</h3>
-      <small class="muted">Unter dieser Nummer entsteht immer genau dieses Blatt – praktisch, wenn mehrere dasselbe rechnen sollen.</small>
+    <section class="card stack noprint" id="b-aktion"><h3>${blattName(c)} Nr. ${c.seed}</h3>
+      <small class="muted">${c.schwach ? 'Dieses Blatt ist aus deiner Fehler-Kartei gebaut: nur Aufgaben-Arten, bei denen es zuletzt gehakt hat.' : 'Unter dieser Nummer entsteht immer genau dieses Blatt – praktisch, wenn mehrere dasselbe rechnen sollen.'}</small>
       <div class="row"><a class="btn grow" id="b-los" href="${blattHash(c)}/los">In der App lösen</a><button class="btn ghost grow" id="b-druck" type="button">Drucken / als PDF</button></div>
       <div id="b-pro"></div></section>
     ${blattHtml(c, fragen)}
@@ -162,7 +195,7 @@ function vorschauView(c) {
   $('#b-druck', el).onclick = async () => {
     await premiumBereit();
     if (!proOffen()) { pro.innerHTML = '<div class="note tip"><b>Drucken und PDF gehören zur Pro-Fassung.</b> In der App lösen kannst du das Blatt trotzdem. <a href="#/einstellungen">Zugangscode eingeben</a></div>'; return; }
-    drucken(`${c.klausur ? 'Probeklausur' : 'Arbeitsblatt'}-${c.seed}`);
+    drucken(`${blattName(c)}-${c.seed}`);
   };
   premiumBereit().then(() => { if (el.isConnected && !premiumOn()) pro.innerHTML = '<small class="muted">Drucken und PDF gehören später zur Pro-Fassung. In der Testphase sind sie für alle frei.</small>'; });
   return { el };
@@ -170,14 +203,14 @@ function vorschauView(c) {
 
 /** Das Blatt in der App lösen: dieselben Aufgaben, mit Tipps und Rückmeldung wie überall. */
 function loesenView(c) {
-  const fragen = c.klausur ? bauKlausur(c) : bauBlatt(c), zurueck = blattHash(c);
+  const fragen = bau(c), zurueck = blattHash(c);
   const el = h(`<div class="view"><div class="stephead"><a class="x" href="${zurueck}" aria-label="Schließen">${ICON.close}</a><div class="prog"><i></i></div></div><div id="stage"></div></div>`);
   let richtig = 0, cleanup = null;
   const ctx = {
     progress: (f) => { $('.prog i', el).style.width = `${Math.round(f * 100)}%`; },
     done: (res) => {
       const gain = 10 + 2 * richtig; store.bonus(gain); store.touch(); store.bump('blatt');
-      $('#stage', el).innerHTML = `<div class="stack"><section class="board" style="text-align:center"><div class="board-top"><span>${c.klausur ? 'PROBEKLAUSUR' : 'ARBEITSBLATT'} NR. ${c.seed}</span><b>● FERTIG</b></div>
+      $('#stage', el).innerHTML = `<div class="stack"><section class="board" style="text-align:center"><div class="board-top"><span>${blattName(c).toUpperCase()} NR. ${c.seed}</span><b>● FERTIG</b></div>
         ${starsHtml(res.stars ?? 1)}<h2 id="b-ergebnis">${richtig} von ${fragen.length} auf Anhieb</h2><div class="gain" style="justify-content:center"><span class="chip xp">${ICON.bolt}+${gain} Punkte</span></div></section>
         <div class="row"><a class="btn block" href="${zurueck}">Zum Blatt mit Lösungen</a></div></div>`;
       sfx('win'); window.dispatchEvent(new Event('mt-ruhig'));   // Punkte-Anzeige oben auffrischen
