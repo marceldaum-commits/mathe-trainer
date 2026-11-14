@@ -170,7 +170,10 @@ Proben und dem Code-Feld:
 
 Später eigene Stufe Lehrer/Nachhilfe. Beide Stufen als 30-Tage-Pass und Abi-Pass. **Preise (Marcel, 14.11.: „nimm so“):
 Pro 4,99 € (30 Tage) / 19,99 € (Abi-Pass), Pro + KI 9,99 € / 39,99 €.** Die Zahlen stammen aus Claudes Schätzung; das
-Tageslimit der KI wird an die gemessenen Kosten angepasst, nicht der Preis. Faustrechnung: von
+Tageslimit der KI wird an die gemessenen Kosten angepasst, nicht der Preis. **Messung des Leitstands (14.11., 21 echte
+Erklärungen):** im Mittel 1,1 Cent je Erklärung, höchstens 1,4 Cent, Antwortzeit 4–6 s. 300 Abrufe im Monat ≈ 3,30 € –
+das Tageslimit 10 passt zu 9,99 €. Shop: ein Produkt „Mathe-Trainer Pro“ mit Varianten Stufe × Laufzeit
+(Abi-Pass gilt bis 31.07. des Abi-Jahres); Code per E-Mail und auf der Danke-Seite. Faustrechnung: von
 9,99 € bleiben nach MwSt. und bis zu 20 % Store-Gebühr rund 6,70 €; bei 10 Abrufen am Tag (300 im Monat) darf ein Abruf
 höchstens etwa 2 Cent kosten. Die echten Kosten je Abruf misst der Leitstand, danach entscheidet Marcel Preis und Limit.
 
