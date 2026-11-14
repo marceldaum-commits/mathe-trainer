@@ -599,7 +599,8 @@ let kiRufe = 0;
 await ctx2.route('**/api/**', async (route) => {
   const u = new URL(route.request().url()), body = route.request().postDataJSON?.() ?? null; calls.push([u.pathname, body]);
   if (u.pathname === '/api/klasse/beitreten') return route.fulfill({ json: body.code === 'K7M2QX' ? { klasse: 'Q12 Mathe', spieler: 'p-123' } : { error: 'Diesen Code gibt es nicht.' }, status: body.code === 'K7M2QX' ? 200 : 404 });
-  if (u.pathname === '/api/status') return route.fulfill({ json: { ok: true, stufe: 'test', ki: true, premium: true, kiArten: ['erklaer', 'frage'] } });
+  if (u.pathname === '/api/status') return route.fulfill({ json: { ok: true, stufe: 'test', ki: true, premium: true, kiArten: ['erklaer', 'frage', 'rechenweg'] } });
+  if (u.pathname === '/api/ki/rechenweg') return body.zugang ? route.fulfill({ json: { text: 'In Zeile 3 fehlt die innere Ableitung.', zeile: 3, rest: 9 } }) : route.fulfill({ status: 402, json: { grund: 'pro', error: 'nur Pro + KI' } });
   if (u.pathname === '/api/ki/frage') return body.zugang ? route.fulfill({ json: { text: 'Denk an die innere Ableitung.\nWas ist sie hier?', rest: 13 } }) : route.fulfill({ status: 402, json: { grund: 'pro', error: 'nur Pro + KI' } });
   if (u.pathname === '/api/zugang') return body.code === 'MT-AB12-CD34-EF56' ? route.fulfill({ json: { art: 'tage30', bis: '2099-12-31' } }) : route.fulfill({ status: 404, json: { error: 'unbekannt' } });
   if (u.pathname === '/api/ki/erklaer') { kiRufe++; return kiRufe === 1 ? route.fulfill({ json: { text: 'Stell dir vor: <b>fett</b> erst außen,\ndann innen.', rest: 2, art: 'probe' } }) : kiRufe === 2 ? route.fulfill({ status: 402, json: { grund: 'probe', error: 'Proben verbraucht' } }) : route.fulfill({ status: 429, json: { error: 'Limit' } }); }
@@ -639,6 +640,20 @@ await p2.fill('#ki-text', 'Warum mal 2?'); await p2.click('.ki-frage button'); a
 { const fr = calls.find(([path]) => path === '/api/ki/frage')[1];
   if (Object.keys(fr).sort().join() !== 'formel,frage,geraet,gewaehlt,richtig,text,verlauf' || fr.text !== 'Warum mal 2?' || !Array.isArray(fr.verlauf) || fr.verlauf.length !== 1 || fr.verlauf[0].wer !== 'ki') fail(`KI-Tutor: Anfrage hat andere Felder: ${JSON.stringify(Object.keys(fr))}`);
   if (!(await p2.locator('.ki-frage input').isDisabled())) fail('KI-Tutor: nach 402 muss das Feld gesperrt sein'); }
+// Rechenweg-Prüfer: Hinweis zum Datenschutz steht da; Foto wird im Gerät zu JPEG verkleinert; ohne „Pro + KI“-Code 402
+if (!(await p2.locator('.rw').count())) fail('Rechenweg-Prüfer: Feld fehlt, obwohl der Server die Art meldet');
+await p2.click('.rw summary'); if (!/keinen Namen/.test(await p2.textContent('.rw'))) fail('Rechenweg-Prüfer: Hinweis vor der Aufnahme fehlt');
+await p2.click('#rw-go'); if (!/Foto oder tippe/.test(await p2.textContent('.rw-out'))) fail('Rechenweg-Prüfer: ohne Foto und Text muss ein Hinweis kommen');
+{ const png = await p2.evaluate(() => { const c = document.createElement('canvas'); c.width = 2400; c.height = 1200; const x = c.getContext('2d'); x.fillStyle = '#fff'; x.fillRect(0, 0, 2400, 1200); x.fillStyle = '#000'; x.font = '80px sans-serif'; x.fillText("f'(x) = 3(2x+1)^2", 80, 300); return c.toDataURL('image/png').split(',')[1]; });
+  await p2.setInputFiles('.rw input[type=file]', { name: 'rechenweg.png', mimeType: 'image/png', buffer: Buffer.from(png, 'base64') });
+  await p2.waitForFunction(() => /Foto gewählt/.test(document.querySelector('.rw-foto').textContent));
+  await p2.click('#rw-go'); await p2.waitForFunction(() => /Pro \+ KI/.test(document.querySelector('.rw-out').textContent));
+  const rw = calls.find(([path]) => path === '/api/ki/rechenweg')[1];
+  if (Object.keys(rw).sort().join() !== 'bild,formel,frage,geraet,richtig' || !rw.bild.startsWith('data:image/jpeg;base64,') || rw.bild.length > 1400000) fail(`Rechenweg-Prüfer: Anfrage falsch (${Object.keys(rw)}; ${rw.bild?.slice(0, 30)}; ${rw.bild?.length})`);
+  // Breite und Höhe direkt aus den JPEG-Daten lesen (Rahmen-Kennung FFC0/FFC2)
+  const jb = Buffer.from(rw.bild.split(',')[1], 'base64'), mass = [0, 0];
+  for (let i = 2; i < jb.length - 9;) { if (jb[i] !== 0xff) { i++; continue; } const m = jb[i + 1]; if (m === 0xc0 || m === 0xc2) { mass[1] = jb.readUInt16BE(i + 5); mass[0] = jb.readUInt16BE(i + 7); break; } i += 2 + jb.readUInt16BE(i + 2); }
+  if (mass[0] !== 1600 || mass[1] !== 800) fail(`Rechenweg-Prüfer: Bild nicht auf 1600 px verkleinert (${mass})`); }
 if ((await p2.evaluate(() => getComputedStyle(document.querySelector('.ki-out .note')).whiteSpace)) !== 'pre-line') fail('KI: Zeilenumbrüche der Erklärung gehen verloren');
 if (shots) await p2.screenshot({ path: `${shots}/76-ki-erklaerung.png` });
 await p2.locator('.ki .pick').nth(1).click(); await p2.waitForFunction(() => document.querySelector('.ki-out')?.textContent.includes('kostenlosen Erklärungen sind aufgebraucht'));   // 402: Proben verbraucht

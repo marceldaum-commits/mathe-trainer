@@ -64,6 +64,8 @@ export const api = {
   erklaer: (q) => call('/ki/erklaer', q),
   /** KI-Tutor: Rückfrage zur selben Aufgabe → { text, rest }; 402 { grund: 'pro' } = braucht „Pro + KI“, 429 = Tagesguthaben verbraucht */
   frage: (q) => call('/ki/frage', q),
+  /** KI: Rechenweg prüfen (Foto als JPEG-base64 oder Text) → { text, rest, zeile? }; 402 { grund: 'pro' }, 429 */
+  rechenweg: (q) => call('/ki/rechenweg', q),
   /** Zugangscode prüfen → { art: 'pass'|'tage30'|'frei', bis: 'JJJJ-MM-TT' }; 404 = unbekannt oder abgelaufen */
   zugang: (code) => call('/zugang', { code }),
   /** KI: neue, vom Server nachgerechnete Aufgabe → { aufgabe } */

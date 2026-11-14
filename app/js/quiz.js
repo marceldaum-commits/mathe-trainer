@@ -6,6 +6,7 @@ import { CONFIG } from './config.js';
 import { ft } from './math.js';
 import { inputSpec, parseInput, isRight, diagnose } from './eingabe.js';
 import { api, kiBereit, premiumOn, kiArt } from './api.js';
+import { rechenwegFeld } from './rechenweg.js';
 
 /** sequence: Liste von Erzeugern (eine Aufgabe je Eintrag). */
 export function quiz(sequence, opts = {}) {
@@ -71,6 +72,7 @@ export function quiz(sequence, opts = {}) {
           out.replaceChildren(div, rest);
           if (r.ok && r.text && kiArt('frage')) nachfragen(out, String(r.text).slice(0, 900), b.dataset.k); box.querySelectorAll('button').forEach((x) => { x.disabled = false; });
         }; });
+        if (kiArt('rechenweg')) box.append(rechenwegFeld(q, richtigTex()));   // erst nach den Erklär-Knöpfen anhängen: Die bekommen oben ihre eigene Aufgabe
         note.append(box);
       };
       const stuck = () => { wrongHere++; if (wrongHere >= 2) queueMicrotask(erklaer); if (wrongHere === 2 && !solved) note.insertAdjacentHTML('beforeend', `<div class="weg-wrap">${weg()}</div>`); };

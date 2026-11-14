@@ -714,3 +714,10 @@ textarea.field{resize:vertical;min-height:72px;font:inherit;padding:10px 12px}
 .ki-ich{margin-top:8px;background:var(--soft);border:1px solid var(--line);justify-self:end;max-width:88%}
 .ki-out{display:grid;gap:8px}
 .b-schritte{margin:2px 0 0;padding-left:18px;font-size:13px;color:#333;display:grid;gap:2px}
+/* Rechenweg-Prüfer */
+.rw{display:grid;gap:8px;margin-top:10px;padding:10px 12px;border:1px solid var(--line);border-radius:14px;background:var(--card)}
+.rw[open]{display:grid}
+.rw summary{font-weight:750;color:var(--head);cursor:pointer;font-size:14.5px}
+.rw>*+*{margin-top:8px}
+.rw-out{display:grid;gap:6px}
+.rw-zeile{display:block}

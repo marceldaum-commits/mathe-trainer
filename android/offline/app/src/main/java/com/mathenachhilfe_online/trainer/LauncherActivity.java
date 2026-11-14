@@ -15,6 +15,8 @@ import android.os.Bundle;
 import android.view.View;
 import android.view.WindowInsets;
 import android.webkit.JavascriptInterface;
+import android.webkit.ValueCallback;
+import android.webkit.WebChromeClient;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebResourceResponse;
 import android.webkit.WebSettings;
@@ -86,6 +88,16 @@ public class LauncherActivity extends Activity {
         }
     }
     private volatile String wunschZeit;
+    private ValueCallback<Uri[]> dateiAntwort;
+
+    @Override
+    protected void onActivityResult(int nr, int ergebnis, Intent daten) {
+        super.onActivityResult(nr, ergebnis, daten);
+        if (nr != 9 || dateiAntwort == null) return;
+        Uri u = ergebnis == RESULT_OK && daten != null ? daten.getData() : null;
+        dateiAntwort.onReceiveValue(u == null ? null : new Uri[] { u });
+        dateiAntwort = null;
+    }
 
     @Override
     public void onRequestPermissionsResult(int nr, String[] was, int[] antwort) {
@@ -135,6 +147,19 @@ public class LauncherActivity extends Activity {
         s.setMediaPlaybackRequiresUserGesture(true);
         web.addJavascriptInterface(new Bruecke(), "MTApp");
         web.setWebViewClient(new Auslieferung());
+        // Datei-Auswahl (Foto für den Rechenweg-Prüfer): Android zeigt seine eigene Auswahl; die App braucht dafür keine Berechtigung.
+        web.setWebChromeClient(new WebChromeClient() {
+            @Override
+            public boolean onShowFileChooser(WebView v, ValueCallback<Uri[]> antwort, FileChooserParams p) {
+                if (dateiAntwort != null) dateiAntwort.onReceiveValue(null);
+                dateiAntwort = antwort;
+                try {
+                    Intent wahl = new Intent(Intent.ACTION_GET_CONTENT).addCategory(Intent.CATEGORY_OPENABLE).setType("image/*");
+                    startActivityForResult(Intent.createChooser(wahl, "Foto auswählen"), 9);
+                    return true;
+                } catch (Exception keineAuswahl) { dateiAntwort = null; return false; }
+            }
+        });
         if (zustand != null && web.restoreState(zustand) != null) return;
         web.loadUrl(ziel(getIntent()));
     }
