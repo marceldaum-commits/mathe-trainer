@@ -2,6 +2,33 @@
 
 Neueste Meldung oben. Keine Geheimnisse, keine Personendaten (dieses Repo ist öffentlich, siehe Punkt 1).
 
+## 14.11.2026 (35) – Antwort auf euren Auftrag (5 Punkte) und Stand 0.20.0
+
+1. **0.18.0 liegt seit 09:30 auf `test`** (alle fünf Browser-Durchläufe grün): Tutor, Rechenweg-Foto mit Hinweis vor der
+   Aufnahme, Guthaben in Punkten, „unbefristet“. Einlösen eines Codes ist seit 0.17.0 drin und im Test abgedeckt
+   (falsche Form, unbekannter Code, richtiger Code, Neuladen, Entfernen). **Ihr könnt das Shop-Produkt aus App-Sicht freigeben.**
+2. **KI-Sachaufgaben und Auswertung sind gebaut** (inkl. 202-Wiederholung) und stecken in **0.20.0**, das gerade durch den
+   Testlauf geht (0.19.0 ist darin aufgegangen). Ich melde hier, sobald es auf `test` liegt.
+3. **Themen-Plan als Auswahl für Marcel** – steht unten in dieser Meldung.
+4. **Handy-Erinnerung:** fertig seit 0.13.1 (echter Schalter, freie Uhrzeit, Anleitung bei gesperrter Erlaubnis); in der
+   Android-Offline-App seit 0.15.2 als geräteinterne Erinnerung ohne Server.
+5. **`app/icons` → `app/img`:** abgeschlossen. Den Ordner gibt es nicht mehr, keine Datei der App verweist darauf;
+   `tools/check.mjs` lässt den Ordner nicht wieder zu.
+
+**Neu in 0.20.0 nach Marcels Rückmeldung vom Handy** („statisch“, „überladen“, „Pro muss sichtbar sein“): 17 bewegte
+Merkbilder, Theorie im App-Aussehen, Stufe unter dem App-Namen und Seite „Deine Stufe“ (`#/pro`), Marken „PRO“/„KI“ an
+allen zugehörigen Knöpfen, Startseite aufgeräumt. **Für den Server:** Probeklausur und Schwächen-Blatt verlangen jetzt
+ebenfalls einen gültigen Zugang, sobald `premium: true` gemeldet wird (bisher nur Druck/PDF und „Ausführlich“).
+
+**Themen-Plan für den laufenden Ausbau (zur Auswahl durch Marcel)** – je Woche ein Schwerpunkt, täglich ein Paket:
+- **A – Lehrplan-Lücken schließen (Vorschlag):** Wurzel- und Umkehrfunktion · Integralfunktion · Newton-Verfahren ·
+  zweiseitiger Test · Histogramme · Hesse-Form und Schnittgerade · windschiefe Geraden · Spiegelungen · Ortskurven.
+- **B – Pro vertiefen:** Theorie ausführlich für alle 32 Einheiten · Abi-Aufgaben am Stück als PDF · Klausur-Varianten ·
+  Lernkarten-Sets · Lern-Auswertung für Eltern.
+- **C – Erlebnis:** ein Merkbild für jede Formel · Bildschirm für Bildschirm lebendiger · neue Spiele je Gebiet.
+- **D – Klasse 5–10** als zweiter Bereich (eigener Lehrplan-Abgleich, eigenes Großprojekt).
+Marcel bekommt die Auswahl im Trainer-Raum als Auswahlfenster; bis dahin fahre ich A, B und C im Wechsel.
+
 ## 14.11.2026 (34) – 0.19.0: App-Seite für `/api/ki/aufgabe` und `/api/ki/auswertung`; Merkbilder
 
 - **Angebunden nach euren Angaben:** `aufgabe` (Body `{thema, stufe, stil, geraet, zugang?}`; bei `202 {bereit:false}` wartet die
