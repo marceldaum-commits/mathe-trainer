@@ -3,6 +3,7 @@
 import { $, h, tex, esc, ICON, sfx, buzz } from './ui.js';
 import { store, dayKey } from './store.js';
 import { UNITS } from './units.js';
+import { merkbild, hatMerkbild } from './merkbild.js';
 
 /** Abstand in Tagen bis zur nächsten Wiederholung, je Fach. */
 export const FACH_TAGE = [0, 1, 3, 7, 14, 30];
@@ -13,7 +14,7 @@ export const plusTage = (d, n) => { const x = new Date(d); x.setDate(x.getDate()
 /** Alle Karten: Formeln aus Einheiten, in denen schon etwas geschafft wurde (sonst die Grundlagen), plus eigene. */
 export function stapel() {
   const begonnen = UNITS.filter((u) => u.formeln?.length && store.unitProgress(u).n > 0), us = begonnen.length ? begonnen : UNITS.filter((u) => u.grund && u.formeln?.length);
-  const formeln = us.flatMap((u) => u.formeln.map(([name, f], i) => ({ key: `f:${u.id}:${i}`, thema: u.title, vorn: esc(name), hinten: `<div class="formula">${tex(f, true)}</div>`, eigen: false })));
+  const formeln = us.flatMap((u) => u.formeln.map(([name, f], i) => ({ key: `f:${u.id}:${i}`, thema: u.title, name, vorn: esc(name), hinten: `<div class="formula">${tex(f, true)}</div>`, eigen: false })));
   const eigene = store.lernEigene.map((k) => ({ key: `e:${k.id}`, id: k.id, thema: 'Eigene Karte', vorn: esc(k.vorn), hinten: `<p>${esc(k.hinten)}</p>`, eigen: true }));
   return [...eigene, ...formeln];
 }
@@ -60,11 +61,13 @@ export function kartenView() {
       }
       const k = karten[i];
       el.innerHTML = `<div class="stephead"><a class="x" href="#/karten" id="lk-x" aria-label="Schließen">${ICON.close}</a><div class="prog"><i style="width:${Math.round((i / karten.length) * 100)}%"></i></div></div>
-        <div id="stage"><div class="stack"><section class="card lk-karte" id="lk-karte"><small class="muted">${esc(k.thema)}</small><h2 class="lk-vorn">${k.vorn}</h2><div class="lk-hinten" id="lk-rueck" hidden>${k.hinten}</div></section>
+        <div id="stage"><div class="stack"><section class="card lk-karte" id="lk-karte"><small class="muted">${esc(k.thema)}${k.name && hatMerkbild(k.name) ? ' · mit Merkbild' : ''}</small><h2 class="lk-vorn">${k.vorn}</h2><div class="lk-hinten" id="lk-rueck" hidden>${k.hinten}</div></section>
           <div class="row" id="lk-row"><button class="btn block" id="lk-dreh" type="button">Umdrehen</button></div></div></div>`;
       $('#lk-x', el).onclick = (ev) => { ev.preventDefault(); start(); };
       $('#lk-dreh', el).onclick = () => {
-        $('#lk-rueck', el).hidden = false; sfx('tap');
+        const rueck = $('#lk-rueck', el); rueck.hidden = false; sfx('tap');
+        $('#lk-karte', el).classList.add('gedreht');   // Karte dreht sich um
+        const mb = k.name ? merkbild(k.name) : null; if (mb) rueck.append(mb);
         $('#lk-row', el).innerHTML = '<button class="btn ghost grow" id="lk-nein" type="button">Noch nicht</button><button class="btn grow" id="lk-ja" type="button">Wusste ich</button>';
         const weiter = (ok) => { verbuche(k.key, ok); if (ok) { gewusst++; buzz(12); } i++; zeige(); };
         $('#lk-ja', el).onclick = () => weiter(true); $('#lk-nein', el).onclick = () => weiter(false);

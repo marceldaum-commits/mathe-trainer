@@ -6,6 +6,7 @@ import { store } from './store.js';
 import { UNITS, AREAS, unitExtra, NICHT_TEXT } from './units.js';
 import { CONFIG } from './config.js';
 import { premiumOn, premiumBereit } from './api.js';
+import { merkbilderEinsetzen, hatMerkbild } from './merkbild.js';
 
 const D = (s) => `<div class="t-formel">${tex(s, true)}</div>`;
 const t = (s) => tex(s);
@@ -111,7 +112,7 @@ export function kapitelHtml(u, lang) {
   const K = karten(u), L = lang && hatLang(u) ? LANG[u.id] : null;
   const teile = L ? L.map(([titel, html]) => `<section class="t-teil"><h2>${esc(titel)}</h2>${html}</section>`).join('')
     : K.map((c) => `<section class="t-teil"><h2>${esc(c.title)}</h2>${c.html}</section>`).join('');
-  const formeln = u.formeln?.length ? `<section class="t-teil t-merk"><h2>Formeln zum Merken</h2>${u.formeln.map(([n, f]) => `<div class="t-zeile"><small>${esc(n)}</small><div class="t-formel">${tex(f, true)}</div></div>`).join('')}</section>` : '';
+  const formeln = u.formeln?.length ? `<section class="t-teil t-merk"><h2>Formeln zum Merken</h2>${u.formeln.map(([n, f]) => `<div class="t-zeile"${hatMerkbild(n) ? ` data-merk="${esc(n)}"` : ''}><small>${esc(n)}</small><div class="t-formel">${tex(f, true)}</div></div>`).join('')}</section>` : '';
   const wozu = u.why ? `<section class="t-teil"><h2>Wo brauche ich das?</h2><p>${esc(u.why)}</p></section>` : '';
   return `<article class="blatt theorie" id="kapitel"><section class="b-seite">${kopf(u, L ? 'ausführlich' : 'kurz')}${teile}${formeln}${wozu}
     <footer class="b-fuss"><span>${esc(CONFIG.firma)} · ${esc(website())}</span><span>Theorie: ${esc(u.title)} (${L ? 'ausführlich' : 'kurz'})</span></footer></section></article>`;
@@ -141,6 +142,7 @@ function kapitelView(u, startLang) {
   const paint = () => {
     el.querySelectorAll('#t-art .pick').forEach((b) => { const on = (b.dataset.l === '1') === lang; b.classList.toggle('sel', on); b.setAttribute('aria-checked', on); });
     $('#t-text', el).innerHTML = kapitelHtml(u, lang);
+    merkbilderEinsetzen($('#t-text', el));   // bewegte Merkbilder unter die passenden Formeln
   };
   el.querySelectorAll('#t-art .pick').forEach((b) => { b.onclick = async () => {
     const will = b.dataset.l === '1'; sfx('tap'); pro.innerHTML = '';

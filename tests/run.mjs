@@ -785,6 +785,11 @@ for (const u of UNITS) {
 { const KA = await import('../app/js/kiaufgabe.js'); const T = KA.kiThemen();
   ok(T.length === 3 && T.every(([g, ts]) => g && ts.length >= 8 && new Set(ts).size === ts.length) && T.flatMap(([, ts]) => ts).includes('Kettenregel') && KA.VERSUCHE >= 2, 'KI-Aufgaben: Themen aus allen drei Gebieten, ohne Doppelte'); }
 
+// 14e5) Merkbilder: jedes gehört zu einer echten Formel
+{ const Mb = await import('../app/js/merkbild.js'); const namen = new Set(UNITS.flatMap((u) => (u.formeln || []).map(([n]) => n)));
+  ok(Object.keys(Mb.MERK).length >= 12 && Object.keys(Mb.MERK).every((n) => namen.has(n) && typeof Mb.MERK[n] === 'function'), `Merkbilder: alle gehören zu einer Formel der App (${Object.keys(Mb.MERK).filter((n) => !namen.has(n)).join(', ') || 'ok'})`);
+  ok(Mb.hatMerkbild('Kettenregel') && !Mb.hatMerkbild('toString') && !Mb.hatMerkbild('gibt es nicht') && Mb.merkbild('gibt es nicht') === null, 'Merkbilder: unbekannte Namen liefern nichts'); }
+
 // 14f) Lernkarten
 { const Kt = await import('../app/js/karten.js'); store.reset(); const T0 = new Date(2026, 10, 14, 12), tag = (n) => Kt.plusTage(T0, n);
   const alle = Kt.stapel(); ok(alle.length >= 3 && alle.every((k) => k.key && k.vorn && k.hinten) && new Set(alle.map((k) => k.key)).size === alle.length, 'Lernkarten: ohne Fortschritt die Grundlagen-Formeln, Schlüssel eindeutig');

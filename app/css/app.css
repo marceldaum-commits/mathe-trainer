@@ -721,3 +721,18 @@ textarea.field{resize:vertical;min-height:72px;font:inherit;padding:10px 12px}
 .rw>*+*{margin-top:8px}
 .rw-out{display:grid;gap:6px}
 .rw-zeile{display:block}
+
+/* ───────────── Merkbilder: bewegte Bilder zum Anfassen ───────────── */
+.merk{margin:10px 0 2px;padding:12px;border-radius:18px;border:1px solid var(--line);background:var(--soft);display:grid;gap:8px;text-align:left}
+.merk figcaption{font-weight:800;font-size:13.5px;color:var(--head);letter-spacing:-.01em}
+.merk canvas{width:100%;display:block;border-radius:12px;background:var(--card);touch-action:pan-y}
+.merk-text{display:block;min-height:2.7em;font-size:13px;line-height:1.35;color:var(--ink);font-weight:600}
+.merk-regler{display:grid;grid-template-columns:auto 1fr;gap:10px;align-items:center;font-size:12px;color:var(--muted);font-weight:700}
+.merk-regler input{width:100%;accent-color:var(--orange);height:28px}
+.blatt .merk{background:#f6f8fc;border-color:#d5dbe6}.blatt .merk figcaption,.blatt .merk-text{color:#111}
+@media print{.merk-regler{display:none}.merk{break-inside:avoid}}
+/* Lernkarte dreht sich wirklich um */
+.lk-karte{transition:transform .5s cubic-bezier(.2,.8,.2,1);transform-style:preserve-3d}
+.lk-karte.gedreht{animation:kartedreh .55s cubic-bezier(.2,.8,.2,1)}
+@keyframes kartedreh{0%{transform:perspective(900px) rotateY(0)}50%{transform:perspective(900px) rotateY(90deg)}100%{transform:perspective(900px) rotateY(0)}}
+@media (prefers-reduced-motion:reduce){.lk-karte.gedreht{animation:none}}

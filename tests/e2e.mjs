@@ -390,6 +390,19 @@ if (/Durchgerechnetes Beispiel/.test(await page.textContent('#kapitel'))) fail('
 await page.click('#t-art [data-l="1"]'); await page.waitForFunction(() => /Durchgerechnetes Beispiel/.test(document.querySelector('#kapitel').textContent));
 if (await page.evaluate(() => document.documentElement.scrollWidth - innerWidth > 1)) fail('Theorie: Seite zu breit');
 await shot('78-theorie');
+// Merkbilder: bewegte Bilder unter den passenden Formeln; der Regler gehört dem Finger, sobald man ihn berührt
+await page.goto(`${BASE}#/theorie/regeln`); await page.waitForSelector('#kapitel .merk canvas');
+{ const m = await page.evaluate(async () => { const el = document.querySelector('#kapitel .merk'), inp = el.querySelector('input'), c = el.querySelector('canvas');
+    const bunt = () => { const d = c.getContext('2d').getImageData(0, 0, c.width, c.height).data; let n = 0; for (let i = 3; i < d.length; i += 400) if (d[i] > 0) n++; return n; };
+    await new Promise((r) => setTimeout(r, 400)); const v1 = inp.value; await new Promise((r) => setTimeout(r, 500)); const laeuft = inp.value !== v1;
+    inp.dispatchEvent(new Event('pointerdown')); inp.value = inp.max; inp.dispatchEvent(new Event('input')); await new Promise((r) => setTimeout(r, 400));
+    return { anzahl: document.querySelectorAll('#kapitel .merk').length, laeuft, bleibt: inp.value === inp.max, gemalt: bunt(), text: el.querySelector('.merk-text').textContent.length, breit: document.documentElement.scrollWidth - innerWidth }; });
+  if (m.anzahl < 2) fail(`Merkbilder: im Kapitel „Ableitungsregeln“ nur ${m.anzahl} statt mindestens 2`);
+  if (!m.laeuft) fail('Merkbild: bewegt sich nicht von selbst');
+  if (!m.bleibt) fail('Merkbild: Regler springt nach dem Anfassen wieder weg');
+  if (m.gemalt < 20 || m.text < 10) fail('Merkbild: Bild oder Text bleibt leer');
+  if (m.breit > 1) fail('Merkbild: Seite zu breit'); }
+await shot('79-merkbild');
 await page.goto(`${BASE}#/theorie/a-trig`); await page.waitForSelector('#kapitel'); await page.click('#t-art [data-l="1"]');
 if (!/in Arbeit/.test(await page.textContent('#t-pro'))) fail('Theorie: fehlende ausführliche Fassung wird nicht erklärt');
 await page.goto(`${BASE}#/u/extrema`); if (!(await page.locator('#u-theorie').count())) fail('Theorie: Link in der Einheit fehlt');

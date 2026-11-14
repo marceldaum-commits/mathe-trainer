@@ -6,6 +6,7 @@ import { store, LEVELS, LAENDER, KARTEI_TAGE } from './store.js';
 import { UNITS, AREAS } from './units.js';
 import { $, h, esc, ICON, sfx, toast, confetti, drucken } from './ui.js';
 import { CONFIG } from './config.js';
+import { merkbilderEinsetzen, hatMerkbild } from './merkbild.js';
 import { BADGES, TITLES, SKINS, titleOf, skinOpen, checkBadges } from './badges.js';
 import { tex } from './ui.js';
 import { api, serverOn, nameOk, codeOk, codeNorm, premiumBereit, ZUGANG_ART } from './api.js';
@@ -269,10 +270,11 @@ export function formelnView() {
     ${AREAS.map((a) => { const us = UNITS.filter((u) => u.area === a.id && u.formeln?.length); return us.length ? `<div class="sect"><h2>${esc(a.title)}</h2></div><section class="stack">${us.map((u) => {
       const ok = store.unitProgress(u).done;
       return `<div class="card fcard ${ok ? '' : 'locked noprint'}"><div class="row"><h3 class="grow">${esc(u.title)}</h3>${ok ? '' : `<a class="btn small ghost" href="#/u/${u.id}">Freischalten</a>`}</div>
-        ${ok ? u.formeln.map(([n, f]) => `<div class="fline"><small>${esc(n)}</small><div class="formula">${tex(f, true)}</div></div>`).join('') : `<small class="muted">${u.formeln.length} ${u.formeln.length === 1 ? 'Formel' : 'Formeln'} – schließe die Einheit ab.</small>`}</div>`; }).join('')}</section>` : ''; }).join('')}
+        ${ok ? u.formeln.map(([n, f]) => `<div class="fline"${hatMerkbild(n) ? ` data-merk="${esc(n)}"` : ''}><small>${esc(n)}</small><div class="formula">${tex(f, true)}</div></div>`).join('') : `<small class="muted">${u.formeln.length} ${u.formeln.length === 1 ? 'Formel' : 'Formeln'} – schließe die Einheit ab.</small>`}</div>`; }).join('')}</section>` : ''; }).join('')}
     ${open ? '<button class="btn ghost block noprint" id="fm-print" type="button">Drucken oder als PDF sichern</button>' : ''}
   </div>`);
   const pb = $('#fm-print', el); if (pb) pb.onclick = () => drucken();
+  queueMicrotask(() => merkbilderEinsetzen(el));
   return { el };
 }
 
