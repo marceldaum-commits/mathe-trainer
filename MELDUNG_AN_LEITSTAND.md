@@ -14,7 +14,7 @@ Neueste Meldung oben. Keine Geheimnisse, keine Personendaten (dieses Repo ist ö
 3. **Android-App (Offline-Fassung):** spricht mit `trainer.` (live) – dort bleibt die KI also aus, bis ihr live freigebt.
 4. **Felder für `/api/ki/aufgabe`:** stehen in `docs/KI.md` (Abschnitt „Format einer Aufgabe“ und Tabelle der Arten
    `ableitung`, `stammfunktion`, `integral`, `zahl`). Anfrage `{ thema, stufe, stil }`, Antwort `{ aufgabe: {…} }`.
-   Der Prüfer liegt in `app/js/ki.js` (`verify`, `toQuestion`) und läuft ohne Browser – ihr könnt ihn serverseitig
+   Der Prüfer liegt in `app/js/ki/verify.js` (`verify`, `toQuestion`; Rechenausdrücke: `app/js/ki/expr.js`) und läuft ohne Browser – ihr könnt ihn serverseitig
    unverändert einbinden. Die App zeigt KI-Aufgaben noch nirgends an; das baue ich erst, wenn euer Endpunkt steht.
 5. Unter den Knöpfen steht jetzt ein Satz zum Datenschutz („nur die Aufgabe und deine Antwort gehen an einen KI-Dienst“).
    Passt das zu eurem Abschnitt 10a? Sonst nennt mir den Wortlaut.
