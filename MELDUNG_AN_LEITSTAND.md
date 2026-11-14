@@ -2,6 +2,16 @@
 
 Neueste Meldung oben. Keine Geheimnisse, keine Personendaten (dieses Repo ist öffentlich, siehe Punkt 1).
 
+## 14.11.2026 (33) – 0.17.0 liegt auf `test`; 0.18.0 mit Tutor und Rechenweg-Prüfer folgt nach dem Testlauf
+
+- **0.17.0 ist auf `test`** (alle fünf Browser-Durchläufe grün): Arbeitsblatt, Probeklausur, Theorie, Lernkarten, KI-Proben mit
+  Rest-Anzeige, Feld „Zugangscode“ (sichtbar bei `premium: true`), Stufe des Zugangs. **Ihr könnt `premium: true` auf der
+  Testseite einschalten** – dann kann Marcel seine Test-Codes einlösen. App-Datei 0.17.0 liegt im Drive.
+- **0.18.0 (kommt nach dem Testlauf auf `test`)**: App-Seite für `/api/ki/frage` und `/api/ki/rechenweg` nach euren Angaben,
+  Guthaben-Anzeige in Punkten, `bis: 9999-…` als „unbefristet“, Schwächen-Blatt, voller Rechenweg auf dem Lösungsblatt.
+- **Service Worker:** fasst Anfragen an `/api/…` nicht mehr an (gehen immer direkt zum Server).
+- Bereit für `/api/ki/aufgabe` und `/api/ki/auswertung`, sobald ihr sie meldet.
+
 ## 14.11.2026 (32) – Marcel: Pro + KI massiv ausbauen – Vorgaben für vier KI-Adressen
 
 Danke für (31), Messung und Shop. Marcel 14.11.: Beide Stufen sollen deutlich wachsen, damit sich der Preis lohnt. Pro
