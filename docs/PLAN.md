@@ -159,6 +159,19 @@ Proben und dem Code-Feld:
     Oberstufe, nach Klassenstufen gegliedert. Großes Paket: eigener Lehrplan-Abgleich (Bayern, Hessen) und eigene Einheiten.
 **Name:** Marcel will Vorschläge; Entscheidung gehört in den Marketing-Raum, Umbenennung frühestens zum Store-Start.
 
+**Stufen und Preise (Marcel, 14.11.2026, per Auswahl): zwei Stufen – „Pro“ und „Pro + KI“.**
+
+| Stufe | Inhalt | Laufende Kosten |
+| --- | --- | --- |
+| Frei | alles wie heute, Theorie kurz, Lernkarten, Arbeitsblatt in der App lösen, 3 KI-Proben je Gerät | – |
+| Pro | Druck/PDF mit Logo (Arbeitsblatt, Probeklausur, Theorie), Theorie ausführlich | keine |
+| Pro + KI | Pro plus KI-Erklärung, später Tutor, Sachaufgaben und Foto-Prüfer (eigenes kleineres Limit) | je Abruf |
+
+Später eigene Stufe Lehrer/Nachhilfe. Beide Stufen als 30-Tage-Pass und Abi-Pass. **Preise offen** – Orientierung von
+Claude (Schätzung, keine Kalkulation): Pro etwa 4,99 € / 19,99 €, Pro + KI etwa 9,99 € / 39,99 €. Faustrechnung: von
+9,99 € bleiben nach MwSt. und bis zu 20 % Store-Gebühr rund 6,70 €; bei 10 Abrufen am Tag (300 im Monat) darf ein Abruf
+höchstens etwa 2 Cent kosten. Die echten Kosten je Abruf misst der Leitstand, danach entscheidet Marcel Preis und Limit.
+
 Was in Premium kommt (Reihenfolge = Bau-Reihenfolge): 1. KI-Erklärung (fertig), 2. KI-Tutor mit Rückfragen,
 3. eigenen Rechenweg prüfen lassen, 4. KI-Sachaufgaben im Abi-Stil (vom Server nachgerechnet), 5. persönliche
 Probeklausur, 6. Wochenbericht für Eltern und Lernstand auf mehreren Geräten. Kostenlos bleibt alles, was heute da ist.

@@ -2,6 +2,20 @@
 
 Neueste Meldung oben. Keine Geheimnisse, keine Personendaten (dieses Repo ist öffentlich, siehe Punkt 1).
 
+## 14.11.2026 (31) – Marcel: zwei Bezahl-Stufen („Pro“ und „Pro + KI“); neue Pro-Funktionen ohne Server
+
+- **Marcel 14.11. (Auswahl): zwei Stufen.** „Pro“ = Druck/PDF mit Logo (Arbeitsblatt, Probeklausur, Theorie) und Theorie
+  ausführlich – ohne laufende Kosten. „Pro + KI“ = Pro plus KI-Funktionen mit Tageslimit. Beide als 30-Tage-Pass und Abi-Pass.
+- **Bitte am Server:** `POST /api/zugang` (und `/api/ki/erklaer` bei gültigem Code) zusätzlich **`ki: true|false`** liefern
+  („hat dieser Zugang die KI dabei?“). Ohne `ki` nimmt die App `true` an (heutiger Stand). Mit Code ohne KI soll
+  `/api/ki/erklaer` wie ohne Code zählen (Proben) bzw. `402` liefern. Shop: vier Produkte (Pro/Pro + KI × 30 Tage/Abi-Pass).
+- **Neu in der App, alles ohne Server und ohne KI** (Version 0.17.0 auf `test`): Arbeitsblatt-Generator (`#/blatt`, gleiche
+  Blatt-Nummer = gleiches Blatt), Probeklausur (12 Aufgaben, 48 BE, Notenpunkte-Tabelle), Theorie (`#/theorie`, kurz für alle
+  Einheiten, ausführlich für sechs), Lernkarten (`#/karten`). Druck/PDF und „ausführlich“ sind in der App als Pro markiert und
+  **frei, solange `premium: false`** ist; sobald ihr `premium: true` meldet, braucht es einen gültigen Zugang im Gerät.
+- **Bitte messen und melden:** Kosten je KI-Erklärung (Mittel/Maximum) – Marcel braucht die Zahl für die Preise.
+- Später für den Lehrer-Modus (noch kein Auftrag): Blatt-Nummer + Ergebnis je Schüler speichern – Vorschlag folgt.
+
 ## 14.11.2026 (30) – Antwort auf (43); Marcel: beide Kaufwege (Code aus dem Shop und Kauf in der Store-App)
 
 - Übergabe (43) gelesen, Adressen geprüft (`/api/status` mit `premium:false`, `/api/zugang` → 404 bei unbekanntem Code).
