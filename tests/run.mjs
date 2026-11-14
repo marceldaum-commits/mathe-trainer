@@ -817,6 +817,14 @@ ok(nextStreak({ n: 3, last: '2026-11-13' }, D('2026-11-13')).n === 3, 'Serie: gl
 ok(nextStreak({ n: 3, last: '2026-11-13' }, D('2026-11-16')).n === 4, 'Serie: Wochenende darf ausfallen (Fr → Mo)');
 ok(nextStreak({ n: 3, last: '2026-11-10' }, D('2026-11-12')).n === 1, 'Serie: ausgelassener Werktag setzt zurück');
 
+// Schriftgröße: nur drei Werte, bleibt beim Zurücksetzen erhalten; jede Schrift im Stil folgt dem Faktor
+{ store.reset(); ok(store.schrift === 'normal', 'Schrift: Standard ist normal');
+  store.schrift = 'klein'; ok(store.schrift === 'klein', 'Schrift: klein wird gemerkt'); store.schrift = 'riesig'; ok(store.schrift === 'normal', 'Schrift: Unbekanntes zählt als normal');
+  store.schrift = 'gross'; store.complete('formen', 'murmelbahn', 3); store.reset(); ok(store.schrift === 'gross' && store.xp === 0, 'Schrift: bleibt bei „Fortschritt zurücksetzen“'); store.schrift = 'normal';
+  const { readFileSync } = await import('node:fs'); const css = readFileSync(new URL('../app/css/app.css', import.meta.url), 'utf8');
+  ok(!/font-size:[0-9.]+px/.test(css), 'Schrift: jede feste Schriftgröße im Stil folgt dem Faktor (font-size:calc(…px*var(--fs,1)))');
+  ok(/data-schrift="klein"\]\{--fs:\.88\}/.test(css) && /data-schrift="gross"\]\{--fs:1\.12\}/.test(css), 'Schrift: Faktoren für klein und groß'); }
+
 // Selbst-Aktualisierung der Android-App: Stand aus der App-Hülle lesen, Dateiliste mit Prüfsummen
 { const U = await import('../app/js/update.js');
   const app = (o) => ({ updateStand: () => (typeof o === 'string' ? o : JSON.stringify(o)) });

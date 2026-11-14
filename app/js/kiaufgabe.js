@@ -50,7 +50,12 @@ export function kiAufgabeView() {
     if (lauf !== laeuft || !el.isConnected) return;
     if (r.ok && r.aufgabe) {
       let q; try { q = toQuestion(r.aufgabe); } catch { q = null; }
-      if (!q) { go.disabled = false; note.innerHTML = '<div class="note bad">Diese Aufgabe hat die Prüfung im Gerät nicht bestanden und wird nicht gezeigt. Bitte hol eine neue.</div>'; return; }
+      if (!q) {
+        go.disabled = false; note.innerHTML = '<div class="note bad">Diese Aufgabe hat die Prüfung im Gerät nicht bestanden und wird nicht gezeigt. Bitte hol eine neue – dein KI-Punkt kommt zurück.</div>';
+        const id = r.aufgabe?.id;   // dem Server melden: Aufgabe aus dem Vorrat nehmen, Punkt gutschreiben
+        if (typeof id === 'string' && /^[A-Za-z0-9_-]{1,64}$/.test(id)) api.aufgabeAbgelehnt({ id, geraet: store.geraet, ...(store.zugangGilt() ? { zugang: store.zugang.code } : {}) }).catch(() => {});
+        return;
+      }
       q.options = shuffle(q.options); q.gen = 'kiAufgabe';
       return zeige(q, r.rest);
     }

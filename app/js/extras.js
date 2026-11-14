@@ -5,7 +5,8 @@ import { quiz } from './quiz.js';
 import { store, LEVELS, LAENDER, KARTEI_TAGE } from './store.js';
 import { UNITS, AREAS } from './units.js';
 import { $, h, esc, ICON, sfx, toast, confetti, drucken } from './ui.js';
-import { CONFIG } from './config.js';
+import { CONFIG, VERSION, STAND } from './config.js';
+import { updateStand } from './update.js';
 import { merkbilderEinsetzen, hatMerkbild } from './merkbild.js';
 import { BADGES, TITLES, SKINS, titleOf, skinOpen, checkBadges } from './badges.js';
 import { tex } from './ui.js';
@@ -44,6 +45,9 @@ export function settingsView() {
     <section class="card stack"><h3>Ruhiger Modus</h3>
       <button class="schalter" id="st-ruhig" type="button" role="switch" aria-checked="false"><span class="knopf" aria-hidden="true"></span><span>Ohne Druck lernen</span></button>
       <small class="muted">Keine Lernserie, kein Wochen-Ziel, keine Herzen beim Boss, Abi-Modus ohne Uhr. Du lernst in deinem Tempo – Punkte und Fortschritt bleiben. Tages-Runde, Duell und Blitz-Runde sind weiter auf Zeit, weil dort alle dieselben Bedingungen brauchen.</small></section>
+    <section class="card stack"><h3>Schriftgröße</h3>
+      <div class="umschalt drei" id="st-schrift" role="radiogroup" aria-label="Schriftgröße"><button class="pick" type="button" role="radio" data-s="klein">Klein</button><button class="pick" type="button" role="radio" data-s="normal">Normal</button><button class="pick" type="button" role="radio" data-s="gross">Groß</button></div>
+      <small class="muted">Gilt für die ganze App. Ausdrucke bleiben in normaler Größe.</small></section>
     <section class="card stack"><h3>Ergebnis selbst eintippen</h3><div class="picks" id="st-tipp" role="radiogroup" aria-label="Ergebnis selbst eintippen"></div>
       <small class="muted">Bei Rechenaufgaben tippst du das Ergebnis ein, statt aus vier Antworten zu wählen. „Automatisch“ schaltet das ab Schwierigkeit 4 ein.</small></section>
     <section class="card stack"><h3>Abi-Termin Mathe</h3>
@@ -64,6 +68,7 @@ export function settingsView() {
       <div id="st-pro-note"></div></section>
     <section class="card stack"><h3>Fortschritt</h3><small class="muted">Alles liegt nur auf diesem Gerät. Es gibt kein Konto.</small>
       <button class="btn ghost" id="st-reset" type="button">Fortschritt zurücksetzen</button></section>
+    <section class="card stack"><h3>Über diese App</h3><dl class="st-info" id="st-info"></dl></section>
   </div>`);
   $('#st-level', el).append(levelCard());
   const sk = $('#st-skin', el);
@@ -130,6 +135,12 @@ export function settingsView() {
     };
     paintZ(); if (store.zugang) box.hidden = false;
     premiumBereit().then((an) => { if (an && el.isConnected) box.hidden = false; }); }
+  { const paintS = () => el.querySelectorAll('#st-schrift .pick').forEach((b) => { const on = b.dataset.s === store.schrift; b.classList.toggle('sel', on); b.setAttribute('aria-checked', on); });
+    el.querySelectorAll('#st-schrift .pick').forEach((b) => { b.onclick = () => { store.schrift = b.dataset.s; applySchrift(); paintS(); sfx('tap'); }; }); paintS(); }
+  { const u = updateStand(), app = typeof window.MTApp?.version === 'function' ? String(window.MTApp.version()).slice(0, 12) : '';
+    $('#st-info', el).innerHTML = `<dt>Version</dt><dd id="st-version">${esc(VERSION)}</dd><dt>Stand</dt><dd id="st-datum">${esc(STAND)}</dd>`
+      + (app ? `<dt>App-Datei</dt><dd>${esc(app)}</dd>` : '')
+      + (u && u.kanal !== 'aus' ? `<dt>Aktualisierung</dt><dd>${u.bereit ? `Version ${esc(u.bereit)} ist geladen` : 'holt neue Inhalte von selbst'}</dd>` : ''); }
   { const rb = $('#st-ruhig', el), paintR = () => { rb.setAttribute('aria-checked', store.ruhig); rb.classList.toggle('an', store.ruhig); };
     rb.onclick = () => { store.ruhig = !store.ruhig; paintR(); sfx('tap'); window.dispatchEvent(new Event('mt-ruhig')); }; paintR(); }
   const tb = $('#st-tipp', el);
@@ -217,6 +228,8 @@ export function karteiView() {
 }
 
 /* ───────────── Design ───────────── */
+/** Schriftgröße aus den Einstellungen anwenden (Faktor --fs im Stil). */
+export function applySchrift() { const s = store.schrift; if (s === 'normal') delete document.documentElement.dataset.schrift; else document.documentElement.dataset.schrift = s; }
 export function applySkin() {
   const s = SKINS.find((x) => x[0] === store.skin && skinOpen(x[0])) || SKINS[0];
   const r = document.documentElement.style;

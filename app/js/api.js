@@ -74,4 +74,6 @@ export const api = {
   zugang: (code) => call('/zugang', { code }),
   /** KI: neue, vom Server nachgerechnete Aufgabe → { aufgabe } */
   aufgabe: (wunsch) => call('/ki/aufgabe', wunsch),
+  /** Eine Aufgabe hat die Prüfung im Gerät nicht bestanden: Der Server nimmt sie aus dem Vorrat und gibt den KI-Punkt zurück. */
+  aufgabeAbgelehnt: (q) => call('/ki/aufgabe/abgelehnt', q),
 };

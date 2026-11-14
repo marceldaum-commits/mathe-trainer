@@ -19,7 +19,7 @@ import { abiView, rundeView, blitzView } from './exam.js';
 import { checkBadges, titleOf } from './badges.js';
 import { api, serverOn, kiBereit, kiArt } from './api.js';
 import { updateLeiste } from './update.js';
-import { settingsView, berichtView, karteiView, dailyGoal, openSteps, levelCard, erfolgeView, formelnView, klasseView, weekCard, readiness, applySkin, lehrplanView } from './extras.js';
+import { settingsView, berichtView, karteiView, dailyGoal, openSteps, levelCard, erfolgeView, formelnView, klasseView, weekCard, readiness, applySkin, applySchrift, lehrplanView } from './extras.js';
 
 const view = $('#view');
 let cleanup = null;
@@ -389,7 +389,7 @@ function tint() {
 window.addEventListener('mt-look', () => queueMicrotask(tint));
 window.addEventListener('mt-ruhig', () => chips());
 new MutationObserver(() => { $('#nav').hidden = !!view.querySelector('.stephead'); }).observe(view, { childList: true, subtree: true });
-look.follow(); applySkin(); initMelden();
+look.follow(); applySkin(); applySchrift(); initMelden();
 window.addEventListener('hashchange', route);
 window.addEventListener('beforeinstallprompt', (ev) => { ev.preventDefault(); installEvent = ev; window.__mtInstall = ev; if (['#/mehr', '', '#/'].includes(location.hash)) route(); });
 window.addEventListener('appinstalled', () => { installEvent = null; window.__mtInstall = null; toast('Installiert. Der Mathe-Trainer liegt jetzt bei deinen Apps.'); });

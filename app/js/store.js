@@ -86,7 +86,7 @@ export const store = {
     return { n, total: unit.steps.length, done: n === unit.steps.length };
   },
   /** Fortschritt löschen. Geräte-Kennung und Zugangscode bleiben – sie sind kein Lernstand. */
-  reset() { const { geraet, zugang } = mem; mem = FRESH(); if (geraet) mem.geraet = geraet; if (zugang) mem.zugang = zugang; save(); },
+  reset() { const { geraet, zugang, schrift } = mem; mem = FRESH(); if (geraet) mem.geraet = geraet; if (zugang) mem.zugang = zugang; if (schrift) mem.schrift = schrift; save(); },
 
   /* Statistik je Thema (für Bericht und Schwächen-Erkennung) */
   record(topic, firstTry) {
@@ -182,6 +182,9 @@ export const store = {
   get einstufung() { return mem.einstufung && typeof mem.einstufung === 'object' ? mem.einstufung : null; },
   set einstufung(v) { mem.einstufung = v; save(); },
   /** Ruhiger Modus: keine Lernserie, kein Wochen-Ziel, keine Herzen beim Boss, Abi-Modus ohne Uhr. */
+  /** Schriftgröße: 'klein', 'normal' oder 'gross'. */
+  get schrift() { return ['klein', 'gross'].includes(mem.schrift) ? mem.schrift : 'normal'; },
+  set schrift(v) { mem.schrift = ['klein', 'gross'].includes(v) ? v : 'normal'; save(); },
   get ruhig() { return mem.ruhig === true; },
   set ruhig(v) { mem.ruhig = !!v; save(); },
   /** Lernkarten: Stand je Karte { fach (0–5), ab: 'JJJJ-MM-TT' } und eigene Karten [{ id, vorn, hinten }]. */

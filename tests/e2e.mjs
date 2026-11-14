@@ -623,6 +623,7 @@ await ctx2.route('**/api/**', async (route) => {
   const u = new URL(route.request().url()), body = route.request().postDataJSON?.() ?? null; calls.push([u.pathname, body]);
   if (u.pathname === '/api/klasse/beitreten') return route.fulfill({ json: body.code === 'K7M2QX' ? { klasse: 'Q12 Mathe', spieler: 'p-123' } : { error: 'Diesen Code gibt es nicht.' }, status: body.code === 'K7M2QX' ? 200 : 404 });
   if (u.pathname === '/api/status') return route.fulfill({ json: { ok: true, stufe: 'test', ki: true, premium: true, kiArten: ['erklaer', 'frage', 'rechenweg', 'aufgabe', 'auswertung'] } });
+  if (u.pathname === '/api/ki/aufgabe/abgelehnt') return route.fulfill({ json: { ok: true, zurueck: true } });
   if (u.pathname === '/api/ki/aufgabe') { kiAufgaben++; return kiAufgaben === 1 ? route.fulfill({ status: 202, json: { bereit: false, text: 'Vorrat wird gefüllt.' } }) : kiAufgaben === 2 ? route.fulfill({ json: { rest: 12, aufgabe: KI_AUFGABE } }) : route.fulfill({ json: { rest: 11, aufgabe: { ...KI_AUFGABE, antworten: KI_AUFGABE.antworten.map((a) => ({ ...a, richtig: true })) } } }); }
   if (u.pathname === '/api/ki/auswertung') return route.fulfill({ json: { text: 'Kettenregel sitzt.\nÜbe noch Baumdiagramme.', rest: 10 } });
   if (u.pathname === '/api/ki/rechenweg') return body.zugang ? route.fulfill({ json: { text: 'In Zeile 3 fehlt die innere Ableitung.', zeile: 3, rest: 9 } }) : route.fulfill({ status: 402, json: { grund: 'pro', error: 'nur Pro + KI' } });
@@ -700,7 +701,8 @@ const loese2 = async (endSel) => { for (let i = 0, k = 0; i < 80 && !(await p2.$
   await p2.waitForTimeout(100); } };
 await loese2('#ka-fertig');
 await p2.waitForSelector('#ka-fertig'); if (!/12 KI-Punkte/.test(await p2.textContent('#ka-fertig'))) fail('KI-Aufgaben: Rest-Guthaben fehlt');
-await p2.click('#ka-go'); await p2.waitForFunction(() => /nicht bestanden/.test(document.querySelector('#ka-note').textContent));   // vier „richtige“ Antworten: im Gerät abgelehnt
+await p2.click('#ka-go'); await p2.waitForFunction(() => /nicht bestanden/.test(document.querySelector('#ka-note').textContent));
+{ await p2.waitForTimeout(200); const ab = calls.filter(([path]) => path === '/api/ki/aufgabe/abgelehnt'); if (ab.length !== 1 || ab[0][1].id !== 'a1' || !ab[0][1].geraet) fail('KI-Aufgaben: abgelehnte Aufgabe wird dem Server nicht gemeldet'); }   // vier „richtige“ Antworten: im Gerät abgelehnt
 // KI-Auswertung nach einem gelösten Blatt: geschickt werden nur Thema und richtig/falsch
 await p2.goto(`${BASE}#/blatt/regeln_3_5_4242/los`); await p2.waitForSelector('#stage .opt, #stage #q-in'); await loese2('#b-ergebnis');
 await p2.waitForSelector('#b-ki-go'); await p2.click('#b-ki-go'); await p2.waitForFunction(() => /Kettenregel sitzt/.test(document.querySelector('#b-ki-out')?.textContent || ''));
@@ -791,10 +793,28 @@ await ctx2.close();
   }
   if (shots) await pc.screenshot({ path: `${shots}/81-pc-spiel.png` });
 }
+/* ───────────── Einstellungen: Schriftgröße und „Über diese App“ ───────────── */
+{ await page.goto(`${BASE}#/einstellungen`); await page.waitForSelector('#st-schrift');
+  const gr = () => page.evaluate(() => parseFloat(getComputedStyle(document.querySelector('#st-info dd')).fontSize));
+  const normal = await gr();
+  await page.click('#st-schrift [data-s="klein"]'); const klein = await gr();
+  await page.click('#st-schrift [data-s="gross"]'); const gross = await gr();
+  if (!(klein < normal - 1 && gross > normal + 1)) fail(`Schrift: Größe ändert sich nicht (${klein} / ${normal} / ${gross})`);
+  if (await page.evaluate(() => document.documentElement.scrollWidth - innerWidth > 1)) fail('Schrift groß: Einstellungen zu breit');
+  await shot('83-schrift-gross');
+  await page.goto(BASE); await page.waitForSelector('#home');
+  if (await page.evaluate(() => document.documentElement.scrollWidth - innerWidth > 1)) fail('Schrift groß: Startseite zu breit');
+  await page.reload(); await page.waitForSelector('#home');
+  if ((await page.evaluate(() => document.documentElement.dataset.schrift)) !== 'gross') fail('Schrift: Auswahl wird nach dem Neuladen nicht angewendet');
+  await page.goto(`${BASE}#/einstellungen`); await page.waitForSelector('#st-schrift'); await page.click('#st-schrift [data-s="normal"]');
+  if ((await gr()) !== normal) fail('Schrift: „Normal“ stellt die Größe nicht wieder her');
+  const info = await page.textContent('#st-info');
+  if (!/\d+\.\d+\.\d+/.test(info) || !/\d{2}\.\d{2}\.\d{4}/.test(info)) fail('Einstellungen: Version und Datum fehlen'); }
+
 /* ───────────── Android-App: Hinweis, wenn sie sich neue Inhalte geholt hat ───────────── */
 { const ac = await browser.newContext({ ...devices['Pixel 7'], serviceWorkers: 'block' }); const ap = await ac.newPage();
   ap.on('pageerror', (e) => errors.push(`App-Hülle: ${e.message}`));
-  await ap.addInitScript(() => { window.__st = { kanal: 'test', inhalt: '', bereit: '', huelle: false }; window.MTApp = { updateStand: () => JSON.stringify(window.__st), updateAnwenden: () => { window.__los = true; } }; });
+  await ap.addInitScript(() => { window.__st = { kanal: 'test', inhalt: '', bereit: '', huelle: false }; window.MTApp = { version: () => '0.22.0', updateStand: () => JSON.stringify(window.__st), updateAnwenden: () => { window.__los = true; } }; });
   await ap.goto(BASE); await ap.waitForSelector('#home');
   if (await ap.locator('#upd').isVisible()) fail('Update: Hinweis ohne Neuigkeit sichtbar');
   if (!/hält sich selbst aktuell/.test(await ap.textContent('#ver'))) fail('Update: Fußzeile nennt die Selbst-Aktualisierung nicht');
@@ -806,6 +826,8 @@ await ctx2.close();
   if (!(await ap.locator('#upd-apk').isVisible())) fail('Update: Hinweis auf neue App-Datei fehlt');
   await ap.click('#upd-los');
   if (!(await ap.evaluate(() => window.__los === true))) fail('Update: Knopf ruft die App-Hülle nicht');
+  await ap.goto(`${BASE}#/einstellungen`); await ap.waitForSelector('#st-info');
+  if (!/App-Datei/.test(await ap.textContent('#st-info')) || !/9\.8\.7 ist geladen/.test(await ap.textContent('#st-info'))) fail('Einstellungen (App): App-Datei und Aktualisierung fehlen');
   await ap.goto(`${BASE}#/lernen`); await ap.waitForTimeout(200);
   if (!(await ap.locator('#upd').isVisible())) fail('Update: Hinweis verschwindet beim Seitenwechsel');
   await ac.close();
