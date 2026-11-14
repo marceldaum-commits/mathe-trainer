@@ -410,7 +410,8 @@ await page.goto(`${BASE}#/theorie/regeln`); await page.waitForSelector('#kapitel
   if (m.breit > 1) fail('Merkbild: Seite zu breit'); }
 await shot('79-merkbild');
 await page.goto(`${BASE}#/theorie/a-trig`); await page.waitForSelector('#kapitel'); await page.click('#t-art [data-l="1"]');
-if (!/in Arbeit/.test(await page.textContent('#t-pro'))) fail('Theorie: fehlende ausführliche Fassung wird nicht erklärt');
+await page.waitForFunction(() => /Durchgerechnetes Beispiel/.test(document.querySelector('#kapitel').textContent)).catch(() => fail('Theorie: ausführliche Fassung von „Sinus und Kosinus“ erscheint nicht'));
+if (await page.evaluate(() => document.querySelectorAll('#kapitel .katex-error').length)) fail('Theorie: Formel-Fehler im ausführlichen Kapitel');
 await page.goto(`${BASE}#/u/extrema`); if (!(await page.locator('#u-theorie').count())) fail('Theorie: Link in der Einheit fehlt');
 await page.goto(`${BASE}#/mehr`); await page.click('a[href="#/karten"]'); await page.waitForSelector('#lk-go');
 await page.fill('#lk-vorn', 'Test <i>vorn</i>'); await page.fill('#lk-hinten', 'Test hinten'); await page.click('#lk-neu'); await page.waitForSelector('.lk-weg');
