@@ -108,6 +108,10 @@ export function confetti(n = 36) {
   document.body.append(box); setTimeout(() => box.remove(), 2600);
 }
 
+/** Drucken bzw. als PDF speichern. In der Android-App übernimmt das die App selbst (dort kann die Seite nicht drucken). */
+export function drucken(titel = 'Mathe-Trainer') {
+  if (typeof window.MTApp?.drucken === 'function') window.MTApp.drucken(String(titel).slice(0, 60)); else window.print();
+}
 export const cssVar = (name) => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
 
 /* Hell/Dunkel: gleiche Logik wie auf der Website (gespeicherte Wahl, sonst Geräte-Einstellung). */

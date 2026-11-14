@@ -3,6 +3,7 @@ import { UNITS, AREAS, practiceGens, stepExtra, unitExtra, NICHT_TEXT } from './
 import { quiz } from './quiz.js';
 import { initMelden } from './melden.js';
 import { abenteuerView } from './abenteuer.js';
+import { blattView } from './blatt.js';
 import { karteView } from './karte.js';
 import { pi, figurFor } from './figuren.js';
 import { einstufungView, einstufungErgebnis, verbundView, planView, planNow, zertifikatView, areaDone } from './plus.js';
@@ -177,6 +178,7 @@ function pruefungView() {
       <div class="bar big"><i style="width:${readiness()}%"></i></div><small class="muted">Aus Lernpfad, Trefferquote und bestem Abi-Modus-Ergebnis – eine Orientierung.</small></section>
     <section class="stack">
       ${linkCard('#/abi', 'A·B', 'Abi-Modus', ex ? `Zuletzt: ${ex.np} Notenpunkte (Teil ${esc(ex.part)})` : 'Auf Zeit, ohne Tipps, mit Punkte-Prognose.')}
+      ${linkCard('#/blatt', 'PDF', 'Arbeitsblatt und Probeklausur', 'Themen wählen, in der App lösen oder drucken – mit Lösungsblatt.')}
       ${linkCard('#/aufgabe', 'a–e', 'Abi-Aufgabe am Stück', 'Ein Sachverhalt, mehrere Teilaufgaben – wie in der Prüfung.')}
       ${linkCard('#/tag', ICON.bolt, 'Tages-Runde', tb !== undefined ? `Heute: ${tb} Punkte` : 'Sechs Aufgaben, heute für alle gleich.')}
       ${linkCard('#/abenteuer', `<i class="mini-fig">${figurFor('Der Abi-Drache', 'Abi', { form: 'zack', farbe: ['#ff7418', '#d85042'], horn: 1 })}</i>`, 'Abenteuer', store.n('abenteuerRekord') ? `Dein Rekord: ${store.n('abenteuerRekord')} Punkte` : 'Sieben Räume, Belohnungen, am Ende der Abi-Drache.')}
@@ -323,8 +325,10 @@ function route() {
   const x = hash.match(/^#\/(abi|tag|duell|blitz|bericht|einstellungen|wiederholen|erfolge|formeln|klasse|lehrplan|einstufung|aufgabe|plan|zertifikat|abenteuer|karte)(?:\/([\w-]+))?$/);
   const gm = hash.match(/^#\/g\/(\w+)$/), g = gm && LERN_AREAS().find((a) => a.id === gm[1]);
   const pm = hash.match(/^#\/ueben\/(\w+?)(-grund)?$/), pa = pm && LERN_AREAS().find((a) => a.id === pm[1]);
+  const bm = hash.match(/^#\/blatt(?:\/([\w.\-/]+))?$/);
   let el;
-  if (u && m[2] !== undefined && u.steps[+m[2]]) el = stepView(u, +m[2]);
+  if (bm) { const r = blattView(bm[1]); el = r.el; cleanup = r.cleanup || null; }
+  else if (u && m[2] !== undefined && u.steps[+m[2]]) el = stepView(u, +m[2]);
   else if (u) el = unitView(u);
   else if (x) {
     const after = () => { chips(); setTimeout(badgeCheck, 600); };
@@ -354,7 +358,7 @@ function nav() {
   const hash = location.hash || '#/';
   const um = hash.match(/^#\/u\/([\w-]+)/), unit = um && UNITS.find((x) => x.id === um[1]);
   const tab = unit ? (unit.area === 'pruefung' ? 'pruefung' : 'lernen')
-    : /^#\/(lernen|g\/|ueben\/|einstufung|karte)/.test(hash) ? 'lernen' : /^#\/(pruefung|abi|tag|duell|blitz|klasse|aufgabe|abenteuer)/.test(hash) ? 'pruefung' : /^#\/(mehr|bericht|einstellungen|wiederholen|erfolge|formeln|lehrplan|plan|zertifikat)/.test(hash) ? 'mehr' : 'start';
+    : /^#\/(lernen|g\/|ueben\/|einstufung|karte)/.test(hash) ? 'lernen' : /^#\/(pruefung|abi|tag|duell|blitz|klasse|aufgabe|abenteuer|blatt)/.test(hash) ? 'pruefung' : /^#\/(mehr|bericht|einstellungen|wiederholen|erfolge|formeln|lehrplan|plan|zertifikat)/.test(hash) ? 'mehr' : 'start';
   document.querySelectorAll('#nav a').forEach((a) => { const on = a.dataset.tab === tab; a.classList.toggle('on', on); if (on) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current'); });
   $('#nav').hidden = !!view.querySelector('.stephead');
   tint();

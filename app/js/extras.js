@@ -4,7 +4,7 @@ import * as H from './gen2.js';
 import { quiz } from './quiz.js';
 import { store, LEVELS, LAENDER, KARTEI_TAGE } from './store.js';
 import { UNITS, AREAS } from './units.js';
-import { $, h, esc, ICON, sfx, toast, confetti } from './ui.js';
+import { $, h, esc, ICON, sfx, toast, confetti, drucken } from './ui.js';
 import { CONFIG } from './config.js';
 import { BADGES, TITLES, SKINS, titleOf, skinOpen, checkBadges } from './badges.js';
 import { tex } from './ui.js';
@@ -178,7 +178,7 @@ export function berichtView() {
     <div class="row noprint"><button class="btn ghost grow" id="rp-print" type="button">Drucken oder als PDF sichern</button><button class="btn grow" id="rp-share" type="button">Teilen</button></div>
     <small class="muted noprint">Der Bericht entsteht nur auf diesem Gerät. Es werden keine Daten übertragen.</small>
   </div>`);
-  $('#rp-print', el).onclick = () => window.print();
+  $('#rp-print', el).onclick = () => drucken();
   $('#rp-share', el).onclick = async () => {
     const text = `Mathe-Trainer – Lernstand vom ${today}: ${total} Aufgaben, ${total ? Math.round((right / total) * 100) : 0} % beim ersten Versuch richtig.${weak.length ? ` Übungsbedarf: ${weak.map((s) => s.topic).join(', ')}.` : ''}`;
     try { if (navigator.share) await navigator.share({ title: 'Mathe-Trainer – Lernstand', text }); else { await navigator.clipboard.writeText(text); toast('Text kopiert.'); } } catch { toast('Teilen nicht möglich – nutze „Drucken".'); }
@@ -272,7 +272,7 @@ export function formelnView() {
         ${ok ? u.formeln.map(([n, f]) => `<div class="fline"><small>${esc(n)}</small><div class="formula">${tex(f, true)}</div></div>`).join('') : `<small class="muted">${u.formeln.length} ${u.formeln.length === 1 ? 'Formel' : 'Formeln'} – schließe die Einheit ab.</small>`}</div>`; }).join('')}</section>` : ''; }).join('')}
     ${open ? '<button class="btn ghost block noprint" id="fm-print" type="button">Drucken oder als PDF sichern</button>' : ''}
   </div>`);
-  const pb = $('#fm-print', el); if (pb) pb.onclick = () => window.print();
+  const pb = $('#fm-print', el); if (pb) pb.onclick = () => drucken();
   return { el };
 }
 

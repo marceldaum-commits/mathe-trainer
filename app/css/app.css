@@ -648,3 +648,44 @@ a.count{text-decoration:none}
 @media (prefers-reduced-motion:reduce){.ki-laedt span::after{animation:none;content:" …"}}
 .linkbtn{background:none;border:0;padding:0;font:inherit;color:inherit;text-decoration:underline;cursor:pointer}
 .ki-rest{display:block;margin-top:6px}
+
+/* ───────────── Arbeitsblatt / Probeklausur: Vorschau = Druckbild (immer „Papier“: weiß mit schwarzer Schrift) ───────────── */
+.blatt{display:grid;gap:18px;color:#111;font-size:14.5px;line-height:1.45}
+.b-seite{background:#fff;color:#111;border:1px solid #d5dbe6;border-radius:10px;padding:22px 20px;box-shadow:var(--shadow);overflow-x:auto}
+.b-kopf{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;align-items:center;padding-bottom:12px;border-bottom:2px solid #111}
+.b-logo{width:46px;height:46px;grid-row:1}
+.b-firma{display:grid;line-height:1.25}.b-firma b{font-size:15px;color:#111}.b-firma span{font-size:12px;color:#555}
+.b-titel{grid-column:1 / -1;margin-top:8px}.b-titel h1{font-size:21px;color:#111;letter-spacing:-.02em}.b-titel span{font-size:12.5px;color:#444}
+.b-name{display:flex;flex-wrap:wrap;gap:8px 22px;margin:14px 0 6px;font-size:13.5px}
+.b-name i{display:inline-block;width:170px;border-bottom:1px solid #111;height:1em;vertical-align:baseline}.b-name i.kurz{width:80px}
+.b-liste{list-style:none;margin:0;padding:0;display:grid}
+.b-aufgabe,.b-lsg{display:grid;grid-template-columns:34px 1fr;gap:10px;padding:14px 0;border-bottom:1px solid #d5dbe6;break-inside:avoid}
+.b-nr{display:grid;align-content:start;justify-items:center;gap:2px}.b-nr b{display:grid;place-items:center;width:28px;height:28px;border-radius:50%;border:1.5px solid #111;font-size:13.5px}.b-nr small{font-size:10.5px;color:#444;white-space:nowrap}
+.b-inhalt{min-width:0;display:grid;gap:8px}.b-inhalt p{color:#111}
+.b-formel{padding:6px 0;overflow-x:auto}
+.b-graph{width:min(100%,300px);border:1px solid #d5dbe6;border-radius:6px}
+.b-opts{display:grid;grid-template-columns:1fr 1fr;gap:8px 16px}
+.b-opt{display:flex;align-items:center;gap:8px;min-width:0}.b-opt>span{min-width:0;overflow-x:auto}
+.b-opt i{flex:none;display:grid;place-items:center;width:22px;height:22px;border:1.5px solid #111;border-radius:4px;font-style:normal;font-size:11.5px;font-weight:800}
+.b-platz{height:86px;border:1px dashed #b9c2d2;border-radius:6px;padding:4px 8px;font-size:10.5px;color:#8a94a6}
+.b-weg{font-size:13px;color:#333}
+.b-np{border-collapse:collapse;margin-top:14px;font-size:12px;width:100%}.b-np th,.b-np td{border:1px solid #111;padding:3px 5px;text-align:center}.b-np th{text-align:left;background:#f1f3f7}
+.b-hinweis{font-size:11.5px;color:#444;margin-top:6px}
+.b-fuss{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-top:14px;padding-top:8px;border-top:1px solid #111;font-size:11px;color:#444}
+.blatt .katex{color:#111}
+@media (max-width:520px){.b-opts{grid-template-columns:1fr}.b-seite{padding:16px 12px}}
+@media print{
+  .sitebar,.nav,.fab,.back,.noprint,#help{display:none!important}
+  html,body{background:#fff!important}
+  /* Seitenumbrüche gehen nur in normalem Textfluss – deshalb im Druck keine Raster-Behälter */
+  .blatt-view,.blatt,.b-liste{display:block!important}
+  .blatt{font-size:11.5pt}
+  .b-seite{border:0;border-radius:0;box-shadow:none;padding:0;overflow:visible}
+  .b-loesung{break-before:page;page-break-before:always}
+  .b-aufgabe,.b-lsg{break-inside:avoid;page-break-inside:avoid}
+  .b-graph{width:210px}
+  .b-platz{height:64px}
+  .b-opts{grid-template-columns:1fr 1fr}
+  .blatt-view{padding:0;margin:0}
+  @page{margin:16mm 15mm}
+}

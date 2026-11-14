@@ -15,6 +15,7 @@ const ASSETS = [
   "js/api.js",
   "js/app.js",
   "js/badges.js",
+  "js/blatt.js",
   "js/config.js",
   "js/eingabe.js",
   "js/erinnern.js",

@@ -2,7 +2,7 @@
 import { UNITS, AREAS, unitExtra } from './units.js';
 import { store, LEVELS, dayKey } from './store.js';
 import { CONFIG } from './config.js';
-import { $, h, esc, tex, ICON, starsHtml, sfx, confetti } from './ui.js';
+import { $, h, esc, tex, ICON, starsHtml, sfx, confetti, drucken } from './ui.js';
 import { quiz } from './quiz.js';
 import { VERBUND } from './verbund.js';
 import { genPolynom, genExtremstellen, genBaum, genErwartung, genVektorAB, genSkalar } from './gen.js';
@@ -152,6 +152,6 @@ export function zertifikatView(areaId) {
       <div class="zert-foot"><span>${new Date().toLocaleDateString('de-DE')}</span><span>${esc(CONFIG.website.replace(/^https?:\/\/(www\.)?|\/$/g, ''))}</span></div>
     </section></div>`);
   $('#zt-name', el).addEventListener('input', (ev) => { $('#zt-out', el).textContent = ev.target.value.trim() || ' '; });
-  $('#zt-print', el).onclick = () => window.print();
+  $('#zt-print', el).onclick = () => drucken('Zertifikat');
   return { el };
 }

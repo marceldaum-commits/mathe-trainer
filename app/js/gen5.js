@@ -200,9 +200,10 @@ export function genSpurpunkt(lv = 3) {
     const opts = [P(on(val, ax), true), P(on(co[ax], ax), false, `Das ist der Koeffizient vor ${tex(`x_${ax + 1}`)}. Setze die anderen beiden Koordinaten 0 und löse nach ${tex(`x_${ax + 1}`)} auf.`),
       P(on(d, ax), false, `Es fehlt das Teilen durch den Koeffizienten ${tex(ft(co[ax]))}.`), P(on(val, other), false, `Der Wert stimmt, aber er gehört auf die ${tex(`x_${ax + 1}`)}-Achse.`)];
     if (!uniq(opts) || Math.abs(val) === Math.abs(co[ax])) continue;
+    const kx = `${co[ax] === 1 ? '' : co[ax] === -1 ? '-' : ft(co[ax])}x_${ax + 1}`;   // „−x₁“ statt „−1 x₁“
     return { prompt: `Wo schneidet die Ebene E die ${tex(`x_${ax + 1}`)}-Achse (Spurpunkt)?`, formula: `E:\\ ${eq(co, d)}`, options: shuffle(opts),
-      hints: [`Auf der ${tex(`x_${ax + 1}`)}-Achse sind die anderen beiden Koordinaten 0.`, `Es bleibt ${tex(`${ft(co[ax])}\\,x_${ax + 1}=${ft(d)}`)}.`],
-      explain: `Die anderen Koordinaten 0 setzen: ${tex(`${ft(co[ax])}\\,x_${ax + 1}=${ft(d)}\\ \\Rightarrow\\ x_${ax + 1}=${ft(val)}`)}, also ${tex(PT('S', on(val, ax)))}.`, n: co, d, ax, art: 'ebene' };
+      hints: [`Auf der ${tex(`x_${ax + 1}`)}-Achse sind die anderen beiden Koordinaten 0.`, `Es bleibt ${tex(`${kx}=${ft(d)}`)}.`],
+      explain: `Die anderen Koordinaten 0 setzen: ${tex(`${kx}=${ft(d)}\\ \\Rightarrow\\ x_${ax + 1}=${ft(val)}`)}, also ${tex(PT('S', on(val, ax)))}.`, n: co, d, ax, art: 'ebene' };
   }
 }
 

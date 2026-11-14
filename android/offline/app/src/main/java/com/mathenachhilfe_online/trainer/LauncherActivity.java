@@ -4,6 +4,8 @@ import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.print.PrintAttributes;
+import android.print.PrintManager;
 import android.provider.Settings;
 import android.content.Intent;
 import android.graphics.Color;
@@ -61,6 +63,16 @@ public class LauncherActivity extends Activity {
         @JavascriptInterface public void erinnerungAus() { Erinnerung.setze(LauncherActivity.this, false, null); }
         /** Die Web-App meldet: heute wurde geübt – dann kommt heute keine Mitteilung mehr. */
         @JavascriptInterface public void geuebt() { Erinnerung.geuebt(LauncherActivity.this); }
+        /** Druckt die angezeigte Seite bzw. speichert sie als PDF (Android-Druckdialog). */
+        @JavascriptInterface public void drucken(String titel) {
+            final String name = titel == null || titel.isEmpty() ? "Mathe-Trainer" : titel;
+            runOnUiThread(() -> {
+                try {
+                    PrintManager pm = (PrintManager) getSystemService(Context.PRINT_SERVICE);
+                    if (pm != null) pm.print(name, web.createPrintDocumentAdapter(name), new PrintAttributes.Builder().setMediaSize(PrintAttributes.MediaSize.ISO_A4).build());
+                } catch (Exception keinDruck) { /* kein Druckdienst: nichts tun */ }
+            });
+        }
         /** Öffnet die Android-Einstellungen für die Mitteilungen dieser App. */
         @JavascriptInterface public void mitteilungenEinstellen() {
             runOnUiThread(() -> {
