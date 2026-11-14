@@ -190,16 +190,101 @@ function pythagoras() {
     } });
 }
 
+function scheitel() {
+  return buehne({ titel: 'Scheitelform: Die Parabel wandert', regler: { label: 'd verschieben', min: -2.5, max: 2.5 }, text: (d) => `f(x) = (x ${d < 0 ? '+' : '−'} ${zahl(Math.abs(d))})² − 1: Der Scheitel liegt bei S(${zahl(d)} | −1). Minus in der Klammer heißt: nach rechts.`,
+    zeichne(g, B, H, d, _t, F) {
+      const X = (a) => ((a + 4) / 8) * B, Y = (b) => H * 0.72 - b * (H / 6.2);
+      achsen(g, F, X, Y, -4, 4, -2, 4); kurve(g, (x) => x * x - 1, X, Y, -4, 4, F.linie, 2); kurve(g, (x) => (x - d) ** 2 - 1, X, Y, -4, 4, F.blau);
+      g.fillStyle = F.orange; g.beginPath(); g.arc(X(d), Y(-1), 7, 0, TAU); g.fill(); schrift(g, 'S', X(d) + 9, Y(-1) + 14, F.orange, 13);
+      if (Math.abs(d) > 0.15) pfeil(g, X(0), Y(-1.6), X(d), Y(-1.6), F.orange, 2.5);
+    } });
+}
+function sinus() {
+  return buehne({ titel: 'Sinus: Welle auf und ab', regler: { label: 'Amplitude a', min: 0.4, max: 2.6 }, start: 1, text: (a) => `f(x) = ${zahl(a)} · sin(x): Die Welle schlägt ${zahl(a)} nach oben und unten aus. Die Periode bleibt 2π.`,
+    zeichne(g, B, H, a, t, F) {
+      const X = (x) => (x / (TAU * 1.25)) * B, Y = (y) => H / 2 - y * (H / 6.2);
+      achsen(g, F, X, Y, 0, 8, -3, 3);
+      g.strokeStyle = F.rot; g.setLineDash([5, 5]); g.lineWidth = 1.5; g.beginPath(); g.moveTo(0, Y(a)); g.lineTo(B, Y(a)); g.moveTo(0, Y(-a)); g.lineTo(B, Y(-a)); g.stroke(); g.setLineDash([]);
+      kurve(g, (x) => a * Math.sin(x), X, Y, 0, TAU * 1.25, F.blau);
+      const x = (t * 1.3) % (TAU * 1.25); g.fillStyle = F.orange; g.beginPath(); g.arc(X(x), Y(a * Math.sin(x)), 7, 0, TAU); g.fill();
+      schrift(g, 'a', 6, Y(a) - 5, F.rot, 12);
+    } });
+}
+const fE = (x) => 0.22 * x ** 3 - 1.3 * x, dE = (x) => 0.66 * x * x - 1.3;
+function extrem() {
+  return buehne({ titel: 'Hoch- und Tiefpunkt: Die Kugel rollt', regler: { label: 'Kugel schieben', min: -2.8, max: 2.8 }, text: (x) => (Math.abs(dE(x)) < 0.12 ? (x < 0 ? 'Hochpunkt: Die Kugel liegt oben, die Tangente ist waagerecht – f′(x) = 0.' : 'Tiefpunkt: Die Kugel liegt im Tal, die Tangente ist waagerecht – f′(x) = 0.') : `Hier ist f′(x) = ${zahl(dE(x))}: Die Kugel würde ${dE(x) > 0 ? 'nach links' : 'nach rechts'} rollen.`),
+    zeichne(g, B, H, x, _t, F) {
+      const X = (a) => ((a + 3.2) / 6.4) * B, Y = (b) => H / 2 - b * (H / 6.8);
+      achsen(g, F, X, Y, -3.2, 3.2, -3, 3); kurve(g, fE, X, Y, -3.2, 3.2, F.blau, 4);
+      const xs = Math.sqrt(1.3 / 0.66);
+      for (const [xe, n] of [[-xs, 'H'], [xs, 'T']]) { g.strokeStyle = F.gelb; g.lineWidth = 2.5; g.beginPath(); g.moveTo(X(xe - 0.7), Y(fE(xe))); g.lineTo(X(xe + 0.7), Y(fE(xe))); g.stroke(); schrift(g, n, X(xe), Y(fE(xe)) + (n === 'H' ? -12 : 22), F.gelb, 14, true, true); }
+      g.fillStyle = F.orange; g.beginPath(); g.arc(X(x), Y(fE(x)) - 8, 8, 0, TAU); g.fill();
+    } });
+}
+const fW = (x) => 0.2 * x ** 3 - 0.9 * x;
+function wende() {
+  return buehne({ titel: 'Wendepunkt: Das Lenkrad dreht um', regler: { label: 'Auto fahren', min: -2.8, max: 2.8 }, dauer: 6500, text: (x) => (Math.abs(x) < 0.12 ? 'Wendepunkt: Das Lenkrad steht einen Moment gerade – f″(x) = 0.' : x < 0 ? 'Rechtskurve: f″(x) < 0. Das Lenkrad ist nach rechts eingeschlagen.' : 'Linkskurve: f″(x) > 0. Das Lenkrad ist nach links eingeschlagen.'),
+    zeichne(g, B, H, x, _t, F) {
+      const X = (a) => ((a + 3.2) / 6.4) * (B * 0.72), Y = (b) => H / 2 - b * (H / 6.4);
+      kurve(g, fW, X, Y, -3.2, 3.2, F.linie, 14); kurve(g, fW, X, Y, -3.2, 3.2, F.blau, 2);
+      g.fillStyle = F.gelb; g.beginPath(); g.arc(X(0), Y(0), 5, 0, TAU); g.fill(); schrift(g, 'W', X(0) + 8, Y(0) - 8, F.gelb, 13);
+      const m = 0.6 * x * x - 0.9, w = Math.atan2(-m * (H / 6.4), (B * 0.72) / 6.4);
+      g.save(); g.translate(X(x), Y(fW(x))); g.rotate(w); g.fillStyle = F.orange; g.fillRect(-11, -6, 22, 12); g.fillStyle = F.tinte; g.fillRect(4, -5, 5, 10); g.restore();
+      const cx = B * 0.87, cy = H / 2, r = Math.min(34, B * 0.1), dreh = Math.max(-1.2, Math.min(1.2, -1.2 * x * 0.6));   // f″ = 1,2·x: Vorzeichen bestimmt den Einschlag
+      g.save(); g.translate(cx, cy); g.rotate(dreh); g.strokeStyle = F.tinte; g.lineWidth = 6; g.beginPath(); g.arc(0, 0, r, 0, TAU); g.stroke(); g.lineWidth = 5; g.beginPath(); g.moveTo(-r, 0); g.lineTo(r, 0); g.moveTo(0, 0); g.lineTo(0, r); g.stroke(); g.restore();
+    } });
+}
+function pfade() {
+  return buehne({ titel: 'Pfadregeln: Den Weg entlang malnehmen', regler: { label: 'Pfad wählen', min: 0, max: 3.99, step: 0.01 }, dauer: 8000, text: (w) => { const k = Math.floor(w), z = [['rot', 'rot', '4/6 · 3/5 = 12/30'], ['rot', 'blau', '4/6 · 2/5 = 8/30'], ['blau', 'rot', '2/6 · 4/5 = 8/30'], ['blau', 'blau', '2/6 · 1/5 = 2/30']][k]; return `${z[0]} – ${z[1]}: ${z[2]}. Alle vier Pfade zusammen ergeben 30/30 = 1.`; },
+    zeichne(g, B, H, w, _t, F) {
+      const k = Math.floor(w), x0 = B * 0.1, x1 = B * 0.45, x2 = B * 0.84, y = [H * 0.3, H * 0.74], yy = [H * 0.14, H * 0.42, H * 0.6, H * 0.88];
+      const ast = (ax, ay, bx, by, txt, an, col) => { g.strokeStyle = an ? col : F.linie; g.lineWidth = an ? 5 : 2.5; g.beginPath(); g.moveTo(ax, ay); g.lineTo(bx, by); g.stroke(); schrift(g, txt, (ax + bx) / 2, (ay + by) / 2 - 7, an ? F.tinte : F.leise, 12, an, true); };
+      const kugel = (x, yv, rot, an) => { g.globalAlpha = an ? 1 : 0.35; g.fillStyle = rot ? F.rot : F.blau; g.beginPath(); g.arc(x, yv, 9, 0, TAU); g.fill(); g.globalAlpha = 1; };
+      ast(x0, H / 2, x1, y[0], '4/6', k < 2, F.orange); ast(x0, H / 2, x1, y[1], '2/6', k >= 2, F.orange);
+      ast(x1, y[0], x2, yy[0], '3/5', k === 0, F.orange); ast(x1, y[0], x2, yy[1], '2/5', k === 1, F.orange); ast(x1, y[1], x2, yy[2], '4/5', k === 2, F.orange); ast(x1, y[1], x2, yy[3], '1/5', k === 3, F.orange);
+      g.fillStyle = F.tinte; g.beginPath(); g.arc(x0, H / 2, 6, 0, TAU); g.fill();
+      kugel(x1, y[0], true, k < 2); kugel(x1, y[1], false, k >= 2); [true, false, true, false].forEach((rot, i) => kugel(x2, yy[i], rot, k === i));
+    } });
+}
+function glocke() {
+  const nv = (z) => Math.exp(-0.5 * z * z);
+  return buehne({ titel: 'Sigma-Regeln: Das Band wird breiter', regler: { label: 'Breite in σ', min: 0.3, max: 3 }, start: 1, text: (k) => { const p = [[1, '68,3'], [2, '95,4'], [3, '99,7']].find(([s]) => Math.abs(k - s) < 0.12); return p ? `Genau ${p[0]}σ: ${p[1]} % aller Werte liegen im Band.` : `Zwischen μ − ${zahl(k)}σ und μ + ${zahl(k)}σ liegen etwa ${zahl(100 * erf(k / Math.SQRT2), 0)} % der Werte.`; },
+    zeichne(g, B, H, k, _t, F) {
+      const X = (z) => ((z + 3.6) / 7.2) * B, Y = (v) => H - 26 - v * (H - 48);
+      g.fillStyle = F.flaeche; g.beginPath(); g.moveTo(X(-k), Y(0)); for (let i = 0; i <= 60; i++) { const z = -k + (2 * k * i) / 60; g.lineTo(X(z), Y(nv(z))); } g.lineTo(X(k), Y(0)); g.closePath(); g.fill();
+      kurve(g, nv, X, Y, -3.6, 3.6, F.blau);
+      g.strokeStyle = F.leise; g.lineWidth = 1.3; g.beginPath(); g.moveTo(0, Y(0)); g.lineTo(B, Y(0)); g.stroke();
+      for (let s = -3; s <= 3; s++) schrift(g, s === 0 ? 'μ' : `${s > 0 ? '+' : '−'}${Math.abs(s)}σ`, X(s), H - 8, Math.abs(s) <= k + 0.05 ? F.tinte : F.leise, 11, Math.abs(s) <= k + 0.05, true);
+      g.strokeStyle = F.orange; g.lineWidth = 2.5; g.beginPath(); g.moveTo(X(-k), Y(0)); g.lineTo(X(-k), Y(nv(k))); g.moveTo(X(k), Y(0)); g.lineTo(X(k), Y(nv(k))); g.stroke();
+    } });
+}
+/** Fehlerfunktion (Näherung nach Abramowitz/Stegun) – für den Anteil unter der Glockenkurve. */
+function erf(x) { const t = 1 / (1 + 0.3275911 * Math.abs(x)), y = 1 - ((((1.061405429 * t - 1.453152027) * t + 1.421413741) * t - 0.284496736) * t + 0.254829592) * t * Math.exp(-x * x); return x >= 0 ? y : -y; }
+function gerade() {
+  return buehne({ titel: 'Gerade: Mit t die Strecke entlang', regler: { label: 'Parameter t', min: -1, max: 3 }, text: (t) => `t = ${zahl(t)}: Vom Stützpunkt P aus ${zahl(Math.abs(t))}-mal den Richtungsvektor ${t < 0 ? 'rückwärts' : 'vorwärts'} → X(${zahl(1 + 1.2 * t)} | ${zahl(1 + 0.6 * t)})`,
+    zeichne(g, B, H, t, _z, F) {
+      const X = (a) => 22 + ((a + 1) / 7) * (B - 40), Y = (y) => H - 18 - ((y + 0.5) / 4) * (H - 34), P = [1, 1], u = [1.2, 0.6];
+      achsen(g, F, X, Y, -1, 6, -0.5, 3.5);
+      g.strokeStyle = F.linie; g.lineWidth = 3; g.beginPath(); g.moveTo(X(P[0] - 2 * u[0]), Y(P[1] - 2 * u[1])); g.lineTo(X(P[0] + 4.2 * u[0]), Y(P[1] + 4.2 * u[1])); g.stroke();
+      pfeil(g, X(P[0]), Y(P[1]), X(P[0] + u[0]), Y(P[1] + u[1]), F.gruen, 4);
+      for (let k = -1; k <= 3; k++) { g.fillStyle = F.leise; g.beginPath(); g.arc(X(P[0] + k * u[0]), Y(P[1] + k * u[1]), 3, 0, TAU); g.fill(); }
+      g.fillStyle = F.blau; g.beginPath(); g.arc(X(P[0]), Y(P[1]), 6, 0, TAU); g.fill(); schrift(g, 'P', X(P[0]) - 4, Y(P[1]) + 20, F.blau, 13);
+      g.fillStyle = F.orange; g.beginPath(); g.arc(X(P[0] + t * u[0]), Y(P[1] + t * u[1]), 8, 0, TAU); g.fill(); schrift(g, 'X', X(P[0] + t * u[0]) - 4, Y(P[1] + t * u[1]) - 13, F.orange, 13);
+    } });
+}
+
 /** Zu welcher Formel (Name aus units.js) gibt es ein Merkbild? */
 export const MERK = {
   Ableitung: tangente, 'Waagerechte Tangente': tangente, 'Vorzeichen der Ableitung': tangente, Kettenregel: kette, Produktregel: produkt, Hauptsatz: flaeche,
   'Bernoulli-Formel': galton, Erwartungswert: galton, 'Bedingte Wahrscheinlichkeit': bedingt, Skalarprodukt: skalar, Senkrecht: skalar, Verbindungsvektor: verbindung,
   'Begrenztes Wachstum': begrenzt, Pythagoras: pythagoras,
+  Scheitelform: scheitel, Sinusfunktion: sinus, Extrempunkt: extrem, Wendepunkt: wende, Pfadregeln: pfade, 'Sigma-Regeln': glocke, Gerade: gerade,
 };
 /** Stichwörter in Karten-Überschriften → Merkbild (für die Erklär-Karten der Einheiten). */
 const STICHWORT = [[/Kettenregel/i, 'Kettenregel'], [/Produktregel/i, 'Produktregel'], [/Tangente|Steigung an einer Stelle|Ableitung ist/i, 'Ableitung'], [/Hauptsatz|Fläche unter|Integral als/i, 'Hauptsatz'],
   [/Bernoulli|Binomial|Nagelbrett/i, 'Bernoulli-Formel'], [/Bedingte/i, 'Bedingte Wahrscheinlichkeit'], [/Skalarprodukt|Senkrecht/i, 'Skalarprodukt'], [/Verbindungsvektor|Spitze minus/i, 'Verbindungsvektor'],
-  [/Begrenztes Wachstum/i, 'Begrenztes Wachstum'], [/Pythagoras/i, 'Pythagoras']];
+  [/Begrenztes Wachstum/i, 'Begrenztes Wachstum'], [/Pythagoras/i, 'Pythagoras'], [/Scheitel/i, 'Scheitelform'], [/Sinus/i, 'Sinusfunktion'], [/Hoch- und Tief|Extrempunkt|Extremstelle/i, 'Extrempunkt'],
+  [/Wendepunkt|Wendestelle|Krümmung/i, 'Wendepunkt'], [/Pfadregel|Baumdiagramm/i, 'Pfadregeln'], [/Sigma/i, 'Sigma-Regeln'], [/Parameterform der Geraden|Gerade im Raum|Stützvektor/i, 'Gerade']];
 export const merkZuTitel = (titel) => { const t = String(titel || ''); return hatMerkbild(t) ? t : (STICHWORT.find(([re]) => re.test(t)) || [])[1] || ''; };
 export const hatMerkbild = (name) => Object.prototype.hasOwnProperty.call(MERK, name);
 /** Baut das Merkbild zu einem Formel-Namen – oder null, wenn es (noch) keines gibt. */
