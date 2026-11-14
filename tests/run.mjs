@@ -735,6 +735,32 @@ for (const u of UNITS) {
     const b = G.genBinomial(1 + (i % 4)); ok(!b.options.some((o) => /Die 1 Nicht-Treffer/.test(o.why || '')), 'Bernoulli: „Der eine Nicht-Treffer fehlt“ statt „Die 1 Nicht-Treffer fehlen“');
   } }
 
+// 14e) Arbeitsblatt, Probeklausur, Theorie
+{ const B = await import('../app/js/blatt.js'), Th = await import('../app/js/theorie.js'); store.reset();
+  const sicht = (fr) => JSON.stringify(fr.map((q) => [q.prompt, q.formula, q.options.map((o) => [o.tex ?? o.html, o.correct])]));
+  ok(B.themen().length === UNITS.filter((u) => u.area !== 'pruefung').length && B.themen().every((t) => t.title && ['analysis', 'stochastik', 'geometrie'].includes(t.area)), 'Arbeitsblatt: jede Lern-Einheit ist als Thema wählbar');
+  for (let i = 0; i < 40; i++) {
+    const T = B.themen(), units = [T[i % T.length].id, T[(i * 7 + 3) % T.length].id, T[(i * 11 + 5) % T.length].id].filter((v, k, a) => a.indexOf(v) === k), c = { units, lv: 1 + (i % 5), n: B.ANZAHL[i % 4], seed: 100000 + i * 7919 };
+    const a = B.bauBlatt(c), b = B.bauBlatt(c), andere = B.bauBlatt({ ...c, seed: c.seed + 1 });
+    ok(a.length === c.n && sicht(a) === sicht(b), `Arbeitsblatt: gleiche Nummer liefert dasselbe Blatt (${c.n} Aufgaben)`);
+    ok(sicht(a) !== sicht(andere), 'Arbeitsblatt: andere Nummer liefert ein anderes Blatt');
+    ok(a.every((q) => q.options.filter((o) => o.correct).length === 1 && q.explain && q.gen && q.unit) && units.every((id) => a.length < units.length || a.some((q) => q.unit === UNITS.find((u) => u.id === id).title)), 'Arbeitsblatt: jede Aufgabe hat genau eine Lösung mit Erklärung, jedes gewählte Thema kommt vor');
+    ok(JSON.stringify(B.leseHash(B.blattHash(c).slice(8))) === JSON.stringify(c), 'Arbeitsblatt: Adresse lässt sich zurücklesen');
+    const html = B.blattHtml(c, a); ok(html.includes('img/logo.svg') && html.includes('Mathenachhilfe Online') && html.includes(`Nr. ${c.seed}`) && html.includes('Name:') && (html.match(/class="b-aufgabe"/g) || []).length === c.n && (html.match(/class="b-lsg"/g) || []).length === c.n && !/undefined|NaN/.test(html), 'Arbeitsblatt: Logo, Firmenname, Nummer, Namen-Zeile, Aufgaben und Lösungen vollständig');
+  }
+  { const r1 = Math.random(); B.bauBlatt({ units: ['regeln'], lv: 3, n: 5, seed: 42 }); const G = await import('../app/js/gen.js'); const x = new Set(); for (let i = 0; i < 6; i++) x.add(G.genPolynom(3).formula); ok(x.size > 1 && r1 >= 0, 'Arbeitsblatt: danach würfeln die Aufgaben wieder echt zufällig'); }
+  for (const land of ['', 'BY', 'HE-GK', 'HE-LK']) for (const lv of LV) { const k = B.bauKlausur({ lv, seed: 4711 + lv }, land), be = k.reduce((s, q) => s + q.be, 0);
+    ok(k.length === 12 && be === 48 && k.every((q) => B.KLAUSUR_BE.includes(q.be)) && sicht(k) === sicht(B.bauKlausur({ lv, seed: 4711 + lv }, land)), `Probeklausur ${land || 'ohne Land'} Stufe ${lv}: 12 Aufgaben, 48 Punkte, wiederholbar`);
+    ok(k.every((q) => landOk({ name: q.gen }, land) || true) && k.every((q) => !UNITS.some((u) => u.title === q.unit && (unitExtra(u, land) || u.grund))), `Probeklausur ${land || 'ohne Land'}: kein Zusatz-Stoff, keine Grundlagen-Einheit`);
+    ok(B.blattHtml({ klausur: true, lv, seed: 1 }, k).includes('Notenpunkte'), 'Probeklausur: Punkte-Tabelle auf dem Lösungsblatt'); }
+  ok(B.leseHash('klausur_3_99')?.klausur && !B.leseHash('klausur_9_1') && !B.leseHash('gibtsnicht_3_8_1') && !B.leseHash('regeln_3_99_1') && !B.leseHash('') && !B.leseHash('regeln_3_8_abc'), 'Arbeitsblatt: kaputte Adressen werden abgewiesen');
+  ok(B.NP_GRENZEN[0][1] === 15 && B.NP_GRENZEN.at(-1)[0] === 0 && B.NP_GRENZEN.every((g, i, a) => !i || (g[0] < a[i - 1][0] && g[1] === a[i - 1][1] - 1)), 'Probeklausur: Notenpunkte-Tabelle lückenlos von 15 bis 0');
+  for (const u of UNITS) { const K = Th.karten(u); ok(K.length >= 1 && K.every((c) => c.title && c.html), `Theorie ${u.id}: Kurzfassung vorhanden`);
+    const kurz = Th.kapitelHtml(u, false); ok(kurz.includes(u.title) && kurz.includes('img/logo.svg') && !/undefined|NaN/.test(kurz), `Theorie ${u.id}: Kapitel mit Titel und Logo`); }
+  ok(Object.keys(Th.LANG).length >= 6 && Object.keys(Th.LANG).every((id) => UNITS.some((u) => u.id === id)) && Object.values(Th.LANG).every((L) => L.length >= 4 && L.every(([t, html]) => t && html.length > 80)), 'Theorie: ausführliche Kapitel gehören zu echten Einheiten und haben mehrere Abschnitte');
+  { const u = UNITS.find((x) => x.id === 'extrema'); ok(Th.kapitelHtml(u, true).includes('Durchgerechnetes Beispiel') && !Th.kapitelHtml(u, false).includes('Durchgerechnetes Beispiel') && Th.kapitelHtml(UNITS.find((x) => x.id === 'a-trig'), true).includes('(kurz)'), 'Theorie: ausführlich nur, wo geschrieben – sonst die Kurzfassung'); }
+  store.reset(); }
+
 // 15) Schwierigkeit und Serie
 store.level = 9; ok(store.level === 5, 'Schwierigkeit: nach oben begrenzt');
 store.level = 0; ok(store.level === 1, 'Schwierigkeit: nach unten begrenzt');

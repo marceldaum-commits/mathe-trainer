@@ -4,6 +4,7 @@ import { quiz } from './quiz.js';
 import { initMelden } from './melden.js';
 import { abenteuerView } from './abenteuer.js';
 import { blattView } from './blatt.js';
+import { theorieView } from './theorie.js';
 import { karteView } from './karte.js';
 import { pi, figurFor } from './figuren.js';
 import { einstufungView, einstufungErgebnis, verbundView, planView, planNow, zertifikatView, areaDone } from './plus.js';
@@ -145,6 +146,7 @@ function lernenView() {
   const el = h(`<div class="view stack">
     <div><span class="eyebrow">Lernen</span><h1 style="margin-top:8px">Wähle ein Gebiet</h1></div>
     <section class="stack">${LERN_AREAS().map((a) => { const s = areaStat(a); return linkCard(`#/g/${a.id}`, `<i class="pct">${Math.round(s.pct)} %</i>`, a.title, `${esc(AREA_INFO[a.id])} · ${s.doneUnits}/${s.n} Einheiten`); }).join('')}</section>
+    <section class="stack">${linkCard('#/theorie', '§', 'Theorie nachlesen', 'Jedes Thema kurz erklärt – die ersten auch ausführlich, zum Drucken.')}</section>
     <section class="stack">${linkCard('#/karte', `<i class="mini-fig">${pi()}</i>`, 'Karte: Die Reise durch Mathea', 'Der ganze Lernpfad als Landkarte – mit Pi und den Wächtern.')}</section>
     <section class="stack">${linkCard('#/einstufung/ergebnis', '?', store.einstufung ? 'Deine Einstufung' : 'Einstufungstest', store.einstufung ? 'Ergebnis ansehen oder Test wiederholen.' : 'Zwölf Aufgaben, fünf Minuten: Wo fängst du am besten an?')}</section>
     <div id="lvbox"></div>
@@ -229,6 +231,7 @@ function unitView(u) {
     <div><span class="eyebrow">${esc(area.title)}</span><h1 style="margin-top:8px">${esc(u.title)}</h1><p class="lead" style="margin-top:8px">${esc(u.sub)}</p></div>
     ${u.why ? `<details class="card why"><summary>Wo brauche ich das?</summary><p>${esc(u.why)}</p></details>` : ''}
     <div class="steps"></div>
+    ${u.area === 'pruefung' ? '' : `<a class="btn ghost block" id="u-theorie" href="#/theorie/${u.id}">Theorie zu diesem Thema nachlesen</a>`}
   </div>`);
   u.steps.forEach((s, i) => {
     const st = store.stars(u.id, s.id);
@@ -322,7 +325,7 @@ function route() {
   const hash = location.hash;
   const m = hash.match(/^#\/u\/([\w-]+)(?:\/(\d+))?$/);
   const u = m && UNITS.find((x) => x.id === m[1]);
-  const x = hash.match(/^#\/(abi|tag|duell|blitz|bericht|einstellungen|wiederholen|erfolge|formeln|klasse|lehrplan|einstufung|aufgabe|plan|zertifikat|abenteuer|karte)(?:\/([\w-]+))?$/);
+  const x = hash.match(/^#\/(abi|tag|duell|blitz|bericht|einstellungen|wiederholen|erfolge|formeln|klasse|lehrplan|einstufung|aufgabe|plan|zertifikat|abenteuer|karte|theorie)(?:\/([\w-]+))?$/);
   const gm = hash.match(/^#\/g\/(\w+)$/), g = gm && LERN_AREAS().find((a) => a.id === gm[1]);
   const pm = hash.match(/^#\/ueben\/(\w+?)(-grund)?$/), pa = pm && LERN_AREAS().find((a) => a.id === pm[1]);
   const bm = hash.match(/^#\/blatt(?:\/([\w.\-/]+))?$/);
@@ -334,7 +337,7 @@ function route() {
     const after = () => { chips(); setTimeout(badgeCheck, 600); };
     const r = { abi: () => abiView(['A', 'B'].includes(x[2]) ? x[2] : null, after), tag: () => rundeView('tag', undefined, (res) => { after(); meldeTag(res); }), duell: () => rundeView('duell', x[2], after), blitz: () => blitzView(after),
       bericht: berichtView, einstellungen: settingsView, wiederholen: karteiView, erfolge: erfolgeView, formeln: formelnView, klasse: klasseView, lehrplan: lehrplanView,
-      einstufung: () => (x[2] === 'ergebnis' ? einstufungErgebnis() : einstufungView()), aufgabe: () => verbundView(x[2]), plan: planView, zertifikat: () => zertifikatView(x[2]), abenteuer: () => abenteuerView(after), karte: karteView }[x[1]]();
+      einstufung: () => (x[2] === 'ergebnis' ? einstufungErgebnis() : einstufungView()), aufgabe: () => verbundView(x[2]), plan: planView, zertifikat: () => zertifikatView(x[2]), abenteuer: () => abenteuerView(after), karte: karteView, theorie: () => theorieView(x[2]) }[x[1]]();
     el = r.el; cleanup = r.cleanup || null;
   } else if (hash === '#/lernen') el = lernenView();
   else if (hash === '#/pruefung') el = pruefungView();
@@ -358,7 +361,7 @@ function nav() {
   const hash = location.hash || '#/';
   const um = hash.match(/^#\/u\/([\w-]+)/), unit = um && UNITS.find((x) => x.id === um[1]);
   const tab = unit ? (unit.area === 'pruefung' ? 'pruefung' : 'lernen')
-    : /^#\/(lernen|g\/|ueben\/|einstufung|karte)/.test(hash) ? 'lernen' : /^#\/(pruefung|abi|tag|duell|blitz|klasse|aufgabe|abenteuer|blatt)/.test(hash) ? 'pruefung' : /^#\/(mehr|bericht|einstellungen|wiederholen|erfolge|formeln|lehrplan|plan|zertifikat)/.test(hash) ? 'mehr' : 'start';
+    : /^#\/(lernen|g\/|ueben\/|einstufung|karte|theorie)/.test(hash) ? 'lernen' : /^#\/(pruefung|abi|tag|duell|blitz|klasse|aufgabe|abenteuer|blatt)/.test(hash) ? 'pruefung' : /^#\/(mehr|bericht|einstellungen|wiederholen|erfolge|formeln|lehrplan|plan|zertifikat)/.test(hash) ? 'mehr' : 'start';
   document.querySelectorAll('#nav a').forEach((a) => { const on = a.dataset.tab === tab; a.classList.toggle('on', on); if (on) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current'); });
   $('#nav').hidden = !!view.querySelector('.stephead');
   tint();

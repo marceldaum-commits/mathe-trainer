@@ -689,3 +689,15 @@ a.count{text-decoration:none}
   .blatt-view{padding:0;margin:0}
   @page{margin:16mm 15mm}
 }
+/* Theorie-Kapitel: gleiche „Papier“-Optik wie das Arbeitsblatt */
+.theorie .t-teil{padding:14px 0 4px;border-bottom:1px solid #e3e7ef;display:grid;gap:8px}
+.theorie .t-teil h2{font-size:16.5px;color:#111;letter-spacing:-.01em}
+.theorie p,.theorie li{color:#111;line-height:1.55}
+.theorie ol,.theorie ul{padding-left:20px;display:grid;gap:4px}
+.theorie .muted{color:#555}
+.theorie .big{padding:4px 0;overflow-x:auto}
+.t-formel{padding:6px 0;overflow-x:auto}
+.t-zeile{display:grid;gap:2px}.t-zeile small{color:#555;font-size:12px}
+.t-merk{background:#f6f8fc;border-radius:8px;padding:12px 12px 6px!important}
+.t-tafel{border-collapse:collapse;font-size:13px}.t-tafel th,.t-tafel td{border:1px solid #111;padding:4px 9px;text-align:center}.t-tafel th{background:#f1f3f7;font-weight:700}
+@media print{.theorie .t-teil{break-inside:avoid;page-break-inside:avoid}.theorie{display:block!important}}

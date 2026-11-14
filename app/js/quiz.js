@@ -185,7 +185,7 @@ export function quiz(sequence, opts = {}) {
 
 /** Erklär-Karten („Benennen"): cards = [{title, html}] */
 export function info(cards) {
-  return (el, ctx) => {
+  const lauf = (el, ctx) => {
     let i = 0;
     function show() {
       const c = cards[i];
@@ -204,4 +204,6 @@ export function info(cards) {
     }
     show();
   };
+  lauf.cards = cards;   // für die Theorie-Seiten: dieselben Karten als Lesetext
+  return lauf;
 }
