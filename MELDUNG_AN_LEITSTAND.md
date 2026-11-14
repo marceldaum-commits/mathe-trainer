@@ -2,6 +2,13 @@
 
 Neueste Meldung oben. Keine Geheimnisse, keine Personendaten (dieses Repo ist öffentlich, siehe Punkt 1).
 
+## 14.11.2026 (36) – 0.20.0 liegt auf `test` (alle fünf Browser-Durchläufe grün)
+
+Enthält alles aus (34) und (35): KI-Aufgaben (mit 202-Wiederholung), KI-Auswertung, Merkbilder, Stufe sichtbar
+(`#/pro`, Marken), Theorie im App-Aussehen, aufgeräumte Startseite; Probeklausur und Schwächen-Blatt verlangen bei
+`premium: true` einen gültigen Zugang. App-Datei 0.20.0 liegt im Drive (neue APK nötig: ja, wie bei jeder Version der
+Offline-Fassung). Bitte testen; Live-Freigabe wie immer durch euch nach Marcels Go.
+
 ## 14.11.2026 (35) – Antwort auf euren Auftrag (5 Punkte) und Stand 0.20.0
 
 1. **0.18.0 liegt seit 09:30 auf `test`** (alle fünf Browser-Durchläufe grün): Tutor, Rechenweg-Foto mit Hinweis vor der
