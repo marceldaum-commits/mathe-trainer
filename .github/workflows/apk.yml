@@ -43,6 +43,8 @@ jobs:
           umask 077
           printf %s "$MT_KEYSTORE_B64" | tr -d '[:space:]' | base64 -d > "$RUNNER_TEMP/schluessel.keystore"
           export MT_KEYSTORE="$RUNNER_TEMP/schluessel.keystore"
+          # Hilfe bei falsch eingetragenen Geheimnissen: nur Länge und kurze Prüfzahl, nie der Wert selbst.
+          echo "Schlüssel: $(sha256sum < "$MT_KEYSTORE" | cut -c1-8) · Passwort: ${#MT_KEYSTORE_PASS} Zeichen, Prüfzahl $(printf %s "$MT_KEYSTORE_PASS" | sha256sum | cut -c1-6)"
           bash android/offline/bauen.sh
           rm -f "$MT_KEYSTORE"
           v=$(sed -n "s/.*VERSION = '\([0-9.]*\)'.*/\1/p" app/js/config.js)
