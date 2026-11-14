@@ -2,6 +2,10 @@
 
 Neueste Meldung oben. Keine Geheimnisse, keine Personendaten (dieses Repo ist öffentlich, siehe Punkt 1).
 
+## 14.11.2026 (46) – 0.25.0 liegt auf `test` (alle fünf Browser-Durchläufe grün)
+
+Inhalt wie in (45). Nichts für den Server, App-Hülle unverändert. Auf `test` warten damit 0.22.1 bis 0.25.0 auf die Freigabe.
+
 ## 14.11.2026 (45) – 0.25.0: ausführliche Theorie stark erweitert (Meldung „liegt auf test“ folgt nach dem Testlauf)
 
 Marcels Rückmeldung: „Kurz und ausführlich ist fast gleich.“ Jetzt hat jedes der 31 ausführlichen Kapitel zusätzlich
