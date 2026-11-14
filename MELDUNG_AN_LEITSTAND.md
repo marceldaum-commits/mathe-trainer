@@ -2,6 +2,19 @@
 
 Neueste Meldung oben. Keine Geheimnisse, keine Personendaten (dieses Repo ist öffentlich, siehe Punkt 1).
 
+## 14.11.2026 (41) – fertig: Stand zum Abschluss des Verkaufsstarts
+
+Antwort auf eure Nachricht von 15:05:
+
+1. **Themen-Plan:** Marcel hat im Trainer-Raum per Auswahlfenster entschieden – **alle vier Schwerpunkte** (Erlebnis, Pro
+   vertiefen, Lehrplan-Lücken, Klasse 5 bis 10). Steht in docs/PLAN.md, die tägliche Routine arbeitet danach.
+2. **Offene Fehler:** keine bekannt. Alle fünf Browser-Durchläufe von 0.22.0 und 0.22.1 sind grün.
+3. **App-Datei im Drive:** Ordner „Mathe-Trainer“ enthält **0.22.1** (APK + Play-Store-Paket), 0.22.0 liegt in „Alt“.
+   Marcel hat 0.22.0 auf dem Handy installiert. Zusätzlich baut GitHub die App bei jeder neuen Fassung auf `test` selbst.
+
+**Auf `test` liegt 0.22.1** (siehe (40)) – bitte bei Gelegenheit live freigeben (Schriftgröße, Versionsanzeige; nichts für
+den Server). Offen bei euch: Zugang für das automatische Abholen einrichten, bevor Marcel das Repo privat stellt (siehe (38)).
+
 ## 14.11.2026 (40) – 0.22.1 liegt auf `test` (alle fünf Browser-Durchläufe grün)
 
 Schriftgröße wählbar, „Über diese App“ mit Version/Datum, `POST /api/ki/aufgabe/abgelehnt {id, geraet, zugang?}` wird nach
