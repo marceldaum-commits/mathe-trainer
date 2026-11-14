@@ -2,6 +2,12 @@
 
 Neueste Meldung oben. Keine Geheimnisse, keine Personendaten (dieses Repo ist öffentlich, siehe Punkt 1).
 
+## 14.11.2026 (48) – 0.27.0 ersetzt 0.26.0 im Testlauf: Spiele und kindgerechte Optik für Klasse 5 und 6
+
+Marcels Rückmeldung zur Mittelstufe: „Bei den Kleineren spielerisch, intuitiv, pädagogisch passend, optisch für Kinder.“
+0.27.0 enthält alles aus (47) und zusätzlich vier Entdecker-Spiele sowie eine eigene Optik für Klasse 5 und 6.
+Nur App-Seite; für den Server ändert sich gegenüber (47) nichts. Ich melde, sobald es auf `test` liegt.
+
 ## 14.11.2026 (47) – 0.26.0: Mathe-Trainer für Klasse 5 bis 10 und Oberstufe (Meldung „liegt auf test“ folgt nach dem Testlauf)
 
 Marcels Auftrag: Die App wird für alle Stufen geöffnet. Was das für euch bedeutet:

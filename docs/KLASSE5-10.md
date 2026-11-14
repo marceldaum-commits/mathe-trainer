@@ -20,6 +20,26 @@ es nicht überladen ist, sondern fein säuberlich der Stufe entsprechend. Am End
   Lernplan bis zum Abi, Bundesland und Kurs, KI-Aufgaben. In der Mittelstufe heißt der Reiter „Testen“ und bietet
   Arbeitsblatt, Probe-Arbeit, freies Üben, Fehler-Kartei und Lernkarten.
 
+## Pädagogische Leitlinie für die unteren Klassen (Marcel, 14.11.2026)
+
+„Grad bei den kleineren muss viel spielerisch laufen. Intuitiv. Und achte drauf, dass alles auch pädagogisch passt.
+Optisch muss es auch an Kinder angepasst sein.“
+
+- **Erst handeln, dann sehen, dann rechnen.** Jede Einheit der Klassen 5 und 6 beginnt mit einem Spiel zum Anfassen
+  (Schritt „Entdecken“). Die Regel wird danach benannt, nicht davor. Erst dann kommen Aufgaben mit Zahlen.
+- **Das Bild trägt die Idee.** Im Spiel muss man die Regel *sehen* können (die Bögen beim Runden, die Gruppen im
+  Bruch-Streifen, die Kästchen in der Fläche) – nicht nur ein Ergebnis eintippen.
+- **Fehler sind erlaubt.** Rückmeldung ermutigend („Fast! Die Zahl liegt weiter rechts.“), kein Zeitdruck, kein Punktabzug
+  im Spiel; ein Tipp erst nach dem zweiten Fehlversuch, damit eigenes Probieren Vorrang hat.
+- **Wenig Text, kurze Sätze, bekannte Wörter.** Fachwörter (Zähler, Umfang, Hunderter) werden eingeführt, wenn die Sache
+  schon verstanden ist.
+- **Optik:** große Flächen zum Tippen, klare Farben, Pi als Begleiter. Gilt für Klasse 5 und 6 (`data-jung` am Wurzel-Element);
+  ab Klasse 7 die ruhigere Fassung.
+- **Schwierigkeit 1 und 2:** Die App zählt mit (z. B. „Jetzt: 12 Kästchen“). Ab Stufe 3 zählt das Kind selbst.
+
+Vorhandene Spiele: Zahlenstrahl, Thermometer (`games/strahl.js`), Bruch-Streifen (`games/streifen.js`),
+Kästchen-Baumeister (`games/kaestchen.js`). **Jede neue Einheit für Klasse 5 und 6 braucht ein solches Spiel.**
+
 ## Regel: Schwierigkeit ist nicht Klassenstufe
 
 Die Schwierigkeit 1 bis 5 macht eine Aufgabe schwerer, darf aber **keinen Stoff einer späteren Klasse** hereinholen.
@@ -43,8 +63,8 @@ das Thema in der früheren Klasse. **Noch nicht Zeile für Zeile mit den Lehrpl�
 
 1. **Lehrplan-Abgleich** je Klasse für Bayern und Hessen; danach Realschule und Mittelschule (gleiche Themen, teils später).
 2. **Mehr Einheiten** – die Liste „Kommt bald“ je Klasse steht in `MITTEL_BALD` (`units-m.js`).
-3. **Erlebbar:** eigene Spiele und Merkbilder für die Mittelstufe (Bruch-Streifen, Zahlengerade, Waage für Gleichungen,
-   Flächen legen). Bisher bestehen die Einheiten aus Erklär-Karten, Aufgaben-Runden und Boss.
+3. **Erlebbar:** Spiele für die übrigen Einheiten – Teiler (Rechteck-Felder legen), Dezimalzahlen (Stellenwert-Tafel),
+   Quader (Würfel stapeln), Daten (Säulen ziehen), ab Klasse 7 die Waage für Gleichungen und der Prozent-Streifen.
 4. **Runden für die Mittelstufe:** Tages-Runde, Blitz, Duell und Abenteuer mit dem Stoff der Klasse.
 5. **Ausführliche Theorie** (Pro) für die Mittelstufen-Einheiten; KI-Aufgaben (Pro + KI), sobald der Server Vorrat dafür hat.
 6. **Texte nach außen:** App-Titel, Beschreibung und Store-Texte sprechen noch von „Oberstufe“.
