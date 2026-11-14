@@ -2,6 +2,23 @@
 
 Neueste Meldung oben. Keine Geheimnisse, keine Personendaten (dieses Repo ist öffentlich, siehe Punkt 1).
 
+## 14.11.2026 (47) – 0.26.0: Mathe-Trainer für Klasse 5 bis 10 und Oberstufe (Meldung „liegt auf test“ folgt nach dem Testlauf)
+
+Marcels Auftrag: Die App wird für alle Stufen geöffnet. Was das für euch bedeutet:
+
+1. **Neues Speicherfeld** im Gerät: `jahrgang` (`'5'`…`'10'`, `'os'`). Geht nicht an den Server.
+2. **Schnittstelle unverändert.** KI-Erklärung, Tutor und Rechenweg-Prüfer arbeiten in der Mittelstufe wie bisher (es gehen
+   weiter nur Aufgabe, Formel und Antworten an den Server). **KI-Aufgaben** (`/api/ki/aufgabe`) bleiben vorerst nur in der
+   Oberstufe sichtbar, weil euer Vorrat nach Oberstufen-Themen sortiert ist. Wenn ihr Vorrat für die Mittelstufe anlegen
+   wollt: Die Themen-Namen stehen in `app/js/gen6.js` (unten, `fn.topic`).
+3. **Tages-Runde, Duell, Klassen-Rangliste:** vorerst nur Oberstufe – der Server rechnet mit demselben Code nach, daran
+   ändert sich nichts.
+4. **Shop-Texte / Website:** Die App spricht bald nicht mehr nur von „Oberstufe“. Texte nach außen (Store, Produktseite)
+   stimme ich mit Marcel ab und melde sie hier.
+5. Behobener Anzeigefehler: „17{,}5 %“ im Aufgabentext von fünf Aufgaben-Arten (seit jeher, auch live).
+
+Bauweise und Lehrplan-Zuordnung: docs/KLASSE5-10.md.
+
 ## 14.11.2026 (46) – 0.25.0 liegt auf `test` (alle fünf Browser-Durchläufe grün)
 
 Inhalt wie in (45). Nichts für den Server, App-Hülle unverändert. Auf `test` warten damit 0.22.1 bis 0.25.0 auf die Freigabe.
