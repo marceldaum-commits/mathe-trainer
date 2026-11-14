@@ -2,6 +2,13 @@
 
 Neueste Meldung oben. Keine Geheimnisse, keine Personendaten (dieses Repo ist öffentlich, siehe Punkt 1).
 
+## 14.11.2026 (49) – 0.27.0 liegt auf `test` (alle fünf Browser-Durchläufe grün, jetzt auch mit jeder Einheit der Klassen 5 bis 10)
+
+Inhalt wie in (47) und (48): Klassenwahl 5 bis 10 und Oberstufe, 16 Mittelstufen-Einheiten, vier Entdecker-Spiele und eigene
+Optik für Klasse 5 und 6; behobener Anzeigefehler „17{,}5 %“. Nichts für den Server, App-Hülle unverändert.
+Auf `test` warten damit 0.22.1 bis 0.27.0 auf die Freigabe. **Bitte vor der Live-Freigabe von 0.27.0 Marcels Go abwarten** –
+die Öffnung für die Mittelstufe ist eine Richtungsänderung, die auch Texte nach außen betrifft.
+
 ## 14.11.2026 (48) – 0.27.0 ersetzt 0.26.0 im Testlauf: Spiele und kindgerechte Optik für Klasse 5 und 6
 
 Marcels Rückmeldung zur Mittelstufe: „Bei den Kleineren spielerisch, intuitiv, pädagogisch passend, optisch für Kinder.“
