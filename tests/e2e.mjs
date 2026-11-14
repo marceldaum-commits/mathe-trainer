@@ -390,11 +390,13 @@ await page.goto(`${BASE}#/u/extrema`); if (!(await page.locator('#u-theorie').co
 await page.goto(`${BASE}#/mehr`); await page.click('a[href="#/karten"]'); await page.waitForSelector('#lk-go');
 await page.fill('#lk-vorn', 'Test <i>vorn</i>'); await page.fill('#lk-hinten', 'Test hinten'); await page.click('#lk-neu'); await page.waitForSelector('.lk-weg');
 if (await page.locator('.lk-zeile i').count()) fail('Lernkarten: eigener Text darf kein HTML werden');
+const lkVor = parseInt(await page.textContent('#view h1'), 10);
 await page.click('#lk-go'); await page.waitForSelector('#lk-dreh');
 if (await page.locator('#lk-rueck').isVisible()) fail('Lernkarten: Rückseite ist schon vor dem Umdrehen zu sehen');
 for (let i = 0; i < 600 && !(await page.$('#lk-ende')); i++) { if (await page.$('#lk-dreh')) { const r = await page.locator('#lk-dreh').boundingBox(); if (r.y + r.height > page.viewportSize().height + 1) fail('Lernkarten: Knopf nicht ohne Scrollen sichtbar'); await page.click('#lk-dreh'); } else await page.click(i % 3 ? '#lk-ja' : '#lk-nein'); }
 if (!(await page.$('#lk-ende'))) fail('Lernkarten: Runde endet nicht');
-await page.click('#lk-zurueck'); await page.waitForSelector('#lk-go'); if (!(await page.locator('#lk-go').isDisabled())) fail('Lernkarten: nach der Runde darf heute nichts mehr fällig sein');
+await page.click('#lk-zurueck'); await page.waitForSelector('#lk-go');
+{ const nach = parseInt(await page.textContent('#view h1'), 10); if (!(nach === Math.max(0, lkVor - 20))) fail(`Lernkarten: nach einer Runde sollten ${Math.max(0, lkVor - 20)} Karten übrig sein, es sind ${nach}`); if (nach === 0 && !(await page.locator('#lk-go').isDisabled())) fail('Lernkarten: Knopf muss ohne fällige Karten gesperrt sein'); }
 await page.click('.lk-weg'); if (await page.locator('.lk-weg').count()) fail('Lernkarten: eigene Karte lässt sich nicht löschen');
 
 /* ───────────── Karte mit Geschichte, Abenteuer-Modus, ruhiger Modus ───────────── */

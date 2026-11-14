@@ -6,6 +6,8 @@ import { UNITS } from './units.js';
 
 /** Abstand in Tagen bis zur nächsten Wiederholung, je Fach. */
 export const FACH_TAGE = [0, 1, 3, 7, 14, 30];
+/** So viele Karten hat eine Runde höchstens – lieber mehrere kurze Runden als eine endlose. */
+export const RUNDE_MAX = 20;
 export const plusTage = (d, n) => { const x = new Date(d); x.setDate(x.getDate() + n); return x; };
 
 /** Alle Karten: Formeln aus Einheiten, in denen schon etwas geschafft wurde (sonst die Grundlagen), plus eigene. */
@@ -33,13 +35,13 @@ export function kartenView() {
     const alle = stapel(), dran = faellig(alle);
     el.innerHTML = `<a class="back" href="#/mehr">${ICON.left} Mehr</a>
       <div><span class="eyebrow">Lernkarten</span><h1 style="margin-top:8px">${dran.length} von ${alle.length} heute dran</h1><p class="lead" style="margin-top:8px">Formeln aus deinen Einheiten und eigene Karten. Was du weißt, kommt seltener – was noch hakt, morgen wieder.</p></div>
-      <div class="row"><button class="btn block" id="lk-go" type="button"${dran.length ? '' : ' disabled'}>${dran.length ? 'Karten lernen' : 'Für heute alles gelernt'}</button></div>
+      <div class="row"><button class="btn block" id="lk-go" type="button"${dran.length ? '' : ' disabled'}>${dran.length ? (dran.length > RUNDE_MAX ? `${RUNDE_MAX} Karten lernen` : 'Karten lernen') : 'Für heute alles gelernt'}</button></div>
       <section class="card stack"><h3>Eigene Karte anlegen</h3>
         <input class="field" id="lk-vorn" type="text" maxlength="200" placeholder="Vorderseite, z. B. „Kettenregel“" aria-label="Vorderseite">
         <textarea class="field" id="lk-hinten" rows="3" maxlength="300" placeholder="Rückseite, z. B. „äußere mal innere Ableitung“" aria-label="Rückseite"></textarea>
         <button class="btn ghost" id="lk-neu" type="button">Karte speichern</button><div id="lk-note"></div></section>
       ${store.lernEigene.length ? `<section class="card stack"><h3>Deine eigenen Karten (${store.lernEigene.length})</h3>${store.lernEigene.map((k) => `<div class="row lk-zeile"><span class="grow"><b>${esc(k.vorn)}</b><br><small class="muted">${esc(k.hinten)}</small></span><button class="x lk-weg" type="button" data-id="${k.id}" aria-label="Karte löschen">${ICON.close}</button></div>`).join('')}</section>` : ''}`;
-    $('#lk-go', el).onclick = () => { sfx('tap'); runde(dran); };
+    $('#lk-go', el).onclick = () => { sfx('tap'); runde(dran.slice(0, RUNDE_MAX)); };
     $('#lk-neu', el).onclick = () => {
       const v = $('#lk-vorn', el).value.trim(), r = $('#lk-hinten', el).value.trim();
       if (v.length < 2 || r.length < 2) { $('#lk-note', el).innerHTML = '<div class="note tip">Bitte Vorder- und Rückseite ausfüllen.</div>'; return; }
