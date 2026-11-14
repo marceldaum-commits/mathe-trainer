@@ -124,7 +124,7 @@ export function settingsView() {
       const code = codeNorm(feld.value);
       if (!code) { pn.innerHTML = '<div class="note bad">Der Code hat die Form MT-XXXX-XXXX-XXXX.</div>'; return; }
       go.disabled = true; pn.innerHTML = ''; const r = await api.zugang(code); go.disabled = false;
-      if (r.ok && /^\d{4}-\d{2}-\d{2}$/.test(r.bis || '')) { store.zugang = { code, art: String(r.art || ''), bis: r.bis, ki: r.ki !== false };   // ki: false = Stufe „Pro“ ohne KI feld.value = ''; pn.innerHTML = `<div class="note ok">Eingelöst. ${r.ki !== false ? 'Drucken, PDF, ausführliche Theorie und die KI-Erklärungen sind freigeschaltet.' : 'Drucken, PDF und die ausführliche Theorie sind freigeschaltet.'}</div>`; sfx('ok'); paintZ(); }
+      if (r.ok && /^\d{4}-\d{2}-\d{2}$/.test(r.bis || '')) { store.zugang = { code, art: String(r.art || ''), bis: r.bis, ki: r.ki !== false /* false = Stufe „Pro“ ohne KI */ }; feld.value = ''; pn.innerHTML = `<div class="note ok">Eingelöst. ${r.ki !== false ? 'Drucken, PDF, ausführliche Theorie und die KI-Erklärungen sind freigeschaltet.' : 'Drucken, PDF und die ausführliche Theorie sind freigeschaltet.'}</div>`; sfx('ok'); paintZ(); }
       else pn.innerHTML = `<div class="note bad">${r.status === 404 ? 'Diesen Code kennen wir nicht, oder er ist abgelaufen.' : esc(r.error || 'Der Code konnte gerade nicht geprüft werden.')}</div>`;
     };
     paintZ(); if (store.zugang) box.hidden = false;
