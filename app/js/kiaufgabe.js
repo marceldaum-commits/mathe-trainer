@@ -14,7 +14,7 @@ export function kiThemen() {
   return GEBIETE.map(([id, name]) => [name, [...new Set(UNITS.filter((u) => u.area === id).flatMap((u) => (u.bossGens || []).map((fn) => fn.topic)).filter(Boolean))].sort((a, b) => a.localeCompare(b, 'de'))]);
 }
 /** Wartezeit, bis der Server seinen Vorrat nachgefüllt hat (im automatischen Test kurz). */
-const warteMs = () => (window.__mtTest ? 250 : 25000);
+const warteMs = () => (Number.isFinite(window.__mtWarte) ? window.__mtWarte : 25000);
 export const VERSUCHE = 3;
 
 export function kiAufgabeView() {

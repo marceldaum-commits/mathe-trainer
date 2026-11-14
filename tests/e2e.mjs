@@ -687,6 +687,7 @@ if (!(await p2.locator('.ki-out a[href="#/einstellungen"]').count())) fail('Pro:
 await p2.locator('.ki .pick').nth(2).click(); await p2.waitForFunction(() => document.querySelector('.ki-out')?.textContent.includes('KI-Guthaben für heute'));   // 429: Tagesguthaben
 // KI-Aufgaben: Einstieg erscheint, weil der Server die Art meldet; erst „Vorrat leer“ (202), dann eine Aufgabe; eine falsch gebaute Aufgabe wird im Gerät abgelehnt
 await p2.goto(`${BASE}#/pruefung`); await p2.waitForSelector('a[href="#/kiaufgabe"]'); await p2.click('a[href="#/kiaufgabe"]'); await p2.waitForSelector('#ka-go');
+await p2.evaluate(() => { window.__mtWarte = 250; });   // im Test nicht 25 Sekunden auf den Vorrat warten
 await p2.selectOption('#ka-thema', 'Kettenregel'); await p2.click('#ka-go'); await p2.waitForSelector('#stage .opt, #stage #q-in', { timeout: 15000 });
 { const an = calls.filter(([path]) => path === '/api/ki/aufgabe'); if (an.length !== 2 || Object.keys(an[0][1]).sort().join() !== 'geraet,stil,stufe,thema' || an[0][1].thema !== 'Kettenregel' || an[0][1].stil !== 'abi') fail(`KI-Aufgaben: Anfrage falsch oder kein zweiter Versuch nach „Vorrat leer“ (${an.length})`); }
 if (!/Welche Ableitung/.test(await p2.textContent('#stage'))) fail('KI-Aufgaben: Aufgabe wird nicht gezeigt');
