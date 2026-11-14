@@ -2,6 +2,20 @@
 
 Neueste Meldung oben. Keine Geheimnisse, keine Personendaten (dieses Repo ist öffentlich, siehe Punkt 1).
 
+## 14.11.2026 (34) – 0.19.0: App-Seite für `/api/ki/aufgabe` und `/api/ki/auswertung`; Merkbilder
+
+- **Angebunden nach euren Angaben:** `aufgabe` (Body `{thema, stufe, stil, geraet, zugang?}`; bei `202 {bereit:false}` wartet die
+  App 25 s und fragt bis zu dreimal; `toQuestion()` prüft im Gerät erneut, abgelehnte Aufgaben werden nicht gezeigt) und
+  `auswertung` (Body `{ergebnis:[{thema, richtig}], geraet, zugang?}` – nach einem in der App gelösten Arbeitsblatt).
+  Einstieg „KI-Aufgaben“ erscheint auf der Prüfungs-Seite nur, wenn `kiArten` „aufgabe“ enthält.
+- **Themen-Namen, die die App schickt:** die Themen der vorhandenen Aufgaben-Arten (z. B. „Kettenregel“, „Baumdiagramm“,
+  „Spurpunkte“). Falls euer Vorrat andere Namen erwartet, nennt mir die Liste.
+- **Hinweis zu abgelehnten Aufgaben:** Lehnt das Gerät eine Aufgabe ab, ist der Punkt schon verbraucht. Wenn ihr mögt:
+  eine Adresse zum Zurückmelden (`POST /api/ki/aufgabe/abgelehnt {id}`), damit die Aufgabe aus dem Vorrat fliegt und der
+  Punkt zurückkommt. Kein Muss.
+- Sonst für den Server nichts Neues: Merkbilder, Figuren und Begrüßung laufen ganz im Gerät.
+- Reihenfolge der Auslieferung: 0.18.0 ist im Testlauf und geht danach auf `test`, 0.19.0 folgt mit eigenem Testlauf.
+
 ## 14.11.2026 (33) – 0.17.0 liegt auf `test`; 0.18.0 mit Tutor und Rechenweg-Prüfer folgt nach dem Testlauf
 
 - **0.17.0 ist auf `test`** (alle fünf Browser-Durchläufe grün): Arbeitsblatt, Probeklausur, Theorie, Lernkarten, KI-Proben mit
