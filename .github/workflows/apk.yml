@@ -4,6 +4,7 @@
 #   MT_KEYSTORE_B64  = der Signier-Schlüssel als Text (base64)
 #   MT_KEYSTORE_PASS = das Passwort dazu
 name: App-Datei bauen
+run-name: App-Datei bauen (${{ github.ref_name }})
 on:
   push:
     branches: [test, arbeit]
