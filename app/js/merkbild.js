@@ -196,6 +196,11 @@ export const MERK = {
   'Bernoulli-Formel': galton, Erwartungswert: galton, 'Bedingte Wahrscheinlichkeit': bedingt, Skalarprodukt: skalar, Senkrecht: skalar, Verbindungsvektor: verbindung,
   'Begrenztes Wachstum': begrenzt, Pythagoras: pythagoras,
 };
+/** Stichwörter in Karten-Überschriften → Merkbild (für die Erklär-Karten der Einheiten). */
+const STICHWORT = [[/Kettenregel/i, 'Kettenregel'], [/Produktregel/i, 'Produktregel'], [/Tangente|Steigung an einer Stelle|Ableitung ist/i, 'Ableitung'], [/Hauptsatz|Fläche unter|Integral als/i, 'Hauptsatz'],
+  [/Bernoulli|Binomial|Nagelbrett/i, 'Bernoulli-Formel'], [/Bedingte/i, 'Bedingte Wahrscheinlichkeit'], [/Skalarprodukt|Senkrecht/i, 'Skalarprodukt'], [/Verbindungsvektor|Spitze minus/i, 'Verbindungsvektor'],
+  [/Begrenztes Wachstum/i, 'Begrenztes Wachstum'], [/Pythagoras/i, 'Pythagoras']];
+export const merkZuTitel = (titel) => { const t = String(titel || ''); return hatMerkbild(t) ? t : (STICHWORT.find(([re]) => re.test(t)) || [])[1] || ''; };
 export const hatMerkbild = (name) => Object.prototype.hasOwnProperty.call(MERK, name);
 /** Baut das Merkbild zu einem Formel-Namen – oder null, wenn es (noch) keines gibt. */
 export const merkbild = (name) => (hatMerkbild(name) ? MERK[name]() : null);

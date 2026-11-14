@@ -4,6 +4,7 @@ import { Plot } from '../plot.js';
 import { h, tex, cssVar, sfx, esc } from '../ui.js';
 import { store } from '../store.js';
 import { shuffle } from '../math.js';
+import { figurFor } from '../figuren.js';
 
 export const HEARTS = 3;
 /** So viele Treffer braucht es je nach Schwierigkeit. */
@@ -20,7 +21,7 @@ export function boss(gens, name, symbol) {
 
     el.innerHTML = `<div class="stack">
       <div class="boss" id="bs">
-        <div class="boss-face" id="bs-face" aria-hidden="true"><span>${esc(symbol)}</span></div>
+        <div class="boss-face mit-figur" id="bs-face" aria-hidden="true">${figurFor(name, symbol)}</div>
         <div class="boss-info"><b>${esc(name)}</b><div class="hp" role="img" id="bs-hp" aria-label=""><i></i></div>
           <div class="hearts" id="bs-hearts" role="img" aria-label=""></div></div>
       </div>

@@ -7,6 +7,7 @@ import { ft } from './math.js';
 import { inputSpec, parseInput, isRight, diagnose } from './eingabe.js';
 import { api, kiBereit, premiumOn, kiArt } from './api.js';
 import { rechenwegFeld } from './rechenweg.js';
+import { merkZuTitel, merkbilderEinsetzen } from './merkbild.js';
 
 /** sequence: Liste von Erzeugern (eine Aufgabe je Eintrag). */
 export function quiz(sequence, opts = {}) {
@@ -219,11 +220,12 @@ export function info(cards) {
       const c = cards[i];
       el.innerHTML = `
         <div class="info">
-          <div class="card"><span class="eyebrow">${c.eyebrow || 'Das steckt dahinter'}</span><h2>${c.title}</h2>${c.html}</div>
+          <div class="card"${merkZuTitel(c.title) ? ` data-merk="${merkZuTitel(c.title)}"` : ''}><span class="eyebrow">${c.eyebrow || 'Das steckt dahinter'}</span><h2>${c.title}</h2>${c.html}</div>
           <div class="dots">${cards.map((_, k) => `<i class="${k === i ? 'on' : ''}"></i>`).join('')}</div>
           <div class="row">${i > 0 ? '<button class="btn ghost" id="i-back" type="button">Zurück</button>' : ''}
             <button class="btn grow" id="i-next" type="button">${i < cards.length - 1 ? 'Weiter' : 'Verstanden'}</button></div>
         </div>`;
+      merkbilderEinsetzen(el);   // bewegtes Merkbild, wenn es zu dieser Karte eines gibt
       el.querySelector('#i-back')?.addEventListener('click', () => { i--; show(); });
       el.querySelector('#i-next').addEventListener('click', () => {
         if (i < cards.length - 1) { i++; ctx.progress(i / cards.length); show(); window.scrollTo(0, 0); return; }
