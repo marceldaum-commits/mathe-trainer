@@ -6,6 +6,7 @@ import { store, LEVELS } from './store.js';
 import { seedRandom, shuffle } from './math.js';
 import { UNITS, landList, unitExtra } from './units.js';
 import { quiz } from './quiz.js';
+import { marke } from './pro.js';
 import { CONFIG } from './config.js';
 import { api, premiumOn, premiumBereit, kiBereit, kiArt, kaufLinks } from './api.js';
 
@@ -145,15 +146,15 @@ export function blattHtml(c, fragen) {
 function wahlView() {
   const T = themen(), el = h(`<div class="view stack">
     <a class="back" href="#/pruefung">${ICON.left} Prüfung</a>
-    <div><span class="eyebrow">Pro</span><h1 style="margin-top:8px">Arbeitsblatt bauen</h1><p class="lead" style="margin-top:8px">Wähle Themen, Schwierigkeit und Anzahl. Das Blatt lässt sich in der App lösen oder drucken – mit Lösungsblatt.</p></div>
+    <div><span class="eyebrow">Arbeitsblatt</span><h1 style="margin-top:8px">Arbeitsblatt bauen</h1><p class="lead" style="margin-top:8px">Wähle Themen, Schwierigkeit und Anzahl. Das Blatt lässt sich in der App lösen oder drucken – mit Lösungsblatt.</p></div>
     ${GEBIETE.map(([id, name]) => `<section class="card stack"><div class="row"><h3 class="grow">${name}</h3><button class="linkbtn b-alle" type="button" data-a="${id}">alle</button></div>
       <div class="picks b-themen">${T.filter((t) => t.area === id).map((t) => `<button class="pick" type="button" role="checkbox" aria-checked="false" data-u="${t.id}">${esc(t.title)}${t.extra ? ' <small>(Zusatz)</small>' : ''}</button>`).join('')}</div></section>`).join('')}
     <section class="card stack"><h3>Schwierigkeit</h3><div class="picks" id="b-lv" role="radiogroup" aria-label="Schwierigkeit">${LEVELS.map((n, i) => `<button class="pick" type="button" role="radio" data-lv="${i + 1}" aria-label="${n}">${i + 1}</button>`).join('')}</div>
       <h3>Anzahl der Aufgaben</h3><div class="picks" id="b-n" role="radiogroup" aria-label="Anzahl">${ANZAHL.map((n) => `<button class="pick" type="button" role="radio" data-n="${n}">${n}</button>`).join('')}</div></section>
     <div id="b-note"></div>
     <div class="row"><button class="btn block" id="b-go" type="button">Arbeitsblatt erstellen</button></div>
-    <a class="btn ghost block" id="b-klausur" href="#/blatt">Probeklausur erstellen (12 Aufgaben, alle Gebiete)</a>
-    <section class="card stack" id="b-schwach-box"><h3>Mein Schwächen-Blatt</h3><small class="muted" id="b-schwach-text"></small><a class="btn ghost" id="b-schwach" href="#/blatt">Schwächen-Blatt erstellen</a></section>
+    <a class="btn ghost block" id="b-klausur" href="#/blatt">Probeklausur erstellen ${marke('pro')}</a>
+    <section class="card stack" id="b-schwach-box"><h3>Mein Schwächen-Blatt ${marke('pro')}</h3><small class="muted" id="b-schwach-text"></small><a class="btn ghost" id="b-schwach" href="#/blatt">Schwächen-Blatt erstellen</a></section>
   </div>`);
   let lv = store.level, n = 8; const wahl = new Set();
   const paint = () => {
@@ -182,11 +183,23 @@ function wahlView() {
 function vorschauView(c) {
   const fragen = bau(c);
   if (!fragen.length) return wahlView();
+  if (c.klausur || c.schwach) {   // Probeklausur und Schwächen-Blatt gehören zu Pro (frei, solange der Verkauf nicht gestartet ist)
+    const tor = h(`<div class="view stack"><a class="back" href="#/blatt">${ICON.left} Arbeitsblatt</a><div class="note tip ki-laedt">Einen Moment<span aria-hidden="true"></span></div></div>`);
+    premiumBereit().then(() => {
+      if (!tor.isConnected) return;
+      if (proOffen()) tor.replaceWith(vorschau(c, fragen));
+      else tor.innerHTML = `<a class="back" href="#/blatt">${ICON.left} Arbeitsblatt</a><section class="card stack" id="b-tor"><h3>${blattName(c)} ${marke('pro')}</h3><p>${c.klausur ? 'Die Probeklausur' : 'Das Schwächen-Blatt'} gehört zur Pro-Fassung.</p><a class="btn" href="#/pro">Was ist in Pro?</a></section>`;
+    });
+    return { el: tor };
+  }
+  return { el: vorschau(c, fragen) };
+}
+function vorschau(c, fragen) {
   const el = h(`<div class="view stack blatt-view">
     <a class="back noprint" href="#/blatt">${ICON.left} Neues Blatt</a>
     <section class="card stack noprint" id="b-aktion"><h3>${blattName(c)} Nr. ${c.seed}</h3>
       <small class="muted">${c.schwach ? 'Dieses Blatt ist aus deiner Fehler-Kartei gebaut: nur Aufgaben-Arten, bei denen es zuletzt gehakt hat.' : 'Unter dieser Nummer entsteht immer genau dieses Blatt – praktisch, wenn mehrere dasselbe rechnen sollen.'}</small>
-      <div class="row"><a class="btn grow" id="b-los" href="${blattHash(c)}/los">In der App lösen</a><button class="btn ghost grow" id="b-druck" type="button">Drucken / als PDF</button></div>
+      <div class="row"><a class="btn grow" id="b-los" href="${blattHash(c)}/los">In der App lösen</a><button class="btn ghost" id="b-druck" type="button">PDF ${marke('pro')}</button></div>
       <div id="b-pro"></div></section>
     ${blattHtml(c, fragen)}
   </div>`);
@@ -198,7 +211,7 @@ function vorschauView(c) {
     drucken(`${blattName(c)}-${c.seed}`);
   };
   premiumBereit().then(() => { if (el.isConnected && !premiumOn()) pro.innerHTML = '<small class="muted">Drucken und PDF gehören später zur Pro-Fassung. In der Testphase sind sie für alle frei.</small>'; });
-  return { el };
+  return el;
 }
 
 /** Das Blatt in der App lösen: dieselben Aufgaben, mit Tipps und Rückmeldung wie überall. */
@@ -218,7 +231,7 @@ function loesenView(c) {
       const ki = $('#b-ki', el);
       kiBereit().then(() => {
         if (!ki.isConnected || !kiArt('auswertung')) return;
-        ki.innerHTML = '<button class="btn ghost block" id="b-ki-go" type="button">KI-Auswertung: Was soll ich üben? (2 KI-Punkte)</button><div id="b-ki-out" aria-live="polite"></div>';
+        ki.innerHTML = `<button class="btn ghost block" id="b-ki-go" type="button">KI-Auswertung: Was soll ich üben? ${marke('ki')}</button><div id="b-ki-out" aria-live="polite"></div>`;
         $('#b-ki-go', ki).onclick = async () => {
           const go = $('#b-ki-go', ki), out = $('#b-ki-out', ki); go.disabled = true;
           out.innerHTML = '<div class="note tip ki-laedt">Die Auswertung wird geschrieben<span aria-hidden="true"></span></div>';

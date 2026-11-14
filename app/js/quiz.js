@@ -8,6 +8,7 @@ import { inputSpec, parseInput, isRight, diagnose } from './eingabe.js';
 import { api, kiBereit, premiumOn, kiArt } from './api.js';
 import { rechenwegFeld } from './rechenweg.js';
 import { merkZuTitel, merkbilderEinsetzen } from './merkbild.js';
+import { marke } from './pro.js';
 
 /** sequence: Liste von Erzeugern (eine Aufgabe je Eintrag). */
 export function quiz(sequence, opts = {}) {
@@ -35,7 +36,7 @@ export function quiz(sequence, opts = {}) {
       // KI-Tutor: Rückfragen zur selben Aufgabe (Stufe „Pro + KI“). Der Verlauf bleibt nur hier im Bild, gespeichert wird nichts.
       const nachfragen = (out, erste) => {
         const verlauf = [{ wer: 'ki', text: erste }];
-        const form = h(`<form class="ki-frage" novalidate><label for="ki-text">Noch eine Frage dazu?</label><div class="row"><input class="field grow" id="ki-text" type="text" maxlength="300" autocomplete="off" placeholder="z. B. Warum mal 2?"><button class="btn small" type="submit">Fragen</button></div></form>`);
+        const form = h(`<form class="ki-frage" novalidate><label for="ki-text">Noch eine Frage dazu? ${marke('ki')}</label><div class="row"><input class="field grow" id="ki-text" type="text" maxlength="300" autocomplete="off" placeholder="z. B. Warum mal 2?"><button class="btn small" type="submit">Fragen</button></div></form>`);
         form.onsubmit = async (ev) => {
           ev.preventDefault();
           const feld = form.querySelector('input'), knopf = form.querySelector('button'), text = feld.value.trim();
@@ -58,7 +59,7 @@ export function quiz(sequence, opts = {}) {
       };
       const erklaer = async () => {
         if (note.querySelector('.ki') || !(await kiBereit()) || note.querySelector('.ki') || !note.isConnected) return;
-        const box = h(`<div class="ki"><small class="muted">Noch nicht klar?</small><div class="picks">${[['einfacher', 'Einfacher erklären'], ['beispiel', 'Mit Beispiel'], ['eselsbruecke', 'Eselsbrücke']].map(([k, n]) => `<button class="pick" type="button" data-k="${k}">${n}</button>`).join('')}</div><div class="ki-out" aria-live="polite"></div><small class="muted ki-hinweis">Dafür gehen nur die Aufgabe und deine Antwort an einen KI-Dienst – kein Name, kein Lernstand.</small></div>`);
+        const box = h(`<div class="ki"><small class="muted">Noch nicht klar? Die KI erklärt es anders ${marke('ki')}</small><div class="picks">${[['einfacher', 'Einfacher erklären'], ['beispiel', 'Mit Beispiel'], ['eselsbruecke', 'Eselsbrücke']].map(([k, n]) => `<button class="pick" type="button" data-k="${k}">${n}</button>`).join('')}</div><div class="ki-out" aria-live="polite"></div><small class="muted ki-hinweis">Dafür gehen nur die Aufgabe und deine Antwort an einen KI-Dienst – kein Name, kein Lernstand.</small></div>`);
         box.querySelectorAll('button').forEach((b) => { b.onclick = async () => {
           const out = box.querySelector('.ki-out'); box.querySelectorAll('button').forEach((x) => { x.disabled = true; });
           out.innerHTML = '<div class="note tip ki-laedt">Die Erklärung wird geschrieben. Das dauert ein paar Sekunden<span aria-hidden="true"></span></div>';

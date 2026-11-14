@@ -750,3 +750,43 @@ textarea.field{resize:vertical;min-height:72px;font:inherit;padding:10px 12px}
 .blase{position:relative;padding:11px 14px;border-radius:18px 18px 18px 4px;background:var(--soft);border:1px solid var(--line);font-weight:650;font-size:14.5px;line-height:1.35;color:var(--head)}
 @keyframes reinh{from{opacity:0;transform:translateY(8px) scale(.97)}to{opacity:1;transform:none}}
 @media (prefers-reduced-motion:reduce){.pi-gruss,.pi-gruss .pi-fig{animation:none}}
+
+/* ───────────── Stufen sichtbar: Marke „PRO“ / „KI“, Stufe in der Kopfleiste ───────────── */
+.marke{display:inline-flex;align-items:center;gap:3px;vertical-align:middle;margin-left:4px;padding:2px 7px;border-radius:99px;font-size:10px;font-weight:900;letter-spacing:.06em;line-height:1.4;white-space:nowrap;
+  background:var(--soft);color:var(--muted);border:1px solid var(--line)}
+.marke.ki{background:#efe9ff;color:#5a36c9;border-color:#d9ccff}
+.marke.pro{background:var(--orange-soft);color:var(--orange-dark);border-color:#ffd9bf}
+.marke.an{background:var(--mint-soft);color:var(--mint-ink);border-color:color-mix(in srgb,var(--mint) 60%,transparent)}
+.btn .marke{background:rgba(255,255,255,.9)}
+:root[data-look="dunkel"] .marke.ki{background:#2b2350;color:#c9b8ff;border-color:#463a7a}
+:root[data-look="dunkel"] .marke.pro{background:#3a2616;color:#ffb27a;border-color:#5a3a22}
+.brand-text small.stufe{display:block!important;justify-self:start;margin-top:2px;padding:1px 7px;border-radius:99px;font-size:9.5px;font-weight:900;letter-spacing:.08em;color:#fff;background:linear-gradient(135deg,#ff7418,#ff9d36);overflow:visible}
+.pro-zeile.zu .num{background:var(--soft);color:var(--muted)}
+.pro-zeile.offen .num{background:var(--mint-soft);color:var(--mint-ink)}
+.pro-zeile h3{display:flex;flex-wrap:wrap;align-items:center;gap:2px}
+/* Startseite: schlanke Werbe-Zeile */
+.cta.schmal{padding:14px 16px;gap:10px;border-radius:20px}
+.cta.schmal h2{font-size:16px}
+.cta.schmal .row{gap:8px;flex-wrap:wrap}
+.cta.schmal .btn{flex:1 1 auto;justify-content:center}
+.cta.schmal .btn.line{background:transparent;color:#fff;border-color:rgba(255,255,255,.7)}
+/* Theorie: am Bildschirm im App-Aussehen (Karten), das Papier mit Logo gibt es nur im Ausdruck */
+.t-leiste{display:grid;grid-template-columns:1fr 1fr;gap:8px;align-items:center}
+.t-leiste .umschalt{grid-column:1 / -1}
+.t-leiste .btn{justify-content:center}
+.umschalt{display:grid;grid-template-columns:1fr 1fr;padding:3px;border-radius:14px;background:var(--soft);border:1px solid var(--line)}
+.umschalt .pick{min-height:40px;min-width:0;border:0;background:transparent;font-size:14px;padding:0 8px;border-radius:11px;display:flex;align-items:center;justify-content:center;gap:2px}
+.umschalt .pick.sel{background:var(--card);color:var(--orange-dark);box-shadow:0 2px 8px rgba(16,27,67,.1)}
+@media screen{
+  .theorie{color:var(--ink);gap:0}
+  .theorie .b-seite{background:none;border:0;box-shadow:none;padding:0;overflow:visible;color:var(--ink);display:grid;gap:12px}
+  .theorie .b-kopf,.theorie .b-fuss{display:none}
+  .theorie .t-teil{background:var(--card);border:1px solid var(--line);border-radius:22px;padding:16px 16px 14px;box-shadow:var(--shadow)}
+  .theorie .t-teil h2{color:var(--head);font-size:17px}
+  .theorie p,.theorie li{color:var(--ink)}
+  .theorie .muted,.theorie .t-zeile small{color:var(--muted)}
+  .theorie .katex{color:var(--ink)}
+  .theorie .t-merk{background:var(--card);padding:16px 16px 14px!important}
+  .theorie .t-tafel th,.theorie .t-tafel td{border-color:var(--line)}.theorie .t-tafel th{background:var(--soft)}
+  .theorie .merk{background:var(--soft);border-color:var(--line)}.theorie .merk figcaption,.theorie .merk-text{color:var(--head)}
+}

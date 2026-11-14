@@ -202,6 +202,8 @@ export const store = {
   /** Zugang zur Pro-Fassung: { code, art, bis } oder null. Nur im Gerät gespeichert. */
   get zugang() { const z = mem.zugang; return z && typeof z === 'object' && typeof z.code === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(z.bis || '') ? z : null; },
   set zugang(v) { mem.zugang = v; save(); },
+  /** Stufe dieses Geräts: '' (frei), 'pro' oder 'proki' (Pro + KI). */
+  get stufe() { return this.zugangGilt() ? (this.zugang.ki === false ? 'pro' : 'proki') : ''; },
   /** Gilt der Zugang heute noch? */
   zugangGilt(today = new Date()) { const z = this.zugang; return !!z && z.bis >= dayKey(today); },
   /** Erinnerung aufs Handy: { zeit } oder null. */

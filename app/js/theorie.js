@@ -7,6 +7,7 @@ import { UNITS, AREAS, unitExtra, NICHT_TEXT } from './units.js';
 import { CONFIG } from './config.js';
 import { premiumOn, premiumBereit } from './api.js';
 import { merkbilderEinsetzen, hatMerkbild } from './merkbild.js';
+import { marke } from './pro.js';
 
 const D = (s) => `<div class="t-formel">${tex(s, true)}</div>`;
 const t = (s) => tex(s);
@@ -132,9 +133,10 @@ function listeView() {
 function kapitelView(u, startLang) {
   const el = h(`<div class="view stack blatt-view">
     <a class="back noprint" href="#/theorie">${ICON.left} Theorie</a>
-    <section class="card stack noprint"><div class="picks" id="t-art" role="radiogroup" aria-label="Länge"><button class="pick" type="button" role="radio" data-l="0">Kurz</button><button class="pick" type="button" role="radio" data-l="1">Ausführlich</button></div>
-      <div class="row"><a class="btn grow" href="#/u/${u.id}">Zur Einheit: üben</a><button class="btn ghost grow" id="t-druck" type="button">Drucken / als PDF</button></div>
-      <div id="t-pro"></div></section>
+    <div class="noprint"><span class="eyebrow">Theorie</span><h1 style="margin-top:8px">${esc(u.title)}</h1><p class="lead" style="margin-top:6px">${esc(u.sub || '')}</p></div>
+    <div class="t-leiste noprint"><div class="umschalt" id="t-art" role="radiogroup" aria-label="Länge"><button class="pick" type="button" role="radio" data-l="0">Kurz</button><button class="pick" type="button" role="radio" data-l="1">Ausführlich ${marke('pro')}</button></div>
+      <a class="btn small" href="#/u/${u.id}">Üben</a><button class="btn ghost small" id="t-druck" type="button">PDF ${marke('pro')}</button></div>
+    <div id="t-pro" class="noprint"></div>
     <div id="t-text"></div>
   </div>`);
   let lang = !!startLang && hatLang(u);

@@ -4,6 +4,7 @@ import { quiz } from './quiz.js';
 import { initMelden } from './melden.js';
 import { abenteuerView } from './abenteuer.js';
 import { blattView } from './blatt.js';
+import { proView } from './pro.js';
 import { kiAufgabeView } from './kiaufgabe.js';
 import { theorieView } from './theorie.js';
 import { kartenView, faellig } from './karten.js';
@@ -29,6 +30,9 @@ function chips() {
     `<button class="chip snd" type="button" id="snd" aria-pressed="${sound.on}" aria-label="Ton ${sound.on ? 'ausschalten' : 'einschalten'}">${sound.on ? ICON.speaker : ICON.mute}</button>` +
     (store.ruhig ? '' : `<span class="chip fire" title="Lern-Serie in Tagen">${ICON.fire}${store.streak}</span>`) +
     `<span class="chip xp" title="Punkte">${ICON.bolt}${store.xp}</span>`;
+  // Stufe steht unter dem Namen der App: „PRO“ oder „PRO + KI“ (statt „von Mathenachhilfe Online“)
+  const unter = document.querySelector('.brand-text small');
+  if (unter) { unter.textContent = store.stufe ? (store.stufe === 'proki' ? 'PRO + KI' : 'PRO') : 'von Mathenachhilfe Online'; unter.classList.toggle('stufe', !!store.stufe); unter.id = 'stufe'; }
   $('#snd').onclick = () => { sound.on = !sound.on; chips(); sfx('ok'); };
   $('#look').onclick = () => { look.toggle(); chips(); sfx('tap'); };
 }
@@ -104,8 +108,6 @@ function home() {
       <h1>Verstehen <br>schafft <span class="orange">Sicherheit.</span></h1>
       ${started ? `<div class="pi-gruss" id="pi-gruss"><span class="pi-fig">${pi()}</span><p class="blase">${esc(piSagt(spot))}</p></div>` : ''}
     </section>
-    <div class="sect"><h2>Was möchtest du üben?</h2></div>
-    <section class="areas">${AREAS.map((a) => areaCard(a, a.id === 'pruefung' ? '#/pruefung' : `#/g/${a.id}`)).join('')}</section>
     <section class="board">
       <div class="board-top"><span>${!started ? 'EMPFOHLENER EINSTIEG' : spot?.last ? 'ZULETZT GESPIELT' : 'NÄCHSTER SCHRITT'}</span><b>● ${spot ? esc(AREAS.find((a) => a.id === spot.u.area).title.toUpperCase()) : 'FERTIG'}</b></div>
       ${spot
@@ -113,12 +115,12 @@ function home() {
            <a class="btn" href="#/u/${spot.u.id}/${spot.i}">${started ? 'Weiter' : 'Erste Runde starten'} ${ICON.right}</a>`
         : '<h2>Alles geschafft!</h2><p>Wiederhole gern eine Runde – die Aufgaben sind jedes Mal neu. Oder teste dich im Abi-Modus.</p>'}
     </section>
+    <div class="sect"><h2>Was möchtest du üben?</h2></div>
+    <section class="areas">${AREAS.map((a) => areaCard(a, a.id === 'pruefung' ? '#/pruefung' : `#/g/${a.id}`)).join('')}</section>
     <div id="today" class="stack"></div>
-    <section class="cta">
+    <section class="cta schmal">
       <h2>Hängt es an einer Stelle?</h2>
-      <p>In einer kostenlosen Probestunde klären wir gemeinsam, was gerade hilft.</p>
-      <a class="btn" href="${CONFIG.probestunde}" target="_blank" rel="noopener">Gratis Probestunde ${ICON.right}</a>
-      <a class="btn line site" href="${CONFIG.website}" target="_blank" rel="noopener">Zur Website ↗</a>
+      <div class="row"><a class="btn small" href="${CONFIG.probestunde}" target="_blank" rel="noopener">Gratis Probestunde</a><a class="btn small line site" href="${CONFIG.website}" target="_blank" rel="noopener">Zur Website ↗</a></div>
     </section>
     ${footer()}
   </div>`);
@@ -133,24 +135,15 @@ function home() {
   // Kleine Kacheln nebeneinander statt langer Liste
   const tiles = [];
   if (!started && !store.einstufung) tiles.push(tile('#/einstufung/ergebnis', '?', 'Einstufungstest', 'Wo fängst du am besten an?'));
-  tiles.push(tile('#/tag', ICON.bolt, 'Tages-Runde', tb !== undefined ? `Heute: ${tb} Punkte` : 'Heute für alle gleich'));
   if (due) tiles.push(tile('#/wiederholen', due, 'Wiederholen', `${due === 1 ? 'Eine Aufgabenart' : `${due} Aufgabenarten`} fällig`));
-  tiles.push(tile('#/karte', `<i class="mini-fig">${pi()}</i>`, 'Karte', 'Die Reise durch Mathea'));
+  tiles.push(tile('#/tag', ICON.bolt, 'Tages-Runde', tb !== undefined ? `Heute: ${tb} Punkte` : 'Heute für alle gleich'));
   if (started) tiles.push(tile('#/abenteuer', '⚔', 'Abenteuer', store.n('abenteuerRekord') ? `Rekord: ${store.n('abenteuerRekord')} Punkte` : 'Sieben Räume, ein Drache'));
-  if (started) tiles.push(tile('#/aufgabe', 'a–e', 'Abi-Aufgabe', 'Am Stück, wie in der Prüfung'));
-  if (days === null && started) tiles.push(tile('#/plan', ICON.right, 'Lernplan', 'Abi-Termin eintragen'));
+  tiles.push(tile('#/karte', `<i class="mini-fig">${pi()}</i>`, 'Karte', 'Die Reise durch Mathea'));
+  tiles.length = Math.min(tiles.length, 4);   // die Startseite bleibt kurz: höchstens vier Kacheln, alles Weitere steht in den Reitern
   today.append(h(`<div class="tiles">${tiles.join('')}</div>`));
   if (!store.ruhig) today.append(weekCard(() => { chips(); badgeCheck(); route(); }));
   // Wie bei einer echten App: Zahl am App-Symbol (fällige Wiederholungen), wo das Gerät es kann
   try { if ('setAppBadge' in navigator) { if (due) navigator.setAppBadge(due); else navigator.clearAppBadge(); } } catch { /* nicht überall erlaubt */ }
-  // Einmaliger, wegklickbarer Hinweis: als App installieren
-  if (installEvent && started && !store.n('installNein')) {
-    const box = h(`<section class="card stack" id="home-install"><div class="row"><h3 class="grow">Als App aufs Handy</h3><button class="x" id="hi-x" type="button" aria-label="Schließen">✕</button></div>
-      <small class="muted">Eigenes Symbol, Vollbild, läuft auch ohne Netz – und Erinnerungen kommen wie bei jeder App.</small><button class="btn" id="hi-go" type="button">Installieren</button></section>`);
-    $('#hi-x', box).onclick = () => { store.bump('installNein'); box.remove(); };
-    $('#hi-go', box).onclick = async () => { installEvent.prompt(); await installEvent.userChoice; installEvent = null; window.__mtInstall = null; box.remove(); };
-    today.append(box);
-  }
   return el;
 }
 
@@ -214,6 +207,7 @@ function mehrView() {
     <div><span class="eyebrow">Mehr</span><h1 style="margin-top:8px">Dein Trainer</h1></div>
     <section class="stack">
       ${linkCard('#/wiederholen', due || ICON.check, 'Fehler-Kartei', due ? `${due} ${due === 1 ? 'Aufgabenart ist' : 'Aufgabenarten sind'} heute fällig.` : `${store.karteCount} in der Kartei, heute nichts fällig.`)}
+      ${linkCard('#/pro', 'PRO', store.stufe ? (store.stufe === 'proki' ? 'Deine Stufe: Pro + KI' : 'Deine Stufe: Pro') : 'Pro und Pro + KI', store.stufe ? 'Was freigeschaltet ist und bis wann.' : 'Was die Pro-Fassung zusätzlich kann.')}
       ${linkCard('#/karten', faellig().length || ICON.check, 'Lernkarten', 'Formeln und eigene Karten – wiederholt in wachsenden Abständen.')}
       ${linkCard('#/erfolge', ICON.star, 'Erfolge', `${titleOf().title} · ${Object.keys(store.badges).length} Abzeichen`)}
       ${linkCard('#/plan', ICON.right, 'Lernplan bis zum Abi', store.abi ? 'Was diese Woche dran ist.' : 'Abi-Termin eintragen – die App verteilt den Stoff auf die Wochen.')}
@@ -340,7 +334,7 @@ function route() {
   const hash = location.hash;
   const m = hash.match(/^#\/u\/([\w-]+)(?:\/(\d+))?$/);
   const u = m && UNITS.find((x) => x.id === m[1]);
-  const x = hash.match(/^#\/(abi|tag|duell|blitz|bericht|einstellungen|wiederholen|erfolge|formeln|klasse|lehrplan|einstufung|aufgabe|plan|zertifikat|abenteuer|karte|theorie|karten|kiaufgabe)(?:\/([\w-]+))?$/);
+  const x = hash.match(/^#\/(abi|tag|duell|blitz|bericht|einstellungen|wiederholen|erfolge|formeln|klasse|lehrplan|einstufung|aufgabe|plan|zertifikat|abenteuer|karte|theorie|karten|kiaufgabe|pro)(?:\/([\w-]+))?$/);
   const gm = hash.match(/^#\/g\/(\w+)$/), g = gm && LERN_AREAS().find((a) => a.id === gm[1]);
   const pm = hash.match(/^#\/ueben\/(\w+?)(-grund)?$/), pa = pm && LERN_AREAS().find((a) => a.id === pm[1]);
   const bm = hash.match(/^#\/blatt(?:\/([\w.\-/]+))?$/);
@@ -352,14 +346,14 @@ function route() {
     const after = () => { chips(); setTimeout(badgeCheck, 600); };
     const r = { abi: () => abiView(['A', 'B'].includes(x[2]) ? x[2] : null, after), tag: () => rundeView('tag', undefined, (res) => { after(); meldeTag(res); }), duell: () => rundeView('duell', x[2], after), blitz: () => blitzView(after),
       bericht: berichtView, einstellungen: settingsView, wiederholen: karteiView, erfolge: erfolgeView, formeln: formelnView, klasse: klasseView, lehrplan: lehrplanView,
-      einstufung: () => (x[2] === 'ergebnis' ? einstufungErgebnis() : einstufungView()), aufgabe: () => verbundView(x[2]), plan: planView, zertifikat: () => zertifikatView(x[2]), abenteuer: () => abenteuerView(after), karte: karteView, theorie: () => theorieView(x[2]), karten: kartenView, kiaufgabe: kiAufgabeView }[x[1]]();
+      einstufung: () => (x[2] === 'ergebnis' ? einstufungErgebnis() : einstufungView()), aufgabe: () => verbundView(x[2]), plan: planView, zertifikat: () => zertifikatView(x[2]), abenteuer: () => abenteuerView(after), karte: karteView, theorie: () => theorieView(x[2]), karten: kartenView, kiaufgabe: kiAufgabeView, pro: proView }[x[1]]();
     el = r.el; cleanup = r.cleanup || null;
   } else if (hash === '#/lernen') el = lernenView();
   else if (hash === '#/pruefung') {
     el = pruefungView();
     // KI-Aufgaben: Der Einstieg erscheint nur dort, wo der Server sie anbietet.
     const platz = el.querySelector('#pf-ki');
-    kiBereit().then(() => { if (platz?.isConnected && kiArt('aufgabe')) platz.innerHTML = linkCard('#/kiaufgabe', 'KI', 'KI-Aufgaben', 'Immer neue Aufgaben im Abi-Stil – vom Server nachgerechnet (Pro + KI).'); });
+    kiBereit().then(() => { if (platz?.isConnected && kiArt('aufgabe')) platz.innerHTML = linkCard('#/kiaufgabe', 'KI', 'KI-Aufgaben', 'Immer neue Aufgaben im Abi-Stil – vom Server nachgerechnet. Gehört zu Pro + KI.'); });
   }
   else if (hash === '#/mehr') el = mehrView();
   else if (g) el = areaView(g);
@@ -381,7 +375,7 @@ function nav() {
   const hash = location.hash || '#/';
   const um = hash.match(/^#\/u\/([\w-]+)/), unit = um && UNITS.find((x) => x.id === um[1]);
   const tab = unit ? (unit.area === 'pruefung' ? 'pruefung' : 'lernen')
-    : /^#\/(lernen|g\/|ueben\/|einstufung|karte|theorie)/.test(hash) ? 'lernen' : /^#\/(pruefung|abi|tag|duell|blitz|klasse|aufgabe|abenteuer|blatt|kiaufgabe)/.test(hash) ? 'pruefung' : /^#\/(mehr|bericht|einstellungen|wiederholen|erfolge|formeln|lehrplan|plan|zertifikat|karten)/.test(hash) ? 'mehr' : 'start';
+    : /^#\/(lernen|g\/|ueben\/|einstufung|karte|theorie)/.test(hash) ? 'lernen' : /^#\/(pruefung|abi|tag|duell|blitz|klasse|aufgabe|abenteuer|blatt|kiaufgabe)/.test(hash) ? 'pruefung' : /^#\/(mehr|bericht|einstellungen|wiederholen|erfolge|formeln|lehrplan|plan|zertifikat|karten|pro)/.test(hash) ? 'mehr' : 'start';
   document.querySelectorAll('#nav a').forEach((a) => { const on = a.dataset.tab === tab; a.classList.toggle('on', on); if (on) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current'); });
   $('#nav').hidden = !!view.querySelector('.stephead');
   tint();

@@ -4,6 +4,7 @@ import { h, esc } from './ui.js';
 import { store } from './store.js';
 import { CONFIG } from './config.js';
 import { api, premiumOn } from './api.js';
+import { marke } from './pro.js';
 
 export const BILD_MAX_KANTE = 1600;
 export const BILD_MAX_BYTES = 1_000_000;
@@ -35,7 +36,7 @@ export async function verkleinern(datei) {
 
 /** Baut das Feld „Rechenweg prüfen“ für eine Aufgabe. */
 export function rechenwegFeld(q, richtigTex) {
-  const box = h(`<details class="rw"><summary>Meinen Rechenweg prüfen lassen</summary>
+  const box = h(`<details class="rw"><summary>Meinen Rechenweg prüfen lassen ${marke('ki')}</summary>
     <small class="muted">${esc(FOTO_HINWEIS)} Das Bild wird nur für die Antwort verwendet und nicht gespeichert.</small>
     <div class="row"><label class="btn ghost small grow rw-foto">Foto auswählen<input type="file" accept="image/*" capture="environment" hidden></label></div>
     <textarea class="field" rows="3" maxlength="${TEXT_MAX}" placeholder="… oder tippe deinen Rechenweg ab, Zeile für Zeile" aria-label="Rechenweg als Text"></textarea>
