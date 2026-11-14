@@ -2,9 +2,10 @@
 import { Plot } from './plot.js';
 import { h, tex, cssVar, buzz, sfx } from './ui.js';
 import { store } from './store.js';
+import { CONFIG } from './config.js';
 import { ft } from './math.js';
 import { inputSpec, parseInput, isRight, diagnose } from './eingabe.js';
-import { api, kiBereit } from './api.js';
+import { api, kiBereit, premiumOn } from './api.js';
 
 /** sequence: Liste von Erzeugern (eine Aufgabe je Eintrag). */
 export function quiz(sequence, opts = {}) {
@@ -34,11 +35,15 @@ export function quiz(sequence, opts = {}) {
         box.querySelectorAll('button').forEach((b) => { b.onclick = async () => {
           const out = box.querySelector('.ki-out'); box.querySelectorAll('button').forEach((x) => { x.disabled = true; });
           out.innerHTML = '<div class="note tip ki-laedt">Die Erklärung wird geschrieben. Das dauert ein paar Sekunden<span aria-hidden="true"></span></div>';
-          const r = await api.erklaer({ frage: String(q.prompt).replace(/<[^>]+>/g, '').slice(0, 400), formel: String(q.formula || '').slice(0, 300), richtig: richtigTex().slice(0, 200), gewaehlt: gewaehlt.slice(0, 200), art: b.dataset.k });
+          const r = await api.erklaer({ frage: String(q.prompt).replace(/<[^>]+>/g, '').slice(0, 400), formel: String(q.formula || '').slice(0, 300), richtig: richtigTex().slice(0, 200), gewaehlt: gewaehlt.slice(0, 200), art: b.dataset.k, geraet: store.geraet, ...(store.zugangGilt() ? { zugang: store.zugang.code } : {}) });
           const div = h('<div class="note"></div>');
           div.className = `note ${r.ok && r.text ? 'ok' : 'tip'}`;
-          div.textContent = r.ok && r.text ? String(r.text).replace(/<[^>]*>/g, '').slice(0, 900) : r.status === 429 ? 'Die Erklärungen sind für heute aufgebraucht. Morgen geht es weiter.' : (r.error || 'Die Erklärung ist gerade nicht erreichbar.');
-          out.replaceChildren(div); box.querySelectorAll('button').forEach((x) => { x.disabled = false; });
+          if (r.status === 402) {   // die drei kostenlosen Proben sind verbraucht
+            // In der Android-App kein Verweis auf einen Kauf außerhalb (Regel des Play Store) – dort nur das Code-Feld.
+            div.innerHTML = `<b>Deine drei kostenlosen Erklärungen sind aufgebraucht.</b> Mit der Pro-Fassung geht es weiter.${premiumOn() ? ' <a href="#/einstellungen">Zugangscode eingeben</a>' : ''}${window.MTApp ? '' : ` <a href="${CONFIG.website}" target="_blank" rel="noopener">Zur Website</a>`}`;
+          } else div.textContent = r.ok && r.text ? String(r.text).replace(/<[^>]*>/g, '').slice(0, 900) : r.status === 429 ? 'Die Erklärungen sind für heute aufgebraucht. Morgen geht es weiter.' : (r.error || 'Die Erklärung ist gerade nicht erreichbar.');
+          const rest = r.ok && Number.isInteger(r.rest) && r.rest >= 0 ? h(`<small class="muted ki-rest">${r.art === 'probe' ? (r.rest === 0 ? 'Das war deine letzte kostenlose Erklärung.' : `Noch ${r.rest} von 3 kostenlosen Erklärungen.`) : `Heute noch ${r.rest} ${r.rest === 1 ? 'Erklärung' : 'Erklärungen'}.`}</small>`) : '';
+          out.replaceChildren(div, rest); box.querySelectorAll('button').forEach((x) => { x.disabled = false; });
         }; });
         note.append(box);
       };

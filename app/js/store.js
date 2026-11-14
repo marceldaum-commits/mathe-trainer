@@ -85,7 +85,8 @@ export const store = {
     const n = unit.steps.filter((s) => this.isDone(unit.id, s.id)).length;
     return { n, total: unit.steps.length, done: n === unit.steps.length };
   },
-  reset() { mem = FRESH(); save(); },
+  /** Fortschritt löschen. Geräte-Kennung und Zugangscode bleiben – sie sind kein Lernstand. */
+  reset() { const { geraet, zugang } = mem; mem = FRESH(); if (geraet) mem.geraet = geraet; if (zugang) mem.zugang = zugang; save(); },
 
   /* Statistik je Thema (für Bericht und Schwächen-Erkennung) */
   record(topic, firstTry) {
@@ -181,6 +182,20 @@ export const store = {
   /** Ruhiger Modus: keine Lernserie, kein Wochen-Ziel, keine Herzen beim Boss, Abi-Modus ohne Uhr. */
   get ruhig() { return mem.ruhig === true; },
   set ruhig(v) { mem.ruhig = !!v; save(); },
+  /** Zufällige Kennung dieses Geräts (24 Zeichen), nur für die Zählung der KI-Proben. Entsteht erst, wenn sie gebraucht wird. */
+  get geraet() {
+    if (!/^[A-Za-z0-9_-]{16,64}$/.test(mem.geraet || '')) {
+      const z = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789', b = new Uint8Array(24);
+      (globalThis.crypto?.getRandomValues ? globalThis.crypto.getRandomValues(b) : b.forEach((_, i) => { b[i] = Math.floor(Math.random() * 256); }));   // kein rand() aus math.js: der ist für Aufgaben und bewusst vorhersagbar
+      mem.geraet = Array.from(b, (x) => z[x % z.length]).join(''); save();
+    }
+    return mem.geraet;
+  },
+  /** Zugang zur Pro-Fassung: { code, art, bis } oder null. Nur im Gerät gespeichert. */
+  get zugang() { const z = mem.zugang; return z && typeof z === 'object' && typeof z.code === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(z.bis || '') ? z : null; },
+  set zugang(v) { mem.zugang = v; save(); },
+  /** Gilt der Zugang heute noch? */
+  zugangGilt(today = new Date()) { const z = this.zugang; return !!z && z.bis >= dayKey(today); },
   /** Erinnerung aufs Handy: { zeit } oder null. */
   get erinnern() { return mem.erinnern && typeof mem.erinnern === 'object' ? mem.erinnern : null; },
   set erinnern(v) { mem.erinnern = v; save(); },

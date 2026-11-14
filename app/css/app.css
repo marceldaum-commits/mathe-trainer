@@ -646,3 +646,5 @@ a.count{text-decoration:none}
 .ki-laedt span::after{content:"";animation:kipunkte 1.4s steps(4,end) infinite}
 @keyframes kipunkte{0%{content:""}25%{content:" ."}50%{content:" . ."}75%{content:" . . ."}}
 @media (prefers-reduced-motion:reduce){.ki-laedt span::after{animation:none;content:" …"}}
+.linkbtn{background:none;border:0;padding:0;font:inherit;color:inherit;text-decoration:underline;cursor:pointer}
+.ki-rest{display:block;margin-top:6px}

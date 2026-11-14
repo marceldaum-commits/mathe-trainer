@@ -619,7 +619,14 @@ const EX = await import('../app/js/exam.js');
 // 13h) Server-Schnittstelle (abgeschaltet) und KI-Prüfer
 { const A = await import('../app/js/api.js'); const { parse } = await import('../app/js/ki/expr.js'); const K = await import('../app/js/ki/verify.js');
   ok(A.serverOn() && !A.kiOn(), 'Server: Rangliste eingeschaltet, KI ohne Freigabe des Servers aus');
-  ok(A.statusLesen({ ok: true, stufe: 'test', ki: true }) === 'test' && A.kiOn(), 'KI: an, wenn der Server sich als Testseite mit KI meldet');
+  ok(A.statusLesen({ ok: true, stufe: 'test', ki: true }) === 'test' && A.kiOn() && !A.premiumOn(), 'KI: an, wenn der Server sich als Testseite mit KI meldet; ohne „premium“ kein Code-Feld');
+  A.statusLesen({ ok: true, stufe: 'live', ki: true, premium: true }); ok(A.premiumOn() && !A.kiOn(), 'Pro: Code-Feld folgt dem Feld „premium“ des Servers, unabhängig von der KI-Freigabe');
+  A.statusLesen({ ok: false, premium: true }); ok(!A.premiumOn(), 'Pro: ohne gültige Antwort kein Code-Feld');
+  ok(A.codeNorm(' mt-ab12 cd34-ef56 ') === 'MT-AB12-CD34-EF56' && A.codeNorm('MTAB12CD34EF56') === 'MT-AB12-CD34-EF56' && A.codeNorm('AB-AB12-CD34-EF56') === '' && A.codeNorm('MT-AB12-CD34') === '' && A.codeNorm('') === '', 'Pro: Zugangscode wird in Form gebracht, falsche Codes abgelehnt');
+  { store.reset(); const g = store.geraet; ok(/^[A-Za-z0-9]{24}$/.test(g) && store.geraet === g, 'Pro: Geräte-Kennung entsteht einmal und bleibt gleich');
+    store.zugang = { code: 'MT-AB12-CD34-EF56', art: 'pass', bis: '2027-06-30' }; ok(store.zugangGilt(new Date(2027, 5, 30, 12)) && !store.zugangGilt(new Date(2027, 6, 1, 12)), 'Pro: Zugang gilt bis einschließlich Ablauftag');
+    store.complete('formen', 'murmelbahn', 3); store.reset(); ok(store.geraet === g && store.zugang?.code === 'MT-AB12-CD34-EF56' && store.xp === 0, 'Pro: „Fortschritt zurücksetzen“ löscht weder Kennung noch Zugang');
+    store.zugang = { code: 'x', bis: 'morgen' }; ok(store.zugang === null && !store.zugangGilt(), 'Pro: kaputter Zugang im Speicher zählt nicht'); store.zugang = null; }
   for (const r of [{ ok: true, stufe: 'live', ki: true }, { ok: true, stufe: 'test', ki: false }, { ok: false, stufe: 'test', ki: true }, { ok: true }, null, { ok: true, stufe: 'test', ki: 'ja' }]) { A.statusLesen(r); ok(!A.kiOn(), `KI: aus bei Status ${JSON.stringify(r)} (live, kein Budget, Fehler, kein Netz)`); }
   { const r = await A.api.rangliste('ABCDEF', 'x'); ok(r.ok === false && typeof r.error === 'string', 'Server: nicht erreichbar → saubere Fehlermeldung statt Absturz'); }
   ok(A.codeOk('k7m2qx') && !A.codeOk('ABC') && !A.codeOk('ABCDE1') && !A.codeOk('ABCDEO'), 'Klassen-Code: Format');

@@ -8,7 +8,7 @@ import { $, h, esc, ICON, sfx, toast, confetti } from './ui.js';
 import { CONFIG } from './config.js';
 import { BADGES, TITLES, SKINS, titleOf, skinOpen, checkBadges } from './badges.js';
 import { tex } from './ui.js';
-import { api, serverOn, nameOk, codeOk } from './api.js';
+import { api, serverOn, nameOk, codeOk, codeNorm, premiumBereit, ZUGANG_ART } from './api.js';
 import { pushOn, pushCan, pushAn, pushAus, pushStand, pushGesperrt, zeitOk, installiert, SPERR_HILFE, SPERR_SCHRITTE, SPERR_SCHRITTE_APP, nativ } from './erinnern.js';
 import { WOCHEN_ZIEL, WOCHEN_BONUS } from './store.js';
 
@@ -55,6 +55,12 @@ export function settingsView() {
       <div class="row push-row" id="st-push-zeile" hidden><label for="st-push-time"><b>Uhrzeit</b></label><input class="field" id="st-push-time" type="time" step="300" aria-label="Uhrzeit der Erinnerung">
         <button class="btn small" id="st-push-an" type="button">Speichern</button></div>
       <div id="st-push-note"></div><div id="st-push-install"></div></section>` : ''}
+    <section class="card stack" id="st-pro" hidden><h3>Pro-Fassung</h3>
+      <small class="muted">Mit einem Zugangscode schaltest du die KI-Erklärungen dauerhaft frei. Der Code liegt nur in diesem Gerät – es gibt kein Konto.</small>
+      <div id="st-pro-stand"></div>
+      <div class="row push-row" id="st-pro-zeile"><input class="field" id="st-pro-code" type="text" autocomplete="off" autocapitalize="characters" spellcheck="false" maxlength="24" placeholder="MT-XXXX-XXXX-XXXX" aria-label="Zugangscode">
+        <button class="btn small" id="st-pro-go" type="button">Einlösen</button></div>
+      <div id="st-pro-note"></div></section>
     <section class="card stack"><h3>Fortschritt</h3><small class="muted">Alles liegt nur auf diesem Gerät. Es gibt kein Konto.</small>
       <button class="btn ghost" id="st-reset" type="button">Fortschritt zurücksetzen</button></section>
   </div>`);
@@ -107,6 +113,22 @@ export function settingsView() {
     if (nativ()) { const neu = () => { if (el.isConnected) sync(); else window.removeEventListener('mt-erinnerung', neu); }; window.addEventListener('mt-erinnerung', neu); }
     paintP(); sync();
   }
+  { // Pro-Fassung: erscheint erst, wenn der Server Zugänge anbietet (GET /api/status → premium) oder schon ein Code im Gerät liegt.
+    const box = $('#st-pro', el), stand = $('#st-pro-stand', el), pn = $('#st-pro-note', el), feld = $('#st-pro-code', el), go = $('#st-pro-go', el), zeile = $('#st-pro-zeile', el);
+    const datum = (d) => d.split('-').reverse().join('.');
+    const paintZ = () => { const z = store.zugang;
+      stand.innerHTML = z ? `<div class="note ${store.zugangGilt() ? 'ok' : 'tip'}"><b>${esc(ZUGANG_ART[z.art] || 'Zugang')}</b> – ${store.zugangGilt() ? `gültig bis ${esc(datum(z.bis))}` : `abgelaufen am ${esc(datum(z.bis))}`}. <button class="linkbtn" id="st-pro-weg" type="button">Code entfernen</button></div>` : '';
+      zeile.hidden = !!z && store.zugangGilt();
+      $('#st-pro-weg', el)?.addEventListener('click', () => { store.zugang = null; pn.innerHTML = ''; paintZ(); }); };
+    go.onclick = async () => {
+      const code = codeNorm(feld.value);
+      if (!code) { pn.innerHTML = '<div class="note bad">Der Code hat die Form MT-XXXX-XXXX-XXXX.</div>'; return; }
+      go.disabled = true; pn.innerHTML = ''; const r = await api.zugang(code); go.disabled = false;
+      if (r.ok && /^\d{4}-\d{2}-\d{2}$/.test(r.bis || '')) { store.zugang = { code, art: String(r.art || ''), bis: r.bis }; feld.value = ''; pn.innerHTML = '<div class="note ok">Eingelöst. Die KI-Erklärungen sind freigeschaltet.</div>'; sfx('ok'); paintZ(); }
+      else pn.innerHTML = `<div class="note bad">${r.status === 404 ? 'Diesen Code kennen wir nicht, oder er ist abgelaufen.' : esc(r.error || 'Der Code konnte gerade nicht geprüft werden.')}</div>`;
+    };
+    paintZ(); if (store.zugang) box.hidden = false;
+    premiumBereit().then((an) => { if (an && el.isConnected) box.hidden = false; }); }
   { const rb = $('#st-ruhig', el), paintR = () => { rb.setAttribute('aria-checked', store.ruhig); rb.classList.toggle('an', store.ruhig); };
     rb.onclick = () => { store.ruhig = !store.ruhig; paintR(); sfx('tap'); window.dispatchEvent(new Event('mt-ruhig')); }; paintR(); }
   const tb = $('#st-tipp', el);

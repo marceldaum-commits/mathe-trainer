@@ -4,20 +4,31 @@
 import { CONFIG } from './config.js';
 
 export const serverOn = () => typeof CONFIG.api === 'string' && CONFIG.api.length > 0;
-let stufe = '';   // was der Server über sich sagt: 'test', wenn dort KI-Erklärungen freigegeben sind
+let stufe = '', premium = false;   // was der Server über sich sagt
+const kiEin = () => CONFIG.ki === true || CONFIG.ki === 'test';
 export const kiOn = () => serverOn() && (CONFIG.ki === true || (CONFIG.ki === 'test' && stufe === 'test'));
-/** Antwort von GET /api/status auswerten. Nur „Testseite und KI bereit“ schaltet die Erklärungen frei. */
-export const statusLesen = (r) => { stufe = r && r.ok === true && r.ki === true && r.stufe === 'test' ? 'test' : ''; return stufe; };
-/** Den Server fragen – nur, wenn die Einstellung 'test' das verlangt. Ohne Netz bleibt die KI aus. */
-export async function ladeStatus() { if (serverOn() && CONFIG.ki === 'test') statusLesen(await call('/status')); return kiOn(); }
+/** Verkauft der Server schon Zugänge? Erst dann zeigt die App das Feld „Zugangscode“. */
+export const premiumOn = () => serverOn() && kiEin() && premium;
+/** Antwort von GET /api/status auswerten. Nur „Testseite und KI bereit“ schaltet bei ki: 'test' die Erklärungen frei. */
+export const statusLesen = (r) => { const gut = !!r && r.ok === true; stufe = gut && r.ki === true && r.stufe === 'test' ? 'test' : ''; premium = gut && r.premium === true; return stufe; };
 let gefragt = null;
-/** Sind KI-Erklärungen hier erlaubt? Fragt den Server höchstens einmal je Sitzung – und erst dann, wenn jemand
- *  wirklich an einer Aufgabe hängt. Wer nur spielt, löst keine Anfrage aus. Bei Netzfehler wird später neu gefragt. */
-export function kiBereit() {
-  if (CONFIG.ki !== 'test' || !serverOn()) return Promise.resolve(kiOn());
-  gefragt ??= call('/status').then((r) => { if (r.ok !== true) gefragt = null; statusLesen(r); return kiOn(); });
+/** Den Server höchstens einmal je Sitzung nach seinem Stand fragen – und erst dann, wenn es jemand braucht
+ *  (hängt an einer Aufgabe, öffnet die Einstellungen). Wer nur spielt, löst keine Anfrage aus. Bei Netzfehler wird später neu gefragt. */
+function status() {
+  if (!serverOn() || !kiEin()) return Promise.resolve();
+  gefragt ??= call('/status').then((r) => { if (r.ok !== true) gefragt = null; statusLesen(r); });
   return gefragt;
 }
+/** Sind KI-Erklärungen hier erlaubt? */
+export const kiBereit = () => status().then(kiOn);
+/** Gibt es hier schon Zugänge zu kaufen bzw. einzulösen? */
+export const premiumBereit = () => status().then(premiumOn);
+/** Zugangscode in die Form MT-XXXX-XXXX-XXXX bringen (Groß/klein, Leerzeichen und Striche egal). Leer, wenn er nicht passt. */
+export function codeNorm(s) {
+  const t = String(s || '').toUpperCase().replace(/[^A-Z0-9]/g, '');
+  return /^MT[A-Z0-9]{12}$/.test(t) ? `MT-${t.slice(2, 6)}-${t.slice(6, 10)}-${t.slice(10, 14)}` : '';
+}
+export const ZUGANG_ART = { pass: 'Abi-Pass', tage30: '30-Tage-Pass', frei: 'Freier Zugang' };
 
 async function call(path, body) {
   if (!serverOn()) return { ok: false, off: true };
@@ -45,8 +56,10 @@ export const api = {
   melden: (r) => call('/ergebnis', r),
   /** Rangliste → { woche, liste: [{ name, punkte, ich }] } */
   rangliste: (code, spieler) => call(`/klasse/${encodeURIComponent(code)}/rangliste?spieler=${encodeURIComponent(spieler || '')}`),
-  /** KI: Erklärung in anderen Worten → { text } */
+  /** KI: Erklärung in anderen Worten → { text, rest, art: 'zugang'|'probe' }; 402 = Proben verbraucht, 429 = Limit */
   erklaer: (q) => call('/ki/erklaer', q),
+  /** Zugangscode prüfen → { art: 'pass'|'tage30'|'frei', bis: 'JJJJ-MM-TT' }; 404 = unbekannt oder abgelaufen */
+  zugang: (code) => call('/zugang', { code }),
   /** KI: neue, vom Server nachgerechnete Aufgabe → { aufgabe } */
   aufgabe: (wunsch) => call('/ki/aufgabe', wunsch),
 };

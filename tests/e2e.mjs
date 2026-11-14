@@ -21,6 +21,8 @@ const errors = [];
 let serverAus = false;   // solange der nachgestellte Melde-Server „nicht erreichbar“ spielt, sind seine Lade-Fehler erwartet
 page.on('console', (m) => { if (m.type() === 'error' && !(serverAus && /Failed to load resource/.test(m.text()))) errors.push(m.text()); });
 page.on('pageerror', (e) => errors.push(String(e)));
+// Der Test-Server (reine Dateien) kennt /api/status nicht – hier antwortet er wie die Live-Seite: KI aus, kein Verkauf.
+await page.route('**/api/status', (r) => r.fulfill({ json: { ok: true, stufe: 'live', ki: false, premium: false } }));
 const apiCalls = [];
 page.on('request', (r) => { const p = new URL(r.url()).pathname; if (p.startsWith('/api/') && p !== '/api/meldung') apiCalls.push(p); });
 const shot = async (name) => { if (shots) await page.screenshot({ path: `${shots}/${name}.png` }); };
@@ -511,6 +513,7 @@ await page.goto(`${BASE}#/pruefung`); await page.waitForSelector('a[href="#/blit
 if (!(await page.locator('a[href="#/klasse"]').count())) fail('Klassen-Rangliste wird nicht angeboten');
 { // /api/status trägt keine Daten (reine Abfrage „Testseite? KI bereit?“) und darf erst kommen, wenn jemand an einer Aufgabe hängt – höchstens einmal je Seitenaufruf.
   const sonst = apiCalls.filter((u) => u !== '/api/status');
+  if (await page.evaluate(() => { const el = document.querySelector('#st-pro'); return !!el && !el.hidden; })) fail('Pro: Code-Feld darf ohne „premium“ vom Server nicht erscheinen');
   if (sonst.length) fail(`Unerwartete Anfragen an den Server ohne Klasse: ${sonst.join(', ')}`); }
 
 /* ───────────── Fortschritt, Vorlade-Liste, Offline ───────────── */
@@ -548,7 +551,9 @@ let kiRufe = 0;
 await ctx2.route('**/api/**', async (route) => {
   const u = new URL(route.request().url()), body = route.request().postDataJSON?.() ?? null; calls.push([u.pathname, body]);
   if (u.pathname === '/api/klasse/beitreten') return route.fulfill({ json: body.code === 'K7M2QX' ? { klasse: 'Q12 Mathe', spieler: 'p-123' } : { error: 'Diesen Code gibt es nicht.' }, status: body.code === 'K7M2QX' ? 200 : 404 });
-  if (u.pathname === '/api/ki/erklaer') { kiRufe++; return kiRufe === 1 ? route.fulfill({ json: { text: 'Stell dir vor: <b>fett</b> erst außen, dann innen.' } }) : route.fulfill({ status: 429, json: { error: 'Limit' } }); }
+  if (u.pathname === '/api/status') return route.fulfill({ json: { ok: true, stufe: 'test', ki: true, premium: true } });
+  if (u.pathname === '/api/zugang') return body.code === 'MT-AB12-CD34-EF56' ? route.fulfill({ json: { art: 'tage30', bis: '2099-12-31' } }) : route.fulfill({ status: 404, json: { error: 'unbekannt' } });
+  if (u.pathname === '/api/ki/erklaer') { kiRufe++; return kiRufe === 1 ? route.fulfill({ json: { text: 'Stell dir vor: <b>fett</b> erst außen,\ndann innen.', rest: 2, art: 'probe' } }) : kiRufe === 2 ? route.fulfill({ status: 402, json: { grund: 'probe', error: 'Proben verbraucht' } }) : route.fulfill({ status: 429, json: { error: 'Limit' } }); }
   if (u.pathname === '/api/push/schluessel') return route.fulfill({ json: { key: 'BEl62iUYgUivxIkv69yViEuiBIa-Ib9-SkvMeAtA3LFgDzkrxZJjSgSnfckjBJuBkr3qBUYIHBQFLXYp5Nksh8U' } });
   if (u.pathname === '/api/klasse') return route.fulfill({ json: body.name?.length >= 2 ? { code: 'K7M2QX' } : { error: 'Name fehlt.' } });
   if (u.pathname.endsWith('/rangliste')) return route.fulfill({ json: { woche: '2026-11-09', liste: [{ name: 'Mia', punkte: 540 }, { name: 'Testfuchs', punkte: 480, ich: true }, { name: '<b>Frech</b>', punkte: 10 }] } });
@@ -578,9 +583,22 @@ if (!(await p2.locator('.ki').count())) fail('KI: „Erklär\'s mir anders“ er
 await p2.locator('.ki .pick').first().click(); await p2.waitForSelector('.ki-out .note.ok');
 if (!(await p2.textContent('.ki-out')).includes('Stell dir vor') || await p2.locator('.ki-out b').count()) fail('KI: Erklärung muss als reiner Text erscheinen');
 const kiAnfrage = calls.find(([path]) => path === '/api/ki/erklaer')[1];
-if (Object.keys(kiAnfrage).sort().join() !== 'art,formel,frage,gewaehlt,richtig') fail(`KI: Anfrage enthält andere Felder: ${Object.keys(kiAnfrage)}`);
+if (Object.keys(kiAnfrage).sort().join() !== 'art,formel,frage,geraet,gewaehlt,richtig' || !/^[A-Za-z0-9_-]{16,64}$/.test(kiAnfrage.geraet)) fail(`KI: Anfrage enthält andere Felder: ${Object.keys(kiAnfrage)}`);
+if (!/Noch 2 von 3 kostenlosen/.test(await p2.textContent('.ki-rest'))) fail('KI: Rest der kostenlosen Proben wird nicht angezeigt');
+if ((await p2.evaluate(() => getComputedStyle(document.querySelector('.ki-out .note')).whiteSpace)) !== 'pre-line') fail('KI: Zeilenumbrüche der Erklärung gehen verloren');
 if (shots) await p2.screenshot({ path: `${shots}/76-ki-erklaerung.png` });
-await p2.locator('.ki .pick').nth(1).click(); await p2.waitForFunction(() => document.querySelector('.ki-out')?.textContent.includes('aufgebraucht'));
+await p2.locator('.ki .pick').nth(1).click(); await p2.waitForFunction(() => document.querySelector('.ki-out')?.textContent.includes('kostenlosen Erklärungen sind aufgebraucht'));   // 402: Proben verbraucht
+if (!(await p2.locator('.ki-out a[href="#/einstellungen"]').count())) fail('Pro: Hinweis nach den Proben nennt das Code-Feld nicht');
+await p2.locator('.ki .pick').nth(2).click(); await p2.waitForFunction(() => document.querySelector('.ki-out')?.textContent.includes('für heute aufgebraucht'));   // 429: Tageslimit
+// Zugangscode: Feld erscheint, weil der Server „premium“ meldet; falsche Form und unbekannter Code werden erklärt, der richtige wird gespeichert
+await p2.goto(`${BASE}#/einstellungen`); await p2.waitForSelector('#st-pro:not([hidden])');
+await p2.fill('#st-pro-code', 'abc'); await p2.click('#st-pro-go'); if (!/Form MT-/.test(await p2.textContent('#st-pro-note'))) fail('Pro: falsche Code-Form wird nicht erklärt');
+await p2.fill('#st-pro-code', 'MT-ZZZZ-ZZZZ-ZZZZ'); await p2.click('#st-pro-go'); await p2.waitForFunction(() => /kennen wir nicht/.test(document.querySelector('#st-pro-note').textContent));
+await p2.fill('#st-pro-code', ' mt ab12 cd34 ef56 '); await p2.click('#st-pro-go'); await p2.waitForFunction(() => /30-Tage-Pass/.test(document.querySelector('#st-pro-stand').textContent));
+if (!/31\.12\.2099/.test(await p2.textContent('#st-pro-stand')) || !(await p2.locator('#st-pro-zeile').isHidden())) fail('Pro: eingelöster Zugang wird nicht richtig angezeigt');
+if ((await p2.evaluate(() => JSON.parse(localStorage.getItem('mt.v1')).zugang?.code)) !== 'MT-AB12-CD34-EF56') fail('Pro: Zugangscode nicht gespeichert');
+await p2.reload(); await p2.waitForSelector('#st-pro:not([hidden])'); if (!/30-Tage-Pass/.test(await p2.textContent('#st-pro-stand'))) fail('Pro: Zugang nach Neuladen vergessen');
+await p2.click('#st-pro-weg'); if (await p2.evaluate(() => JSON.parse(localStorage.getItem('mt.v1')).zugang)) fail('Pro: Code lässt sich nicht entfernen');
 // Erinnerung: freie Uhrzeit wird gesendet, ändern überschreibt, ausschalten meldet ab; gesperrte Erlaubnis wird erklärt.
 // Der Testbrowser hat keinen Mitteilungs-Dienst – Erlaubnis und Anmeldung des Geräts sind deshalb nachgestellt.
 for (const erlaubnis of ['granted', 'denied']) {
