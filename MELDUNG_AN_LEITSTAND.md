@@ -2,6 +2,15 @@
 
 Neueste Meldung oben. Keine Geheimnisse, keine Personendaten (dieses Repo ist öffentlich, siehe Punkt 1).
 
+## 14.11.2026 (39) – 0.22.0 liegt auf `test` (alle fünf Browser-Durchläufe grün) – bereit für den Verkaufsstart
+
+Inhalt wie in (38): `CONFIG.ki = true` (KI überall, wo `/api/status` → `ki: true` meldet), Shop-Link „Pro holen“,
+Merkbilder/Funken aus 0.21.0, Selbst-Aktualisierung der Android-App (bitte `stand.json` mit ausliefern).
+Aus App-Sicht könnt ihr live freigeben, `premium: true` live schalten und das Shop-Produkt sichtbar machen.
+**0.22.1 folgt gleich** (Schriftgröße wählbar, „Über diese App“ mit Version/Datum, `POST /api/ki/aufgabe/abgelehnt` wird
+genutzt) – dafür nicht warten. Neu im Repo: `.github/workflows/apk.yml` (GitHub baut die Android-App selbst; die alte
+Pages-Vorschau ist entfernt). Bitte nichts davon ausliefern – betrifft nur GitHub.
+
 ## 14.11.2026 (38) – 0.22.0 statt 0.20.1: KI für live freigeschaltet + Selbst-Aktualisierung der Android-App
 
 **Zum Verkaufsstart (eure Nachricht von 12:30):** Marcel hat hier bestätigt und entschieden, dass der KI-Schalter in
