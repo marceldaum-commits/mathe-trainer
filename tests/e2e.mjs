@@ -219,7 +219,23 @@ async function playTafel() {
   }
   fail('Tafel endet nicht');
 }
-const HANDLERS = [['#tf', playTafel], ['#mb-c', playMurmelbahn], ['#fg-c', playFlug], ['#tg-c', playTangente], ['#p-f', playPaare], ['#z-d', playZeichnen], ['#fl-c', playFlaeche], ['#lb-c', playLabor], ['#lo-c', playLotse], ['#wk-c', playWerkstatt], ['#rm-c', playRaum], ['#bs', playBoss], ['#i-next', info]];
+const ZS = await game('strahl'), SFL = await game('streifen'), KGL = await game('kaestchen'), FRL = (await import('../app/js/games/strahl.js')).levelsFrost(LEVEL);
+async function playStrahl(LS, k) {
+  for (const M of LS) { await setRange(`#${k}-in`, M.ziel); await page.click(`#${k}-go`); await page.waitForSelector(`#${k}-note .note.ok`); if (M.runde) await page.click(`#${k}-r [data-v="${M.richtig}"]`); await page.click(`#${k}-go`); }
+}
+async function playStreifen() {
+  for (const M of SFL) { await page.waitForFunction((n) => document.querySelectorAll('.sf-teil').length === n && !document.querySelector('.sf-teil.an'), M.teile);
+    if (first('streifen-falsch')) { await page.click('#sf-go'); await page.waitForSelector('#sf-note .note.tip'); }
+    for (let i = 0; i < M.soll; i++) await page.locator('.sf-teil').nth(i).click();
+    if (first('streifen-bild')) await shot('87-bruch-streifen');
+    await page.click('#sf-go'); await page.waitForSelector('#sf-note .note.ok'); await page.click('#sf-go'); }
+}
+async function playKaestchen() {
+  for (const M of KGL) { await page.waitForFunction((t) => document.querySelector('#kg-t').textContent === t && !document.querySelector('#kg-note').innerHTML, M.text);
+    await setRange('#kg-b', M.sol[0]); await setRange('#kg-h', M.sol[1]); if (first('kaestchen-bild')) await shot('88-kaestchen');
+    await page.click('#kg-go'); await page.waitForSelector('#kg-note .note.ok'); await page.click('#kg-go'); }
+}
+const HANDLERS = [['#zs', () => playStrahl(ZS, 'zs')], ['#fr', () => playStrahl(FRL, 'fr')], ['#sf', playStreifen], ['#kg', playKaestchen], ['#tf', playTafel], ['#mb-c', playMurmelbahn], ['#fg-c', playFlug], ['#tg-c', playTangente], ['#p-f', playPaare], ['#z-d', playZeichnen], ['#fl-c', playFlaeche], ['#lb-c', playLabor], ['#lo-c', playLotse], ['#wk-c', playWerkstatt], ['#rm-c', playRaum], ['#bs', playBoss], ['#i-next', info]];
 
 /* ───────────── Start, Menü, Schwierigkeit, Hell/Dunkel ───────────── */
 await page.goto(BASE); await page.waitForSelector('#home'); await shot('01-start');

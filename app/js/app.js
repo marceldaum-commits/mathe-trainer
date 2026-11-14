@@ -66,6 +66,8 @@ const AREA_INFO = {
 };
 const LERN_AREAS = () => AREAS.filter((a) => a.id !== 'pruefung');
 const areaInfo = (a) => a.info || AREA_INFO[a.id] || '';
+/** Untere Klassen (5 und 6): verspieltere Optik und Ansprache. */
+const jung = () => ['5', '6'].includes(store.jahrgang);
 const areaLink = (href, titel, sub) => `<a class="card area" href="${href}"><h3>${esc(titel)}</h3><small>${esc(sub)}</small></a>`;
 /** Knöpfe zur Wahl der Klassenstufe (Startseite beim ersten Mal, Seite „Klassenstufe“). */
 const jgKnoepfe = () => `<div class="jg-wahl" role="radiogroup" aria-label="Klassenstufe">${JAHRGAENGE.map((j) => `<button class="pick ${store.jahrgangGewaehlt && store.jahrgang === j ? 'sel' : ''}" type="button" role="radio" aria-checked="${store.jahrgangGewaehlt && store.jahrgang === j}" data-jg="${j}">${j === 'os' ? 'Oberstufe' : j}</button>`).join('')}</div>`;
@@ -110,10 +112,10 @@ function home() {
   const started = store.xp > 0;
   const el = h(`<div class="view stack" id="home">
     <section class="hero ${started ? 'klein' : ''}">
-      <span class="eyebrow">${istOber() ? 'Oberstufen-Mathe zum Anfassen' : 'Mathe zum Anfassen'}</span>
-      <h1>Verstehen <br>schafft <span class="orange">Sicherheit.</span></h1>
+      <span class="eyebrow">${istOber() ? 'Oberstufen-Mathe zum Anfassen' : jung() ? `${jgName(store.jahrgang)} · Los geht's!` : 'Mathe zum Anfassen'}</span>
+      <h1>${jung() ? 'Mathe zum <br><span class="orange">Ausprobieren.</span>' : 'Verstehen <br>schafft <span class="orange">Sicherheit.</span>'}</h1>
       ${store.jahrgangGewaehlt ? `<a class="jg-chip" id="jg-chip" href="#/stufe" aria-label="Klassenstufe wechseln">${esc(jgName(store.jahrgang))} <span aria-hidden="true">▾</span></a>` : ''}
-      ${started ? `<div class="pi-gruss" id="pi-gruss"><span class="pi-fig">${pi()}</span><p class="blase">${esc(piSagt(spot))}</p></div>` : ''}
+      ${started || (jung() && store.jahrgangGewaehlt) ? `<div class="pi-gruss" id="pi-gruss"><span class="pi-fig">${pi()}</span><p class="blase">${esc(started ? piSagt(spot) : 'Hallo, ich bin Pi! Ich zeig dir, wie Mathe funktioniert. Probier einfach aus – falsch machen kannst du nichts.')}</p></div>` : ''}
     </section>
     ${store.jahrgangGewaehlt ? '' : `<section class="card stack jg-frage" id="jg-frage"><h3>Für welche Klasse lernst du?</h3><small class="muted">Du siehst dann genau den Stoff deiner Stufe. Wechseln kannst du jederzeit.</small>${jgKnoepfe()}</section>`}
     <section class="board">
@@ -399,6 +401,7 @@ function route() {
   else if (pa) el = uebenView(pa, !!pm[2]);
   else el = home();
   view.replaceChildren(el);
+  document.documentElement.toggleAttribute('data-jung', jung());
   chips(); nav();
   window.scrollTo(0, 0);
 }

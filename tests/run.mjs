@@ -884,6 +884,20 @@ ok(nextStreak({ n: 3, last: '2026-11-10' }, D('2026-11-12')).n === 1, 'Serie: au
     { const q = MITTEL_GENS.genEinheit(lv); ok(Math.abs(q.r - (q.runter ? q.v * q.f : q.v / q.f)) < 1e-9 && Math.abs(q.options.find((o) => o.correct).num - q.r) < 1e-6, 'genEinheit: Umrechnung stimmt'); }
     { const q = MITTEL_GENS.genKuerzen(lv), r = q.options.find((o) => o.correct); const gg = (a, b) => (b ? gg(b, a % b) : a); ok(Math.abs(r.wert - q.a / q.b) < 1e-9 && (q.erw || gg(r.zaehler, r.nenner) === 1), 'genKuerzen: gleicher Wert, vollständig gekürzt'); }
     { const q = MITTEL_GENS.genLinFunktion(lv); if (q.kind === 'wert' || q.kind === 'null') ok(Math.abs(q.options.find((o) => o.correct).num - q.r) < 1e-9, 'genLinFunktion: Ergebnis stimmt'); } }
+  // Entdecker-Spiele der unteren Klassen: fünf eigene Level-Sätze, jede Aufgabe mit der hinterlegten Lösung lösbar
+  { const St = await import('../app/js/games/strahl.js'), Sf = await import('../app/js/games/streifen.js'), Kg = await import('../app/js/games/kaestchen.js');
+    for (const [name, lf] of [['strahl', St.levelsFor], ['frost', St.levelsFrost], ['streifen', Sf.levelsFor], ['kaestchen', Kg.levelsFor]]) {
+      ok(new Set([1, 2, 3, 4, 5].map((lv) => JSON.stringify(lf(lv)))).size === 5 && [1, 2, 3, 4, 5].every((lv) => lf(lv).length >= 3), `${name}: fünf verschiedene Level-Sätze mit je mindestens drei Aufgaben`); }
+    for (const lv of [1, 2, 3, 4, 5]) {
+      for (const M of [...St.levelsFor(lv), ...St.levelsFrost(lv)]) { ok(M.ziel >= M.min && M.ziel <= M.max && (M.ziel - M.min) % M.schritt === 0 && St.gesetzt(M, M.ziel) && !St.gesetzt(M, M.ziel + M.tol + M.schritt), `Zahlenstrahl: Ziel erreichbar (${M.text})`);
+        if (M.runde) ok(M.runde[0] <= M.ziel && M.ziel < M.runde[1] && M.richtig === (M.ziel - M.runde[0] >= M.runde[1] - M.ziel ? M.runde[1] : M.runde[0]) && M.text.replace(/\D/g, '') === String(M.ziel), `Zahlenstrahl: Rundung und Text passen (${M.text})`);
+        if (M.grad) { const z = [...M.text.matchAll(/(−?\d+) Grad(?: (kälter|wärmer))?/g)].map((x) => [+x[1].replace('−', '-'), x[2]]); const r = z.slice(1).reduce((s, [v, w]) => s + (w === 'kälter' ? -v : v), z[0][0]); ok(z[0][0] === M.start && r === M.ziel, `Thermometer: Ergebnis stimmt (${M.text})`); } }
+      for (const M of Sf.levelsFor(lv)) ok(Number.isInteger(M.soll) && M.soll >= 1 && M.soll < M.teile && Sf.passt(M, M.soll) && !Sf.passt(M, M.soll + 1) && M.soll / M.teile === M.zaehler / M.nenner, `Bruch-Streifen: ${M.zaehler}/${M.nenner} auf ${M.teile} Teilen`);
+      for (const M of Kg.levelsFor(lv)) { ok(Kg.gebaut(M, M.sol[0], M.sol[1]) && M.sol[0] <= 12 && M.sol[1] <= 8 && !Kg.gebaut(M, M.sol[0] + 1, M.sol[1] + 1), `Kästchen: Lösung passt (${M.text})`);
+        const zahlen = M.text.match(/\d+/g).map(Number); ok((M.A === null || zahlen.includes(M.A) || M.ziel) && (M.U === null || zahlen.includes(M.U) || M.ziel), `Kästchen: Text nennt die gesuchten Zahlen (${M.text})`);
+        if (M.ziel === 'kleinster Umfang') { let best = 99; for (let b = 1; b <= 12; b++) for (let h = 1; h <= 8; h++) if (b * h === M.A) best = Math.min(best, 2 * (b + h)); ok(best === M.U, 'Kästchen: kleinster Umfang nachgerechnet'); }
+        if (M.ziel === 'größte Fläche') { let best = 0; for (let b = 1; b <= 12; b++) for (let h = 1; h <= 8; h++) if (2 * (b + h) === M.U) best = Math.max(best, b * h); ok(best === M.A, 'Kästchen: größte Fläche nachgerechnet'); } } }
+    for (const id of ['k5-zahlen', 'k5-ganz', 'k5-groessen', 'k6-bruch']) ok(Un.ALLE_UNITS.find((u) => u.id === id).steps.some((s) => s.kind === 'Entdecken'), `${id}: beginnt mit einem Spiel zum Entdecken`); }
   // Einheiten je Jahrgang
   ok(Un.JAHRGAENGE.join() === '5,6,7,8,9,10,os' && Un.jgName('7') === 'Klasse 7' && Un.jgName('os') === 'Oberstufe', 'Jahrgänge: Liste und Namen');
   const ids = Un.ALLE_UNITS.map((u) => u.id); ok(new Set(ids).size === ids.length, 'Einheiten: Kennungen aller Jahrgänge sind eindeutig');

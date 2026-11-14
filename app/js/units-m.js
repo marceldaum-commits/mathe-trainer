@@ -2,6 +2,9 @@
 // Jede Einheit trägt ihren Jahrgang (jg). Zuordnung nach dem Gymnasium in Bayern und Hessen – siehe docs/KLASSE5-10.md.
 import { tex } from './ui.js';
 import { quiz, info } from './quiz.js';
+import { strahl, frost } from './games/strahl.js';
+import { streifen } from './games/streifen.js';
+import { kaestchen } from './games/kaestchen.js';
 import { mixOf, genScheitel } from './gen.js';
 import { genBruch, genKlammer, genLinGl, genQuadGl, genPotenz, genSteigung, genHaeufigkeit, genProzent, genKennwerte, genLaplace, genGegen, genPythagoras, genTrig, genFlaeche } from './gen3.js';
 import { genRunden, genRechenregel, genTeiler, genEinheit, genRechteck, genKuerzen, genBruchVergleich, genDezimal, genBruchDezimal, genNegativ, genTerm, genDreisatz, genLinFunktion, genWurzel, genZinseszins, genQuader, genKoerper } from './gen6.js';
@@ -32,6 +35,7 @@ export const MITTEL = [
     meta: { boss: ['Runden-Riese', '≈', [genRunden, genRechenregel]], why: 'Gerundet wird überall, wo es auf den genauen Wert nicht ankommt: Einwohnerzahlen, Entfernungen, Preise im Kopf. Und ohne feste Rechenregeln käme bei derselben Aufgabe jeder auf ein anderes Ergebnis.',
       formeln: [['Runden', '0,1,2,3,4:\\ \\text{abrunden}\\qquad 5,6,7,8,9:\\ \\text{aufrunden}'], ['Rechenregeln', '\\text{Klammer}\\ \\to\\ \\text{Potenz}\\ \\to\\ \\text{Punkt}\\ \\to\\ \\text{Strich}']] },
     steps: [
+      { id: 'strahl', kind: 'Entdecken', title: 'Zahlenstrahl', run: strahl },
       { id: 'stellen', kind: 'Benennen', title: 'Stellenwerte und Runden', run: info([
         { title: 'Jede Ziffer hat ihren Platz', html: `<p>In der Zahl 4 728 steht die 7 an der <b>Hunderterstelle</b>: Sie ist 700 wert. Von rechts nach links heißen die Stellen Einer, Zehner, Hunderter, Tausender, Zehntausender …</p><p class="muted">Große Zahlen schreibt man in Dreiergruppen: 25 306.</p>` },
         { title: 'Runden', html: `<p>Schau auf die Ziffer <b>rechts</b> von der Stelle, auf die gerundet wird.</p>${T('0,1,2,3,4:\\ \\text{abrunden}\\qquad 5,6,7,8,9:\\ \\text{aufrunden}')}<p>4 728 auf Hunderter: Rechts von der 7 steht eine 2 – abrunden auf 4 700.</p>` },
@@ -61,7 +65,8 @@ export const MITTEL = [
     meta: { boss: ['Frost-Fuchs', '−', [genNegativ]], why: 'Temperaturen unter null, Schulden auf dem Konto, Tiefgaragen und Meerestiefen: Überall dort braucht man Zahlen, die kleiner als null sind.',
       formeln: [['Vorzeichen beim Malnehmen', '(+)\\cdot(-)=(-)\\qquad(-)\\cdot(-)=(+)'], ['Minus vor der Klammer', 'a-(-b)=a+b']] },
     steps: [
-      { id: 'strahl', kind: 'Benennen', title: 'Zahlen unter null', run: info([
+      { id: 'frost', kind: 'Entdecken', title: 'Thermometer', run: frost },
+      { id: 'gerade', kind: 'Benennen', title: 'Zahlen unter null', run: info([
         { title: 'Die Zahlengerade', html: `<p>Links von der Null geht es weiter: −1, −2, −3 … Je weiter links, desto kleiner. Deshalb ist −5 kleiner als −2.</p><p class="muted">Denk an ein Thermometer: −5 °C ist kälter als −2 °C.</p>` },
         { title: 'Addieren und Abziehen', html: `${T('3-8=-5\\qquad -3-4=-7')}<p>Plus heißt nach rechts gehen, Minus nach links. Eine negative Zahl abziehen heißt nach rechts gehen: ${tex('5-(-2)=7')}.</p>` },
         { title: 'Malnehmen und Teilen', html: `${T('(-3)\\cdot 4=-12\\qquad(-3)\\cdot(-4)=12')}<p>Verschiedene Vorzeichen ergeben Minus, gleiche Vorzeichen ergeben Plus.</p>` },
@@ -78,6 +83,7 @@ export const MITTEL = [
         { title: 'Größer oder kleiner?', html: `<p>In die <b>kleinere</b> Einheit: malnehmen (man braucht mehr davon). In die <b>größere</b> Einheit: teilen.</p><p>3,5 m sind 350 cm. 4 500 g sind 4,5 kg.</p>` },
       ]) },
       { id: 'umrechnen', kind: 'Brücke', title: 'Größen umrechnen', run: quiz([genEinheit, genEinheit, genEinheit, genEinheit]) },
+      { id: 'legen', kind: 'Entdecken', title: 'Kästchen-Baumeister', run: kaestchen },
       { id: 'flaeche', kind: 'Benennen', title: 'Umfang und Flächeninhalt', run: info([
         { title: 'Umfang', html: `${T('U=2\\cdot(a+b)')}<p>Der Umfang ist der Weg einmal außen herum. Er wird in cm oder m gemessen.</p>` },
         { title: 'Flächeninhalt', html: `${T('A=a\\cdot b')}<p>Der Flächeninhalt sagt, wie viele Einheitsquadrate hineinpassen. Er wird in cm² oder m² gemessen.</p><p class="muted">Zusammengesetzte Figuren zerlegt man in Rechtecke – oder zieht ein fehlendes Stück ab.</p>` },
@@ -91,6 +97,7 @@ export const MITTEL = [
     meta: { boss: ['Bruch-Bändiger', '¾', [genKuerzen, genBruchVergleich, genBruch]], why: 'Eine halbe Pizza, ein Viertelliter Milch, drei Achtel einer Strecke: Brüche beschreiben Anteile. Ohne sie gäbe es weder Rezepte noch Prozentrechnung.',
       formeln: [['Kürzen und Erweitern', '\\dfrac ab=\\dfrac{a\\cdot k}{b\\cdot k}'], ['Brüche addieren', '\\dfrac ab+\\dfrac cd=\\dfrac{a\\,d+c\\,b}{b\\,d}'], ['Brüche malnehmen', '\\dfrac ab\\cdot\\dfrac cd=\\dfrac{a\\,c}{b\\,d}']] },
     steps: [
+      { id: 'streifen', kind: 'Entdecken', title: 'Bruch-Streifen', run: streifen },
       { id: 'anteil', kind: 'Benennen', title: 'Was ein Bruch bedeutet', run: info([
         { title: 'Zähler und Nenner', html: `${T('\\dfrac34')}<p>Der <b>Nenner</b> (unten) sagt, in wie viele gleiche Teile das Ganze geteilt ist. Der <b>Zähler</b> (oben) zählt, wie viele davon gemeint sind.</p>` },
         { title: 'Kürzen und Erweitern', html: `${T('\\dfrac{6}{8}=\\dfrac{3}{4}\\qquad\\dfrac{3}{4}=\\dfrac{9}{12}')}<p>Zähler und Nenner werden durch dieselbe Zahl geteilt (kürzen) oder mit derselben Zahl malgenommen (erweitern). Der Wert bleibt gleich.</p>` },
