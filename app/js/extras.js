@@ -56,7 +56,7 @@ export function settingsView() {
         <button class="btn small" id="st-push-an" type="button">Speichern</button></div>
       <div id="st-push-note"></div><div id="st-push-install"></div></section>` : ''}
     <section class="card stack" id="st-pro" hidden><h3>Pro-Fassung</h3>
-      <small class="muted">Mit einem Zugangscode schaltest du die KI-Erklärungen dauerhaft frei. Der Code liegt nur in diesem Gerät – es gibt kein Konto.</small>
+      <small class="muted">Mit einem Zugangscode schaltest du die Pro-Funktionen frei: Drucken und PDF, ausführliche Theorie – und mit „Pro + KI“ auch die KI-Erklärungen. Der Code liegt nur in diesem Gerät, es gibt kein Konto.</small>
       <div id="st-pro-stand"></div>
       <div class="row push-row" id="st-pro-zeile"><input class="field" id="st-pro-code" type="text" autocomplete="off" autocapitalize="characters" spellcheck="false" maxlength="24" placeholder="MT-XXXX-XXXX-XXXX" aria-label="Zugangscode">
         <button class="btn small" id="st-pro-go" type="button">Einlösen</button></div>
@@ -117,14 +117,14 @@ export function settingsView() {
     const box = $('#st-pro', el), stand = $('#st-pro-stand', el), pn = $('#st-pro-note', el), feld = $('#st-pro-code', el), go = $('#st-pro-go', el), zeile = $('#st-pro-zeile', el);
     const datum = (d) => d.split('-').reverse().join('.');
     const paintZ = () => { const z = store.zugang;
-      stand.innerHTML = z ? `<div class="note ${store.zugangGilt() ? 'ok' : 'tip'}"><b>${esc(ZUGANG_ART[z.art] || 'Zugang')}</b> – ${store.zugangGilt() ? `gültig bis ${esc(datum(z.bis))}` : `abgelaufen am ${esc(datum(z.bis))}`}. <button class="linkbtn" id="st-pro-weg" type="button">Code entfernen</button></div>` : '';
+      stand.innerHTML = z ? `<div class="note ${store.zugangGilt() ? 'ok' : 'tip'}"><b>${esc(ZUGANG_ART[z.art] || 'Zugang')} · ${z.ki === false ? 'Pro' : 'Pro + KI'}</b> – ${store.zugangGilt() ? `gültig bis ${esc(datum(z.bis))}` : `abgelaufen am ${esc(datum(z.bis))}`}. <button class="linkbtn" id="st-pro-weg" type="button">Code entfernen</button></div>` : '';
       zeile.hidden = !!z && store.zugangGilt();
       $('#st-pro-weg', el)?.addEventListener('click', () => { store.zugang = null; pn.innerHTML = ''; paintZ(); }); };
     go.onclick = async () => {
       const code = codeNorm(feld.value);
       if (!code) { pn.innerHTML = '<div class="note bad">Der Code hat die Form MT-XXXX-XXXX-XXXX.</div>'; return; }
       go.disabled = true; pn.innerHTML = ''; const r = await api.zugang(code); go.disabled = false;
-      if (r.ok && /^\d{4}-\d{2}-\d{2}$/.test(r.bis || '')) { store.zugang = { code, art: String(r.art || ''), bis: r.bis }; feld.value = ''; pn.innerHTML = '<div class="note ok">Eingelöst. Die KI-Erklärungen sind freigeschaltet.</div>'; sfx('ok'); paintZ(); }
+      if (r.ok && /^\d{4}-\d{2}-\d{2}$/.test(r.bis || '')) { store.zugang = { code, art: String(r.art || ''), bis: r.bis, ki: r.ki !== false };   // ki: false = Stufe „Pro“ ohne KI feld.value = ''; pn.innerHTML = `<div class="note ok">Eingelöst. ${r.ki !== false ? 'Drucken, PDF, ausführliche Theorie und die KI-Erklärungen sind freigeschaltet.' : 'Drucken, PDF und die ausführliche Theorie sind freigeschaltet.'}</div>`; sfx('ok'); paintZ(); }
       else pn.innerHTML = `<div class="note bad">${r.status === 404 ? 'Diesen Code kennen wir nicht, oder er ist abgelaufen.' : esc(r.error || 'Der Code konnte gerade nicht geprüft werden.')}</div>`;
     };
     paintZ(); if (store.zugang) box.hidden = false;

@@ -371,13 +371,8 @@ await page.click('[data-u="regeln"]'); await page.click('[data-u="s-baum"]'); aw
   if ((await page.textContent('.b-aufgabe')) !== erste) fail('Arbeitsblatt: nach Neuladen ein anderes Blatt (Nummer muss das Blatt festlegen)'); }
 await shot('77-arbeitsblatt');
 await page.click('#b-los'); await page.waitForSelector('#stage');
-for (let i = 0; i < 60 && !(await page.$('#b-ergebnis')); i++) {
-  if (await page.locator('#q-next').isVisible().catch(() => false)) { await page.click('#q-next'); continue; }
-  const inp = page.locator('#q-wahl'); if (await inp.isVisible().catch(() => false)) { await inp.click(); continue; }
-  const ok1 = page.locator('#stage .opt[data-ok="1"]:not(.right)').first(); if (await ok1.count()) { await ok1.click(); continue; }
-  if (await page.locator('#q-in').isVisible().catch(() => false)) { await page.fill('#q-in', '0'); await page.click('.tipp button[type="submit"]').catch(() => {}); continue; }
-  await page.waitForTimeout(150);
-}
+await page.waitForSelector('#stage .opt, #stage #q-in');
+for (let i = 0; i < 6 && !(await page.$('#b-ergebnis')); i++) await solveQuestion();
 if (!(await page.$('#b-ergebnis'))) fail('Arbeitsblatt: Lösen in der App endet nicht');
 await page.goto(`${BASE}#/blatt/klausur_${LEVEL}_4711`); await page.waitForSelector('#blatt');
 if ((await page.locator('.b-aufgabe').count()) !== 12 || !/48 Punkte/.test(await page.textContent('.b-titel')) || !(await page.locator('.b-np').count())) fail('Probeklausur: 12 Aufgaben, 48 Punkte und Notenpunkte-Tabelle erwartet');
