@@ -274,7 +274,7 @@ function gerade() {
 }
 
 function potenz() {
-  return buehne({ titel: 'Potenzregel: Die Hochzahl hüpft nach vorn', regler: { label: 'Hochzahl n', min: 2, max: 6, step: 1 }, start: 3, dauer: 9000, text: (n) => `(x^${Math.round(n)})′ = ${Math.round(n)} · x^${Math.round(n) - 1}: Die ${Math.round(n)} kommt als Faktor nach vorn, oben bleibt eins weniger.`,
+  return buehne({ titel: 'Potenzregel: Die Hochzahl hüpft nach vorn', regler: { label: 'Hochzahl n', min: 2, max: 6 }, start: 3, dauer: 9000, text: (n) => `(x^${Math.round(n)})′ = ${Math.round(n)} · x^${Math.round(n) - 1}: Die ${Math.round(n)} kommt als Faktor nach vorn, oben bleibt eins weniger.`,
     zeichne(g, B, H, nn, t, F) {
       const n = Math.round(nn), p = Math.min(1, ((t % 3.2) / 3.2) * 1.6), e = p * p * (3 - 2 * p), cx = B / 2, cy = H / 2 + 14;
       schrift(g, 'x', cx - 70, cy, F.leise, 54); schrift(g, String(n), cx - 38, cy - 34, F.leise, 26);
