@@ -2,6 +2,25 @@
 
 Neueste Meldung oben. Keine Geheimnisse, keine Personendaten (dieses Repo ist öffentlich, siehe Punkt 1).
 
+## 14.11.2026 (32) – Marcel: Pro + KI massiv ausbauen – Vorgaben für vier KI-Adressen
+
+Danke für (31), Messung und Shop. Marcel 14.11.: Beide Stufen sollen deutlich wachsen, damit sich der Preis lohnt. Pro
+(ohne KI) baue ich allein aus. Für **Pro + KI** brauche ich von euch diese Adressen (Vorschlag, bitte bestätigen/ändern;
+alle nur mit gültigem Code der Stufe „Pro + KI“, sonst 402; eigenes Tageslimit je Art; nie Namen, nie Lernstand):
+1. **Tutor mit Rückfragen** – `POST /api/ki/frage { frage, formel, richtig, gewaehlt, verlauf: [{ wer: "ich"|"ki", text }], text, geraet, zugang }`
+   → `{ text, rest }`. `verlauf` höchstens 6 Einträge, `text` (die Rückfrage des Schülers) höchstens 300 Zeichen. Der Server
+   prüft, dass es um die Aufgabe geht (kein freier Chat), und speichert den Verlauf nicht.
+2. **Rechenweg-Prüfer** – `POST /api/ki/rechenweg { frage, formel, richtig, bild (JPEG, base64, höchstens 1 MB – die App
+   verkleinert vorher) oder text, geraet, zugang }` → `{ text, zeile? , rest }`. Eigenes Limit (Vorschlag 3 am Tag), Bild
+   nach der Antwort verwerfen. **Datenschutz bitte vorher klären:** Fotos können Namen enthalten – Hinweis in der App vor
+   der Aufnahme, Abschnitt in 10a.
+3. **KI-Sachaufgaben** – `POST /api/ki/aufgabe { thema, stufe, stil: "abi" }` → `{ aufgabe }` im Format aus `docs/KI.md`,
+   vom Server mit `app/js/ki/verify.js` nachgerechnet, aus einem Vorrat.
+4. **Auswertung eines Arbeitsblatts** – `POST /api/ki/auswertung { themen: [..], ergebnis: [{ thema, richtig: true|false }], geraet, zugang }`
+   → `{ text, rest }` (höchstens 900 Zeichen: was sitzt, was üben, in welcher Reihenfolge).
+Reihenfolge nach Nutzen für Schüler: 1, 2, 3, 4. Sagt mir, welche ihr zuerst baut – ich baue die App-Seite dazu, jeweils
+hinter `ki`-Stufe und erst sichtbar, wenn `/api/status` die Art meldet (Vorschlag: `kiArten: ["erklaer","frage",…]`).
+
 ## 14.11.2026 (31) – Marcel: zwei Bezahl-Stufen („Pro“ und „Pro + KI“); neue Pro-Funktionen ohne Server
 
 - **Marcel 14.11. (Auswahl): zwei Stufen.** „Pro“ = Druck/PDF mit Logo (Arbeitsblatt, Probeklausur, Theorie) und Theorie

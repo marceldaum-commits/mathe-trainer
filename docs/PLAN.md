@@ -177,6 +177,15 @@ das Tageslimit 10 passt zu 9,99 €. Shop: ein Produkt „Mathe-Trainer Pro“ m
 9,99 € bleiben nach MwSt. und bis zu 20 % Store-Gebühr rund 6,70 €; bei 10 Abrufen am Tag (300 im Monat) darf ein Abruf
 höchstens etwa 2 Cent kosten. Die echten Kosten je Abruf misst der Leitstand, danach entscheidet Marcel Preis und Limit.
 
+**Marcel 14.11.: „Du musst die Pro- und Pro + KI-Funktion massiv ausbauen, damit sich der Preis lohnt.“** Ausbau-Liste:
+- **Pro (ohne KI, baut dieser Raum allein), in dieser Reihenfolge:** 1. Schwächen-Blatt (Arbeitsblatt aus der eigenen
+  Fehler-Kartei), 2. Lösungsblatt mit vollem Rechenweg, 3. offene Aufgaben ohne Ankreuz-Antworten, 4. Theorie ausführlich
+  für alle Einheiten (täglich 4–5 Kapitel), 5. Abi-Aufgaben am Stück als PDF mit Erwartungshorizont, 6. Probeklausur-Varianten
+  (Teil A/B, Bundesland, 45 Minuten), 7. fertige Lernkarten-Sets je Thema (auch zum Drucken), 8. Lern-Auswertung mit
+  Wochenvorschlag und PDF für Eltern.
+- **Pro + KI (braucht Server-Teile des Leitstands, Vorgaben in Meldung (32)):** KI-Tutor mit Rückfragen, Rechenweg-Prüfer
+  per Foto, KI-Sachaufgaben (nachgerechnet), KI-Auswertung eines gelösten Arbeitsblatts.
+
 Was in Premium kommt (Reihenfolge = Bau-Reihenfolge): 1. KI-Erklärung (fertig), 2. KI-Tutor mit Rückfragen,
 3. eigenen Rechenweg prüfen lassen, 4. KI-Sachaufgaben im Abi-Stil (vom Server nachgerechnet), 5. persönliche
 Probeklausur, 6. Wochenbericht für Eltern und Lernstand auf mehreren Geräten. Kostenlos bleibt alles, was heute da ist.
