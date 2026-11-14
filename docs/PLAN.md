@@ -155,7 +155,8 @@ Proben und dem Code-Feld:
 8. **KI-Tutor mit Rückfragen** und **KI-Sachaufgaben** (vom Server nachgerechnet, `/api/ki/aufgabe`).
 9. **Wochenbericht für Eltern per E-Mail** und Lernstand auf mehreren Geräten (braucht E-Mail-Adresse und Einwilligung –
    Leitstand/Datenschutz).
-10. **Mittelstufe (Klasse 8–10)** als zweiter Bereich neben der Oberstufe.
+10. **Unter- und Mittelstufe ab Klasse 5 (Marcel, 14.11.: „ab Klasse 5“)** – Klasse 5 bis 10 als zweiter Bereich neben der
+    Oberstufe, nach Klassenstufen gegliedert. Großes Paket: eigener Lehrplan-Abgleich (Bayern, Hessen) und eigene Einheiten.
 **Name:** Marcel will Vorschläge; Entscheidung gehört in den Marketing-Raum, Umbenennung frühestens zum Store-Start.
 
 Was in Premium kommt (Reihenfolge = Bau-Reihenfolge): 1. KI-Erklärung (fertig), 2. KI-Tutor mit Rückfragen,
