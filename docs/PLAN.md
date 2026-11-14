@@ -146,7 +146,16 @@ Proben und dem Code-Feld:
    Vorschlag: „Kurz“ kostenlos, „Ausführlich“ und PDF in Pro; KI-Rückfrage zur Stelle obendrauf.
 3. **Probeklausur als PDF:** Abi-Format mit Punkten und Erwartungshorizont, in der App oder auf Papier.
 4. **Lehrer- und Nachhilfe-Modus:** Arbeitsblatt per Link an Schüler, Ergebnisse zurück – braucht Server-Arbeit (Leitstand).
-Weitere Ideen im Speicher: Rechenweg-Prüfer per Foto, Karteikarten, Wochenbericht per E-Mail, Mittelstufe 8–10.
+**Marcel danach: „Passe alle Ideen rein.“** Also gehören auch diese fest in den Plan, in dieser Reihenfolge nach 1–4:
+5. **Karteikarten:** eigene Lernkarten aus Formeln und Fehlern, Wiederholung in Abständen (ohne KI, ohne Server).
+6. **Abi-Aufgaben im Prüfungsstil je Bundesland:** eigene Aufgaben im Stil der Prüfung (keine kopierten), als Erweiterung
+   von „Abi-Aufgabe am Stück“.
+7. **Rechenweg-Prüfer:** Foto oder Text vom eigenen Lösungsweg, die KI zeigt die Stelle mit dem Fehler (KI mit Bild –
+   Kosten und Datenschutz vorher mit dem Leitstand klären; Fotos können Namen enthalten).
+8. **KI-Tutor mit Rückfragen** und **KI-Sachaufgaben** (vom Server nachgerechnet, `/api/ki/aufgabe`).
+9. **Wochenbericht für Eltern per E-Mail** und Lernstand auf mehreren Geräten (braucht E-Mail-Adresse und Einwilligung –
+   Leitstand/Datenschutz).
+10. **Mittelstufe (Klasse 8–10)** als zweiter Bereich neben der Oberstufe.
 **Name:** Marcel will Vorschläge; Entscheidung gehört in den Marketing-Raum, Umbenennung frühestens zum Store-Start.
 
 Was in Premium kommt (Reihenfolge = Bau-Reihenfolge): 1. KI-Erklärung (fertig), 2. KI-Tutor mit Rückfragen,
