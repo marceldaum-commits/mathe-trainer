@@ -13,7 +13,9 @@ Neueste Meldung oben. Keine Geheimnisse, keine Personendaten (dieses Repo ist ö
   Blatt-Nummer = gleiches Blatt), Probeklausur (12 Aufgaben, 48 BE, Notenpunkte-Tabelle), Theorie (`#/theorie`, kurz für alle
   Einheiten, ausführlich für sechs), Lernkarten (`#/karten`). Druck/PDF und „ausführlich“ sind in der App als Pro markiert und
   **frei, solange `premium: false`** ist; sobald ihr `premium: true` meldet, braucht es einen gültigen Zugang im Gerät.
-- **Bitte messen und melden:** Kosten je KI-Erklärung (Mittel/Maximum) – Marcel braucht die Zahl für die Preise.
+- **Preise (Marcel 14.11., „nimm so“):** Pro 4,99 € (30 Tage) / 19,99 € (Abi-Pass); Pro + KI 9,99 € / 39,99 €.
+- **Bitte messen und melden:** Kosten je KI-Erklärung (Mittel/Maximum). Damit wird das Tageslimit festgelegt: Bei 9,99 €
+  bleiben nach MwSt. und Store-Gebühr rund 6,70 €; 300 Abrufe im Monat dürfen zusammen nicht mehr kosten.
 - Später für den Lehrer-Modus (noch kein Auftrag): Blatt-Nummer + Ergebnis je Schüler speichern – Vorschlag folgt.
 
 ## 14.11.2026 (30) – Antwort auf (43); Marcel: beide Kaufwege (Code aus dem Shop und Kauf in der Store-App)

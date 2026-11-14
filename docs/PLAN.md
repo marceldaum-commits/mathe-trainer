@@ -167,8 +167,9 @@ Proben und dem Code-Feld:
 | Pro | Druck/PDF mit Logo (Arbeitsblatt, Probeklausur, Theorie), Theorie ausführlich | keine |
 | Pro + KI | Pro plus KI-Erklärung, später Tutor, Sachaufgaben und Foto-Prüfer (eigenes kleineres Limit) | je Abruf |
 
-Später eigene Stufe Lehrer/Nachhilfe. Beide Stufen als 30-Tage-Pass und Abi-Pass. **Preise offen** – Orientierung von
-Claude (Schätzung, keine Kalkulation): Pro etwa 4,99 € / 19,99 €, Pro + KI etwa 9,99 € / 39,99 €. Faustrechnung: von
+Später eigene Stufe Lehrer/Nachhilfe. Beide Stufen als 30-Tage-Pass und Abi-Pass. **Preise (Marcel, 14.11.: „nimm so“):
+Pro 4,99 € (30 Tage) / 19,99 € (Abi-Pass), Pro + KI 9,99 € / 39,99 €.** Die Zahlen stammen aus Claudes Schätzung; das
+Tageslimit der KI wird an die gemessenen Kosten angepasst, nicht der Preis. Faustrechnung: von
 9,99 € bleiben nach MwSt. und bis zu 20 % Store-Gebühr rund 6,70 €; bei 10 Abrufen am Tag (300 im Monat) darf ein Abruf
 höchstens etwa 2 Cent kosten. Die echten Kosten je Abruf misst der Leitstand, danach entscheidet Marcel Preis und Limit.
 
