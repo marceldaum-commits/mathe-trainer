@@ -85,6 +85,16 @@ const footer = () => `<footer class="foot">
     <span id="ver">Version ${VERSION} · ${STAND}</span></footer>`;
 
 /** Startseite: kurz – weitermachen, was heute ansteht, Gebiet wählen. */
+/** Was Pi auf der Startseite sagt: kurz, freundlich, passend zu Tageszeit und Lernstand. Ohne Druck. */
+export function piSagt(spot, jetzt = new Date()) {
+  const std = jetzt.getHours(), gruss = std < 5 ? 'Noch wach?' : std < 11 ? 'Guten Morgen!' : std < 14 ? 'Hallo!' : std < 18 ? 'Schön, dass du da bist!' : std < 22 ? 'Guten Abend!' : 'Späte Runde?';
+  const faellig = store.karteDue().length, tage = store.abiDays();
+  const satz = !spot ? 'Du hast alle Wege frei gemacht. Lust auf den Abi-Drachen?'
+    : faellig >= 3 ? `In deiner Fehler-Kartei warten ${faellig} Aufgaben-Arten – fünf Minuten reichen.`
+    : tage !== null && tage >= 0 && tage <= 30 ? `Noch ${tage} ${tage === 1 ? 'Tag' : 'Tage'} bis zum Abi. Ein Schritt heute zählt.`
+    : spot.last ? `Weiter bei „${spot.u.steps[spot.i].title}“?` : `Als Nächstes: „${spot.u.steps[spot.i].title}“.`;
+  return `${gruss} ${satz}`;
+}
 function home() {
   const spot = nextSpot();
   const started = store.xp > 0;
@@ -92,6 +102,7 @@ function home() {
     <section class="hero ${started ? 'klein' : ''}">
       <span class="eyebrow">Oberstufen-Mathe zum Anfassen</span>
       <h1>Verstehen <br>schafft <span class="orange">Sicherheit.</span></h1>
+      ${started ? `<div class="pi-gruss" id="pi-gruss"><span class="pi-fig">${pi()}</span><p class="blase">${esc(piSagt(spot))}</p></div>` : ''}
     </section>
     <div class="sect"><h2>Was möchtest du üben?</h2></div>
     <section class="areas">${AREAS.map((a) => areaCard(a, a.id === 'pruefung' ? '#/pruefung' : `#/g/${a.id}`)).join('')}</section>

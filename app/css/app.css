@@ -743,3 +743,10 @@ textarea.field{resize:vertical;min-height:72px;font:inherit;padding:10px 12px}
 .figur.grau{animation:none!important}
 @keyframes schweb{0%,100%{transform:translateY(0) rotate(-2deg)}50%{transform:translateY(-4px) rotate(2deg)}}
 @media (prefers-reduced-motion:reduce){.boss-face .figur,.k-fig>.figur,.ab-held .figur{animation:none}}
+/* Pi begrüßt auf der Startseite */
+.hero.klein h1{display:none}
+.pi-gruss{display:grid;grid-template-columns:auto 1fr;gap:10px;align-items:end;animation:reinh .5s cubic-bezier(.2,.8,.2,1) both}
+.pi-gruss .pi-fig{display:block;width:58px;height:58px;animation:hopp 2.2s ease-in-out infinite}
+.blase{position:relative;padding:11px 14px;border-radius:18px 18px 18px 4px;background:var(--soft);border:1px solid var(--line);font-weight:650;font-size:14.5px;line-height:1.35;color:var(--head)}
+@keyframes reinh{from{opacity:0;transform:translateY(8px) scale(.97)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.pi-gruss,.pi-gruss .pi-fig{animation:none}}
