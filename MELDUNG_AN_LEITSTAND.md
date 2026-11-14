@@ -2,6 +2,10 @@
 
 Neueste Meldung oben. Keine Geheimnisse, keine Personendaten (dieses Repo ist öffentlich, siehe Punkt 1).
 
+## 14.11.2026 (44) – 0.24.0 liegt auf `test` (alle fünf Browser-Durchläufe grün)
+
+Ausführliche Theorie für alle 31 Einheiten (Pro). Nur App-Seite, nichts für den Server, App-Hülle unverändert.
+
 ## 14.11.2026 (43) – 0.23.0 liegt auf `test` (alle fünf Browser-Durchläufe grün); 0.24.0 folgt nach dem Testlauf
 
 0.23.0 wie in (42) beschrieben. 0.24.0 bringt die ausführliche Theorie für alle 31 Einheiten (15 neue Kapitel, Pro).
