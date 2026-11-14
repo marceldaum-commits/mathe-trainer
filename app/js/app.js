@@ -5,6 +5,7 @@ import { initMelden } from './melden.js';
 import { abenteuerView } from './abenteuer.js';
 import { blattView } from './blatt.js';
 import { theorieView } from './theorie.js';
+import { kartenView, faellig } from './karten.js';
 import { karteView } from './karte.js';
 import { pi, figurFor } from './figuren.js';
 import { einstufungView, einstufungErgebnis, verbundView, planView, planNow, zertifikatView, areaDone } from './plus.js';
@@ -200,6 +201,7 @@ function mehrView() {
     <div><span class="eyebrow">Mehr</span><h1 style="margin-top:8px">Dein Trainer</h1></div>
     <section class="stack">
       ${linkCard('#/wiederholen', due || ICON.check, 'Fehler-Kartei', due ? `${due} ${due === 1 ? 'Aufgabenart ist' : 'Aufgabenarten sind'} heute fällig.` : `${store.karteCount} in der Kartei, heute nichts fällig.`)}
+      ${linkCard('#/karten', faellig().length || ICON.check, 'Lernkarten', 'Formeln und eigene Karten – wiederholt in wachsenden Abständen.')}
       ${linkCard('#/erfolge', ICON.star, 'Erfolge', `${titleOf().title} · ${Object.keys(store.badges).length} Abzeichen`)}
       ${linkCard('#/plan', ICON.right, 'Lernplan bis zum Abi', store.abi ? 'Was diese Woche dran ist.' : 'Abi-Termin eintragen – die App verteilt den Stoff auf die Wochen.')}
       ${linkCard('#/zertifikat', ICON.check, 'Zertifikate', 'Für jedes geschaffte Gebiet – zum Ausdrucken.')}
@@ -325,7 +327,7 @@ function route() {
   const hash = location.hash;
   const m = hash.match(/^#\/u\/([\w-]+)(?:\/(\d+))?$/);
   const u = m && UNITS.find((x) => x.id === m[1]);
-  const x = hash.match(/^#\/(abi|tag|duell|blitz|bericht|einstellungen|wiederholen|erfolge|formeln|klasse|lehrplan|einstufung|aufgabe|plan|zertifikat|abenteuer|karte|theorie)(?:\/([\w-]+))?$/);
+  const x = hash.match(/^#\/(abi|tag|duell|blitz|bericht|einstellungen|wiederholen|erfolge|formeln|klasse|lehrplan|einstufung|aufgabe|plan|zertifikat|abenteuer|karte|theorie|karten)(?:\/([\w-]+))?$/);
   const gm = hash.match(/^#\/g\/(\w+)$/), g = gm && LERN_AREAS().find((a) => a.id === gm[1]);
   const pm = hash.match(/^#\/ueben\/(\w+?)(-grund)?$/), pa = pm && LERN_AREAS().find((a) => a.id === pm[1]);
   const bm = hash.match(/^#\/blatt(?:\/([\w.\-/]+))?$/);
@@ -337,7 +339,7 @@ function route() {
     const after = () => { chips(); setTimeout(badgeCheck, 600); };
     const r = { abi: () => abiView(['A', 'B'].includes(x[2]) ? x[2] : null, after), tag: () => rundeView('tag', undefined, (res) => { after(); meldeTag(res); }), duell: () => rundeView('duell', x[2], after), blitz: () => blitzView(after),
       bericht: berichtView, einstellungen: settingsView, wiederholen: karteiView, erfolge: erfolgeView, formeln: formelnView, klasse: klasseView, lehrplan: lehrplanView,
-      einstufung: () => (x[2] === 'ergebnis' ? einstufungErgebnis() : einstufungView()), aufgabe: () => verbundView(x[2]), plan: planView, zertifikat: () => zertifikatView(x[2]), abenteuer: () => abenteuerView(after), karte: karteView, theorie: () => theorieView(x[2]) }[x[1]]();
+      einstufung: () => (x[2] === 'ergebnis' ? einstufungErgebnis() : einstufungView()), aufgabe: () => verbundView(x[2]), plan: planView, zertifikat: () => zertifikatView(x[2]), abenteuer: () => abenteuerView(after), karte: karteView, theorie: () => theorieView(x[2]), karten: kartenView }[x[1]]();
     el = r.el; cleanup = r.cleanup || null;
   } else if (hash === '#/lernen') el = lernenView();
   else if (hash === '#/pruefung') el = pruefungView();
@@ -361,7 +363,7 @@ function nav() {
   const hash = location.hash || '#/';
   const um = hash.match(/^#\/u\/([\w-]+)/), unit = um && UNITS.find((x) => x.id === um[1]);
   const tab = unit ? (unit.area === 'pruefung' ? 'pruefung' : 'lernen')
-    : /^#\/(lernen|g\/|ueben\/|einstufung|karte|theorie)/.test(hash) ? 'lernen' : /^#\/(pruefung|abi|tag|duell|blitz|klasse|aufgabe|abenteuer|blatt)/.test(hash) ? 'pruefung' : /^#\/(mehr|bericht|einstellungen|wiederholen|erfolge|formeln|lehrplan|plan|zertifikat)/.test(hash) ? 'mehr' : 'start';
+    : /^#\/(lernen|g\/|ueben\/|einstufung|karte|theorie)/.test(hash) ? 'lernen' : /^#\/(pruefung|abi|tag|duell|blitz|klasse|aufgabe|abenteuer|blatt)/.test(hash) ? 'pruefung' : /^#\/(mehr|bericht|einstellungen|wiederholen|erfolge|formeln|lehrplan|plan|zertifikat|karten)/.test(hash) ? 'mehr' : 'start';
   document.querySelectorAll('#nav a').forEach((a) => { const on = a.dataset.tab === tab; a.classList.toggle('on', on); if (on) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current'); });
   $('#nav').hidden = !!view.querySelector('.stephead');
   tint();

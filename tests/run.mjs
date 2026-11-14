@@ -761,6 +761,21 @@ for (const u of UNITS) {
   { const u = UNITS.find((x) => x.id === 'extrema'); ok(Th.kapitelHtml(u, true).includes('Durchgerechnetes Beispiel') && !Th.kapitelHtml(u, false).includes('Durchgerechnetes Beispiel') && Th.kapitelHtml(UNITS.find((x) => x.id === 'a-trig'), true).includes('(kurz)'), 'Theorie: ausführlich nur, wo geschrieben – sonst die Kurzfassung'); }
   store.reset(); }
 
+// 14f) Lernkarten
+{ const Kt = await import('../app/js/karten.js'); store.reset(); const T0 = new Date(2026, 10, 14, 12), tag = (n) => Kt.plusTage(T0, n);
+  const alle = Kt.stapel(); ok(alle.length >= 3 && alle.every((k) => k.key && k.vorn && k.hinten) && new Set(alle.map((k) => k.key)).size === alle.length, 'Lernkarten: ohne Fortschritt die Grundlagen-Formeln, Schlüssel eindeutig');
+  ok(Kt.faellig(alle, T0).length === alle.length, 'Lernkarten: neue Karten sind sofort dran');
+  const k = alle[0].key; ok(Kt.verbuche(k, true, T0) === 1 && !Kt.faellig(alle, T0).some((x) => x.key === k) && Kt.faellig(alle, tag(1)).some((x) => x.key === k), 'Lernkarten: gewusst → morgen wieder');
+  Kt.verbuche(k, true, tag(1)); ok(!Kt.faellig(alle, tag(3)).some((x) => x.key === k) && Kt.faellig(alle, tag(4)).some((x) => x.key === k), 'Lernkarten: zweimal gewusst → 3 Tage Pause');
+  for (let i = 0; i < 9; i++) Kt.verbuche(k, true, tag(4)); ok(store.lernStand[k].fach === 5 && !Kt.faellig(alle, tag(33)).some((x) => x.key === k) && Kt.faellig(alle, tag(34)).some((x) => x.key === k), 'Lernkarten: höchstens Fach 5 (30 Tage)');
+  ok(Kt.verbuche(k, false, tag(40)) === 1 && Kt.faellig(alle, tag(41)).some((x) => x.key === k), 'Lernkarten: nicht gewusst → zurück, morgen wieder');
+  const id = store.lernNeu('<b>Vorn</b>', 'x'.repeat(500)); const mit = Kt.stapel();
+  ok(mit.length === alle.length + 1 && mit[0].eigen && mit[0].vorn === '&lt;b&gt;Vorn&lt;/b&gt;' && store.lernEigene[0].hinten.length === 300, 'Lernkarten: eigene Karte wird entschärft und gekürzt');
+  Kt.verbuche(`e:${id}`, true, T0); store.lernWeg(id); ok(Kt.stapel().length === alle.length && !store.lernStand[`e:${id}`], 'Lernkarten: eigene Karte samt Stand löschbar');
+  for (const st of UNITS.find((u) => u.id === 'regeln').steps) store.complete('regeln', st.id, 3);
+  ok(Kt.stapel().every((x) => x.key.startsWith('f:regeln:')) && Kt.stapel().length === UNITS.find((u) => u.id === 'regeln').formeln.length, 'Lernkarten: mit Fortschritt nur Formeln aus begonnenen Einheiten');
+  store.reset(); }
+
 // 15) Schwierigkeit und Serie
 store.level = 9; ok(store.level === 5, 'Schwierigkeit: nach oben begrenzt');
 store.level = 0; ok(store.level === 1, 'Schwierigkeit: nach unten begrenzt');

@@ -21,6 +21,7 @@ const errors = [];
 let serverAus = false;   // solange der nachgestellte Melde-Server „nicht erreichbar“ spielt, sind seine Lade-Fehler erwartet
 page.on('console', (m) => { if (m.type() === 'error' && !(serverAus && /Failed to load resource/.test(m.text()))) errors.push(m.text()); });
 page.on('pageerror', (e) => errors.push(String(e)));
+page.on('response', (r) => { if (r.status() === 404 && !serverAus) errors.push(`404: ${r.url()}`); });   // damit ein fehlender Abruf beim Namen genannt wird
 // Der Test-Server (reine Dateien) kennt /api/status nicht – hier antwortet er wie die Live-Seite: KI aus, kein Verkauf.
 await page.route('**/api/status', (r) => r.fulfill({ json: { ok: true, stufe: 'live', ki: false, premium: false } }));
 const apiCalls = [];
@@ -356,6 +357,50 @@ await page.click('a[href="#/zertifikat/analysis"]'); await page.waitForSelector(
 await page.fill('#zt-name', 'Test Person'); if ((await page.textContent('#zt-out')) !== 'Test Person') fail('Zertifikat: Name erscheint nicht');
 if (await page.evaluate(() => localStorage.getItem('mt.v1').includes('Test Person'))) fail('Zertifikat: Name darf nicht gespeichert werden');
 await shot('74-zertifikat');
+
+/* ───────────── Arbeitsblatt, Probeklausur, Theorie, Lernkarten ───────────── */
+await page.goto(`${BASE}#/pruefung`); await page.click('a[href="#/blatt"]'); await page.waitForSelector('#b-go');
+await page.click('#b-go'); if (!/mindestens ein Thema/.test(await page.textContent('#b-note'))) fail('Arbeitsblatt: ohne Thema muss ein Hinweis kommen');
+await page.click('[data-u="regeln"]'); await page.click('[data-u="s-baum"]'); await page.click('#b-n [data-n="5"]'); await page.click('#b-go'); await page.waitForSelector('#blatt');
+{ const b = await page.evaluate(() => ({ auf: document.querySelectorAll('.b-aufgabe').length, lsg: document.querySelectorAll('.b-lsg').length, logo: !!document.querySelector('.b-logo')?.complete && document.querySelector('.b-logo').naturalWidth > 0,
+    firma: document.querySelector('.b-firma').textContent, breit: document.documentElement.scrollWidth - innerWidth, hash: location.hash }));
+  if (b.auf !== 5 || b.lsg !== 5) fail(`Arbeitsblatt: ${b.auf} Aufgaben und ${b.lsg} Lösungen statt 5`);
+  if (!b.logo || !/Mathenachhilfe Online/.test(b.firma)) fail('Arbeitsblatt: Logo oder Firmenname fehlt');
+  if (b.breit > 1) fail(`Arbeitsblatt: Seite ${b.breit}px zu breit`);
+  const erste = await page.textContent('.b-aufgabe'); await page.reload(); await page.waitForSelector('#blatt');
+  if ((await page.textContent('.b-aufgabe')) !== erste) fail('Arbeitsblatt: nach Neuladen ein anderes Blatt (Nummer muss das Blatt festlegen)'); }
+await shot('77-arbeitsblatt');
+await page.click('#b-los'); await page.waitForSelector('#stage');
+for (let i = 0; i < 60 && !(await page.$('#b-ergebnis')); i++) {
+  if (await page.locator('#q-next').isVisible().catch(() => false)) { await page.click('#q-next'); continue; }
+  const inp = page.locator('#q-wahl'); if (await inp.isVisible().catch(() => false)) { await inp.click(); continue; }
+  const ok1 = page.locator('#stage .opt[data-ok="1"]:not(.right)').first(); if (await ok1.count()) { await ok1.click(); continue; }
+  if (await page.locator('#q-in').isVisible().catch(() => false)) { await page.fill('#q-in', '0'); await page.click('.tipp button[type="submit"]').catch(() => {}); continue; }
+  await page.waitForTimeout(150);
+}
+if (!(await page.$('#b-ergebnis'))) fail('Arbeitsblatt: Lösen in der App endet nicht');
+await page.goto(`${BASE}#/blatt/klausur_${LEVEL}_4711`); await page.waitForSelector('#blatt');
+if ((await page.locator('.b-aufgabe').count()) !== 12 || !/48 Punkte/.test(await page.textContent('.b-titel')) || !(await page.locator('.b-np').count())) fail('Probeklausur: 12 Aufgaben, 48 Punkte und Notenpunkte-Tabelle erwartet');
+await page.goto(`${BASE}#/blatt/kaputt_1_2`); await page.waitForSelector('#b-go');   // kaputte Adresse → Auswahl statt Fehler
+await page.goto(`${BASE}#/lernen`); await page.click('a[href="#/theorie"]'); await page.waitForSelector('a[href="#/theorie/extrema"]');
+if ((await page.locator('a[href^="#/theorie/"]').count()) !== UNITS.filter((u) => u.area !== 'pruefung').length) fail('Theorie: nicht jede Lern-Einheit hat ein Kapitel');
+await page.click('a[href="#/theorie/extrema"]'); await page.waitForSelector('#kapitel');
+if (/Durchgerechnetes Beispiel/.test(await page.textContent('#kapitel'))) fail('Theorie: startet nicht mit der Kurzfassung');
+await page.click('#t-art [data-l="1"]'); await page.waitForFunction(() => /Durchgerechnetes Beispiel/.test(document.querySelector('#kapitel').textContent));
+if (await page.evaluate(() => document.documentElement.scrollWidth - innerWidth > 1)) fail('Theorie: Seite zu breit');
+await shot('78-theorie');
+await page.goto(`${BASE}#/theorie/a-trig`); await page.waitForSelector('#kapitel'); await page.click('#t-art [data-l="1"]');
+if (!/in Arbeit/.test(await page.textContent('#t-pro'))) fail('Theorie: fehlende ausführliche Fassung wird nicht erklärt');
+await page.goto(`${BASE}#/u/extrema`); if (!(await page.locator('#u-theorie').count())) fail('Theorie: Link in der Einheit fehlt');
+await page.goto(`${BASE}#/mehr`); await page.click('a[href="#/karten"]'); await page.waitForSelector('#lk-go');
+await page.fill('#lk-vorn', 'Test <i>vorn</i>'); await page.fill('#lk-hinten', 'Test hinten'); await page.click('#lk-neu'); await page.waitForSelector('.lk-weg');
+if (await page.locator('.lk-zeile i').count()) fail('Lernkarten: eigener Text darf kein HTML werden');
+await page.click('#lk-go'); await page.waitForSelector('#lk-dreh');
+if (await page.locator('#lk-rueck').isVisible()) fail('Lernkarten: Rückseite ist schon vor dem Umdrehen zu sehen');
+for (let i = 0; i < 80 && !(await page.$('#lk-ende')); i++) { if (await page.$('#lk-dreh')) { const r = await page.locator('#lk-dreh').boundingBox(); if (r.y + r.height > page.viewportSize().height + 1) fail('Lernkarten: Knopf nicht ohne Scrollen sichtbar'); await page.click('#lk-dreh'); } else await page.click(i % 3 ? '#lk-ja' : '#lk-nein'); }
+if (!(await page.$('#lk-ende'))) fail('Lernkarten: Runde endet nicht');
+await page.click('#lk-zurueck'); await page.waitForSelector('#lk-go'); if (!(await page.locator('#lk-go').isDisabled())) fail('Lernkarten: nach der Runde darf heute nichts mehr fällig sein');
+await page.click('.lk-weg'); if (await page.locator('.lk-weg').count()) fail('Lernkarten: eigene Karte lässt sich nicht löschen');
 
 /* ───────────── Karte mit Geschichte, Abenteuer-Modus, ruhiger Modus ───────────── */
 await page.goto(`${BASE}#/karte`); await page.waitForSelector('.k-land');

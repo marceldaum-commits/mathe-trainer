@@ -182,6 +182,12 @@ export const store = {
   /** Ruhiger Modus: keine Lernserie, kein Wochen-Ziel, keine Herzen beim Boss, Abi-Modus ohne Uhr. */
   get ruhig() { return mem.ruhig === true; },
   set ruhig(v) { mem.ruhig = !!v; save(); },
+  /** Lernkarten: Stand je Karte { fach (0–5), ab: 'JJJJ-MM-TT' } und eigene Karten [{ id, vorn, hinten }]. */
+  get lernStand() { return mem.lernStand && typeof mem.lernStand === 'object' ? mem.lernStand : {}; },
+  lernSetze(key, fach, ab) { mem.lernStand = { ...this.lernStand, [key]: { fach, ab } }; save(); },
+  get lernEigene() { return Array.isArray(mem.lernEigene) ? mem.lernEigene : []; },
+  lernNeu(vorn, hinten) { const id = `e${Date.now().toString(36)}`; mem.lernEigene = [...this.lernEigene, { id, vorn: String(vorn).slice(0, 200), hinten: String(hinten).slice(0, 300) }].slice(-200); save(); return id; },
+  lernWeg(id) { mem.lernEigene = this.lernEigene.filter((k) => k.id !== id); const s = { ...this.lernStand }; delete s[`e:${id}`]; mem.lernStand = s; save(); },
   /** Zufällige Kennung dieses Geräts (24 Zeichen), nur für die Zählung der KI-Proben. Entsteht erst, wenn sie gebraucht wird. */
   get geraet() {
     if (!/^[A-Za-z0-9_-]{16,64}$/.test(mem.geraet || '')) {
