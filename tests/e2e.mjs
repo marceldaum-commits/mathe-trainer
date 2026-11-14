@@ -231,6 +231,8 @@ if (await page.locator('#home a[href^="#/u/"]:not(.btn)').count()) fail('Startse
 const startHeight = await page.evaluate(() => document.documentElement.scrollHeight);
 if (startHeight > 2400) fail(`Startseite zu lang: ${startHeight}px`);
 if (!(await page.locator('.week').count())) fail('Wochen-Ziel fehlt auf der Startseite');
+if ((await page.locator('#home .tile').count()) > 4) fail('Startseite: mehr als vier Kacheln');
+if ((await page.textContent('#stufe')) !== 'von Mathenachhilfe Online' || await page.locator('#stufe.stufe').count()) fail('Ohne Zugang darf keine Stufe unter dem App-Namen stehen');
 await page.click('#nav a[data-tab="lernen"]'); await page.waitForSelector('a[href="#/g/analysis"]');
 await page.waitForSelector('#nav a[data-tab="lernen"].on', { timeout: 5000 }).catch(() => fail('Menü markiert „Lernen" nicht'));
 await page.waitForFunction(() => document.querySelector('#view h1')?.textContent.includes('Wähle ein Gebiet'));
@@ -377,6 +379,10 @@ if (!(await page.$('#b-ergebnis'))) fail('Arbeitsblatt: Lösen in der App endet 
 await page.goto(`${BASE}#/blatt/klausur_${LEVEL}_4711`); await page.waitForSelector('#blatt');
 if ((await page.locator('.b-aufgabe').count()) !== 12 || !/48 Punkte/.test(await page.textContent('.b-titel')) || !(await page.locator('.b-np').count())) fail('Probeklausur: 12 Aufgaben, 48 Punkte und Notenpunkte-Tabelle erwartet');
 await page.goto(`${BASE}#/blatt/kaputt_1_2`); await page.waitForSelector('#b-go');   // kaputte Adresse → Auswahl statt Fehler
+await page.goto(`${BASE}#/pro`); await page.waitForSelector('#pro-stufe');   // Übersicht der Stufen: ohne Zugang „Frei“, Pro-Funktionen als gesperrt markiert
+if ((await page.textContent('#pro-stufe')) !== 'Frei' || (await page.locator('.pro-zeile.zu').count()) < 8 || (await page.locator('.pro-zeile.offen').count()) < 4) fail('Stufen-Übersicht: ohne Zugang falsch');
+if (await page.evaluate(() => document.documentElement.scrollWidth - innerWidth > 1)) fail('Stufen-Übersicht: Seite zu breit');
+await page.goto(`${BASE}#/blatt`); await page.waitForSelector('#b-go');
 // Schwächen-Blatt: entsteht aus der Fehler-Kartei (der Test hat bis hierher absichtlich Fehler gemacht)
 if (await page.evaluate(() => Object.keys(JSON.parse(localStorage.getItem('mt.v1')).kartei || {}).length) === 0) fail('Schwächen-Blatt: Fehler-Kartei ist leer, obwohl der Test Fehler gemacht hat');
 if (await page.locator('#b-schwach').isHidden()) fail('Schwächen-Blatt: Knopf fehlt trotz gefüllter Fehler-Kartei');
@@ -706,6 +712,12 @@ await p2.fill('#st-pro-code', 'abc'); await p2.click('#st-pro-go'); if (!/Form M
 await p2.fill('#st-pro-code', 'MT-ZZZZ-ZZZZ-ZZZZ'); await p2.click('#st-pro-go'); await p2.waitForFunction(() => /kennen wir nicht/.test(document.querySelector('#st-pro-note').textContent));
 await p2.fill('#st-pro-code', ' mt ab12 cd34 ef56 '); await p2.click('#st-pro-go'); await p2.waitForFunction(() => /30-Tage-Pass/.test(document.querySelector('#st-pro-stand').textContent));
 if (!/31\.12\.2099/.test(await p2.textContent('#st-pro-stand')) || !(await p2.locator('#st-pro-zeile').isHidden())) fail('Pro: eingelöster Zugang wird nicht richtig angezeigt');
+// Stufe ist überall sichtbar: unter dem App-Namen, auf der Übersicht „Deine Stufe“ und als Marke an den Funktionen
+if ((await p2.textContent('#stufe')) !== 'PRO + KI') fail(`Pro: Stufe steht nicht unter dem App-Namen (${await p2.textContent('#stufe')})`);
+await p2.goto(`${BASE}#/pro`); await p2.waitForSelector('#pro-stufe');
+if ((await p2.textContent('#pro-stufe')) !== 'Pro + KI' || !/gültig bis 31\.12\.2099/.test(await p2.textContent('.pro-stand')) || await p2.locator('.pro-zeile.zu').count() || (await p2.locator('.pro-zeile.offen').count()) < 12) fail('Pro: Übersicht zeigt Stufe, Gültigkeit oder freigeschaltete Funktionen falsch');
+await p2.goto(`${BASE}#/theorie/regeln`); await p2.waitForSelector('#t-art .marke.an'); if (!(await p2.locator('#t-druck .marke.an').count())) fail('Pro: Marke am PDF-Knopf zeigt die Freischaltung nicht');
+await p2.goto(`${BASE}#/einstellungen`); await p2.waitForSelector('#st-pro:not([hidden])');
 if ((await p2.evaluate(() => JSON.parse(localStorage.getItem('mt.v1')).zugang?.code)) !== 'MT-AB12-CD34-EF56') fail('Pro: Zugangscode nicht gespeichert');
 await p2.reload(); await p2.waitForSelector('#st-pro:not([hidden])'); if (!/30-Tage-Pass/.test(await p2.textContent('#st-pro-stand'))) fail('Pro: Zugang nach Neuladen vergessen');
 await p2.evaluate(() => { const m = JSON.parse(localStorage.getItem('mt.v1')); m.zugang.bis = '9999-12-31'; localStorage.setItem('mt.v1', JSON.stringify(m)); }); await p2.reload(); await p2.waitForSelector('#st-pro-weg');
