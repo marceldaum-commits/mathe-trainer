@@ -1,10 +1,10 @@
 # Baut die Android-App (APK + Play-Store-Paket) auf GitHub – unabhängig von jedem einzelnen Rechner.
-# Läuft von selbst, sobald sich die App-Hülle ändert (android/huelle.json), und auf Knopfdruck (Actions → „App-Datei bauen“).
+# Läuft von selbst, sobald sich die App-Hülle ändert (android/huelle.json), und auf Knopfdruck (Actions → „Mathe-Trainer – Android-App bauen“).
 # Braucht zwei Geheimnisse des Repos (Settings → Secrets and variables → Actions) – sie stehen nie im Repo:
 #   MT_KEYSTORE_B64  = der Signier-Schlüssel als Text (base64)
 #   MT_KEYSTORE_PASS = das Passwort dazu
-name: App-Datei bauen
-run-name: App-Datei bauen (${{ github.ref_name }})
+name: Mathe-Trainer – Android-App bauen
+run-name: Mathe-Trainer – Android-App bauen (${{ github.ref_name }})
 on:
   push:
     branches: [test, arbeit]
