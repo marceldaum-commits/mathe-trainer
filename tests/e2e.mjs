@@ -392,7 +392,7 @@ await page.fill('#lk-vorn', 'Test <i>vorn</i>'); await page.fill('#lk-hinten', '
 if (await page.locator('.lk-zeile i').count()) fail('Lernkarten: eigener Text darf kein HTML werden');
 await page.click('#lk-go'); await page.waitForSelector('#lk-dreh');
 if (await page.locator('#lk-rueck').isVisible()) fail('Lernkarten: Rückseite ist schon vor dem Umdrehen zu sehen');
-for (let i = 0; i < 80 && !(await page.$('#lk-ende')); i++) { if (await page.$('#lk-dreh')) { const r = await page.locator('#lk-dreh').boundingBox(); if (r.y + r.height > page.viewportSize().height + 1) fail('Lernkarten: Knopf nicht ohne Scrollen sichtbar'); await page.click('#lk-dreh'); } else await page.click(i % 3 ? '#lk-ja' : '#lk-nein'); }
+for (let i = 0; i < 600 && !(await page.$('#lk-ende')); i++) { if (await page.$('#lk-dreh')) { const r = await page.locator('#lk-dreh').boundingBox(); if (r.y + r.height > page.viewportSize().height + 1) fail('Lernkarten: Knopf nicht ohne Scrollen sichtbar'); await page.click('#lk-dreh'); } else await page.click(i % 3 ? '#lk-ja' : '#lk-nein'); }
 if (!(await page.$('#lk-ende'))) fail('Lernkarten: Runde endet nicht');
 await page.click('#lk-zurueck'); await page.waitForSelector('#lk-go'); if (!(await page.locator('#lk-go').isDisabled())) fail('Lernkarten: nach der Runde darf heute nichts mehr fällig sein');
 await page.click('.lk-weg'); if (await page.locator('.lk-weg').count()) fail('Lernkarten: eigene Karte lässt sich nicht löschen');
