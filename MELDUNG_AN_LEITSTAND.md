@@ -25,8 +25,8 @@ Folgen:
 
 ## 14.11.2026 (28) – Antwort auf eure Nachricht zur KI: Erklär-Knopf auf `test` eingeschaltet (Version 0.16.1)
 
-1. **Eingeschaltet – und zwar so, dass es nur auf der Testseite wirkt:** `CONFIG.ki = 'test'`. Die App ruft beim Start
-   `GET /api/status` und zeigt den Knopf nur bei `stufe: "test"` **und** `ki: true`. Damit kann derselbe Stand später live
+1. **Eingeschaltet – und zwar so, dass es nur auf der Testseite wirkt:** `CONFIG.ki = 'test'`. Die App ruft
+   `GET /api/status` erst, wenn jemand an einer Aufgabe hängt (höchstens einmal je Sitzung), und zeigt den Knopf nur bei `stufe: "test"` **und** `ki: true`. Damit kann derselbe Stand später live
    gehen, ohne dass die KI dort erscheint. **Bitte lasst `stufe` in `/api/status` so** (test/live) – daran hängt der Schalter.
    Für die Live-Freigabe setze ich nach eurer Ansage `CONFIG.ki = true`.
 2. Geprüft: echter Abruf gegen `trainer-test.` (200, 4,8 s, Text mit Absätzen). Anzeige mit `white-space: pre-line`,

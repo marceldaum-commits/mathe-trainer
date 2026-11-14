@@ -509,7 +509,9 @@ if (+(await page.textContent('.chip.xp')) !== xpBefore + 50) fail('Truhe gibt ni
 // Klassen-Rangliste wird angeboten; ohne Klasse hat die App bis hierher nichts an /api geschickt (außer Meldungen)
 await page.goto(`${BASE}#/pruefung`); await page.waitForSelector('a[href="#/blitz"]');
 if (!(await page.locator('a[href="#/klasse"]').count())) fail('Klassen-Rangliste wird nicht angeboten');
-if (apiCalls.length) fail(`Unerwartete Anfragen an den Server ohne Klasse: ${apiCalls.join(', ')}`);
+{ // /api/status trägt keine Daten (reine Abfrage „Testseite? KI bereit?“) und darf erst kommen, wenn jemand an einer Aufgabe hängt – höchstens einmal je Seitenaufruf.
+  const sonst = apiCalls.filter((u) => u !== '/api/status');
+  if (sonst.length) fail(`Unerwartete Anfragen an den Server ohne Klasse: ${sonst.join(', ')}`); }
 
 /* ───────────── Fortschritt, Vorlade-Liste, Offline ───────────── */
 async function countDone() {

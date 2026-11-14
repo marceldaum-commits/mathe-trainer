@@ -4,7 +4,7 @@ import { h, tex, cssVar, buzz, sfx } from './ui.js';
 import { store } from './store.js';
 import { ft } from './math.js';
 import { inputSpec, parseInput, isRight, diagnose } from './eingabe.js';
-import { api, kiOn } from './api.js';
+import { api, kiBereit } from './api.js';
 
 /** sequence: Liste von Erzeugern (eine Aufgabe je Eintrag). */
 export function quiz(sequence, opts = {}) {
@@ -28,8 +28,8 @@ export function quiz(sequence, opts = {}) {
       // „Erklär's mir anders“ (KI, nur mit eingeschaltetem Server): bekommt nur die Aufgabe und die gewählte Antwort.
       let gewaehlt = '';
       const richtigTex = () => q.options?.find((o) => o.correct)?.tex || '';
-      const erklaer = () => {
-        if (!kiOn() || note.querySelector('.ki')) return;
+      const erklaer = async () => {
+        if (note.querySelector('.ki') || !(await kiBereit()) || note.querySelector('.ki') || !note.isConnected) return;
         const box = h(`<div class="ki"><small class="muted">Noch nicht klar?</small><div class="picks">${[['einfacher', 'Einfacher erklären'], ['beispiel', 'Mit Beispiel'], ['eselsbruecke', 'Eselsbrücke']].map(([k, n]) => `<button class="pick" type="button" data-k="${k}">${n}</button>`).join('')}</div><div class="ki-out" aria-live="polite"></div><small class="muted ki-hinweis">Dafür gehen nur die Aufgabe und deine Antwort an einen KI-Dienst – kein Name, kein Lernstand.</small></div>`);
         box.querySelectorAll('button').forEach((b) => { b.onclick = async () => {
           const out = box.querySelector('.ki-out'); box.querySelectorAll('button').forEach((x) => { x.disabled = true; });
