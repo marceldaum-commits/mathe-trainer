@@ -103,7 +103,9 @@ self.addEventListener('message', (ev) => { if (ev.data === 'skip') self.skipWait
 
 self.addEventListener('fetch', (ev) => {
   const req = ev.request;
-  if (req.method !== 'GET' || new URL(req.url).origin !== location.origin) return;
+  const ziel = new URL(req.url);
+  // Anfragen an den Server-Teil (/api/…) fasst der Service Worker nicht an: nie aus dem Speicher, immer direkt.
+  if (req.method !== 'GET' || ziel.origin !== location.origin || ziel.pathname.startsWith('/api/')) return;
   ev.respondWith(
     caches.match(req, { ignoreSearch: true }).then((hit) => hit || fetch(req).catch(() => (req.mode === 'navigate' ? caches.match('./') : Response.error()))),
   );
