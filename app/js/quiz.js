@@ -30,14 +30,14 @@ export function quiz(sequence, opts = {}) {
       const richtigTex = () => q.options?.find((o) => o.correct)?.tex || '';
       const erklaer = () => {
         if (!kiOn() || note.querySelector('.ki')) return;
-        const box = h(`<div class="ki"><small class="muted">Noch nicht klar?</small><div class="picks">${[['einfacher', 'Einfacher erklären'], ['beispiel', 'Mit Beispiel'], ['eselsbruecke', 'Eselsbrücke']].map(([k, n]) => `<button class="pick" type="button" data-k="${k}">${n}</button>`).join('')}</div><div class="ki-out" aria-live="polite"></div></div>`);
+        const box = h(`<div class="ki"><small class="muted">Noch nicht klar?</small><div class="picks">${[['einfacher', 'Einfacher erklären'], ['beispiel', 'Mit Beispiel'], ['eselsbruecke', 'Eselsbrücke']].map(([k, n]) => `<button class="pick" type="button" data-k="${k}">${n}</button>`).join('')}</div><div class="ki-out" aria-live="polite"></div><small class="muted ki-hinweis">Dafür gehen nur die Aufgabe und deine Antwort an einen KI-Dienst – kein Name, kein Lernstand.</small></div>`);
         box.querySelectorAll('button').forEach((b) => { b.onclick = async () => {
           const out = box.querySelector('.ki-out'); box.querySelectorAll('button').forEach((x) => { x.disabled = true; });
-          out.innerHTML = '<div class="note tip">Einen Moment …</div>';
+          out.innerHTML = '<div class="note tip ki-laedt">Die Erklärung wird geschrieben. Das dauert ein paar Sekunden<span aria-hidden="true"></span></div>';
           const r = await api.erklaer({ frage: String(q.prompt).replace(/<[^>]+>/g, '').slice(0, 400), formel: String(q.formula || '').slice(0, 300), richtig: richtigTex().slice(0, 200), gewaehlt: gewaehlt.slice(0, 200), art: b.dataset.k });
           const div = h('<div class="note"></div>');
           div.className = `note ${r.ok && r.text ? 'ok' : 'tip'}`;
-          div.textContent = r.ok && r.text ? String(r.text).replace(/<[^>]*>/g, '').slice(0, 900) : r.status === 429 ? 'Für heute sind die Erklärungen aufgebraucht. Morgen geht es weiter.' : (r.error || 'Die Erklärung ist gerade nicht erreichbar.');
+          div.textContent = r.ok && r.text ? String(r.text).replace(/<[^>]*>/g, '').slice(0, 900) : r.status === 429 ? 'Die Erklärungen sind für heute aufgebraucht. Morgen geht es weiter.' : (r.error || 'Die Erklärung ist gerade nicht erreichbar.');
           out.replaceChildren(div); box.querySelectorAll('button').forEach((x) => { x.disabled = false; });
         }; });
         note.append(box);

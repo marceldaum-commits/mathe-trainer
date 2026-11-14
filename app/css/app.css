@@ -640,3 +640,9 @@ a.count{text-decoration:none}
   .ab-start h2{font-size:19px}
   .ab-start p{font-size:13.5px;line-height:1.4}
 }
+/* KI-Erklärung: Zeilenumbrüche des Textes behalten, Lade-Anzeige mit laufenden Punkten */
+.ki-out .note{white-space:pre-line}
+.ki-hinweis{font-size:11.5px;line-height:1.35}
+.ki-laedt span::after{content:"";animation:kipunkte 1.4s steps(4,end) infinite}
+@keyframes kipunkte{0%{content:""}25%{content:" ."}50%{content:" . ."}75%{content:" . . ."}}
+@media (prefers-reduced-motion:reduce){.ki-laedt span::after{animation:none;content:" …"}}

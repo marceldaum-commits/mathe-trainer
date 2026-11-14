@@ -618,7 +618,9 @@ const EX = await import('../app/js/exam.js');
 
 // 13h) Server-Schnittstelle (abgeschaltet) und KI-Prüfer
 { const A = await import('../app/js/api.js'); const { parse } = await import('../app/js/ki/expr.js'); const K = await import('../app/js/ki/verify.js');
-  ok(A.serverOn() && !A.kiOn(), 'Server: Rangliste eingeschaltet, KI aus');
+  ok(A.serverOn() && !A.kiOn(), 'Server: Rangliste eingeschaltet, KI ohne Freigabe des Servers aus');
+  ok(A.statusLesen({ ok: true, stufe: 'test', ki: true }) === 'test' && A.kiOn(), 'KI: an, wenn der Server sich als Testseite mit KI meldet');
+  for (const r of [{ ok: true, stufe: 'live', ki: true }, { ok: true, stufe: 'test', ki: false }, { ok: false, stufe: 'test', ki: true }, { ok: true }, null, { ok: true, stufe: 'test', ki: 'ja' }]) { A.statusLesen(r); ok(!A.kiOn(), `KI: aus bei Status ${JSON.stringify(r)} (live, kein Budget, Fehler, kein Netz)`); }
   { const r = await A.api.rangliste('ABCDEF', 'x'); ok(r.ok === false && typeof r.error === 'string', 'Server: nicht erreichbar → saubere Fehlermeldung statt Absturz'); }
   ok(A.codeOk('k7m2qx') && !A.codeOk('ABC') && !A.codeOk('ABCDE1') && !A.codeOk('ABCDEO'), 'Klassen-Code: Format');
   ok(A.nameOk('Mia_07') && A.nameOk('Jörg B.') && !A.nameOk('x') && !A.nameOk('<b>hi</b>') && !A.nameOk('a'.repeat(17)), 'Spitzname: Format');

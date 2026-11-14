@@ -12,7 +12,7 @@ import { CONFIG, VERSION, STAND } from './config.js';
 import { $, h, esc, ICON, starsHtml, toast, sfx, sound, confetti, look } from './ui.js';
 import { abiView, rundeView, blitzView } from './exam.js';
 import { checkBadges, titleOf } from './badges.js';
-import { api, serverOn } from './api.js';
+import { api, serverOn, ladeStatus } from './api.js';
 import { settingsView, berichtView, karteiView, dailyGoal, openSteps, levelCard, erfolgeView, formelnView, klasseView, weekCard, readiness, applySkin, lehrplanView } from './extras.js';
 
 const view = $('#view');
@@ -366,6 +366,7 @@ function tint() {
 }
 window.addEventListener('mt-look', () => queueMicrotask(tint));
 window.addEventListener('mt-ruhig', () => chips());
+ladeStatus();   // KI-Erklärungen: nur dort an, wo der Server sie freigibt (siehe config.js)
 new MutationObserver(() => { $('#nav').hidden = !!view.querySelector('.stephead'); }).observe(view, { childList: true, subtree: true });
 look.follow(); applySkin(); initMelden();
 window.addEventListener('hashchange', route);

@@ -2,6 +2,23 @@
 
 Neueste Meldung oben. Keine Geheimnisse, keine Personendaten (dieses Repo ist öffentlich, siehe Punkt 1).
 
+## 14.11.2026 (28) – Antwort auf eure Nachricht zur KI: Erklär-Knopf auf `test` eingeschaltet (Version 0.16.1)
+
+1. **Eingeschaltet – und zwar so, dass es nur auf der Testseite wirkt:** `CONFIG.ki = 'test'`. Die App ruft beim Start
+   `GET /api/status` und zeigt den Knopf nur bei `stufe: "test"` **und** `ki: true`. Damit kann derselbe Stand später live
+   gehen, ohne dass die KI dort erscheint. **Bitte lasst `stufe` in `/api/status` so** (test/live) – daran hängt der Schalter.
+   Für die Live-Freigabe setze ich nach eurer Ansage `CONFIG.ki = true`.
+2. Geprüft: echter Abruf gegen `trainer-test.` (200, 4,8 s, Text mit Absätzen). Anzeige mit `white-space: pre-line`,
+   Lade-Hinweis mit laufenden Punkten, 429 → „für heute aufgebraucht“, 502/503 → „gerade nicht erreichbar“.
+   Am echten Handy kann nur Marcel schauen.
+3. **Android-App (Offline-Fassung):** spricht mit `trainer.` (live) – dort bleibt die KI also aus, bis ihr live freigebt.
+4. **Felder für `/api/ki/aufgabe`:** stehen in `docs/KI.md` (Abschnitt „Format einer Aufgabe“ und Tabelle der Arten
+   `ableitung`, `stammfunktion`, `integral`, `zahl`). Anfrage `{ thema, stufe, stil }`, Antwort `{ aufgabe: {…} }`.
+   Der Prüfer liegt in `app/js/ki.js` (`verify`, `toQuestion`) und läuft ohne Browser – ihr könnt ihn serverseitig
+   unverändert einbinden. Die App zeigt KI-Aufgaben noch nirgends an; das baue ich erst, wenn euer Endpunkt steht.
+5. Unter den Knöpfen steht jetzt ein Satz zum Datenschutz („nur die Aufgabe und deine Antwort gehen an einen KI-Dienst“).
+   Passt das zu eurem Abschnitt 10a? Sonst nennt mir den Wortlaut.
+
 ## 14.11.2026 (27) – Version 0.16.0 (täglicher Ausbau): zwei neue Einheiten, sieben Aufgaben-Arten
 
 Neu auf `test` (nach grünem Browser-Test): Einheiten „Wachstum mit Grenze“ und „Ebenen genauer“, je 10 neue Level in zwei

@@ -4,7 +4,12 @@
 import { CONFIG } from './config.js';
 
 export const serverOn = () => typeof CONFIG.api === 'string' && CONFIG.api.length > 0;
-export const kiOn = () => serverOn() && CONFIG.ki === true;
+let stufe = '';   // was der Server über sich sagt: 'test', wenn dort KI-Erklärungen freigegeben sind
+export const kiOn = () => serverOn() && (CONFIG.ki === true || (CONFIG.ki === 'test' && stufe === 'test'));
+/** Antwort von GET /api/status auswerten. Nur „Testseite und KI bereit“ schaltet die Erklärungen frei. */
+export const statusLesen = (r) => { stufe = r && r.ok === true && r.ki === true && r.stufe === 'test' ? 'test' : ''; return stufe; };
+/** Beim Start einmal fragen – nur, wenn die Einstellung 'test' das verlangt. Ohne Netz bleibt die KI aus. */
+export async function ladeStatus() { if (serverOn() && CONFIG.ki === 'test') statusLesen(await call('/status')); return kiOn(); }
 
 async function call(path, body) {
   if (!serverOn()) return { ok: false, off: true };

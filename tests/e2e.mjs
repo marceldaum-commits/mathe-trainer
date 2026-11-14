@@ -541,7 +541,7 @@ const ctx2 = await browser.newContext({ ...devices['Pixel 7'], serviceWorkers: '
 const p2 = await ctx2.newPage();
 p2.on('pageerror', (e) => errors.push(`Klasse: ${e}`));
 const calls = [];
-await ctx2.route('**/js/config.js', async (route) => { const r = await route.fetch(); await route.fulfill({ response: r, body: (await r.text()).replace("api: ''", "api: '/api'").replace('ki: false', 'ki: true') }); });
+await ctx2.route('**/js/config.js', async (route) => { const r = await route.fetch(); await route.fulfill({ response: r, body: (await r.text()).replace("api: ''", "api: '/api'").replace("ki: 'test'", 'ki: true') }); });
 let kiRufe = 0;
 await ctx2.route('**/api/**', async (route) => {
   const u = new URL(route.request().url()), body = route.request().postDataJSON?.() ?? null; calls.push([u.pathname, body]);
