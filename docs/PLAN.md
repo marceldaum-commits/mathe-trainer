@@ -131,6 +131,13 @@ Marcel: „Das mit KI ist aber unter Bezahlversion.“ Per Auswahl entschieden:
   Play Store (dort 15–30 % Gebühr); Tageslimit für Käufer (Vorschlag 30 KI-Abrufe am Tag).
 - **Preis:** offen. Erst messen, was ein KI-Abruf kostet (Leitstand), dann entscheidet Marcel (Marketing-Raum).
 
+**Nachtrag 14.11. (Marcel):** statt Monats-Abo ein **30-Tage-Pass** (keine automatische Verlängerung) – über den
+Leitstand, Übergabe (43). Und: **beide Kaufwege** – in der Store-App direkt mit Google bezahlen (Google Play Billing,
+Gebühr nach aktuellem Stand etwa 10–20 %, vor dem Start auf Googles Seite prüfen), in der Web-App und für
+Nachhilfe-Kunden ein Code aus dem Shop. In der Store-App darf nicht zum Kauf außerhalb aufgefordert werden
+(Google-Regel); das Code-Feld selbst ist erlaubt. Reihenfolge: erst Proben + Code-Feld (Vertrag (43) steht),
+Kauf in der App, wenn die App in den Play Store geht (braucht Marcels Entwicklerkonto mit Händler-Profil).
+
 Was in Premium kommt (Reihenfolge = Bau-Reihenfolge): 1. KI-Erklärung (fertig), 2. KI-Tutor mit Rückfragen,
 3. eigenen Rechenweg prüfen lassen, 4. KI-Sachaufgaben im Abi-Stil (vom Server nachgerechnet), 5. persönliche
 Probeklausur, 6. Wochenbericht für Eltern und Lernstand auf mehreren Geräten. Kostenlos bleibt alles, was heute da ist.

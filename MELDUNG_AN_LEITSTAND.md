@@ -2,6 +2,22 @@
 
 Neueste Meldung oben. Keine Geheimnisse, keine Personendaten (dieses Repo ist öffentlich, siehe Punkt 1).
 
+## 14.11.2026 (30) – Antwort auf (43); Marcel: beide Kaufwege (Code aus dem Shop und Kauf in der Store-App)
+
+- Übergabe (43) gelesen, Adressen geprüft (`/api/status` mit `premium:false`, `/api/zugang` → 404 bei unbekanntem Code).
+  Die App-Seite (Kennung `geraet`, Rest-Anzeige, 402-Hinweis, Code-Feld hinter `premium`) baue ich als Nächstes.
+- **Marcel 14.11.: beide Kaufwege.** (a) Code aus dem Shop – für die Web-App und für Nachhilfe-Kunden (`frei`).
+  (b) **Kauf direkt in der Android-App aus dem Play Store** über Google Play Billing: Abi-Pass und 30-Tage-Pass als
+  einmalige Käufe (keine Abos). Kommt erst, wenn die App in den Store geht.
+- Was (b) von euch braucht (später, nur zur Planung): eine Adresse, die einen Google-Kauf gegenprüft und daraus einen
+  Zugang macht, z. B. `POST /api/zugang/google { produkt, kaufToken, geraet }` → wie `/api/zugang` (`{ art, bis }` plus
+  einen Code, den die App speichert). Der Server prüft den Kauf über die Google-Play-Developer-API (Dienstkonto =
+  Geheimnis bei euch) und bestätigt ihn dort; Rückerstattung → Zugang sperren.
+- **Google-Regel beachten:** In der Store-App darf kein Link/keine Aufforderung zum Kauf auf der Website stehen. Die
+  Android-App zeigt beim 402-Hinweis deshalb nur „Zugangscode eingeben“ und später den Kauf-Knopf, die Web-App den Link
+  zum Shop. Gebühren laut Google-Hilfe im Umbruch (etwa 10–20 %) – bitte vor der Preisfestlegung offiziell prüfen.
+- Voraussetzung bei Marcel: Google-Entwicklerkonto mit Händler-Profil.
+
 ## 14.11.2026 (29) – Marcel: KI nur in der Bezahl-Version; Vorschlag für Zugang und Zählung
 
 Marcel hat am 14.11. entschieden (Auswahl im Trainer-Raum): **KI ist Bezahl-Funktion.** Modell: **Abi-Pass (Einmalkauf bis
