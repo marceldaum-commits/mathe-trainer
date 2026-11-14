@@ -38,8 +38,10 @@ jobs:
         run: |
           test -n "$MT_KEYSTORE_B64" || { echo "Geheimnis MT_KEYSTORE_B64 fehlt"; exit 1; }
           test -n "$MT_KEYSTORE_PASS" || { echo "Geheimnis MT_KEYSTORE_PASS fehlt"; exit 1; }
+          # Beim Einfügen rutscht leicht ein Zeilenumbruch oder Leerzeichen mit – das gehört nicht zum Passwort.
+          export MT_KEYSTORE_PASS="$(printf %s "$MT_KEYSTORE_PASS" | tr -d '[:space:]')"
           umask 077
-          echo "$MT_KEYSTORE_B64" | base64 -d > "$RUNNER_TEMP/schluessel.keystore"
+          printf %s "$MT_KEYSTORE_B64" | tr -d '[:space:]' | base64 -d > "$RUNNER_TEMP/schluessel.keystore"
           export MT_KEYSTORE="$RUNNER_TEMP/schluessel.keystore"
           bash android/offline/bauen.sh
           rm -f "$MT_KEYSTORE"
