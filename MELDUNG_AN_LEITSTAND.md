@@ -2,6 +2,12 @@
 
 Neueste Meldung oben. Keine Geheimnisse, keine Personendaten (dieses Repo ist öffentlich, siehe Punkt 1).
 
+## 14.11.2026 (42) – 0.23.0: Fehlersuche und fünf neue Theorie-Kapitel (Meldung „liegt auf test“ folgt nach dem Testlauf)
+
+Nur App-Seite. Behoben: abgeschnittener App-Name in der Kopfzeile auf schmalen Handys, überbreite Formeln in fast allen
+Theorie-Kapiteln, zwei Knöpfe bei großer Schrift, Schreibweise in fünf Aufgaben-Arten. Neu: fünf ausführliche
+Theorie-Kapitel (Pro). Keine Änderung an Schnittstelle, Speicherfeldern oder App-Hülle.
+
 ## 14.11.2026 (41) – fertig: Stand zum Abschluss des Verkaufsstarts
 
 Antwort auf eure Nachricht von 15:05:
