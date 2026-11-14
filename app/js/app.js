@@ -4,6 +4,7 @@ import { quiz } from './quiz.js';
 import { initMelden } from './melden.js';
 import { abenteuerView } from './abenteuer.js';
 import { blattView } from './blatt.js';
+import { kiAufgabeView } from './kiaufgabe.js';
 import { theorieView } from './theorie.js';
 import { kartenView, faellig } from './karten.js';
 import { karteView } from './karte.js';
@@ -15,7 +16,7 @@ import { CONFIG, VERSION, STAND } from './config.js';
 import { $, h, esc, ICON, starsHtml, toast, sfx, sound, confetti, look } from './ui.js';
 import { abiView, rundeView, blitzView } from './exam.js';
 import { checkBadges, titleOf } from './badges.js';
-import { api, serverOn } from './api.js';
+import { api, serverOn, kiBereit, kiArt } from './api.js';
 import { settingsView, berichtView, karteiView, dailyGoal, openSteps, levelCard, erfolgeView, formelnView, klasseView, weekCard, readiness, applySkin, lehrplanView } from './extras.js';
 
 const view = $('#view');
@@ -188,6 +189,7 @@ function pruefungView() {
       ${linkCard('#/blitz', '60', 'Blitz-Runde', store.n('blitzRekord') ? `Dein Rekord: ${store.n('blitzRekord')} Punkte` : '60 Sekunden, Kombo-Faktor, so viele wie möglich.')}
       ${linkCard('#/duell', 'VS', 'Duell', best ? `Dein Bestwert: ${best.score} Punkte` : 'Fordere Mitschüler per Link heraus.')}
       ${serverOn() ? linkCard('#/klasse', ICON.star, 'Klassen-Rangliste', store.klasse ? `Klasse ${esc(store.klasse.code)}` : 'Mit einem Code gemeinsam antreten.') : ''}
+      <div id="pf-ki"></div>
     </section>
     <div class="sect"><h2>Prüfungswissen</h2></div>
     <section class="stack">${areaStat(area).units.map(unitCard).join('')}</section>
@@ -327,7 +329,7 @@ function route() {
   const hash = location.hash;
   const m = hash.match(/^#\/u\/([\w-]+)(?:\/(\d+))?$/);
   const u = m && UNITS.find((x) => x.id === m[1]);
-  const x = hash.match(/^#\/(abi|tag|duell|blitz|bericht|einstellungen|wiederholen|erfolge|formeln|klasse|lehrplan|einstufung|aufgabe|plan|zertifikat|abenteuer|karte|theorie|karten)(?:\/([\w-]+))?$/);
+  const x = hash.match(/^#\/(abi|tag|duell|blitz|bericht|einstellungen|wiederholen|erfolge|formeln|klasse|lehrplan|einstufung|aufgabe|plan|zertifikat|abenteuer|karte|theorie|karten|kiaufgabe)(?:\/([\w-]+))?$/);
   const gm = hash.match(/^#\/g\/(\w+)$/), g = gm && LERN_AREAS().find((a) => a.id === gm[1]);
   const pm = hash.match(/^#\/ueben\/(\w+?)(-grund)?$/), pa = pm && LERN_AREAS().find((a) => a.id === pm[1]);
   const bm = hash.match(/^#\/blatt(?:\/([\w.\-/]+))?$/);
@@ -339,10 +341,15 @@ function route() {
     const after = () => { chips(); setTimeout(badgeCheck, 600); };
     const r = { abi: () => abiView(['A', 'B'].includes(x[2]) ? x[2] : null, after), tag: () => rundeView('tag', undefined, (res) => { after(); meldeTag(res); }), duell: () => rundeView('duell', x[2], after), blitz: () => blitzView(after),
       bericht: berichtView, einstellungen: settingsView, wiederholen: karteiView, erfolge: erfolgeView, formeln: formelnView, klasse: klasseView, lehrplan: lehrplanView,
-      einstufung: () => (x[2] === 'ergebnis' ? einstufungErgebnis() : einstufungView()), aufgabe: () => verbundView(x[2]), plan: planView, zertifikat: () => zertifikatView(x[2]), abenteuer: () => abenteuerView(after), karte: karteView, theorie: () => theorieView(x[2]), karten: kartenView }[x[1]]();
+      einstufung: () => (x[2] === 'ergebnis' ? einstufungErgebnis() : einstufungView()), aufgabe: () => verbundView(x[2]), plan: planView, zertifikat: () => zertifikatView(x[2]), abenteuer: () => abenteuerView(after), karte: karteView, theorie: () => theorieView(x[2]), karten: kartenView, kiaufgabe: kiAufgabeView }[x[1]]();
     el = r.el; cleanup = r.cleanup || null;
   } else if (hash === '#/lernen') el = lernenView();
-  else if (hash === '#/pruefung') el = pruefungView();
+  else if (hash === '#/pruefung') {
+    el = pruefungView();
+    // KI-Aufgaben: Der Einstieg erscheint nur dort, wo der Server sie anbietet.
+    const platz = el.querySelector('#pf-ki');
+    kiBereit().then(() => { if (platz?.isConnected && kiArt('aufgabe')) platz.innerHTML = linkCard('#/kiaufgabe', 'KI', 'KI-Aufgaben', 'Immer neue Aufgaben im Abi-Stil – vom Server nachgerechnet (Pro + KI).'); });
+  }
   else if (hash === '#/mehr') el = mehrView();
   else if (g) el = areaView(g);
   else if (pa) el = uebenView(pa, !!pm[2]);
@@ -363,7 +370,7 @@ function nav() {
   const hash = location.hash || '#/';
   const um = hash.match(/^#\/u\/([\w-]+)/), unit = um && UNITS.find((x) => x.id === um[1]);
   const tab = unit ? (unit.area === 'pruefung' ? 'pruefung' : 'lernen')
-    : /^#\/(lernen|g\/|ueben\/|einstufung|karte|theorie)/.test(hash) ? 'lernen' : /^#\/(pruefung|abi|tag|duell|blitz|klasse|aufgabe|abenteuer|blatt)/.test(hash) ? 'pruefung' : /^#\/(mehr|bericht|einstellungen|wiederholen|erfolge|formeln|lehrplan|plan|zertifikat|karten)/.test(hash) ? 'mehr' : 'start';
+    : /^#\/(lernen|g\/|ueben\/|einstufung|karte|theorie)/.test(hash) ? 'lernen' : /^#\/(pruefung|abi|tag|duell|blitz|klasse|aufgabe|abenteuer|blatt|kiaufgabe)/.test(hash) ? 'pruefung' : /^#\/(mehr|bericht|einstellungen|wiederholen|erfolge|formeln|lehrplan|plan|zertifikat|karten)/.test(hash) ? 'mehr' : 'start';
   document.querySelectorAll('#nav a').forEach((a) => { const on = a.dataset.tab === tab; a.classList.toggle('on', on); if (on) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current'); });
   $('#nav').hidden = !!view.querySelector('.stephead');
   tint();

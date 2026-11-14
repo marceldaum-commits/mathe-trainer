@@ -590,6 +590,10 @@ await page.click('#nav a[data-tab="lernen"]'); await page.click('a[href="#/g/ana
 await ctx.setOffline(false);
 
 /* ───────────── Mit (nachgestelltem) Server: Klassen-Rangliste ───────────── */
+let kiAufgaben = 0;
+const KI_AUFGABE = { id: 'a1', art: 'ableitung', thema: 'Kettenregel', stufe: 3, frage: 'Welche Ableitung ist richtig?', formel: 'f(x)=(2x+1)^3', funktion: '(2*x+1)^3',
+  antworten: [{ tex: '6(2x+1)^2', ausdruck: '6*(2*x+1)^2', richtig: true }, { tex: '3(2x+1)^2', ausdruck: '3*(2*x+1)^2', fehler: 'Die innere Ableitung 2 fehlt.' }, { tex: '6(2x+1)^3', ausdruck: '6*(2*x+1)^3', fehler: 'Der Exponent muss um 1 kleiner werden.' }, { tex: '2(2x+1)^2', ausdruck: '2*(2*x+1)^2', fehler: 'Der alte Exponent fehlt als Faktor.' }],
+  tipps: ['Hier steckt eine Funktion in einer anderen.', 'Äußere Ableitung mal innere Ableitung.'], erklaerung: 'Kettenregel: 3·(2x+1)²·2 = 6(2x+1)².' };
 const ctx2 = await browser.newContext({ ...devices['Pixel 7'], serviceWorkers: 'block' });
 const p2 = await ctx2.newPage();
 p2.on('pageerror', (e) => errors.push(`Klasse: ${e}`));
@@ -599,7 +603,9 @@ let kiRufe = 0;
 await ctx2.route('**/api/**', async (route) => {
   const u = new URL(route.request().url()), body = route.request().postDataJSON?.() ?? null; calls.push([u.pathname, body]);
   if (u.pathname === '/api/klasse/beitreten') return route.fulfill({ json: body.code === 'K7M2QX' ? { klasse: 'Q12 Mathe', spieler: 'p-123' } : { error: 'Diesen Code gibt es nicht.' }, status: body.code === 'K7M2QX' ? 200 : 404 });
-  if (u.pathname === '/api/status') return route.fulfill({ json: { ok: true, stufe: 'test', ki: true, premium: true, kiArten: ['erklaer', 'frage', 'rechenweg'] } });
+  if (u.pathname === '/api/status') return route.fulfill({ json: { ok: true, stufe: 'test', ki: true, premium: true, kiArten: ['erklaer', 'frage', 'rechenweg', 'aufgabe', 'auswertung'] } });
+  if (u.pathname === '/api/ki/aufgabe') { kiAufgaben++; return kiAufgaben === 1 ? route.fulfill({ status: 202, json: { bereit: false, text: 'Vorrat wird gefüllt.' } }) : kiAufgaben === 2 ? route.fulfill({ json: { rest: 12, aufgabe: KI_AUFGABE } }) : route.fulfill({ json: { rest: 11, aufgabe: { ...KI_AUFGABE, antworten: KI_AUFGABE.antworten.map((a) => ({ ...a, richtig: true })) } } }); }
+  if (u.pathname === '/api/ki/auswertung') return route.fulfill({ json: { text: 'Kettenregel sitzt.\nÜbe noch Baumdiagramme.', rest: 10 } });
   if (u.pathname === '/api/ki/rechenweg') return body.zugang ? route.fulfill({ json: { text: 'In Zeile 3 fehlt die innere Ableitung.', zeile: 3, rest: 9 } }) : route.fulfill({ status: 402, json: { grund: 'pro', error: 'nur Pro + KI' } });
   if (u.pathname === '/api/ki/frage') return body.zugang ? route.fulfill({ json: { text: 'Denk an die innere Ableitung.\nWas ist sie hier?', rest: 13 } }) : route.fulfill({ status: 402, json: { grund: 'pro', error: 'nur Pro + KI' } });
   if (u.pathname === '/api/zugang') return body.code === 'MT-AB12-CD34-EF56' ? route.fulfill({ json: { art: 'tage30', bis: '2099-12-31' } }) : route.fulfill({ status: 404, json: { error: 'unbekannt' } });
@@ -660,6 +666,27 @@ await p2.locator('.ki .pick').nth(1).click(); await p2.waitForFunction(() => doc
 if (!(await p2.locator('.ki-out a[href="#/einstellungen"]').count())) fail('Pro: Hinweis nach den Proben nennt das Code-Feld nicht');
 // KI-Tutor: nach der ersten Erklärung gibt es ein Feld für Rückfragen; ohne „Pro + KI“-Code antwortet der Server mit 402
 await p2.locator('.ki .pick').nth(2).click(); await p2.waitForFunction(() => document.querySelector('.ki-out')?.textContent.includes('KI-Guthaben für heute'));   // 429: Tagesguthaben
+// KI-Aufgaben: Einstieg erscheint, weil der Server die Art meldet; erst „Vorrat leer“ (202), dann eine Aufgabe; eine falsch gebaute Aufgabe wird im Gerät abgelehnt
+await p2.goto(`${BASE}#/pruefung`); await p2.waitForSelector('a[href="#/kiaufgabe"]'); await p2.click('a[href="#/kiaufgabe"]'); await p2.waitForSelector('#ka-go');
+await p2.selectOption('#ka-thema', 'Kettenregel'); await p2.click('#ka-go'); await p2.waitForSelector('#stage .opt, #stage #q-in', { timeout: 15000 });
+{ const an = calls.filter(([path]) => path === '/api/ki/aufgabe'); if (an.length !== 2 || Object.keys(an[0][1]).sort().join() !== 'geraet,stil,stufe,thema' || an[0][1].thema !== 'Kettenregel' || an[0][1].stil !== 'abi') fail(`KI-Aufgaben: Anfrage falsch oder kein zweiter Versuch nach „Vorrat leer“ (${an.length})`); }
+if (!/Welche Ableitung/.test(await p2.textContent('#stage'))) fail('KI-Aufgaben: Aufgabe wird nicht gezeigt');
+// Aufgaben-Runde im zweiten Fenster zu Ende klicken (Antworten der Reihe nach probieren)
+const loese2 = async (endSel) => { for (let i = 0, k = 0; i < 80 && !(await p2.$(endSel)); i++) {
+  if (await p2.locator('#q-next').isVisible().catch(() => false)) { await p2.click('#q-next'); k = 0; continue; }
+  if (await p2.locator('#q-wahl').isVisible().catch(() => false)) { await p2.click('#q-wahl'); continue; }
+  if (await p2.locator('#q-in').isVisible().catch(() => false)) { await p2.fill('#q-in', '987654'); await p2.click('.tipp .btn'); continue; }
+  if (await p2.locator('#stage .opt').count()) { await p2.locator('#stage .opt').nth(k++ % 4).click().catch(() => {}); continue; }
+  await p2.waitForTimeout(100); } };
+await loese2('#ka-fertig');
+await p2.waitForSelector('#ka-fertig'); if (!/12 KI-Punkte/.test(await p2.textContent('#ka-fertig'))) fail('KI-Aufgaben: Rest-Guthaben fehlt');
+await p2.click('#ka-go'); await p2.waitForFunction(() => /nicht bestanden/.test(document.querySelector('#ka-note').textContent));   // vier „richtige“ Antworten: im Gerät abgelehnt
+// KI-Auswertung nach einem gelösten Blatt: geschickt werden nur Thema und richtig/falsch
+await p2.goto(`${BASE}#/blatt/regeln_3_5_4242/los`); await p2.waitForSelector('#stage .opt, #stage #q-in'); await loese2('#b-ergebnis');
+await p2.waitForSelector('#b-ki-go'); await p2.click('#b-ki-go'); await p2.waitForFunction(() => /Kettenregel sitzt/.test(document.querySelector('#b-ki-out')?.textContent || ''));
+{ const aw = calls.find(([path]) => path === '/api/ki/auswertung')[1];
+  if (Object.keys(aw).sort().join() !== 'ergebnis,geraet' || aw.ergebnis.length !== 5 || !aw.ergebnis.every((x) => Object.keys(x).sort().join() === 'richtig,thema' && typeof x.richtig === 'boolean' && x.thema)) fail(`KI-Auswertung: Anfrage enthält andere Felder: ${JSON.stringify(aw).slice(0, 200)}`);
+  if (!/10 KI-Punkte/.test(await p2.textContent('#b-ki-out'))) fail('KI-Auswertung: Rest-Guthaben fehlt'); }
 // Zugangscode: Feld erscheint, weil der Server „premium“ meldet; falsche Form und unbekannter Code werden erklärt, der richtige wird gespeichert
 await p2.goto(`${BASE}#/einstellungen`); await p2.waitForSelector('#st-pro:not([hidden])');
 await p2.fill('#st-pro-code', 'abc'); await p2.click('#st-pro-go'); if (!/Form MT-/.test(await p2.textContent('#st-pro-note'))) fail('Pro: falsche Code-Form wird nicht erklärt');

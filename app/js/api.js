@@ -32,6 +32,8 @@ export function codeNorm(s) {
   const t = String(s || '').toUpperCase().replace(/[^A-Z0-9]/g, '');
   return /^MT[A-Z0-9]{12}$/.test(t) ? `MT-${t.slice(2, 6)}-${t.slice(6, 10)}-${t.slice(10, 14)}` : '';
 }
+/** Verweise nach einem „gehört zu Pro“-Hinweis: Code-Feld (sobald es Zugänge gibt) und – außer in der Android-App – die Website. */
+export const kaufLinks = () => `${premiumOn() ? ' <a href="#/einstellungen">Zugangscode eingeben</a>' : ''}${typeof window !== 'undefined' && window.MTApp ? '' : ` <a href="${CONFIG.website}" target="_blank" rel="noopener">Zur Website</a>`}`;
 export const ZUGANG_ART = { pass: 'Abi-Pass', tage30: '30-Tage-Pass', frei: 'Freier Zugang' };
 
 async function call(path, body) {
@@ -66,6 +68,8 @@ export const api = {
   frage: (q) => call('/ki/frage', q),
   /** KI: Rechenweg prüfen (Foto als JPEG-base64 oder Text) → { text, rest, zeile? }; 402 { grund: 'pro' }, 429 */
   rechenweg: (q) => call('/ki/rechenweg', q),
+  /** KI: Auswertung eines gelösten Blatts → { text, rest }; 402 { grund: 'pro' }, 429 */
+  auswertung: (q) => call('/ki/auswertung', q),
   /** Zugangscode prüfen → { art: 'pass'|'tage30'|'frei', bis: 'JJJJ-MM-TT' }; 404 = unbekannt oder abgelaufen */
   zugang: (code) => call('/zugang', { code }),
   /** KI: neue, vom Server nachgerechnete Aufgabe → { aufgabe } */

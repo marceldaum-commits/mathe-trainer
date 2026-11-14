@@ -781,6 +781,10 @@ for (const u of UNITS) {
   ok(JSON.stringify(R.zielMass(4000, 3000)) === '{"b":1600,"h":1200}' && JSON.stringify(R.zielMass(3000, 4000)) === '{"b":1200,"h":1600}' && JSON.stringify(R.zielMass(800, 600)) === '{"b":800,"h":600}' && R.zielMass(0, 0).b === 1, 'Rechenweg: Bild wird auf höchstens 1600 px verkleinert, kleine Bilder bleiben');
   ok(R.bytesVon('data:image/jpeg;base64,' + 'A'.repeat(4000)) === 3000 && R.bytesVon('') === 0 && R.BILD_MAX_BYTES === 1000000 && /keinen Namen/.test(R.FOTO_HINWEIS), 'Rechenweg: Größen-Rechnung und Datenschutz-Hinweis'); }
 
+// 14e4) KI-Aufgaben: Themen-Auswahl
+{ const KA = await import('../app/js/kiaufgabe.js'); const T = KA.kiThemen();
+  ok(T.length === 3 && T.every(([g, ts]) => g && ts.length >= 8 && new Set(ts).size === ts.length) && T.flatMap(([, ts]) => ts).includes('Kettenregel') && KA.VERSUCHE >= 2, 'KI-Aufgaben: Themen aus allen drei Gebieten, ohne Doppelte'); }
+
 // 14f) Lernkarten
 { const Kt = await import('../app/js/karten.js'); store.reset(); const T0 = new Date(2026, 10, 14, 12), tag = (n) => Kt.plusTage(T0, n);
   const alle = Kt.stapel(); ok(alle.length >= 3 && alle.every((k) => k.key && k.vorn && k.hinten) && new Set(alle.map((k) => k.key)).size === alle.length, 'Lernkarten: ohne Fortschritt die Grundlagen-Formeln, Schlüssel eindeutig');

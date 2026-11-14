@@ -7,7 +7,7 @@ import { seedRandom, shuffle } from './math.js';
 import { UNITS, landList, unitExtra } from './units.js';
 import { quiz } from './quiz.js';
 import { CONFIG } from './config.js';
-import { premiumOn, premiumBereit } from './api.js';
+import { api, premiumOn, premiumBereit, kiBereit, kiArt, kaufLinks } from './api.js';
 
 export const ANZAHL = [5, 8, 10, 12];
 export const GEBIETE = [['analysis', 'Analysis'], ['stochastik', 'Stochastik'], ['geometrie', 'Analytische Geometrie']];
@@ -205,18 +205,36 @@ function vorschauView(c) {
 function loesenView(c) {
   const fragen = bau(c), zurueck = blattHash(c);
   const el = h(`<div class="view"><div class="stephead"><a class="x" href="${zurueck}" aria-label="Schließen">${ICON.close}</a><div class="prog"><i></i></div></div><div id="stage"></div></div>`);
-  let richtig = 0, cleanup = null;
+  let richtig = 0, cleanup = null; const gut = new Set();
   const ctx = {
     progress: (f) => { $('.prog i', el).style.width = `${Math.round(f * 100)}%`; },
     done: (res) => {
       const gain = 10 + 2 * richtig; store.bonus(gain); store.touch(); store.bump('blatt');
       $('#stage', el).innerHTML = `<div class="stack"><section class="board" style="text-align:center"><div class="board-top"><span>${blattName(c).toUpperCase()} NR. ${c.seed}</span><b>● FERTIG</b></div>
         ${starsHtml(res.stars ?? 1)}<h2 id="b-ergebnis">${richtig} von ${fragen.length} auf Anhieb</h2><div class="gain" style="justify-content:center"><span class="chip xp">${ICON.bolt}+${gain} Punkte</span></div></section>
+        <div id="b-ki"></div>
         <div class="row"><a class="btn block" href="${zurueck}">Zum Blatt mit Lösungen</a></div></div>`;
+      // KI-Auswertung (Pro + KI): bekommt nur Thema und richtig/falsch je Aufgabe – keinen Namen, keinen Lernstand.
+      const ki = $('#b-ki', el);
+      kiBereit().then(() => {
+        if (!ki.isConnected || !kiArt('auswertung')) return;
+        ki.innerHTML = '<button class="btn ghost block" id="b-ki-go" type="button">KI-Auswertung: Was soll ich üben? (2 KI-Punkte)</button><div id="b-ki-out" aria-live="polite"></div>';
+        $('#b-ki-go', ki).onclick = async () => {
+          const go = $('#b-ki-go', ki), out = $('#b-ki-out', ki); go.disabled = true;
+          out.innerHTML = '<div class="note tip ki-laedt">Die Auswertung wird geschrieben<span aria-hidden="true"></span></div>';
+          const r = await api.auswertung({ ergebnis: fragen.slice(0, 60).map((q) => ({ thema: String(q.topic || q.unit || '').slice(0, 60), richtig: gut.has(q) })), geraet: store.geraet, ...(store.zugangGilt() ? { zugang: store.zugang.code } : {}) });
+          const div = h('<div class="note ki-auswertung"></div>'); div.className = `note ki-auswertung ${r.ok && r.text ? 'ok' : 'tip'}`;
+          if (r.ok && r.text) div.textContent = String(r.text).replace(/<[^>]*>/g, '').slice(0, 900);
+          else if (r.status === 402) div.innerHTML = `<b>Die KI-Auswertung gehört zur Stufe „Pro + KI“.</b>${kaufLinks()}`;
+          else div.textContent = r.status === 429 ? 'Dein KI-Guthaben für heute reicht dafür nicht mehr. Morgen geht es weiter.' : (r.error || 'Die Auswertung ist gerade nicht erreichbar.');
+          out.replaceChildren(div); if (r.ok && Number.isInteger(r.rest)) out.append(h(`<small class="muted ki-rest">Heute noch ${r.rest} KI-Punkte.</small>`));
+          go.disabled = r.ok || r.status === 402;
+        };
+      });
       sfx('win'); window.dispatchEvent(new Event('mt-ruhig'));   // Punkte-Anzeige oben auffrischen
     },
   };
-  const run = quiz(fragen.map((q) => () => q), { onRight: () => { richtig++; } });
+  const run = quiz(fragen.map((q) => () => q), { onRight: (q) => { richtig++; gut.add(q); } });
   queueMicrotask(() => { cleanup = run($('#stage', el), ctx) || null; });
   return { el, cleanup: () => cleanup?.() };
 }
