@@ -794,6 +794,48 @@ await ctx2.close();
   }
   if (shots) await pc.screenshot({ path: `${shots}/81-pc-spiel.png` });
 }
+/* ───────────── Klasse 5 bis 10: Stufe wählen, jede Einheit jeder Klasse spielen, zurück zur Oberstufe ───────────── */
+{ const { ALLE_UNITS } = await import('../app/js/units.js');
+  const osFertig = await countDone();
+  const zaehle = async () => { await page.goto(`${BASE}#/lernen`); await page.waitForSelector('a[href^="#/g/"]'); const hs = await page.evaluate(() => [...document.querySelectorAll('a[href^="#/g/"]')].map((a) => a.getAttribute('href'))); let n = 0; for (const hh of hs) { await page.goto(BASE + hh); await page.waitForSelector('.unit'); n += await page.locator('.unit.done').count(); } return n; };
+  await page.goto(BASE); await page.waitForSelector('#home');
+  if (!(await page.locator('#jg-frage').isVisible())) fail('Klassenstufe: Wer noch nichts gewählt hat, wird auf der Startseite nicht gefragt');
+  for (const jg of ['5', '6', '7', '8', '9', '10']) {
+    await page.goto(`${BASE}#/stufe`); await page.waitForSelector(`[data-jg="${jg}"]`); await page.click(`[data-jg="${jg}"]`); await page.waitForSelector('#home #jg-chip');
+    if (!(await page.textContent('#jg-chip')).includes(`Klasse ${jg}`)) fail(`Klasse ${jg}: Stufe steht nicht auf der Startseite`);
+    const start = await page.textContent('#home');
+    if (/Analysis|Abi|Tages-Runde/.test(start)) fail(`Klasse ${jg}: Startseite zeigt Oberstufen-Inhalte`);
+    if ((await page.textContent('#nav a[data-tab="pruefung"] span')) !== 'Testen') fail(`Klasse ${jg}: Menü heißt nicht „Testen“`);
+    if (await page.evaluate(() => document.documentElement.scrollWidth - innerWidth > 1)) fail(`Klasse ${jg}: Startseite zu breit`);
+    if (jg === '5') await shot('84-klasse5-start');
+    const us = ALLE_UNITS.filter((u) => u.jg === jg);
+    if (us.length < 2) fail(`Klasse ${jg}: weniger als zwei Einheiten`);
+    await page.goto(`${BASE}#/lernen`); await page.waitForSelector('a[href^="#/g/"]');
+    if (/undefined/.test(await page.textContent('#view'))) fail(`Klasse ${jg}: „undefined“ auf der Lernen-Seite`);
+    for (const u of us) for (let i = 0; i < u.steps.length; i++) {
+      await page.goto(`${BASE}#/u/${u.id}/${i}`); await page.waitForSelector('#stage > *'); await page.evaluate(() => window.scrollTo(0, 0));
+      let done = false;
+      for (const [sel, fn] of HANDLERS) if (await page.locator(sel).count()) { await fn(); done = true; break; }
+      if (!done) { if (first(`quiz-klasse${jg}`)) await shot(`85-aufgabe-klasse${jg}`); await quiz(); }
+      await page.waitForSelector('#sheet:not([hidden])'); await sheetNext();
+    }
+    if ((await zaehle()) !== us.length) fail(`Klasse ${jg}: nicht alle Einheiten als fertig markiert`);
+    await page.goto(`${BASE}#/theorie`); await page.waitForSelector('a[href^="#/theorie/"]');
+    if ((await page.locator('a[href^="#/theorie/"]').count()) !== us.length) fail(`Klasse ${jg}: Theorie zeigt nicht genau die Einheiten der Klasse`);
+    await page.goto(`${BASE}#/pruefung`); await page.waitForSelector('a[href="#/blatt"]');
+    if (/Abi-Modus|Duell|Blitz/.test(await page.textContent('#view'))) fail(`Klasse ${jg}: „Testen“ zeigt Oberstufen-Runden`);
+    await page.goto(`${BASE}#/blatt`); await page.waitForSelector('#view .card');
+    if (/Analysis|Probeklausur/.test(await page.textContent('#view'))) fail(`Klasse ${jg}: Arbeitsblatt zeigt Oberstufen-Gebiete`);
+    if (jg === '5') { await page.goto(`${BASE}#/einstellungen`); await page.waitForSelector('#st-jg');
+      if (await page.locator('#st-land').isVisible()) fail('Klasse 5: Bundesland und Kurs dürfen nicht erscheinen');
+      if (!(await page.textContent('#st-jg')).includes('Klasse 5')) fail('Klasse 5: Einstellungen nennen die Stufe nicht'); }
+  }
+  await page.goto(`${BASE}#/stufe`); await page.waitForSelector('[data-jg="os"]'); await shot('86-stufe');
+  await page.click('[data-jg="os"]'); await page.waitForSelector('#home');
+  if (!/Analysis/.test(await page.textContent('#home')) || (await page.textContent('#nav a[data-tab="pruefung"] span')) !== 'Prüfung') fail('Zurück zur Oberstufe: Startseite oder Menü stimmt nicht');
+  if ((await countDone()) !== osFertig) fail('Zurück zur Oberstufe: Fortschritt der Oberstufe ist nicht mehr da');
+}
+
 /* ───────────── Einstellungen: Schriftgröße und „Über diese App“ ───────────── */
 { await page.goto(`${BASE}#/einstellungen`); await page.waitForSelector('#st-schrift');
   const gr = () => page.evaluate(() => parseFloat(getComputedStyle(document.querySelector('#st-info dd')).fontSize));

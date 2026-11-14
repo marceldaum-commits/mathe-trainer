@@ -1,7 +1,7 @@
 // Aufgaben-Erzeuger, Teil 2: Kurvendiskussion, Anwendungen, Stochastik-Vertiefung, Geraden und Ebenen, Operatoren.
 // Gleiche Regeln wie in gen.js: Schwierigkeit lv (1–5), Ablenker = typische Fehler mit Diagnose,
 // Rechen-Felder (val, num, vec, key …) für die Selbstprüfung in tests/.
-import { ri, pick, shuffle, rand, ft, polyTex, polyEval, polyDeriv, lineTex } from './math.js';
+import { ri, pick, shuffle, rand, ft, fmt, polyTex, polyEval, polyDeriv, lineTex } from './math.js';
 import { tex } from './ui.js';
 import { tier, par, vecTex, uniq, uniqNum, rv, same, binom, kubik, SIGMA_OK } from './gen.js';
 
@@ -331,7 +331,7 @@ export function genWachstum(lv = 3) {
       O(`${N0}${ab ? '-' : '+'}${ft(lin)}\\,t`, (t) => N0 + (ab ? -lin : lin) * t, false, 'Das wäre lineares Wachstum: jedes Jahr derselbe Betrag. Bei Prozenten wächst der Betrag mit.'),
       O(`${N0}\\cdot ${ft(wrongDir, 4)}^{t}`, (t) => N0 * wrongDir ** t, false, `Zunahme und Abnahme verwechselt: Der Bestand ${ab ? 'nimmt ab' : 'wächst'}.`)];
     if (!uniq(opts)) continue;
-    return { prompt: `Ein Bestand von ${N0} ${ab ? 'nimmt pro Jahr um' : 'wächst pro Jahr um'} ${ft(p)} % ${ab ? 'ab' : ''}. Welche Funktion beschreibt den Bestand nach ${tex('t')} Jahren?`.replace(' .', '.'), options: shuffle(opts),
+    return { prompt: `Ein Bestand von ${N0} ${ab ? 'nimmt pro Jahr um' : 'wächst pro Jahr um'} ${fmt(p)} % ${ab ? 'ab' : ''}. Welche Funktion beschreibt den Bestand nach ${tex('t')} Jahren?`.replace(' .', '.'), options: shuffle(opts),
       hints: [`Jedes Jahr wird mit demselben Faktor multipliziert.`, `Faktor: ${tex(`1${ab ? '-' : '+'}${ft(p / 100, 4)}=${ft(a, 4)}`)}.`],
       explain: `Wachstumsfaktor ${tex(`a=${ft(a, 4)}`)}, also ${tex(`N(t)=${N0}\\cdot ${ft(a, 4)}^{t}`)}.`, kind: 'formel', N0, a };
   }
@@ -485,10 +485,10 @@ export function genHypothese(lv = 3) {
       O(k - 1, n, false, `${tex(`P(X\\ge ${k - 1})\\approx${ft(up(k - 1), 4)}`)} ist größer als ${tex(ft(al))} – das Niveau wäre überschritten.`),
       O(k + 1, n, false, `Der Ablehnungsbereich soll so groß wie möglich sein: Schon ${tex(`P(X\\ge ${k})\\approx${ft(up(k), 4)}`)} hält das Niveau ein.`),
       O(0, n - k, false, `Vermutet wird ${tex(`p>${ft(p0)}`)}: Gegen die Nullhypothese sprechen <b>große</b> Trefferzahlen (rechtsseitiger Test).`)];
-    return { prompt: `${tex(`H_0\\colon p=${ft(p0)}`)} wird gegen ${tex(`H_1\\colon p>${ft(p0)}`)} getestet, mit ${n} Versuchen auf dem Niveau ${ft(al * 100)} %. Welcher Ablehnungsbereich ist richtig?`,
+    return { prompt: `${tex(`H_0\\colon p=${ft(p0)}`)} wird gegen ${tex(`H_1\\colon p>${ft(p0)}`)} getestet, mit ${n} Versuchen auf dem Niveau ${fmt(al * 100)} %. Welcher Ablehnungsbereich ist richtig?`,
       formula: `\\def\\arraystretch{1.35}\\begin{array}{l}P(X\\ge ${k - 1})\\approx${ft(up(k - 1), 4)}\\\\P(X\\ge ${k})\\approx${ft(up(k), 4)}\\\\P(X\\ge ${k + 1})\\approx${ft(up(k + 1), 4)}\\end{array}`,
       options: shuffle(opts),
-      hints: ['Gesucht ist die kleinste Trefferzahl k, für die P(X ≥ k) das Niveau nicht überschreitet.', `Vergleiche die drei Werte mit ${ft(al)}.`],
+      hints: ['Gesucht ist die kleinste Trefferzahl k, für die P(X ≥ k) das Niveau nicht überschreitet.', `Vergleiche die drei Werte mit ${fmt(al)}.`],
       explain: `${tex(`P(X\\ge ${k})\\approx${ft(up(k), 4)}\\le ${ft(al)}`)}, aber ${tex(`P(X\\ge ${k - 1})\\approx${ft(up(k - 1), 4)}>${ft(al)}`)}. Also ${tex(`K=\\{${k},\\dots,${n}\\}`)}.`, kind: 'bereich', n, p0, al };
   }
 }
@@ -504,7 +504,7 @@ export function genNormal(lv = 3) {
       const O = (num, correct, why) => ({ tex: `${ft(num * 100, 1)}\\,\\%`, num, correct, why });
       const opts = [O(PHI[k], true), O(inner, false, `Das ist ${tex(`P(\\mu-${Math.abs(k)}\\sigma\\le X\\le\\mu+${Math.abs(k)}\\sigma)`)} – hier ist nur eine Seite begrenzt.`), O(1 - PHI[k], false, `Das ist die Gegenwahrscheinlichkeit ${tex(`P(X>${x})`)}.`), O(0.5, false, `Das wäre ${tex('P(X\\le\\mu)')}.`)];
       return { prompt: `${tex('X')} ist normalverteilt. Wie groß ist ${tex(`P(X\\le ${x})`)} ungefähr?`, formula: `\\mu=${mu},\\quad\\sigma=${sg}`, options: shuffle(opts),
-        hints: [`${x} liegt ${Math.abs(k)} Standardabweichung${Math.abs(k) > 1 ? 'en' : ''} ${k > 0 ? 'über' : 'unter'} dem Erwartungswert.`, `Die ${Math.abs(k)}σ-Umgebung enthält etwa ${ft(inner * 100, 1)} %. Der Rest verteilt sich gleichmäßig auf beide Seiten.`],
+        hints: [`${x} liegt ${Math.abs(k)} Standardabweichung${Math.abs(k) > 1 ? 'en' : ''} ${k > 0 ? 'über' : 'unter'} dem Erwartungswert.`, `Die ${Math.abs(k)}σ-Umgebung enthält etwa ${fmt(inner * 100, 1)} %. Der Rest verteilt sich gleichmäßig auf beide Seiten.`],
         explain: `Außerhalb der ${Math.abs(k)}σ-Umgebung liegen ${tex(`${ft((1 - inner) * 100, 1)}\\,\\%`)}, je Seite die Hälfte. Also ${tex(`P(X\\le ${x})\\approx${ft(PHI[k] * 100, 1)}\\,\\%`)}.`, kind: 'phi', mu, sg, x };
     }
     const z = pick(lv <= 2 ? [1, 2, -1, -2] : [1, 2, -1, -2, 1.5, -1.5, 0.5, 2.5]), x = mu + z * sg;
@@ -512,7 +512,7 @@ export function genNormal(lv = 3) {
     const opts = [O(z, true), O(-z, false, `Reihenfolge: ${tex('x-\\mu')}, nicht ${tex('\\mu-x')}.`), O(z / sg, false, `Geteilt wird durch ${tex('\\sigma')}, nicht durch ${tex('\\sigma^2')}.`), O(x / sg, false, `Zuerst ${tex('\\mu')} abziehen, dann durch ${tex('\\sigma')} teilen.`)];
     if (!uniqNum(opts)) continue;
     return { prompt: `${tex('X')} ist normalverteilt. Welcher standardisierte Wert ${tex('z')} gehört zu ${tex(`x=${ft(x)}`)}?`, formula: `\\mu=${mu},\\quad\\sigma=${sg}`, options: shuffle(opts),
-      hints: [`${tex('z=\\dfrac{x-\\mu}{\\sigma}')}.`, `${tex(`x-\\mu=${ft(x - mu)}`)}.`], explain: `${tex(`z=\\dfrac{${ft(x)}-${mu}}{${sg}}=${ft(z)}`)}: ${ft(x)} liegt ${ft(Math.abs(z))} Standardabweichung${Math.abs(z) === 1 ? '' : 'en'} ${z > 0 ? 'über' : 'unter'} dem Erwartungswert.`, kind: 'z', mu, sg, x };
+      hints: [`${tex('z=\\dfrac{x-\\mu}{\\sigma}')}.`, `${tex(`x-\\mu=${ft(x - mu)}`)}.`], explain: `${tex(`z=\\dfrac{${ft(x)}-${mu}}{${sg}}=${ft(z)}`)}: ${fmt(x)} liegt ${fmt(Math.abs(z))} Standardabweichung${Math.abs(z) === 1 ? '' : 'en'} ${z > 0 ? 'über' : 'unter'} dem Erwartungswert.`, kind: 'z', mu, sg, x };
   }
 }
 

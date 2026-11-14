@@ -3,7 +3,7 @@ import * as G from './gen.js';
 import * as H from './gen2.js';
 import { quiz } from './quiz.js';
 import { store, LEVELS, LAENDER, KARTEI_TAGE } from './store.js';
-import { UNITS, AREAS } from './units.js';
+import { UNITS, AREAS, istOber, jgName } from './units.js';
 import { $, h, esc, ICON, sfx, toast, confetti, drucken } from './ui.js';
 import { CONFIG, VERSION, STAND } from './config.js';
 import { updateStand } from './update.js';
@@ -38,9 +38,11 @@ export function levelCard() {
 export function settingsView() {
   const el = h(`<div class="view stack">
     <a class="back" href="#/mehr">${ICON.left} Mehr</a>
-    <div><span class="eyebrow">Einstellungen</span><h1 style="margin-top:8px">Für dein Abi</h1></div>
+    <div><span class="eyebrow">Einstellungen</span><h1 style="margin-top:8px">${istOber() ? 'Für dein Abi' : 'So lernst du'}</h1></div>
     <div id="st-level"></div>
-    <section class="card stack"><h3>Bundesland und Kurs</h3><div class="picks col" id="st-land" role="radiogroup" aria-label="Bundesland und Kurs"></div>
+    <section class="card stack" id="st-jg"><h3>Klassenstufe</h3><a class="btn ghost block" id="st-jg-los" href="#/stufe">${esc(jgName(store.jahrgang))} – wechseln</a>
+      <small class="muted">Der Mathe-Trainer zeigt nur den Stoff dieser Stufe. Dein Fortschritt in anderen Stufen bleibt erhalten.</small></section>
+    <section class="card stack" ${istOber() ? '' : 'hidden'}><h3>Bundesland und Kurs</h3><div class="picks col" id="st-land" role="radiogroup" aria-label="Bundesland und Kurs"></div>
       <small class="muted">Die Auswahl steuert Umfang und Stoff im Abi-Modus und kennzeichnet, was in deinem Kurs kein Prüfungsstoff ist. Alle Lernpfade bleiben offen. <a href="#/lehrplan">Was gilt wo?</a></small></section>
     <section class="card stack"><h3>Ruhiger Modus</h3>
       <button class="schalter" id="st-ruhig" type="button" role="switch" aria-checked="false"><span class="knopf" aria-hidden="true"></span><span>Ohne Druck lernen</span></button>
@@ -50,7 +52,7 @@ export function settingsView() {
       <small class="muted">Gilt für die ganze App. Ausdrucke bleiben in normaler Größe.</small></section>
     <section class="card stack"><h3>Ergebnis selbst eintippen</h3><div class="picks" id="st-tipp" role="radiogroup" aria-label="Ergebnis selbst eintippen"></div>
       <small class="muted">Bei Rechenaufgaben tippst du das Ergebnis ein, statt aus vier Antworten zu wählen. „Automatisch“ schaltet das ab Schwierigkeit 4 ein.</small></section>
-    <section class="card stack"><h3>Abi-Termin Mathe</h3>
+    <section class="card stack" ${istOber() ? '' : 'hidden'}><h3>Abi-Termin Mathe</h3>
       <input class="field" id="st-abi" type="date" aria-label="Datum der Mathe-Prüfung" value="${esc(store.abi)}">
       <small class="muted" id="st-abi-note"></small></section>
     <section class="card stack"><h3>Farbe</h3><div class="skins" id="st-skin" role="radiogroup" aria-label="Akzentfarbe"></div>

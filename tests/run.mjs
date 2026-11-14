@@ -847,6 +847,63 @@ ok(nextStreak({ n: 3, last: '2026-11-10' }, D('2026-11-12')).n === 1, 'Serie: au
   }
   ok(Object.keys(MEHR).every((id) => UNITS.some((u) => u.id === id)), 'Theorie: Vertiefung nur für vorhandene Einheiten'); }
 
+// Fließtext ohne rohe Formel-Zeichen: „17{,}5 %“ darf nur innerhalb einer Formel stehen (Fund vom 14.11.2026).
+// Dafür werden Formeln hier in «…» gefasst; außerhalb davon darf kein {,}, kein Backslash-Befehl und kein ^{ vorkommen.
+{ const alt = window.katex.renderToString; window.katex.renderToString = (s) => `«${String(s).replace(/[«»]/g, '')}»`;
+  const Bl = await import('../app/js/blatt.js');
+  for (const [name, { fn }] of Bl.genNachName()) for (const lv of [1, 2, 3, 4, 5]) for (let i = 0; i < 25; i++) {
+    const q = fn(lv), texte = [q.prompt, q.explain, ...(q.hints || []), ...(q.options || []).map((o) => o.why || '')];
+    for (const x of texte) ok(!/\{,\}|\\[a-zA-Z]+|\^\{|_\{/.test(String(x || '').replace(/«[^»]*»/g, '')), `${name}: Fließtext ohne rohe Formel-Zeichen`); }
+  window.katex.renderToString = alt; }
+
+// Mittelstufe (Klasse 5 bis 10): Aufgaben-Erzeuger, Einheiten je Jahrgang, Umschalten der Stufe
+{ const { MITTEL_GENS } = await import('../app/js/gen6.js'); const Un = await import('../app/js/units.js');
+  const alt = window.katex.renderToString; window.katex.renderToString = (s) => `«${String(s).replace(/[«»]/g, '')}»`;
+  const rechne = (f) => { const js = f.replace(/\{,\}/g, '.').replace(/\\cdot/g, '*').replace(/:/g, '/').replace(/\^2/g, '**2'); if (!/^[-+*/().\d\s]+$/.test(js.replace(/\*\*/g, '*'))) return null; try { return Function(`return (${js.replace(/(^|[^\d)])-(\d+(?:\.\d+)?)\*\*2/g, '$1-($2**2)')})`)(); } catch { return null; } };
+  for (const [name, fn] of Object.entries(MITTEL_GENS)) { ok(typeof fn.topic === 'string' && fn.topic.length > 3, `${name}: Themen-Name`);
+    for (const lv of [1, 2, 3, 4, 5]) { const arten = new Set(); for (let i = 0; i < 120; i++) { const q = fn(lv); arten.add(q.kind ?? q.prompt.slice(0, 24));
+      ok(q.options.length === 4 && q.options.filter((o) => o.correct).length === 1, `${name}: vier Antworten, genau eine richtig`);
+      ok(new Set(q.options.map((o) => o.tex)).size === 4, `${name}: keine doppelten Antworten`);
+      ok(q.options.every((o) => o.correct || (typeof o.why === 'string' && o.why.length > 12)), `${name}: jeder Ablenker hat eine Diagnose`);
+      ok(q.hints?.length >= 2 && typeof q.explain === 'string' && q.explain.length > 5 && q.prompt.length > 5, `${name}: Tipps und Erklärung`);
+      const alles = [q.prompt, q.formula, q.explain, ...q.hints, ...q.options.flatMap((o) => [o.tex, o.why])].filter(Boolean).join(' ¦ ');
+      ok(!/NaN|undefined|Infinity|\[object/.test(alles), `${name}: keine kaputten Werte`);
+      ok(!/[0-9]\.[0-9]/.test(alles), `${name}: Komma statt Punkt`);
+      for (const x of [q.prompt, q.explain, ...q.hints, ...q.options.map((o) => o.why || '')]) ok(!/\{,\}|\\[a-zA-Z]+|\^\{|_\{/.test(String(x).replace(/«[^»]*»/g, '')), `${name}: Fließtext ohne rohe Formel-Zeichen`);
+      if (q.formula && q.prompt === 'Berechne.') { const v = rechne(q.formula.replace(/[«»]/g, '')), r = q.options.find((o) => o.correct);
+        if (v !== null && r.num !== undefined) { ok(Math.abs(v - r.num) < 1e-6, `${name}: als richtig markierte Antwort stimmt (${q.formula})`); ok(q.options.every((o) => o.correct || Math.abs(o.num - v) > 1e-9), `${name}: kein Ablenker ist zufällig richtig`); } } }
+      ok(arten.size >= 1, `${name}: Stufe ${lv} erzeugt Aufgaben`); } }
+  window.katex.renderToString = alt;
+  // nachgerechnet: Runden, Teiler, Einheiten, Rechteck
+  for (let i = 0; i < 300; i++) { const lv = 1 + (i % 5);
+    { const q = MITTEL_GENS.genRunden(lv); ok(q.r % q.s === 0 && Math.abs(q.r - q.n) <= q.s / 2 && q.options.find((o) => o.correct).num === q.r, 'genRunden: nächstes Vielfaches der Rundungsstelle'); }
+    { const q = MITTEL_GENS.genTeiler(lv), r = q.options.find((o) => o.correct).num; const gg = (a, b) => (b ? gg(b, a % b) : a);
+      if (q.kind === 'ggt') ok(r === gg(q.a, q.b), 'genTeiler: größter gemeinsamer Teiler stimmt'); if (q.kind === 'kgv') ok(r === (q.a * q.b) / gg(q.a, q.b), 'genTeiler: kleinstes gemeinsames Vielfaches stimmt');
+      if (q.kind === 'teilbar') ok(r % q.t === 0 && q.options.filter((o) => o.num % q.t === 0).length === 1, 'genTeiler: genau eine Zahl ist teilbar');
+      if (q.kind === 'prim') { const prim = (n) => n > 1 && [...Array(Math.floor(Math.sqrt(n)) + 1).keys()].slice(2).every((d) => n % d !== 0); ok(prim(r) && q.options.filter((o) => prim(o.num)).length === 1, 'genTeiler: genau eine Primzahl'); } }
+    { const q = MITTEL_GENS.genEinheit(lv); ok(Math.abs(q.r - (q.runter ? q.v * q.f : q.v / q.f)) < 1e-9 && Math.abs(q.options.find((o) => o.correct).num - q.r) < 1e-6, 'genEinheit: Umrechnung stimmt'); }
+    { const q = MITTEL_GENS.genKuerzen(lv), r = q.options.find((o) => o.correct); const gg = (a, b) => (b ? gg(b, a % b) : a); ok(Math.abs(r.wert - q.a / q.b) < 1e-9 && (q.erw || gg(r.zaehler, r.nenner) === 1), 'genKuerzen: gleicher Wert, vollständig gekürzt'); }
+    { const q = MITTEL_GENS.genLinFunktion(lv); if (q.kind === 'wert' || q.kind === 'null') ok(Math.abs(q.options.find((o) => o.correct).num - q.r) < 1e-9, 'genLinFunktion: Ergebnis stimmt'); } }
+  // Einheiten je Jahrgang
+  ok(Un.JAHRGAENGE.join() === '5,6,7,8,9,10,os' && Un.jgName('7') === 'Klasse 7' && Un.jgName('os') === 'Oberstufe', 'Jahrgänge: Liste und Namen');
+  const ids = Un.ALLE_UNITS.map((u) => u.id); ok(new Set(ids).size === ids.length, 'Einheiten: Kennungen aller Jahrgänge sind eindeutig');
+  for (const jg of ['5', '6', '7', '8', '9', '10']) { const us = Un.ALLE_UNITS.filter((u) => u.jg === jg);
+    ok(us.length >= 2, `Klasse ${jg}: mindestens zwei Einheiten`);
+    for (const u of us) { ok(/^k\d+-[a-z]+$/.test(u.id) && /^m[a-z]+$/.test(u.area) && u.title && u.sub, `${u.id}: Kennung, Gebiet, Titel`);
+      ok(u.bossName && u.bossSymbol && u.bossGens?.length >= 1 && u.why?.length > 40 && u.formeln?.length >= 1, `${u.id}: Boss, „Wo brauche ich das?“, Formeln`);
+      ok(u.steps.at(-1).kind === 'Boss' && u.steps.filter((s) => s.kind === 'Benennen').length >= 1 && u.steps.filter((s) => s.kind === 'Brücke').length >= 1 && u.steps.some((s) => s.kind === 'Festigen'), `${u.id}: benennen, üben, festigen, Boss`);
+      ok(new Set(u.steps.map((s) => s.id)).size === u.steps.length && u.steps.every((s) => /^[a-z]+$/.test(s.id) && typeof s.run === 'function'), `${u.id}: Schritte eindeutig und spielbar`);
+      ok(u.bossGens.every((g) => typeof g.topic === 'string'), `${u.id}: jede Boss-Aufgabe hat einen Themen-Namen`); } }
+  // Umschalten: UNITS und AREAS zeigen nur die gewählte Stufe; Standard und Zurücksetzen
+  store.reset(); ok(store.jahrgang === 'os', 'Jahrgang: ohne Wahl gilt die Oberstufe');
+  Un.jahrgangAnwenden(); const osN = Un.UNITS.length; ok(osN === UNITS.length && Un.AREAS.some((a) => a.id === 'pruefung') && Un.istOber(), 'Jahrgang Oberstufe: alle bisherigen Einheiten und der Prüfungs-Reiter');
+  store.jahrgang = '6'; Un.jahrgangAnwenden(); ok(store.jahrgangGewaehlt && Un.UNITS.length >= 2 && Un.UNITS.every((u) => u.jg === '6') && Un.AREAS.every((a) => a.mittel && a.info && Un.UNITS.some((u) => u.area === a.id)) && !Un.istOber(), 'Jahrgang 6: nur Einheiten und Gebiete der Klasse 6');
+  ok(Un.practiceGens(Un.AREAS[0].id).length >= 1 && Un.baldHier().length >= 2, 'Jahrgang 6: freies Üben und „Kommt bald“');
+  { const Bl = await import('../app/js/blatt.js'); ok(Bl.gebiete().length === Un.AREAS.length && Bl.themen().length === Un.UNITS.length && Bl.bauKlausur({ lv: 3, seed: 7 }).length >= 6 && Bl.blattName({ klausur: true }) === 'Probe-Arbeit', 'Jahrgang 6: Arbeitsblatt und Probe-Arbeit aus den Einheiten der Klasse'); }
+  store.complete('k6-bruch', 'anteil', 3); store.reset(); ok(store.jahrgang === '6', 'Jahrgang: bleibt bei „Fortschritt zurücksetzen“');
+  store.jahrgang = 'unsinn'; ok(store.jahrgang === 'os', 'Jahrgang: Unbekanntes zählt als Oberstufe');
+  store.jahrgang = 'os'; Un.jahrgangAnwenden(); ok(Un.UNITS.length === osN, 'Jahrgang: zurück zur Oberstufe'); store.reset(); }
+
 // Schriftgröße: nur drei Werte, bleibt beim Zurücksetzen erhalten; jede Schrift im Stil folgt dem Faktor
 { store.reset(); ok(store.schrift === 'normal', 'Schrift: Standard ist normal');
   store.schrift = 'klein'; ok(store.schrift === 'klein', 'Schrift: klein wird gemerkt'); store.schrift = 'riesig'; ok(store.schrift === 'normal', 'Schrift: Unbekanntes zählt als normal');

@@ -833,3 +833,12 @@ textarea.field{resize:vertical;min-height:72px;font:inherit;padding:10px 12px}
 .theorie .t-teil.t-tief h2::before{content:"WARUM";background:var(--soft);color:var(--muted)}
 @media screen{.theorie .t-teil.t-bsp{border-left:4px solid var(--mint)}.theorie .t-teil.t-sonder{border-left:4px solid var(--orange)}}
 @media print{.theorie .t-teil.t-bsp h2::before,.theorie .t-teil.t-sonder h2::before,.theorie .t-teil.t-tief h2::before{background:none;color:#555;border:1px solid #999}}
+
+/* Klassenstufe: Wahl beim ersten Start, Anzeige auf der Startseite */
+.jg-wahl{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.jg-wahl .pick{min-height:48px;font-weight:800;font-size:calc(17px*var(--fs,1));justify-content:center;text-align:center}
+.jg-wahl .pick[data-jg="os"]{grid-column:1 / -1}
+.jg-frage{border:2px solid var(--orange)}
+.jg-chip{display:inline-flex;align-items:center;gap:6px;margin-top:10px;padding:6px 12px;border-radius:99px;background:var(--orange-soft);color:var(--orange);font-weight:800;font-size:calc(13.5px*var(--fs,1));text-decoration:none;justify-self:start}
+.card[hidden]{display:none}
+.board-top{gap:12px}.board-top b{text-align:right}

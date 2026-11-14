@@ -1,7 +1,7 @@
 // Aufgaben-Erzeuger, Teil 4: Lehrplan-Lücken (docs/LEHRPLAN.md) – gebrochen-rationale Funktionen, Sinus/Kosinus,
 // Rotationskörper und uneigentliche Integrale, Zufallsgrößen und Unabhängigkeit, Kugeln, weitere Abstände und Lagen.
 // Gleiche Regeln wie in gen.js: Stufe lv (1–5), Ablenker = typische Fehler mit Diagnose, Rechen-Felder für tests/.
-import { ri, pick, shuffle, rand, ft, polyTex, polyEval } from './math.js';
+import { ri, pick, shuffle, rand, ft, fmt, polyTex, polyEval } from './math.js';
 import { tex } from './ui.js';
 import { tier, par, vecTex, uniq, uniqNum, same, binom } from './gen.js';
 import { fracTex } from './gen3.js';
@@ -299,7 +299,7 @@ export function genEbenenLage(lv = 3) {
     const E = (nm, nn, dd) => `${nm}\\colon\\ ${nn.map((c, i) => (c === 0 ? '' : `${c < 0 ? '-' : '+'}${Math.abs(c) === 1 ? '' : ft(Math.abs(c))}x_${i + 1}`)).join('').replace(/^\+/, '')}=${ft(dd)}`;
     const O = (key, html, why) => ({ tex: key, html, key, correct: key === wo, why });
     return { prompt: 'Wie liegen die beiden Ebenen zueinander?', formula: `${E('E_1', n1, d1)}\\qquad ${E('E_2', n2, d2)}`,
-      options: shuffle([O('parallel', 'Echt parallel (kein gemeinsamer Punkt).', par2 ? `Die rechte Seite passt auch zum Faktor ${ft(k)}: Die Gleichungen beschreiben dieselbe Ebene.` : 'Die Normalenvektoren sind keine Vielfachen voneinander.'), O('identisch', 'Identisch (dieselbe Ebene).', par2 ? `Die Normalenvektoren sind Vielfache (Faktor ${ft(k)}), aber die rechte Seite passt nicht dazu.` : 'Die Normalenvektoren sind keine Vielfachen voneinander.'), O('schnitt', 'Sie schneiden sich in einer Geraden.', `Die Normalenvektoren sind Vielfache voneinander (Faktor ${ft(k)}) – die Ebenen haben dieselbe Richtung.`), O('windschief', 'Windschief.', 'Windschief können nur Geraden sein. Zwei Ebenen sind parallel, identisch oder schneiden sich.')]),
+      options: shuffle([O('parallel', 'Echt parallel (kein gemeinsamer Punkt).', par2 ? `Die rechte Seite passt auch zum Faktor ${fmt(k)}: Die Gleichungen beschreiben dieselbe Ebene.` : 'Die Normalenvektoren sind keine Vielfachen voneinander.'), O('identisch', 'Identisch (dieselbe Ebene).', par2 ? `Die Normalenvektoren sind Vielfache (Faktor ${fmt(k)}), aber die rechte Seite passt nicht dazu.` : 'Die Normalenvektoren sind keine Vielfachen voneinander.'), O('schnitt', 'Sie schneiden sich in einer Geraden.', `Die Normalenvektoren sind Vielfache voneinander (Faktor ${fmt(k)}) – die Ebenen haben dieselbe Richtung.`), O('windschief', 'Windschief.', 'Windschief können nur Geraden sein. Zwei Ebenen sind parallel, identisch oder schneiden sich.')]),
       hints: ['Vergleiche die Normalenvektoren: Sind sie Vielfache voneinander?', 'Wenn ja: Passt auch die rechte Seite zum selben Faktor?'], explain: par2 ? `${tex(`\\vec n_2=${ft(k)}\\cdot\\vec n_1`)}; die rechte Seite ${wo === 'identisch' ? 'passt dazu: identisch' : 'passt nicht dazu: echt parallel'}.` : 'Die Normalenvektoren sind keine Vielfachen voneinander: Die Ebenen schneiden sich in einer Geraden.', n1, d1, n2, d2 };
   }
 }

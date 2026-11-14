@@ -4,14 +4,15 @@
 import { $, h, tex, esc, ICON, sfx, drucken, starsHtml } from './ui.js';
 import { store, LEVELS } from './store.js';
 import { seedRandom, shuffle } from './math.js';
-import { UNITS, landList, unitExtra } from './units.js';
+import { UNITS, AREAS, landList, unitExtra, istOber } from './units.js';
 import { quiz } from './quiz.js';
 import { marke } from './pro.js';
 import { CONFIG } from './config.js';
 import { api, premiumOn, premiumBereit, kiBereit, kiArt, kaufLinks } from './api.js';
 
 export const ANZAHL = [5, 8, 10, 12];
-export const GEBIETE = [['analysis', 'Analysis'], ['stochastik', 'Stochastik'], ['geometrie', 'Analytische Geometrie']];
+/** Gebiete des gewählten Jahrgangs als [Kennung, Name] (ohne den Prüfungs-Reiter). */
+export const gebiete = () => AREAS.filter((a) => a.id !== 'pruefung').map((a) => [a.id, a.title]);
 /** Probeklausur: so viele Aufgaben je Gebiet, mit diesen Punkten (BE) reihum. */
 export const KLAUSUR = { analysis: 5, stochastik: 3, geometrie: 4 };
 export const KLAUSUR_BE = [3, 4, 5];
@@ -43,9 +44,9 @@ export function bauBlatt({ units, lv, n, seed }, land = store.land) {
 /** Probeklausur: gemischt aus allen drei Gebieten, ohne Stoff, der im gewählten Land nicht geprüft wird. */
 export function bauKlausur({ lv, seed }, land = store.land) {
   const fragen = [];
-  GEBIETE.forEach(([area], gi) => {
+  gebiete().forEach(([area], gi) => {
     const ids = UNITS.filter((u) => u.area === area && u.bossGens?.length && !u.grund && !unitExtra(u, land)).map((u) => u.id);
-    bauBlatt({ units: ids, lv, n: KLAUSUR[area], seed: seed + gi * 7919 }, land).forEach((q) => fragen.push(q));
+    bauBlatt({ units: ids, lv, n: KLAUSUR[area] ?? Math.ceil(12 / gebiete().length), seed: seed + gi * 7919 }, land).forEach((q) => fragen.push(q));
   });
   fragen.forEach((q, i) => { q.be = KLAUSUR_BE[i % KLAUSUR_BE.length]; });
   return fragen;
@@ -76,7 +77,7 @@ export function bauSchwach({ lv, n, seed }, arten = schwaechen()) {
 }
 /** Baut das Blatt zu einer Beschreibung (Arbeitsblatt, Probeklausur oder Schwächen-Blatt). */
 export const bau = (c) => (c.klausur ? bauKlausur(c) : c.schwach ? bauSchwach(c) : bauBlatt(c));
-export const blattName = (c) => (c.klausur ? 'Probeklausur' : c.schwach ? 'Schwächen-Blatt' : 'Arbeitsblatt');
+export const blattName = (c) => (c.klausur ? (istOber() ? 'Probeklausur' : 'Probe-Arbeit') : c.schwach ? 'Schwächen-Blatt' : 'Arbeitsblatt');
 
 /** Adresse eines Blatts: #/blatt/<Themen mit Punkt getrennt>_<Stufe>_<Anzahl>_<Nummer> bzw. #/blatt/klausur_<Stufe>_<Nummer> */
 export const blattHash = (c) => (c.klausur ? `#/blatt/klausur_${c.lv}_${c.seed}` : c.schwach ? `#/blatt/schwach_${c.lv}_${c.n}_${c.seed}` : `#/blatt/${c.units.join('.')}_${c.lv}_${c.n}_${c.seed}`);
@@ -147,13 +148,13 @@ function wahlView() {
   const T = themen(), el = h(`<div class="view stack">
     <a class="back" href="#/pruefung">${ICON.left} Prüfung</a>
     <div><span class="eyebrow">Arbeitsblatt</span><h1 style="margin-top:8px">Arbeitsblatt bauen</h1><p class="lead" style="margin-top:8px">Wähle Themen, Schwierigkeit und Anzahl. Das Blatt lässt sich in der App lösen oder drucken – mit Lösungsblatt.</p></div>
-    ${GEBIETE.map(([id, name]) => `<section class="card stack"><div class="row"><h3 class="grow">${name}</h3><button class="linkbtn b-alle" type="button" data-a="${id}">alle</button></div>
+    ${gebiete().map(([id, name]) => `<section class="card stack"><div class="row"><h3 class="grow">${name}</h3><button class="linkbtn b-alle" type="button" data-a="${id}">alle</button></div>
       <div class="picks b-themen">${T.filter((t) => t.area === id).map((t) => `<button class="pick" type="button" role="checkbox" aria-checked="false" data-u="${t.id}">${esc(t.title)}${t.extra ? ' <small>(Zusatz)</small>' : ''}</button>`).join('')}</div></section>`).join('')}
     <section class="card stack"><h3>Schwierigkeit</h3><div class="picks" id="b-lv" role="radiogroup" aria-label="Schwierigkeit">${LEVELS.map((n, i) => `<button class="pick" type="button" role="radio" data-lv="${i + 1}" aria-label="${n}">${i + 1}</button>`).join('')}</div>
       <h3>Anzahl der Aufgaben</h3><div class="picks" id="b-n" role="radiogroup" aria-label="Anzahl">${ANZAHL.map((n) => `<button class="pick" type="button" role="radio" data-n="${n}">${n}</button>`).join('')}</div></section>
     <div id="b-note"></div>
     <div class="row"><button class="btn block" id="b-go" type="button">Arbeitsblatt erstellen</button></div>
-    <a class="btn ghost block" id="b-klausur" href="#/blatt">Probeklausur erstellen ${marke('pro')}</a>
+    <a class="btn ghost block" id="b-klausur" href="#/blatt">${istOber() ? 'Probeklausur' : 'Probe-Arbeit'} erstellen ${marke('pro')}</a>
     <section class="card stack" id="b-schwach-box"><h3>Mein Schwächen-Blatt ${marke('pro')}</h3><small class="muted" id="b-schwach-text"></small><a class="btn ghost" id="b-schwach" href="#/blatt">Schwächen-Blatt erstellen</a></section>
   </div>`);
   let lv = store.level, n = 8; const wahl = new Set();
@@ -188,7 +189,7 @@ function vorschauView(c) {
     premiumBereit().then(() => {
       if (!tor.isConnected) return;
       if (proOffen()) tor.replaceWith(vorschau(c, fragen));
-      else tor.innerHTML = `<a class="back" href="#/blatt">${ICON.left} Arbeitsblatt</a><section class="card stack" id="b-tor"><h3>${blattName(c)} ${marke('pro')}</h3><p>${c.klausur ? 'Die Probeklausur' : 'Das Schwächen-Blatt'} gehört zur Pro-Fassung.</p><a class="btn" href="#/pro">Was ist in Pro?</a></section>`;
+      else tor.innerHTML = `<a class="back" href="#/blatt">${ICON.left} Arbeitsblatt</a><section class="card stack" id="b-tor"><h3>${blattName(c)} ${marke('pro')}</h3><p>${c.klausur ? `Die ${blattName(c)}` : 'Das Schwächen-Blatt'} gehört zur Pro-Fassung.</p><a class="btn" href="#/pro">Was ist in Pro?</a></section>`;
     });
     return { el: tor };
   }

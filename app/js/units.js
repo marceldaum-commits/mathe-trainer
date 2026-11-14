@@ -15,6 +15,7 @@ import { werkstatt } from './games/werkstatt.js';
 import { raum } from './games/raum.js';
 import { tafel } from './games/tafel.js';
 import { mixOf } from './gen.js';
+import { MITTEL, MITTEL_AREAS, MITTEL_BALD } from './units-m.js';
 import {
   genBruch, genKlammer, genLinGl, genQuadGl, genPotenz, genSteigung, genHaeufigkeit, genProzent, genKennwerte, genLaplace, genGegen,
   genPythagoras, genTrig, genFlaeche, genMittelpunkt, genVektorRechnen,
@@ -62,7 +63,7 @@ export const GRUND = {
   geometrie: [genPythagoras, genTrig, genFlaeche, genMittelpunkt, genVektorRechnen],
 };
 
-export const UNITS = [
+const OBER = [
   {
     id: 'formen', area: 'analysis', title: 'Funktionen formen', sub: 'Was Parameter mit einem Graphen machen',
     steps: [
@@ -486,7 +487,7 @@ export const UNITS = [
     ],
   },
 ];
-export const AREAS = [
+const OBER_AREAS = [
   { id: 'analysis', title: 'Analysis', soon: ['Wurzel- und Umkehrfunktion', 'Integralfunktion', 'Newton-Verfahren', 'Ortskurven'] },
   { id: 'stochastik', title: 'Stochastik', soon: ['Zweiseitige Tests', 'Histogramme lesen', 'Rückwärts nach n und p fragen'] },
   { id: 'geometrie', title: 'Analytische Geometrie', soon: ['Schnittgerade zweier Ebenen', 'Spiegelungen', 'Hesse-Form', 'Abstand windschiefer Geraden'] },
@@ -559,11 +560,34 @@ const META = {
     formeln: [['Parameterform', 'E:\\ \\vec x=\\vec a+r\\,\\vec u+s\\,\\vec v'], ['Normalenform → Koordinatenform', '\\vec n\\cdot\\vec x=\\vec n\\cdot\\vec p'], ['Spurpunkt auf der x₁-Achse', 'x_2=0,\\ x_3=0']] },
   operatoren: { boss: ['Operator-Orakel', '!', [genOperator]], why: 'Wer den Operator genau liest, schreibt in der Prüfung weder zu wenig noch zu viel.', formeln: [] },
 };
-for (const u of UNITS) {
-  const m = META[u.id]; if (!m) continue;
+/** Alle Einheiten aller Jahrgänge. Ohne Angabe gehört eine Einheit zur Oberstufe (jg 'os'). */
+export const ALLE_UNITS = [...OBER, ...MITTEL];
+const ALLE_AREAS = [...OBER_AREAS, ...MITTEL_AREAS];
+export const JAHRGAENGE = ['5', '6', '7', '8', '9', '10', 'os'];
+export const jgName = (jg) => (jg === 'os' ? 'Oberstufe' : `Klasse ${jg}`);
+export const jgVon = (u) => u.jg || 'os';
+for (const u of ALLE_UNITS) {
+  const m = META[u.id] || u.meta; if (!m) continue;
   u.why = m.why; u.formeln = m.formeln; u.bossName = m.boss[0]; u.bossSymbol = m.boss[1]; u.bossGens = m.boss[2];
   u.steps.push({ id: 'boss', kind: 'Boss', title: `Boss: ${m.boss[0]}`, run: (el, ctx) => boss(landList(m.boss[2]), m.boss[0], m.boss[1])(el, ctx) });
 }
+
+/**
+ * Was die App gerade zeigt: nur die Einheiten und Gebiete des gewählten Jahrgangs (Klasse 5 bis 10 oder Oberstufe).
+ * UNITS und AREAS sind „lebende“ Bindungen – nach jahrgangAnwenden() sehen alle Module die neue Auswahl.
+ */
+export let UNITS = [];
+export let AREAS = [];
+export function jahrgangAnwenden(jg = store.jahrgang) {
+  UNITS = ALLE_UNITS.filter((u) => jgVon(u) === jg);
+  AREAS = jg === 'os' ? OBER_AREAS : MITTEL_AREAS.filter((a) => UNITS.some((u) => u.area === a.id)).map((a) => ({ ...a, soon: [], info: UNITS.filter((u) => u.area === a.id).map((u) => u.title).join(', ') }));
+  return UNITS;
+}
+/** Was im gewählten Jahrgang als Nächstes kommt (nur Mittelstufe; die Oberstufe führt das je Gebiet). */
+export const baldHier = (jg = store.jahrgang) => MITTEL_BALD[jg] || [];
+/** Ist gerade die Oberstufe gewählt? Abi-Modus, Bundesland und Kurs gibt es nur dort. */
+export const istOber = () => store.jahrgang === 'os';
+jahrgangAnwenden();
 
 /** Freies Üben: alle Auswahl-Aufgaben eines Gebiets (aus den Boss-Listen der Einheiten). */
 export const practiceGens = (areaId, nurGrund = false, land = store.land) => (nurGrund ? GRUND[areaId] : landList([...new Set(UNITS.filter((u) => u.area === areaId).flatMap((u) => u.bossGens || []))], land));

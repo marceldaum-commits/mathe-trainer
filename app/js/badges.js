@@ -29,7 +29,7 @@ export const BADGES = [
   { id: 'analysis', icon: '∫', name: 'Analysis gemeistert', text: 'Alle Einheiten der Analysis abgeschlossen.', ok: () => areaAll('analysis') },
   { id: 'stochastik', icon: 'σ', name: 'Stochastik gemeistert', text: 'Alle Einheiten der Stochastik abgeschlossen.', ok: () => areaAll('stochastik') },
   { id: 'geometrie', icon: '∠', name: 'Geometrie gemeistert', text: 'Alle Einheiten der Analytischen Geometrie abgeschlossen.', ok: () => areaAll('geometrie') },
-  { id: 'alles', icon: '∞', name: 'Alles geschafft', text: 'Jede Einheit in jedem Gebiet abgeschlossen.', ok: () => AREAS.every((a) => areaAll(a.id)) },
+  { id: 'alles', icon: '∞', name: 'Alles geschafft', text: 'Jede Einheit in jedem Gebiet abgeschlossen.', ok: () => store.jahrgang === 'os' && AREAS.every((a) => areaAll(a.id)) },
   { id: 'boss1', icon: 'B', name: 'Boss-Bezwinger', text: 'Den ersten Boss besiegt.', ok: () => store.n('boss') >= 1 },
   { id: 'boss10', icon: 'B10', name: 'Boss-Jäger', text: '10 Bosse besiegt.', ok: () => store.n('boss') >= 10 },
   { id: 'drache', icon: '▲', name: 'Drachenbezwinger', text: 'Im Abenteuer-Modus den Abi-Drachen besiegt.', ok: () => store.n('abenteuerSieg') >= 1 },

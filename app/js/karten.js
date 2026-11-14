@@ -13,7 +13,7 @@ export const plusTage = (d, n) => { const x = new Date(d); x.setDate(x.getDate()
 
 /** Alle Karten: Formeln aus Einheiten, in denen schon etwas geschafft wurde (sonst die Grundlagen), plus eigene. */
 export function stapel() {
-  const begonnen = UNITS.filter((u) => u.formeln?.length && store.unitProgress(u).n > 0), us = begonnen.length ? begonnen : UNITS.filter((u) => u.grund && u.formeln?.length);
+  const begonnen = UNITS.filter((u) => u.formeln?.length && store.unitProgress(u).n > 0), grund = UNITS.filter((u) => u.grund && u.formeln?.length), us = begonnen.length ? begonnen : grund.length ? grund : UNITS.filter((u) => u.formeln?.length).slice(0, 2);
   const formeln = us.flatMap((u) => u.formeln.map(([name, f], i) => ({ key: `f:${u.id}:${i}`, thema: u.title, name, vorn: esc(name), hinten: `<div class="formula">${tex(f, true)}</div>`, eigen: false })));
   const eigene = store.lernEigene.map((k) => ({ key: `e:${k.id}`, id: k.id, thema: 'Eigene Karte', vorn: esc(k.vorn), hinten: `<p>${esc(k.hinten)}</p>`, eigen: true }));
   return [...eigene, ...formeln];

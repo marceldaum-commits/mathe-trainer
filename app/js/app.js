@@ -1,5 +1,5 @@
 // Mathe-Trainer – Start, Navigation und Ansichten.
-import { UNITS, AREAS, practiceGens, stepExtra, unitExtra, NICHT_TEXT } from './units.js';
+import { UNITS, AREAS, practiceGens, stepExtra, unitExtra, NICHT_TEXT, GRUND, JAHRGAENGE, jgName, jahrgangAnwenden, istOber, baldHier, ALLE_UNITS, jgVon } from './units.js';
 import { quiz } from './quiz.js';
 import { initMelden } from './melden.js';
 import { abenteuerView } from './abenteuer.js';
@@ -65,6 +65,11 @@ const AREA_INFO = {
   pruefung: 'Abi-Modus, Runden, Operatoren',
 };
 const LERN_AREAS = () => AREAS.filter((a) => a.id !== 'pruefung');
+const areaInfo = (a) => a.info || AREA_INFO[a.id] || '';
+const areaLink = (href, titel, sub) => `<a class="card area" href="${href}"><h3>${esc(titel)}</h3><small>${esc(sub)}</small></a>`;
+/** Knöpfe zur Wahl der Klassenstufe (Startseite beim ersten Mal, Seite „Klassenstufe“). */
+const jgKnoepfe = () => `<div class="jg-wahl" role="radiogroup" aria-label="Klassenstufe">${JAHRGAENGE.map((j) => `<button class="pick ${store.jahrgangGewaehlt && store.jahrgang === j ? 'sel' : ''}" type="button" role="radio" aria-checked="${store.jahrgangGewaehlt && store.jahrgang === j}" data-jg="${j}">${j === 'os' ? 'Oberstufe' : j}</button>`).join('')}</div>`;
+function jgVerdrahten(el, danach) { el.querySelectorAll('[data-jg]').forEach((b) => { b.onclick = () => { store.jahrgang = b.dataset.jg; jahrgangAnwenden(); sfx('ok'); danach(); }; }); }
 const areaStat = (area) => {
   const us = UNITS.filter((u) => u.area === area.id).sort((x, y) => (y.grund ? 1 : 0) - (x.grund ? 1 : 0) || (unitExtra(x) ? 1 : 0) - (unitExtra(y) ? 1 : 0));   // Grundlagen zuerst, Zusatz-Stoff zuletzt
   const steps = us.reduce((s, u) => s + u.steps.length, 0), done = us.reduce((s, u) => s + store.unitProgress(u).n, 0);
@@ -72,7 +77,7 @@ const areaStat = (area) => {
 };
 const areaCard = (area, href = `#/g/${area.id}`) => {
   const s = areaStat(area);
-  return `<a class="card area" href="${href}"><h3>${esc(area.title)}</h3><small>${esc(AREA_INFO[area.id])}</small>
+  return `<a class="card area" href="${href}"><h3>${esc(area.title)}</h3><small>${esc(areaInfo(area))}</small>
     <div class="bar"><i style="width:${s.pct}%"></i></div><small class="muted">${s.doneUnits}/${s.n} Einheiten</small></a>`;
 };
 const unitCard = (u, k) => {
@@ -94,9 +99,9 @@ const footer = () => `<footer class="foot">
 export function piSagt(spot, jetzt = new Date()) {
   const std = jetzt.getHours(), gruss = std < 5 ? 'Noch wach?' : std < 11 ? 'Guten Morgen!' : std < 14 ? 'Hallo!' : std < 18 ? 'Schön, dass du da bist!' : std < 22 ? 'Guten Abend!' : 'Späte Runde?';
   const faellig = store.karteDue().length, tage = store.abiDays();
-  const satz = !spot ? 'Du hast alle Wege frei gemacht. Lust auf den Abi-Drachen?'
+  const satz = !spot ? (istOber() ? 'Du hast alle Wege frei gemacht. Lust auf den Abi-Drachen?' : `Du hast alles aus ${jgName(store.jahrgang)} geschafft. Stark!`)
     : faellig >= 3 ? `In deiner Fehler-Kartei warten ${faellig} Aufgaben-Arten – fünf Minuten reichen.`
-    : tage !== null && tage >= 0 && tage <= 30 ? `Noch ${tage} ${tage === 1 ? 'Tag' : 'Tage'} bis zum Abi. Ein Schritt heute zählt.`
+    : istOber() && tage !== null && tage >= 0 && tage <= 30 ? `Noch ${tage} ${tage === 1 ? 'Tag' : 'Tage'} bis zum Abi. Ein Schritt heute zählt.`
     : spot.last ? `Weiter bei „${spot.u.steps[spot.i].title}“?` : `Als Nächstes: „${spot.u.steps[spot.i].title}“.`;
   return `${gruss} ${satz}`;
 }
@@ -105,19 +110,21 @@ function home() {
   const started = store.xp > 0;
   const el = h(`<div class="view stack" id="home">
     <section class="hero ${started ? 'klein' : ''}">
-      <span class="eyebrow">Oberstufen-Mathe zum Anfassen</span>
+      <span class="eyebrow">${istOber() ? 'Oberstufen-Mathe zum Anfassen' : 'Mathe zum Anfassen'}</span>
       <h1>Verstehen <br>schafft <span class="orange">Sicherheit.</span></h1>
+      ${store.jahrgangGewaehlt ? `<a class="jg-chip" id="jg-chip" href="#/stufe" aria-label="Klassenstufe wechseln">${esc(jgName(store.jahrgang))} <span aria-hidden="true">▾</span></a>` : ''}
       ${started ? `<div class="pi-gruss" id="pi-gruss"><span class="pi-fig">${pi()}</span><p class="blase">${esc(piSagt(spot))}</p></div>` : ''}
     </section>
+    ${store.jahrgangGewaehlt ? '' : `<section class="card stack jg-frage" id="jg-frage"><h3>Für welche Klasse lernst du?</h3><small class="muted">Du siehst dann genau den Stoff deiner Stufe. Wechseln kannst du jederzeit.</small>${jgKnoepfe()}</section>`}
     <section class="board">
       <div class="board-top"><span>${!started ? 'EMPFOHLENER EINSTIEG' : spot?.last ? 'ZULETZT GESPIELT' : 'NÄCHSTER SCHRITT'}</span><b>● ${spot ? esc(AREAS.find((a) => a.id === spot.u.area).title.toUpperCase()) : 'FERTIG'}</b></div>
       ${spot
         ? `<h2>${esc(spot.u.steps[spot.i].title)}</h2><p>${esc(spot.u.title)} · Schritt ${spot.i + 1} von ${spot.u.steps.length}</p>
            <a class="btn" href="#/u/${spot.u.id}/${spot.i}">${started ? 'Weiter' : 'Erste Runde starten'} ${ICON.right}</a>`
-        : '<h2>Alles geschafft!</h2><p>Wiederhole gern eine Runde – die Aufgaben sind jedes Mal neu. Oder teste dich im Abi-Modus.</p>'}
+        : `<h2>Alles geschafft!</h2><p>Wiederhole gern eine Runde – die Aufgaben sind jedes Mal neu. ${istOber() ? 'Oder teste dich im Abi-Modus.' : 'Oder schau schon einmal in die nächste Klasse.'}</p>`}
     </section>
     <div class="sect"><h2>Was möchtest du üben?</h2></div>
-    <section class="areas">${AREAS.map((a) => areaCard(a, a.id === 'pruefung' ? '#/pruefung' : `#/g/${a.id}`)).join('')}</section>
+    <section class="areas">${AREAS.map((a) => areaCard(a, a.id === 'pruefung' ? '#/pruefung' : `#/g/${a.id}`)).join('')}${istOber() ? '' : areaLink('#/pruefung', 'Teste dich', 'Arbeitsblatt, Probe-Arbeit, freies Üben')}</section>
     <div id="today" class="stack"></div>
     <section class="cta schmal">
       <h2>Hängt es an einer Stelle?</h2>
@@ -125,21 +132,23 @@ function home() {
     </section>
     ${footer()}
   </div>`);
+  jgVerdrahten(el, () => route());
   const days = store.abiDays(), due = store.karteDue().length, tb = store.tagBest();
   const today = $('#today', el);
   const tile = (href, num, title, sub) => `<a class="card tile" href="${href}"><span class="num">${num}</span><h3>${esc(title)}</h3><small>${sub}</small></a>`;
   // Abi-Countdown und Lernplan in einer Karte
-  if (days !== null) {
+  if (days !== null && istOber()) {
     const goal = dailyGoal(openSteps(), days), w = planNow();
     today.append(h(`<a class="card count" href="#/plan"><b class="big">${days}</b><span><h3>${days === 1 ? 'Tag' : 'Tage'} bis zum Mathe-Abi</h3><small class="muted">${w?.units.length ? `Diese Woche: ${esc(w.units.map((u) => u.title.replace(/^Grundlagen: /, '')).join(' · '))}` : goal ? `Tagesziel: ${goal} ${goal === 1 ? 'Schritt' : 'Schritte'} im Lernpfad.` : 'Alle Schritte geschafft – jetzt Abi-Modus und Wiederholen.'}</small></span></a>`));
   }
   // Kleine Kacheln nebeneinander statt langer Liste
   const tiles = [];
-  if (!started && !store.einstufung) tiles.push(tile('#/einstufung/ergebnis', '?', 'Einstufungstest', 'Wo fängst du am besten an?'));
+  if (istOber() && !started && !store.einstufung) tiles.push(tile('#/einstufung/ergebnis', '?', 'Einstufungstest', 'Wo fängst du am besten an?'));
   if (due) tiles.push(tile('#/wiederholen', due, 'Wiederholen', `${due === 1 ? 'Eine Aufgabenart' : `${due} Aufgabenarten`} fällig`));
-  tiles.push(tile('#/tag', ICON.bolt, 'Tages-Runde', tb !== undefined ? `Heute: ${tb} Punkte` : 'Heute für alle gleich'));
-  if (started) tiles.push(tile('#/abenteuer', '⚔', 'Abenteuer', store.n('abenteuerRekord') ? `Rekord: ${store.n('abenteuerRekord')} Punkte` : 'Sieben Räume, ein Drache'));
-  tiles.push(tile('#/karte', `<i class="mini-fig">${pi()}</i>`, 'Karte', 'Die Reise durch Mathea'));
+  if (istOber()) tiles.push(tile('#/tag', ICON.bolt, 'Tages-Runde', tb !== undefined ? `Heute: ${tb} Punkte` : 'Heute für alle gleich'));
+  else { tiles.push(tile('#/theorie', '§', 'Nachlesen', 'Jedes Thema kurz erklärt')); tiles.push(tile('#/karten', faellig().length || ICON.check, 'Lernkarten', 'Formeln wiederholen')); }
+  if (started && istOber()) tiles.push(tile('#/abenteuer', '⚔', 'Abenteuer', store.n('abenteuerRekord') ? `Rekord: ${store.n('abenteuerRekord')} Punkte` : 'Sieben Räume, ein Drache'));
+  if (istOber()) tiles.push(tile('#/karte', `<i class="mini-fig">${pi()}</i>`, 'Karte', 'Die Reise durch Mathea'));
   tiles.length = Math.min(tiles.length, 4);   // die Startseite bleibt kurz: höchstens vier Kacheln, alles Weitere steht in den Reitern
   today.append(h(`<div class="tiles">${tiles.join('')}</div>`));
   if (!store.ruhig) today.append(weekCard(() => { chips(); badgeCheck(); route(); }));
@@ -148,14 +157,41 @@ function home() {
   return el;
 }
 
+/** Klassenstufe wählen oder wechseln. Der Fortschritt jeder Stufe bleibt erhalten. */
+function stufeView() {
+  const zeile = (j) => { const us = ALLE_UNITS.filter((u) => jgVon(u) === j), fertig = us.filter((u) => store.unitProgress(u).done).length; return `<small class="muted">${j === 'os' ? 'Oberstufe' : `Klasse ${j}`}: ${fertig}/${us.length} Einheiten</small>`; };
+  const el = h(`<div class="view stack">
+    <a class="back" href="#/">${ICON.left} Start</a>
+    <div><span class="eyebrow">Klassenstufe</span><h1 style="margin-top:8px">Für welche Klasse lernst du?</h1><p class="lead" style="margin-top:8px">Der Mathe-Trainer zeigt dir genau den Stoff deiner Stufe – von Klasse 5 bis zum Abitur.</p></div>
+    <section class="card stack">${jgKnoepfe()}<small class="muted">Du kannst jederzeit wechseln. Was du in einer Stufe geschafft hast, bleibt gespeichert.</small></section>
+    <section class="card stack"><h3>Dein Stand</h3>${JAHRGAENGE.map(zeile).join('')}</section>
+  </div>`);
+  jgVerdrahten(el, () => { location.hash = '#/'; });
+  return el;
+}
+
+/** „Teste dich“ in der Mittelstufe: Arbeitsblatt, Probe-Arbeit, freies Üben. (Abi-Modus und Co. gibt es nur in der Oberstufe.) */
+function testeDichView() {
+  return h(`<div class="view stack">
+    <div><span class="eyebrow">Testen · ${esc(jgName(store.jahrgang))}</span><h1 style="margin-top:8px">Zeig, was sitzt</h1></div>
+    <section class="stack">
+      ${linkCard('#/blatt', 'PDF', 'Arbeitsblatt und Probe-Arbeit', 'Themen wählen, in der App lösen oder drucken – mit Lösungsblatt.')}
+      ${LERN_AREAS().map((a) => linkCard(`#/ueben/${a.id}`, '10', `${esc(a.title)} gemischt`, 'Zehn Aufgaben quer durch das Gebiet – immer neu.')).join('')}
+      ${linkCard('#/wiederholen', store.karteDue().length || ICON.check, 'Fehler-Kartei', 'Was schiefging, kommt hier wieder – bis es sitzt.')}
+      ${linkCard('#/karten', faellig().length || ICON.check, 'Lernkarten', 'Formeln und eigene Karten wiederholen.')}
+    </section>
+  </div>`);
+}
+
 /** Lernen: erst das Gebiet wählen. */
 function lernenView() {
   const el = h(`<div class="view stack">
-    <div><span class="eyebrow">Lernen</span><h1 style="margin-top:8px">Wähle ein Gebiet</h1></div>
-    <section class="stack">${LERN_AREAS().map((a) => { const s = areaStat(a); return linkCard(`#/g/${a.id}`, `<i class="pct">${Math.round(s.pct)} %</i>`, a.title, `${esc(AREA_INFO[a.id])} · ${s.doneUnits}/${s.n} Einheiten`); }).join('')}</section>
-    <section class="stack">${linkCard('#/theorie', '§', 'Theorie nachlesen', 'Jedes Thema kurz erklärt – die ersten auch ausführlich, zum Drucken.')}</section>
-    <section class="stack">${linkCard('#/karte', `<i class="mini-fig">${pi()}</i>`, 'Karte: Die Reise durch Mathea', 'Der ganze Lernpfad als Landkarte – mit Pi und den Wächtern.')}</section>
-    <section class="stack">${linkCard('#/einstufung/ergebnis', '?', store.einstufung ? 'Deine Einstufung' : 'Einstufungstest', store.einstufung ? 'Ergebnis ansehen oder Test wiederholen.' : 'Zwölf Aufgaben, fünf Minuten: Wo fängst du am besten an?')}</section>
+    <div><span class="eyebrow">Lernen · ${esc(jgName(store.jahrgang))}</span><h1 style="margin-top:8px">Wähle ein Gebiet</h1></div>
+    <section class="stack">${LERN_AREAS().map((a) => { const s = areaStat(a); return linkCard(`#/g/${a.id}`, `<i class="pct">${Math.round(s.pct)} %</i>`, a.title, `${esc(areaInfo(a))} · ${s.doneUnits}/${s.n} Einheiten`); }).join('')}</section>
+    <section class="stack">${linkCard('#/theorie', '§', 'Theorie nachlesen', istOber() ? 'Jedes Thema kurz erklärt – und ausführlich mit Beispielen, zum Drucken.' : 'Jedes Thema kurz erklärt – zum Nachschlagen und Drucken.')}</section>
+    ${istOber() ? '' : `<section class="stack"><div class="card unit soon"><span class="num">+</span><span><h3>Kommt bald in ${esc(jgName(store.jahrgang))}</h3><small>${esc(baldHier().join(' · '))}</small></span><span></span></div>${linkCard('#/stufe', '⇄', 'Klassenstufe wechseln', 'Stoff einer anderen Klasse ansehen – dein Fortschritt bleibt erhalten.')}</section>`}
+    ${!istOber() ? '' : `<section class="stack">${linkCard('#/karte', `<i class="mini-fig">${pi()}</i>`, 'Karte: Die Reise durch Mathea', 'Der ganze Lernpfad als Landkarte – mit Pi und den Wächtern.')}</section>
+    <section class="stack">${linkCard('#/einstufung/ergebnis', '?', store.einstufung ? 'Deine Einstufung' : 'Einstufungstest', store.einstufung ? 'Ergebnis ansehen oder Test wiederholen.' : 'Zwölf Aufgaben, fünf Minuten: Wo fängst du am besten an?')}</section>`}
     <div id="lvbox"></div>
   </div>`);
   $('#lvbox', el).append(levelCard());
@@ -167,18 +203,19 @@ function areaView(area) {
   const s = areaStat(area);
   return h(`<div class="view stack">
     <a class="back" href="#/lernen">${ICON.left} Gebiete</a>
-    <div><span class="eyebrow">${s.doneUnits}/${s.n} Einheiten · Schwierigkeit ${LEVELS[store.level - 1]}</span><h1 style="margin-top:8px">${esc(area.title)}</h1><p class="lead" style="margin-top:8px">${esc(AREA_INFO[area.id])}</p></div>
+    <div><span class="eyebrow">${s.doneUnits}/${s.n} Einheiten · Schwierigkeit ${LEVELS[store.level - 1]}</span><h1 style="margin-top:8px">${esc(area.title)}</h1><p class="lead" style="margin-top:8px">${esc(areaInfo(area))}</p></div>
     <section class="stack">${s.units.map(unitCard).join('')}</section>
     <div class="sect"><h2>Freies Üben</h2></div>
     <section class="stack">
-      ${linkCard(`#/ueben/${area.id}-grund`, '10', 'Grundlagen üben', 'Zehn gemischte Aufgaben zu den Grundlagen – immer neu.')}
+      ${GRUND[area.id] ? linkCard(`#/ueben/${area.id}-grund`, '10', 'Grundlagen üben', 'Zehn gemischte Aufgaben zu den Grundlagen – immer neu.') : ''}
       ${linkCard(`#/ueben/${area.id}`, '10', `${esc(area.title)} gemischt`, 'Zehn Aufgaben quer durch das ganze Gebiet – immer neu.')}
-      <div class="card unit soon"><span class="num">+</span><span><h3>Kommt bald</h3><small>${esc(area.soon.join(' · '))}</small></span><span></span></div></section>
+      ${area.soon.length ? `<div class="card unit soon"><span class="num">+</span><span><h3>Kommt bald</h3><small>${esc(area.soon.join(' · '))}</small></span><span></span></div>` : ''}</section>
   </div>`);
 }
 
 /** Prüfung: alles, was auf Zeit und auf das Abi vorbereitet. */
 function pruefungView() {
+  if (!istOber()) return testeDichView();
   const ex = store.exams[0], tb = store.tagBest(), best = store.best(1)[0];
   const area = AREAS.find((a) => a.id === 'pruefung');
   return h(`<div class="view stack">
@@ -211,11 +248,11 @@ function mehrView() {
       ${linkCard('#/pro', 'PRO', store.stufe ? (store.stufe === 'proki' ? 'Deine Stufe: Pro + KI' : 'Deine Stufe: Pro') : 'Pro und Pro + KI', store.stufe ? 'Was freigeschaltet ist und bis wann.' : 'Was die Pro-Fassung zusätzlich kann.')}
       ${linkCard('#/karten', faellig().length || ICON.check, 'Lernkarten', 'Formeln und eigene Karten – wiederholt in wachsenden Abständen.')}
       ${linkCard('#/erfolge', ICON.star, 'Erfolge', `${titleOf().title} · ${Object.keys(store.badges).length} Abzeichen`)}
-      ${linkCard('#/plan', ICON.right, 'Lernplan bis zum Abi', store.abi ? 'Was diese Woche dran ist.' : 'Abi-Termin eintragen – die App verteilt den Stoff auf die Wochen.')}
+      ${istOber() ? linkCard('#/plan', ICON.right, 'Lernplan bis zum Abi', store.abi ? 'Was diese Woche dran ist.' : 'Abi-Termin eintragen – die App verteilt den Stoff auf die Wochen.') : linkCard('#/stufe', '⇄', 'Klassenstufe', `${jgName(store.jahrgang)} – wechseln, wenn du etwas anderes üben willst.`)}
       ${linkCard('#/zertifikat', ICON.check, 'Zertifikate', 'Für jedes geschaffte Gebiet – zum Ausdrucken.')}
       ${linkCard('#/formeln', '∑', 'Formelsammlung', 'Jede abgeschlossene Einheit schaltet Formelkarten frei.')}
       ${linkCard('#/bericht', 'B', 'Bericht für Eltern', 'Lernstand zum Drucken oder Teilen.')}
-      ${linkCard('#/einstellungen', ICON.gear, 'Einstellungen', `Schwierigkeit ${LEVELS[store.level - 1]} · Bundesland · Abi-Termin`)}
+      ${linkCard('#/einstellungen', ICON.gear, 'Einstellungen', istOber() ? `Schwierigkeit ${LEVELS[store.level - 1]} · Bundesland · Abi-Termin` : `${jgName(store.jahrgang)} · Schwierigkeit ${LEVELS[store.level - 1]} · Schrift`)}
     </section>
     <div id="install"></div>
     <section class="cta">
@@ -349,7 +386,8 @@ function route() {
       bericht: berichtView, einstellungen: settingsView, wiederholen: karteiView, erfolge: erfolgeView, formeln: formelnView, klasse: klasseView, lehrplan: lehrplanView,
       einstufung: () => (x[2] === 'ergebnis' ? einstufungErgebnis() : einstufungView()), aufgabe: () => verbundView(x[2]), plan: planView, zertifikat: () => zertifikatView(x[2]), abenteuer: () => abenteuerView(after), karte: karteView, theorie: () => theorieView(x[2]), karten: kartenView, kiaufgabe: kiAufgabeView, pro: proView }[x[1]]();
     el = r.el; cleanup = r.cleanup || null;
-  } else if (hash === '#/lernen') el = lernenView();
+  } else if (hash === '#/stufe') el = stufeView();
+  else if (hash === '#/lernen') el = lernenView();
   else if (hash === '#/pruefung') {
     el = pruefungView();
     // KI-Aufgaben: Der Einstieg erscheint nur dort, wo der Server sie anbietet.
@@ -378,6 +416,7 @@ function nav() {
   const tab = unit ? (unit.area === 'pruefung' ? 'pruefung' : 'lernen')
     : /^#\/(lernen|g\/|ueben\/|einstufung|karte|theorie)/.test(hash) ? 'lernen' : /^#\/(pruefung|abi|tag|duell|blitz|klasse|aufgabe|abenteuer|blatt|kiaufgabe)/.test(hash) ? 'pruefung' : /^#\/(mehr|bericht|einstellungen|wiederholen|erfolge|formeln|lehrplan|plan|zertifikat|karten|pro)/.test(hash) ? 'mehr' : 'start';
   document.querySelectorAll('#nav a').forEach((a) => { const on = a.dataset.tab === tab; a.classList.toggle('on', on); if (on) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current'); });
+  { const pf = document.querySelector('#nav a[data-tab="pruefung"] span'); if (pf) pf.textContent = istOber() ? 'Prüfung' : 'Testen'; }
   $('#nav').hidden = !!view.querySelector('.stephead');
   tint();
 }

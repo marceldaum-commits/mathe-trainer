@@ -86,7 +86,7 @@ export const store = {
     return { n, total: unit.steps.length, done: n === unit.steps.length };
   },
   /** Fortschritt löschen. Geräte-Kennung und Zugangscode bleiben – sie sind kein Lernstand. */
-  reset() { const { geraet, zugang, schrift } = mem; mem = FRESH(); if (geraet) mem.geraet = geraet; if (zugang) mem.zugang = zugang; if (schrift) mem.schrift = schrift; save(); },
+  reset() { const { geraet, zugang, schrift, jahrgang } = mem; mem = FRESH(); if (geraet) mem.geraet = geraet; if (zugang) mem.zugang = zugang; if (schrift) mem.schrift = schrift; if (jahrgang) mem.jahrgang = jahrgang; save(); },
 
   /* Statistik je Thema (für Bericht und Schwächen-Erkennung) */
   record(topic, firstTry) {
@@ -185,6 +185,11 @@ export const store = {
   /** Schriftgröße: 'klein', 'normal' oder 'gross'. */
   get schrift() { return ['klein', 'gross'].includes(mem.schrift) ? mem.schrift : 'normal'; },
   set schrift(v) { mem.schrift = ['klein', 'gross'].includes(v) ? v : 'normal'; save(); },
+  /** Jahrgang: '5' bis '10' oder 'os' (Oberstufe). Wer noch nichts gewählt hat, sieht die Oberstufe – so bleibt für bisherige Nutzer alles beim Alten. */
+  get jahrgang() { return ['5', '6', '7', '8', '9', '10', 'os'].includes(mem.jahrgang) ? mem.jahrgang : 'os'; },
+  set jahrgang(v) { mem.jahrgang = ['5', '6', '7', '8', '9', '10', 'os'].includes(v) ? v : 'os'; save(); },
+  /** Wurde der Jahrgang schon bewusst gewählt? (Sonst fragt die Startseite danach.) */
+  get jahrgangGewaehlt() { return typeof mem.jahrgang === 'string'; },
   get ruhig() { return mem.ruhig === true; },
   set ruhig(v) { mem.ruhig = !!v; save(); },
   /** Lernkarten: Stand je Karte { fach (0–5), ab: 'JJJJ-MM-TT' } und eigene Karten [{ id, vorn, hinten }]. */
