@@ -2,6 +2,11 @@
 
 Neueste Meldung oben. Keine Geheimnisse, keine Personendaten (dieses Repo ist öffentlich, siehe Punkt 1).
 
+## 14.11.2026 (37) – 0.21.0 liegt auf `test` (alle fünf Browser-Durchläufe grün)
+
+Nur App-Seite, nichts für den Server: neun weitere Merkbilder (jetzt 26) und ein Funkenregen bei richtiger Antwort.
+App-Datei 0.21.0 liegt im Drive. Live-Freigabe wie immer durch euch nach Marcels Go.
+
 ## 14.11.2026 (36) – 0.20.0 liegt auf `test` (alle fünf Browser-Durchläufe grün)
 
 Enthält alles aus (34) und (35): KI-Aufgaben (mit 202-Wiederholung), KI-Auswertung, Merkbilder, Stufe sichtbar
