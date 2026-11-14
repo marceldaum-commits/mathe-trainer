@@ -1,0 +1,53 @@
+# Baut die Android-App (APK + Play-Store-Paket) auf GitHub – unabhängig von jedem einzelnen Rechner.
+# Läuft von selbst, sobald sich die App-Hülle ändert (android/huelle.json), und auf Knopfdruck (Actions → „App-Datei bauen“).
+# Braucht zwei Geheimnisse des Repos (Settings → Secrets and variables → Actions) – sie stehen nie im Repo:
+#   MT_KEYSTORE_B64  = der Signier-Schlüssel als Text (base64)
+#   MT_KEYSTORE_PASS = das Passwort dazu
+name: App-Datei bauen
+on:
+  push:
+    branches: [test]
+    paths: ['android/huelle.json']
+  workflow_dispatch:
+    inputs:
+      kanal:
+        description: 'Kanal der Selbst-Aktualisierung (test = Marcels Handy, store = Play Store)'
+        type: choice
+        options: [test, store]
+        default: test
+permissions:
+  contents: read
+jobs:
+  bauen:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with: { distribution: temurin, java-version: '17' }
+      - name: Prüfen (Dateiliste, Rechen-Tests, Selbst-Aktualisierung)
+        run: |
+          npm run check
+          bash tests/android/pruefen.sh
+      - name: Bauen und signieren
+        env:
+          MT_KEYSTORE_B64: ${{ secrets.MT_KEYSTORE_B64 }}
+          MT_KEYSTORE_PASS: ${{ secrets.MT_KEYSTORE_PASS }}
+          MT_KANAL: ${{ inputs.kanal || 'test' }}
+        run: |
+          test -n "$MT_KEYSTORE_B64" || { echo "Geheimnis MT_KEYSTORE_B64 fehlt"; exit 1; }
+          test -n "$MT_KEYSTORE_PASS" || { echo "Geheimnis MT_KEYSTORE_PASS fehlt"; exit 1; }
+          umask 077
+          echo "$MT_KEYSTORE_B64" | base64 -d > "$RUNNER_TEMP/schluessel.keystore"
+          export MT_KEYSTORE="$RUNNER_TEMP/schluessel.keystore"
+          bash android/offline/bauen.sh
+          rm -f "$MT_KEYSTORE"
+          v=$(sed -n "s/.*VERSION = '\([0-9.]*\)'.*/\1/p" app/js/config.js)
+          mkdir aus
+          cp android/offline/app/build/outputs/apk/release/*.apk "aus/Mathe-Trainer-$v-$MT_KANAL.apk"
+          cp android/offline/app/build/outputs/bundle/release/*.aab "aus/Mathe-Trainer-$v-$MT_KANAL-PlayStore.aab"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Mathe-Trainer-App
+          path: aus/
+          retention-days: 30
