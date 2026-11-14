@@ -759,7 +759,7 @@ for (const u of UNITS) {
   for (const u of UNITS) { const K = Th.karten(u); ok(K.length >= 1 && K.every((c) => c.title && c.html), `Theorie ${u.id}: Kurzfassung vorhanden`);
     const kurz = Th.kapitelHtml(u, false); ok(kurz.includes(u.title) && kurz.includes('img/logo.svg') && !/undefined|NaN/.test(kurz), `Theorie ${u.id}: Kapitel mit Titel und Logo`); }
   ok(Object.keys(Th.LANG).length >= 6 && Object.keys(Th.LANG).every((id) => UNITS.some((u) => u.id === id)) && Object.values(Th.LANG).every((L) => L.length >= 4 && L.every(([t, html]) => t && html.length > 80)), 'Theorie: ausführliche Kapitel gehören zu echten Einheiten und haben mehrere Abschnitte');
-  { const u = UNITS.find((x) => x.id === 'extrema'); ok(Th.kapitelHtml(u, true).includes('Durchgerechnetes Beispiel') && !Th.kapitelHtml(u, false).includes('Durchgerechnetes Beispiel') && Th.kapitelHtml(UNITS.find((x) => x.id === 'a-trig'), true).includes('(kurz)'), 'Theorie: ausführlich nur, wo geschrieben – sonst die Kurzfassung'); }
+  { const u = UNITS.find((x) => x.id === 'extrema'); ok(Th.kapitelHtml(u, true).includes('Durchgerechnetes Beispiel') && !Th.kapitelHtml(u, false).includes('Durchgerechnetes Beispiel') && Th.kapitelHtml(UNITS.find((x) => x.id === 'a-trig'), true).includes('Durchgerechnetes Beispiel'), 'Theorie: ausführliche Fassung zeigt das Kapitel, die kurze nicht'); }
   store.reset(); }
 
 // 14e2) Schwächen-Blatt, voller Rechenweg, KI-Arten
@@ -829,7 +829,8 @@ ok(nextStreak({ n: 3, last: '2026-11-10' }, D('2026-11-12')).n === 1, 'Serie: au
   ok(U.texTeile('\\begin{array}{l}a\\qquad b\\end{array}').length === 1 && U.texTeile('{a\\qquad b}').length === 1 && U.texTeile('\\left(a\\qquad b\\right)\\qquad x').length === 2, 'Formel teilen: nicht in Klammern oder Umgebungen');
   ok(U.texTeile('x').join() === 'x' && U.texTeile('\\qquad').length === 1 && U.texTeile('a\\quad b').length === 1 && U.texTeile('\\{a\\}\\qquad b').length === 2, 'Formel teilen: Sonderfälle');
   ok(U.tex('a\\qquad b') === 'a\\qquad b' && U.tex('a\\qquad b', true) === 'ab', 'Formel teilen: nur abgesetzte Formeln');
-  const Th2 = await import('../app/js/theorie.js'); ok(Object.keys(Th2.LANG).length >= 16, 'Theorie: mindestens 16 ausführliche Kapitel'); }
+  const Th2 = await import('../app/js/theorie.js'); ok(UNITS.filter((u) => u.area !== 'pruefung').every((u) => Th2.hatLang(u) && Th2.LANG[u.id].length >= 5), 'Theorie: jede Lern-Einheit hat ein ausführliches Kapitel mit mindestens fünf Abschnitten');
+  for (const [id, L] of Object.entries(Th2.LANG)) for (const [titel, html] of L) { ok(!/\$\{|undefined|NaN/.test(html), `Theorie ${id}: Abschnitt „${titel}“ ohne Platzhalter-Reste`); ok((html.match(/<(p|ul|ol|li)[ >]/g) || []).length === (html.match(/<\/(p|ul|ol|li)>/g) || []).length, `Theorie ${id}: Abschnitt „${titel}“ – HTML-Marken paarig`); } }
 
 // Schriftgröße: nur drei Werte, bleibt beim Zurücksetzen erhalten; jede Schrift im Stil folgt dem Faktor
 { store.reset(); ok(store.schrift === 'normal', 'Schrift: Standard ist normal');
