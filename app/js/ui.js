@@ -108,6 +108,21 @@ export function confetti(n = 36) {
   document.body.append(box); setTimeout(() => box.remove(), 2600);
 }
 
+/** Kleiner Funkenregen an einem Element – die schnelle Belohnung für eine richtige Antwort. */
+export function funken(el, n = 12) {
+  if (!el || window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return;
+  const r = el.getBoundingClientRect(); if (!r.width) return;
+  const box = document.createElement('div'); box.className = 'funken'; box.setAttribute('aria-hidden', 'true');
+  box.style.cssText = `left:${r.left + r.width / 2}px;top:${r.top + r.height / 2}px`;
+  const farben = ['#ff7418', '#73e0a9', '#ffb020', '#ff9d36'];
+  for (let i = 0; i < n; i++) {
+    const w = (i / n) * Math.PI * 2 + Math.random() * 0.5, d = 46 + Math.random() * 50, s = document.createElement('i');
+    s.style.cssText = `background:${farben[i % farben.length]};--fx:${Math.cos(w) * d}px;--fy:${Math.sin(w) * d - 14}px;animation-delay:${Math.random() * 0.06}s`;
+    box.append(s);
+  }
+  document.body.append(box); setTimeout(() => box.remove(), 900);
+}
+
 /** Drucken bzw. als PDF speichern. In der Android-App übernimmt das die App selbst (dort kann die Seite nicht drucken). */
 export function drucken(titel = 'Mathe-Trainer') {
   if (typeof window.MTApp?.drucken === 'function') window.MTApp.drucken(String(titel).slice(0, 60)); else window.print();

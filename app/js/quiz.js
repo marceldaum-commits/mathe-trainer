@@ -1,6 +1,6 @@
 // Aufgaben-Runde: Auswahl- und Lücken-Aufgaben mit gestuften Tipps und Fehler-Diagnose.
 import { Plot } from './plot.js';
-import { h, tex, cssVar, buzz, sfx } from './ui.js';
+import { h, tex, cssVar, buzz, sfx, funken } from './ui.js';
 import { store } from './store.js';
 import { CONFIG } from './config.js';
 import { ft } from './math.js';
@@ -111,6 +111,7 @@ export function quiz(sequence, opts = {}) {
         if (!firstTry) erklaer();
         ctx.progress((qi + 1) / sequence.length);
         buzz();
+        if (firstTry && !store.ruhig) setTimeout(() => funken(body.querySelector('.right, .ok') || note, combo >= 3 ? 20 : 12), 0);
       };
 
       if (q.type === 'gap') {

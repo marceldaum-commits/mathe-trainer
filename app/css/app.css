@@ -790,3 +790,9 @@ textarea.field{resize:vertical;min-height:72px;font:inherit;padding:10px 12px}
   .theorie .t-tafel th,.theorie .t-tafel td{border-color:var(--line)}.theorie .t-tafel th{background:var(--soft)}
   .theorie .merk{background:var(--soft);border-color:var(--line)}.theorie .merk figcaption,.theorie .merk-text{color:var(--head)}
 }
+
+/* Funkenregen bei richtiger Antwort */
+.funken{position:fixed;z-index:46;pointer-events:none;width:0;height:0}
+.funken i{position:absolute;left:-4px;top:-4px;width:8px;height:8px;border-radius:50%;animation:funke .65s cubic-bezier(.2,.7,.3,1) forwards}
+@keyframes funke{from{transform:translate(0,0) scale(1.2);opacity:1}to{transform:translate(var(--fx),var(--fy)) scale(.2);opacity:0}}
+@media print{.funken{display:none}}

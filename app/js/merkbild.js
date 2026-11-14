@@ -273,18 +273,130 @@ function gerade() {
     } });
 }
 
+function potenz() {
+  return buehne({ titel: 'Potenzregel: Die Hochzahl hüpft nach vorn', regler: { label: 'Hochzahl n', min: 2, max: 6, step: 1 }, start: 3, dauer: 9000, text: (n) => `(x^${Math.round(n)})′ = ${Math.round(n)} · x^${Math.round(n) - 1}: Die ${Math.round(n)} kommt als Faktor nach vorn, oben bleibt eins weniger.`,
+    zeichne(g, B, H, nn, t, F) {
+      const n = Math.round(nn), p = Math.min(1, ((t % 3.2) / 3.2) * 1.6), e = p * p * (3 - 2 * p), cx = B / 2, cy = H / 2 + 14;
+      schrift(g, 'x', cx - 70, cy, F.leise, 54); schrift(g, String(n), cx - 38, cy - 34, F.leise, 26);
+      schrift(g, '→', cx - 10, cy - 6, F.leise, 26);
+      schrift(g, 'x', cx + 62, cy, F.blau, 54); schrift(g, String(n - 1), cx + 94, cy - 34, F.blau, 26);
+      // die Hochzahl fliegt in einem Bogen von oben rechts nach vorn
+      const x0 = cx - 38, y0 = cy - 34, x1 = cx + 30, y1 = cy, x = x0 + (x1 - x0) * e, y = y0 + (y1 - y0) * e - Math.sin(Math.PI * e) * 46;
+      schrift(g, String(n), x, y, F.orange, 26 + 22 * e); if (e > 0.95) schrift(g, '·', cx + 52, cy - 4, F.orange, 30);
+    } });
+}
+function efunk() {
+  return buehne({ titel: 'e-Funktion: so hoch wie steil', regler: { label: 'Stelle x', min: -1.6, max: 1.5 }, text: (x) => `Bei x = ${zahl(x)}: Höhe e^x = ${zahl(Math.exp(x), 2)} – und die Steigung ist genau dieselbe Zahl: ${zahl(Math.exp(x), 2)}.`,
+    zeichne(g, B, H, x, _t, F) {
+      const X = (a) => ((a + 2.2) / 4.4) * B, Y = (b) => H - 20 - b * ((H - 34) / 5);
+      achsen(g, F, X, Y, -2.2, 2.2, 0, 5); kurve(g, Math.exp, X, Y, -2.2, 1.65, F.blau);
+      const y = Math.exp(x);
+      g.strokeStyle = F.gruen; g.lineWidth = 5; g.beginPath(); g.moveTo(X(x), Y(0)); g.lineTo(X(x), Y(y)); g.stroke();
+      g.strokeStyle = F.orange; g.lineWidth = 3; g.beginPath(); g.moveTo(X(x - 0.8), Y(y - 0.8 * y)); g.lineTo(X(x + 0.6), Y(y + 0.6 * y)); g.stroke();
+      g.fillStyle = F.orange; g.beginPath(); g.arc(X(x), Y(y), 6, 0, TAU); g.fill();
+      schrift(g, `Höhe ${zahl(y, 2)}`, 10, 18, F.gruen, 13); schrift(g, `Steigung ${zahl(y, 2)}`, 10, 36, F.orange, 13);
+    } });
+}
+function zwischen() {
+  const f = (x) => -0.5 * x * x + 2.5, gg = (x) => 0.5 * x * x - 0.5;   // schneiden sich bei ±√3
+  return buehne({ titel: 'Fläche zwischen zwei Graphen', regler: { label: 'bis x =', min: -1.73, max: 1.73 }, text: (b) => { const A = (t) => 3 * t - t ** 3 / 3, w = A(b) - A(-Math.sqrt(3)); return `Oben minus unten: f(x) − g(x) = 3 − x². Fläche bis hier: ${zahl(w, 2)} von ${zahl(2 * A(Math.sqrt(3)), 2)}.`; },
+    zeichne(g, B, H, b, _t, F) {
+      const X = (a) => ((a + 2.6) / 5.2) * B, Y = (y) => H / 2 + 26 - y * (H / 5.4), s = Math.sqrt(3);
+      achsen(g, F, X, Y, -2.6, 2.6, -1, 3);
+      g.fillStyle = F.flaeche; g.beginPath(); for (let i = 0; i <= 50; i++) { const x = -s + ((b + s) * i) / 50; g.lineTo(X(x), Y(f(x))); } for (let i = 50; i >= 0; i--) { const x = -s + ((b + s) * i) / 50; g.lineTo(X(x), Y(gg(x))); } g.closePath(); g.fill();
+      kurve(g, f, X, Y, -2.6, 2.6, F.blau); kurve(g, gg, X, Y, -2.6, 2.6, F.gruen);
+      g.strokeStyle = F.orange; g.lineWidth = 3; g.beginPath(); g.moveTo(X(b), Y(gg(b))); g.lineTo(X(b), Y(f(b))); g.stroke();
+      schrift(g, 'f (oben)', X(-0.3), Y(2.6) - 6, F.blau, 12); schrift(g, 'g (unten)', X(-0.35), Y(-0.5) + 16, F.gruen, 12);
+    } });
+}
+function betrag() {
+  return buehne({ titel: 'Länge eines Vektors: Pythagoras', regler: { label: 'Vektor drehen', min: 0.25, max: 1.3 }, text: (w) => { const a = 5 * Math.cos(w), b = 5 * Math.sin(w); return `v = (${zahl(a)} | ${zahl(b)}): |v| = √(${zahl(a)}² + ${zahl(b)}²) = √${zahl(a * a + b * b, 0)} = 5 – die Länge bleibt gleich.`; },
+    zeichne(g, B, H, w, _t, F) {
+      const e = Math.min((B - 60) / 5.4, (H - 40) / 5.2), x0 = 34, y0 = H - 24, a = 5 * Math.cos(w) * e, b = 5 * Math.sin(w) * e;
+      g.strokeStyle = F.gitter; g.lineWidth = 1; g.beginPath(); g.arc(x0, y0, 5 * e, -Math.PI / 2, 0); g.stroke();
+      g.strokeStyle = F.leise; g.lineWidth = 1.3; g.beginPath(); g.moveTo(x0, y0); g.lineTo(x0 + 5.3 * e, y0); g.moveTo(x0, y0); g.lineTo(x0, y0 - 5.2 * e); g.stroke();
+      g.strokeStyle = F.gruen; g.lineWidth = 4; g.beginPath(); g.moveTo(x0, y0); g.lineTo(x0 + a, y0); g.stroke();
+      g.strokeStyle = F.blau; g.beginPath(); g.moveTo(x0 + a, y0); g.lineTo(x0 + a, y0 - b); g.stroke();
+      pfeil(g, x0, y0, x0 + a, y0 - b, F.orange, 5);
+      schrift(g, zahl(a / e), x0 + a / 2, y0 + 16, F.gruen, 13, true, true); schrift(g, zahl(b / e), x0 + a + 8, y0 - b / 2 + 4, F.blau, 13); schrift(g, '|v| = 5', x0 + a / 2 - 62, y0 - b / 2 - 10, F.orange, 13);
+    } });
+}
+function gegen() {
+  return buehne({ titel: 'Gegenereignis: Der Rest bis 1', regler: { label: 'P(E)', min: 0.05, max: 0.95 }, start: 0.3, hoehe: 120, text: (p) => `P(E) = ${zahl(p, 2)}, also P(nicht E) = 1 − ${zahl(p, 2)} = ${zahl(1 - p, 2)}. Zusammen immer 1.`,
+    zeichne(g, B, H, p, _t, F) {
+      const x0 = 14, w = B - 28, y = 30, hh = 44;
+      g.fillStyle = F.blau; g.fillRect(x0, y, w * p, hh); g.fillStyle = F.orange; g.fillRect(x0 + w * p, y, w * (1 - p), hh);
+      schrift(g, 'E', x0 + (w * p) / 2, y + 28, '#fff', 16, true, true); schrift(g, 'nicht E', x0 + w * p + (w * (1 - p)) / 2, y + 28, '#fff', 14, true, true);
+      schrift(g, '0', x0, y + hh + 16, F.leise, 12); schrift(g, '1', x0 + w - 6, y + hh + 16, F.leise, 12);
+    } });
+}
+function logist() {
+  const S = 100, f = (t) => S / (1 + 19 * Math.exp(-0.7 * t));
+  return buehne({ titel: 'Logistisches Wachstum: Ein Gerücht macht die Runde', regler: { label: 'Zeit t', min: 0, max: 10 }, dauer: 7500, hoehe: 200, text: (t) => { const y = f(t); return `${zahl(y, 0)} von 100 wissen es. ${y < 30 ? 'Noch langsam – es erzählen erst wenige weiter.' : y < 70 ? 'Jetzt geht es am schnellsten – genau bei der Hälfte.' : 'Es wird langsamer – fast alle wissen es schon.'}`; },
+    zeichne(g, B, H, t, _z, F) {
+      const X = (a) => 18 + (a / 10) * (B * 0.56 - 18), Y = (y) => H - 18 - (y / 110) * (H - 30), n = Math.round(f(t));
+      g.strokeStyle = F.rot; g.setLineDash([6, 5]); g.lineWidth = 2; g.beginPath(); g.moveTo(X(0), Y(S)); g.lineTo(X(10), Y(S)); g.stroke(); g.setLineDash([]);
+      g.strokeStyle = F.gelb; g.setLineDash([3, 4]); g.beginPath(); g.moveTo(X(0), Y(S / 2)); g.lineTo(X(10), Y(S / 2)); g.stroke(); g.setLineDash([]); schrift(g, 'S/2', X(0) + 3, Y(S / 2) - 4, F.gelb, 10);
+      kurve(g, f, X, Y, 0, 10, F.blau); g.fillStyle = F.orange; g.beginPath(); g.arc(X(t), Y(f(t)), 6, 0, TAU); g.fill();
+      const gx = B * 0.62, a = (B * 0.36) / 10;   // 100 Köpfe
+      for (let i = 0; i < 100; i++) { g.fillStyle = i < n ? F.orange : F.linie; g.beginPath(); g.arc(gx + (i % 10) * a + a / 2, 16 + Math.floor(i / 10) * a + a / 2, a * 0.36, 0, TAU); g.fill(); }
+    } });
+}
+function symm() {
+  return buehne({ titel: 'Symmetrie: Spiegel oder halbe Drehung', regler: { label: 'Punkt x', min: 0.3, max: 2.4 }, text: (x) => `Links (gerade Hochzahlen): f(−x) = f(x) – gleiche Höhe. Rechts (ungerade): f(−x) = −f(x) – gegenüber durch den Ursprung.`,
+    zeichne(g, B, H, x, _t, F) {
+      const halb = B / 2, f1 = (a) => 0.5 * a * a - 1, f2 = (a) => 0.25 * a ** 3 - 0.6 * a;
+      [[0, f1, true], [halb, f2, false]].forEach(([dx, f, achse]) => {
+        const X = (a) => dx + ((a + 2.7) / 5.4) * halb, Y = (b) => H / 2 - b * (H / 5.6);
+        g.save(); g.beginPath(); g.rect(dx, 0, halb, H); g.clip();
+        g.strokeStyle = F.leise; g.lineWidth = 1.2; g.beginPath(); g.moveTo(X(-2.7), Y(0)); g.lineTo(X(2.7), Y(0)); g.moveTo(X(0), 0); g.lineTo(X(0), H); g.stroke();
+        kurve(g, f, X, Y, -2.7, 2.7, F.blau);
+        g.strokeStyle = F.orange; g.setLineDash([4, 4]); g.lineWidth = 2; g.beginPath(); g.moveTo(X(x), Y(f(x))); g.lineTo(X(-x), Y(f(-x))); g.stroke(); g.setLineDash([]);
+        for (const s of [x, -x]) { g.fillStyle = F.orange; g.beginPath(); g.arc(X(s), Y(f(s)), 6, 0, TAU); g.fill(); }
+        schrift(g, achse ? 'Achse' : 'Punkt', dx + 8, 16, F.leise, 12); g.restore();
+      });
+      g.strokeStyle = F.linie; g.lineWidth = 1; g.beginPath(); g.moveTo(halb, 6); g.lineTo(halb, H - 6); g.stroke();
+    } });
+}
+function doppel() {
+  return buehne({ titel: 'Exponentiell: immer das Doppelte', regler: { label: 'Zeit in Verdopplungen', min: 0, max: 6 }, dauer: 8000, hoehe: 200, text: (t) => `Nach ${zahl(t)} Verdopplungszeiten: ${zahl(2 ** t, t < 3 ? 1 : 0)}-mal so viel. Jede Verdopplung dauert gleich lang – egal, wie viel schon da ist.`,
+    zeichne(g, B, H, t, _z, F) {
+      const n = Math.min(64, Math.floor(2 ** t)), spalten = 16, a = (B - 20) / spalten, voll = 2 ** t;
+      for (let i = 0; i < 64; i++) { g.fillStyle = i < n ? F.gruen : F.linie; g.beginPath(); g.arc(10 + (i % spalten) * a + a / 2, 14 + Math.floor(i / spalten) * a + a / 2, a * 0.36, 0, TAU); g.fill(); }
+      const X = (x) => 16 + (x / 6) * (B - 32), Y = (y) => H - 14 - (y / 64) * (H - 14 - (4 * a + 26));
+      kurve(g, (x) => 2 ** x, X, Y, 0, 6, F.blau); g.fillStyle = F.orange; g.beginPath(); g.arc(X(t), Y(voll), 6, 0, TAU); g.fill();
+      for (let k = 0; k <= 6; k++) { g.fillStyle = F.leise; g.fillRect(X(k), H - 14, 1.5, 5); }
+    } });
+}
+function rotation() {
+  const f = (x) => 0.5 + 0.35 * x;
+  return buehne({ titel: 'Rotationskörper: Die Kurve dreht sich', regler: { label: 'Drehung', min: 0, max: 1 }, dauer: 6000, text: (w) => (w < 0.98 ? 'Der Graph dreht sich um die x-Achse. Jeder Punkt beschreibt einen Kreis mit Radius f(x).' : 'Fertig: lauter Kreisscheiben mit Fläche π · f(x)². Aufsummiert: V = π · ∫ f(x)² dx.'),
+    zeichne(g, B, H, w, _t, F) {
+      const X = (x) => 30 + (x / 3) * (B - 60), cy = H / 2, e = (H / 2 - 16) / 1.6;
+      g.strokeStyle = F.leise; g.lineWidth = 1.3; g.beginPath(); g.moveTo(10, cy); g.lineTo(B - 10, cy); g.stroke();
+      for (let i = 0; i <= 12; i++) { const x = (3 * i) / 12, r = f(x) * e;
+        g.strokeStyle = i % 4 === 0 ? F.blau : F.flaeche; g.lineWidth = i % 4 === 0 ? 2 : 1.4; g.beginPath(); g.ellipse(X(x), cy, r * 0.22, r, 0, -Math.PI / 2, -Math.PI / 2 + w * TAU); g.stroke(); }
+      g.strokeStyle = F.blau; g.lineWidth = 3.5; g.beginPath(); g.moveTo(X(0), cy - f(0) * e); g.lineTo(X(3), cy - f(3) * e); g.stroke();
+      if (w > 0.5) { g.globalAlpha = Math.min(1, (w - 0.5) * 2); g.beginPath(); g.moveTo(X(0), cy + f(0) * e); g.lineTo(X(3), cy + f(3) * e); g.stroke(); g.globalAlpha = 1; }
+      const a = -Math.PI / 2 + w * TAU, xm = 1.5, r = f(xm) * e; g.fillStyle = F.orange; g.beginPath(); g.arc(X(xm) + Math.cos(a) * r * 0.22, cy + Math.sin(a) * r, 6, 0, TAU); g.fill();
+    } });
+}
+
 /** Zu welcher Formel (Name aus units.js) gibt es ein Merkbild? */
 export const MERK = {
   Ableitung: tangente, 'Waagerechte Tangente': tangente, 'Vorzeichen der Ableitung': tangente, Kettenregel: kette, Produktregel: produkt, Hauptsatz: flaeche,
   'Bernoulli-Formel': galton, Erwartungswert: galton, 'Bedingte Wahrscheinlichkeit': bedingt, Skalarprodukt: skalar, Senkrecht: skalar, Verbindungsvektor: verbindung,
   'Begrenztes Wachstum': begrenzt, Pythagoras: pythagoras,
   Scheitelform: scheitel, Sinusfunktion: sinus, Extrempunkt: extrem, Wendepunkt: wende, Pfadregeln: pfade, 'Sigma-Regeln': glocke, Gerade: gerade,
+  Potenzregel: potenz, 'e-Funktion': efunk, 'Fläche zwischen Graphen': zwischen, Betrag: betrag, Gegenereignis: gegen, 'Logistisches Wachstum': logist, 'Stärkstes Wachstum (logistisch)': logist,
+  Symmetrie: symm, Wachstum: doppel, Verdopplungszeit: doppel, Rotationsvolumen: rotation, Tangente: tangente,
 };
 /** Stichwörter in Karten-Überschriften → Merkbild (für die Erklär-Karten der Einheiten). */
 const STICHWORT = [[/Kettenregel/i, 'Kettenregel'], [/Produktregel/i, 'Produktregel'], [/Tangente|Steigung an einer Stelle|Ableitung ist/i, 'Ableitung'], [/Hauptsatz|Fläche unter|Integral als/i, 'Hauptsatz'],
   [/Bernoulli|Binomial|Nagelbrett/i, 'Bernoulli-Formel'], [/Bedingte/i, 'Bedingte Wahrscheinlichkeit'], [/Skalarprodukt|Senkrecht/i, 'Skalarprodukt'], [/Verbindungsvektor|Spitze minus/i, 'Verbindungsvektor'],
   [/Begrenztes Wachstum/i, 'Begrenztes Wachstum'], [/Pythagoras/i, 'Pythagoras'], [/Scheitel/i, 'Scheitelform'], [/Sinus/i, 'Sinusfunktion'], [/Hoch- und Tief|Extrempunkt|Extremstelle/i, 'Extrempunkt'],
-  [/Wendepunkt|Wendestelle|Krümmung/i, 'Wendepunkt'], [/Pfadregel|Baumdiagramm/i, 'Pfadregeln'], [/Sigma/i, 'Sigma-Regeln'], [/Parameterform der Geraden|Gerade im Raum|Stützvektor/i, 'Gerade']];
+  [/Wendepunkt|Wendestelle|Krümmung/i, 'Wendepunkt'], [/Pfadregel|Baumdiagramm/i, 'Pfadregeln'], [/Sigma/i, 'Sigma-Regeln'], [/Parameterform der Geraden|Gerade im Raum|Stützvektor/i, 'Gerade'],
+  [/Potenz- und Summenregel|Potenzregel/i, 'Potenzregel'], [/e-Funktion/i, 'e-Funktion'], [/Logistisch/i, 'Logistisches Wachstum'], [/Symmetrie/i, 'Symmetrie'], [/Rotationsvolumen|Rotationskörper/i, 'Rotationsvolumen'], [/Gegenereignis/i, 'Gegenereignis'], [/zwischen (zwei )?Graphen/i, 'Fläche zwischen Graphen']];
 export const merkZuTitel = (titel) => { const t = String(titel || ''); return hatMerkbild(t) ? t : (STICHWORT.find(([re]) => re.test(t)) || [])[1] || ''; };
 export const hatMerkbild = (name) => Object.prototype.hasOwnProperty.call(MERK, name);
 /** Baut das Merkbild zu einem Formel-Namen – oder null, wenn es (noch) keines gibt. */
