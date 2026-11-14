@@ -138,6 +138,17 @@ Nachhilfe-Kunden ein Code aus dem Shop. In der Store-App darf nicht zum Kauf au�
 (Google-Regel); das Code-Feld selbst ist erlaubt. Reihenfolge: erst Proben + Code-Feld (Vertrag (43) steht),
 Kauf in der App, wenn die App in den Play Store geht (braucht Marcels Entwicklerkonto mit Händler-Profil).
 
+**Ausbau zur vollwertigen Lern-App (Marcel, 14.11.2026, per Auswahl – alle vier gewählt).** Bau-Reihenfolge nach den
+Proben und dem Code-Feld:
+1. **Arbeitsblatt-Generator:** Thema, Stufe, Anzahl wählen; lösbar in der App (mit Auswertung) oder als PDF mit
+   Lösungsblatt. Baut auf den vorhandenen Erzeugern auf – ohne KI, keine laufenden Kosten, jede Lösung nachgerechnet.
+2. **Theorie kurz und ausführlich:** je Thema ein fest geschriebenes, geprüftes Kapitel in zwei Längen, PDF-Export.
+   Vorschlag: „Kurz“ kostenlos, „Ausführlich“ und PDF in Pro; KI-Rückfrage zur Stelle obendrauf.
+3. **Probeklausur als PDF:** Abi-Format mit Punkten und Erwartungshorizont, in der App oder auf Papier.
+4. **Lehrer- und Nachhilfe-Modus:** Arbeitsblatt per Link an Schüler, Ergebnisse zurück – braucht Server-Arbeit (Leitstand).
+Weitere Ideen im Speicher: Rechenweg-Prüfer per Foto, Karteikarten, Wochenbericht per E-Mail, Mittelstufe 8–10.
+**Name:** Marcel will Vorschläge; Entscheidung gehört in den Marketing-Raum, Umbenennung frühestens zum Store-Start.
+
 Was in Premium kommt (Reihenfolge = Bau-Reihenfolge): 1. KI-Erklärung (fertig), 2. KI-Tutor mit Rückfragen,
 3. eigenen Rechenweg prüfen lassen, 4. KI-Sachaufgaben im Abi-Stil (vom Server nachgerechnet), 5. persönliche
 Probeklausur, 6. Wochenbericht für Eltern und Lernstand auf mehreren Geräten. Kostenlos bleibt alles, was heute da ist.
