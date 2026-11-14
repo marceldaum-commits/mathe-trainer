@@ -117,7 +117,7 @@ export function settingsView() {
     const box = $('#st-pro', el), stand = $('#st-pro-stand', el), pn = $('#st-pro-note', el), feld = $('#st-pro-code', el), go = $('#st-pro-go', el), zeile = $('#st-pro-zeile', el);
     const datum = (d) => d.split('-').reverse().join('.');
     const paintZ = () => { const z = store.zugang;
-      stand.innerHTML = z ? `<div class="note ${store.zugangGilt() ? 'ok' : 'tip'}"><b>${esc(ZUGANG_ART[z.art] || 'Zugang')} · ${z.ki === false ? 'Pro' : 'Pro + KI'}</b> – ${store.zugangGilt() ? `gültig bis ${esc(datum(z.bis))}` : `abgelaufen am ${esc(datum(z.bis))}`}. <button class="linkbtn" id="st-pro-weg" type="button">Code entfernen</button></div>` : '';
+      stand.innerHTML = z ? `<div class="note ${store.zugangGilt() ? 'ok' : 'tip'}"><b>${esc(ZUGANG_ART[z.art] || 'Zugang')} · ${z.ki === false ? 'Pro' : 'Pro + KI'}</b> – ${z.bis >= '9999' ? 'unbefristet gültig' : store.zugangGilt() ? `gültig bis ${esc(datum(z.bis))}` : `abgelaufen am ${esc(datum(z.bis))}`}. <button class="linkbtn" id="st-pro-weg" type="button">Code entfernen</button></div>` : '';
       zeile.hidden = !!z && store.zugangGilt();
       $('#st-pro-weg', el)?.addEventListener('click', () => { store.zugang = null; pn.innerHTML = ''; paintZ(); }); };
     go.onclick = async () => {

@@ -653,6 +653,8 @@ await p2.fill('#st-pro-code', ' mt ab12 cd34 ef56 '); await p2.click('#st-pro-go
 if (!/31\.12\.2099/.test(await p2.textContent('#st-pro-stand')) || !(await p2.locator('#st-pro-zeile').isHidden())) fail('Pro: eingelöster Zugang wird nicht richtig angezeigt');
 if ((await p2.evaluate(() => JSON.parse(localStorage.getItem('mt.v1')).zugang?.code)) !== 'MT-AB12-CD34-EF56') fail('Pro: Zugangscode nicht gespeichert');
 await p2.reload(); await p2.waitForSelector('#st-pro:not([hidden])'); if (!/30-Tage-Pass/.test(await p2.textContent('#st-pro-stand'))) fail('Pro: Zugang nach Neuladen vergessen');
+await p2.evaluate(() => { const m = JSON.parse(localStorage.getItem('mt.v1')); m.zugang.bis = '9999-12-31'; localStorage.setItem('mt.v1', JSON.stringify(m)); }); await p2.reload(); await p2.waitForSelector('#st-pro-weg');
+if (!/unbefristet/.test(await p2.textContent('#st-pro-stand')) || /9999/.test(await p2.textContent('#st-pro-stand'))) fail('Pro: Zugang ohne Ablauf muss „unbefristet“ heißen');
 await p2.click('#st-pro-weg'); if (await p2.evaluate(() => JSON.parse(localStorage.getItem('mt.v1')).zugang)) fail('Pro: Code lässt sich nicht entfernen');
 // Erinnerung: freie Uhrzeit wird gesendet, ändern überschreibt, ausschalten meldet ab; gesperrte Erlaubnis wird erklärt.
 // Der Testbrowser hat keinen Mitteilungs-Dienst – Erlaubnis und Anmeldung des Geräts sind deshalb nachgestellt.
