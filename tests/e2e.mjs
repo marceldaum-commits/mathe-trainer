@@ -813,7 +813,7 @@ await ctx2.close();
 /* ───────────── Klasse 5 bis 10: Stufe wählen, jede Einheit jeder Klasse spielen, zurück zur Oberstufe ───────────── */
 { const { ALLE_UNITS } = await import('../app/js/units.js');
   const osFertig = await countDone();
-  const zaehle = async () => { await page.goto(`${BASE}#/lernen`); await page.waitForSelector('a[href^="#/g/"]'); const hs = await page.evaluate(() => [...document.querySelectorAll('a[href^="#/g/"]')].map((a) => a.getAttribute('href'))); let n = 0; for (const hh of hs) { await page.goto(BASE + hh); await page.reload(); await page.waitForSelector('a.back[href="#/lernen"]'); await page.waitForSelector('a.unit[href^="#/u/"]'); n += await page.locator('a.unit.done[href^="#/u/"]').count(); } return n; };
+  const zaehle = async () => { await page.goto(`${BASE}#/lernen`); await page.waitForSelector('a[href^="#/g/"]'); await page.reload(); await page.waitForSelector('a[href^="#/g/"]'); const hs = await page.evaluate(() => [...new Set([...document.querySelectorAll('#view a[href^="#/g/"]')].map((a) => a.getAttribute('href')))]); let n = 0; for (const hh of hs) { await page.goto(BASE + hh); await page.reload(); await page.waitForSelector('a.back[href="#/lernen"]'); await page.waitForSelector('a.unit[href^="#/u/"]'); n += await page.locator('a.unit.done[href^="#/u/"]').count(); } return n; };
   await page.goto(BASE); await page.waitForSelector('#home');
   if (!(await page.locator('#jg-frage').isVisible())) fail('Klassenstufe: Wer noch nichts gewählt hat, wird auf der Startseite nicht gefragt');
   for (const jg of ['5', '6', '7', '8', '9', '10']) {
@@ -835,7 +835,7 @@ await ctx2.close();
       if (!done) { if (first(`quiz-klasse${jg}`)) await shot(`85-aufgabe-klasse${jg}`); await quiz(); }
       await page.waitForSelector('#sheet:not([hidden])'); await sheetNext();
     }
-    if ((await zaehle()) !== us.length) fail(`Klasse ${jg}: nicht alle Einheiten als fertig markiert`);
+    { const fertig = await zaehle(); if (fertig !== us.length) fail(`Klasse ${jg}: ${fertig} von ${us.length} Einheiten als fertig markiert – offen: ${await page.evaluate(async () => { const { store } = await import('./js/store.js'); const U = await import('./js/units.js'); return U.UNITS.flatMap((u) => u.steps.filter((st) => !store.isDone(u.id, st.id)).map((st) => `${u.id}/${st.id}`)).join(', ') || 'keine'; })}`); }
     await page.goto(`${BASE}#/theorie`); await page.waitForSelector('a[href^="#/theorie/"]');
     if ((await page.locator('a[href^="#/theorie/"]').count()) !== us.length) fail(`Klasse ${jg}: Theorie zeigt nicht genau die Einheiten der Klasse`);
     await page.goto(`${BASE}#/pruefung`); await page.waitForSelector('a[href="#/blatt"]');
