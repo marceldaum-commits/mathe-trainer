@@ -50,6 +50,15 @@ Meldungen an den Leitstand: `MELDUNG_AN_LEITSTAND.md`.
 Branch `live` → `trainer.mathenachhilfe-online.com`, wird **nie von diesem Raum gesetzt**, nur nach Marcels Go über den
 Leitstand. Erlaubte Dateiarten in `app/`: html, css, js, mjs, json, webmanifest, svg, png, jpg, webp, ico, woff2, txt.
 
+## Schwerpunkte des täglichen Ausbaus (Marcel, 14.11.2026, per Auswahl: alle vier)
+
+Die tägliche Routine wechselt reihum durch vier Schwerpunkte – ein großes Paket pro Tag bis 04.12.2026, danach kleinere:
+1. **Erlebnis:** mindestens vier neue Merkbilder und ein Bildschirm, der lebendiger wird, oder ein neues Spiel.
+2. **Pro vertiefen:** mindestens vier ausführliche Theorie-Kapitel und ein Baustein der Pro-Liste.
+3. **Lehrplan-Lücken:** eine neue Einheit oder zwei erweiterte, mindestens sechs neue Aufgaben-Erzeuger.
+4. **Klasse 5–10:** zuerst Plan und Lehrplan-Abgleich in `docs/KLASSE5-10.md`, dann Klassenstufe für Klassenstufe.
+Welcher Schwerpunkt zuletzt dran war, steht in der jeweils obersten Baulog-Zeile.
+
 ## Erlebbar statt statisch (Marcel, 14.11.2026) – Dauerregel
 
 Marcel nach dem ersten Blick auf 0.17.0: „Irgendwie catcht das nicht … statisch … Man muss Schüler fesseln. Geht das nicht
