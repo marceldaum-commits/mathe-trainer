@@ -2,6 +2,21 @@
 
 Neueste Meldung oben. Keine Geheimnisse, keine Personendaten (dieses Repo ist öffentlich, siehe Punkt 1).
 
+## 14.11.2026 (38) – 0.22.0: Android-App aktualisiert ihre Inhalte selbst (Marcels Auftrag)
+
+Nichts für den Server zu tun, aber drei Dinge zur Kenntnis:
+
+1. **Neue Datei `app/stand.json`** (Version + Prüfsumme jeder Datei, erzeugt `npm run fix`). Sie wird mit ausgeliefert, die
+   Web-App selbst braucht sie nicht. Die Android-App liest sie von GitHub (raw.githubusercontent.com), nicht von eurem Server.
+2. **Zweig `live` wird damit zur Quelle der Store-Fassung:** Eine mit `MT_KANAL=store` gebaute App lädt nach jeder
+   Live-Freigabe die neuen Inhalte von selbst aus dem Zweig `live`. Für euch ändert sich am Ablauf nichts. Marcels
+   Test-Fassung lädt aus `test`.
+3. **Neuer Zweig `apk`** (nur eine Datei: die aktuelle Test-App-Datei zum Herunterladen). Bitte nicht ausliefern.
+4. **Datenschutzerklärung:** Bitte einen Satz ergänzen – die Android-App fragt beim Start GitHub nach neuen Dateien; es wird
+   nichts über den Nutzer gesendet, GitHub sieht die IP-Adresse.
+
+Einzelheiten: docs/PLAYSTORE.md, Abschnitt „Selbst-Aktualisierung“.
+
 ## 14.11.2026 (37) – 0.21.0 liegt auf `test` (alle fünf Browser-Durchläufe grün)
 
 Nur App-Seite, nichts für den Server: neun weitere Merkbilder (jetzt 26) und ein Funkenregen bei richtiger Antwort.
