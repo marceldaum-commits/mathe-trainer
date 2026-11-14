@@ -2,6 +2,12 @@
 
 Neueste Meldung oben. Keine Geheimnisse, keine Personendaten (dieses Repo ist öffentlich, siehe Punkt 1).
 
+## 14.11.2026 (40) – 0.22.1 liegt auf `test` (alle fünf Browser-Durchläufe grün)
+
+Schriftgröße wählbar, „Über diese App“ mit Version/Datum, `POST /api/ki/aufgabe/abgelehnt {id, geraet, zugang?}` wird nach
+einer im Gerät abgelehnten KI-Aufgabe gesendet (Antwort wird nicht ausgewertet). Nichts Neues für den Server.
+Marcel hat die Android-App 0.22.0 installiert; mit 0.22.1 auf der Test-Seite prüft er die Selbst-Aktualisierung.
+
 ## 14.11.2026 (39) – 0.22.0 liegt auf `test` (alle fünf Browser-Durchläufe grün) – bereit für den Verkaufsstart
 
 Inhalt wie in (38): `CONFIG.ki = true` (KI überall, wo `/api/status` → `ki: true` meldet), Shop-Link „Pro holen“,
