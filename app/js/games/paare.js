@@ -13,6 +13,8 @@ export const POOL = [
   { f: (x) => -(x ** 3) / 3 + x, d: (x) => 1 - x * x, why: 'Zwischen den Extrempunkten steigt der Graph – dort liegt die Ableitung über der x-Achse.' },
   { f: (x) => 1.5 * Math.sin(x), d: (x) => 1.5 * Math.cos(x), why: 'Bei jedem Berg und Tal der Sinuskurve hat die Ableitung eine Nullstelle.' },
   { f: (x) => 0.5 * x + 0.5, d: () => 0.5, why: 'Eine Gerade steigt überall gleich – ihre Ableitung ist konstant.' },
+  { f: (x) => x ** 3 / 6, d: (x) => x * x / 2, why: 'Der Graph steigt überall, nur bei x = 0 ist er kurz waagerecht: Die Ableitung berührt dort die x-Achse.' },
+  { f: (x) => 1.5 * Math.cos(x), d: (x) => -1.5 * Math.sin(x), why: 'Hochpunkt bei x = 0: Dort geht die Ableitung von Plus nach Minus durch 0.' },
 ];
 
 const LEICHT = [
@@ -22,6 +24,8 @@ const LEICHT = [
   { f: (x) => x * x / 3 - 1.5, d: (x) => (2 * x) / 3, why: 'Die Parabel fällt links und steigt rechts – ihre Ableitung ist eine steigende Gerade durch den Scheitel.' },
   { f: (x) => -x * x / 3 + 1.5, d: (x) => (-2 * x) / 3, why: 'Die Parabel steigt links und fällt rechts – ihre Ableitung ist eine fallende Gerade.' },
   { f: (x) => (x - 1) ** 2 / 2 - 1, d: (x) => x - 1, why: 'Der Scheitel liegt bei x = 1 – genau dort schneidet die Ableitung die x-Achse.' },
+  { f: (x) => -((x + 1) ** 2) / 2 + 1.5, d: (x) => -(x + 1), why: 'Der Scheitel liegt bei x = −1 und die Parabel ist nach unten geöffnet: Die Ableitung fällt und schneidet dort die x-Achse.' },
+  { f: (x) => 1.5 * x, d: () => 1.5, why: 'Eine steile Gerade: Die Ableitung ist konstant und liegt weit über der x-Achse.' },
 ];
 const SCHWER = [
   { f: (x) => x ** 4 / 8 - x * x, d: (x) => x ** 3 / 2 - 2 * x, why: 'Drei Extrempunkte – also drei Nullstellen der Ableitung.' },
@@ -30,6 +34,8 @@ const SCHWER = [
   { f: (x) => 1.5 * Math.cos(x), d: (x) => -1.5 * Math.sin(x), why: 'Der Kosinus hat bei x = 0 einen Hochpunkt – dort geht die Ableitung fallend durch 0.' },
   { f: (x) => Math.exp(x / 2) - 1.5, d: (x) => Math.exp(x / 2) / 2, why: 'Die e-Funktion steigt immer – ihre Ableitung liegt überall über der x-Achse und wächst mit.' },
   { f: (x) => x ** 3 / 6, d: (x) => x * x / 2, why: 'Sattelpunkt bei x = 0: Die Ableitung berührt die x-Achse nur, ohne das Vorzeichen zu wechseln.' },
+  { f: (x) => Math.log(x * x + 1) - 1, d: (x) => (2 * x) / (x * x + 1), why: 'Ein Tiefpunkt bei x = 0, außen wird der Graph immer flacher: Die Ableitung geht durch 0 und nähert sich außen wieder der x-Achse.' },
+  { f: (x) => 2 * Math.tanh(x), d: (x) => 2 / Math.cosh(x) ** 2, why: 'Eine S-Kurve: In der Mitte am steilsten, außen fast waagerecht – die Ableitung ist ein Hügel.' },
 ];
 const SEHR_LEICHT = [
   { f: (x) => 2 * x / 1.5, d: () => 2 / 1.5, why: 'Eine steile Gerade: Die Ableitung ist konstant und groß.' },
@@ -38,6 +44,8 @@ const SEHR_LEICHT = [
   { f: () => -2, d: () => 0, why: 'Waagerecht heißt: Steigung 0 an jeder Stelle.' },
   { f: (x) => x * x / 2 - 2, d: (x) => x, why: 'Links fällt die Parabel, rechts steigt sie – die Ableitung geht von Minus nach Plus.' },
   { f: (x) => -x * x / 4 + 1, d: (x) => -x / 2, why: 'Links steigt die Parabel, rechts fällt sie – die Ableitung geht von Plus nach Minus.' },
+  { f: (x) => -2 * x, d: () => -2, why: 'Eine steil fallende Gerade: Die Ableitung ist konstant und liegt weit unter der x-Achse.' },
+  { f: (x) => (x + 1) ** 2 / 2 - 2, d: (x) => x + 1, why: 'Der tiefste Punkt liegt bei x = −1 – genau dort schneidet die Ableitung die x-Achse.' },
 ];
 const ANSPRUCH = [
   { f: (x) => x ** 3 / 6 - x, d: (x) => x * x / 2 - 1, why: 'Zwei Extrempunkte: Dort schneidet die Ableitung die x-Achse.' },
@@ -46,6 +54,8 @@ const ANSPRUCH = [
   { f: (x) => -1.2 * Math.sin(x), d: (x) => -1.2 * Math.cos(x), why: 'Bei x = 0 fällt der Graph am steilsten – dort hat die Ableitung ihren tiefsten Wert.' },
   { f: (x) => x ** 4 / 16 - x, d: (x) => x ** 3 / 4 - 1, why: 'Nur ein Tiefpunkt: Die Ableitung hat genau eine Nullstelle.' },
   { f: (x) => 2 / (1 + x * x), d: (x) => (-4 * x) / (1 + x * x) ** 2, why: 'Ein Hügel bei x = 0: Links ist die Ableitung positiv, rechts negativ, weit außen fast 0.' },
+  { f: (x) => 2 * Math.exp(-x / 2) - 1, d: (x) => -Math.exp(-x / 2), why: 'Der Graph fällt überall, aber immer langsamer: Die Ableitung ist negativ und nähert sich der x-Achse.' },
+  { f: (x) => 2 * x * Math.exp(-x * x / 2), d: (x) => 2 * (1 - x * x) * Math.exp(-x * x / 2), why: 'Tiefpunkt bei x = −1, Hochpunkt bei x = 1: Dort hat die Ableitung ihre Nullstellen, dazwischen ist sie positiv.' },
 ];
 /** Eigene Level für jede der fünf Schwierigkeiten. */
 export const levelsFor = (lv) => [SEHR_LEICHT, LEICHT, POOL, ANSPRUCH, SCHWER][Math.min(5, Math.max(1, lv | 0 || 3)) - 1];

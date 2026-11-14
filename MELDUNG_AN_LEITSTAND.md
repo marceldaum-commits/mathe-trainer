@@ -2,6 +2,16 @@
 
 Neueste Meldung oben. Keine Geheimnisse, keine Personendaten (dieses Repo ist öffentlich, siehe Punkt 1).
 
+## 14.11.2026 (27) – Version 0.16.0 (täglicher Ausbau): zwei neue Einheiten, sieben Aufgaben-Arten
+
+Neu auf `test` (nach grünem Browser-Test): Einheiten „Wachstum mit Grenze“ und „Ebenen genauer“, je 10 neue Level in zwei
+Spielen, vier kleine Fehler behoben (Details im Baulog, `docs/PLAN.md`). **Für den Server:** keine neuen Adressen, keine
+neuen Speicherfelder, Schnittstelle unverändert. Hinweis für die Rangliste: Der Vorrat der Tages-Runde ist gleich
+geblieben, aber zwei Aufgaben-Arten daraus (Vektor-Länge, Produktregel) würfeln bei gleichem Startwert jetzt andere
+Zahlen bzw. schreiben anders. Rechnet euer Server mit dem Code der jeweils ausgelieferten Version nach, ist nichts zu
+tun; nutzt er eine eigene Kopie, bitte mit dieser Version erneuern. **Neue APK nötig: ja** (Offline-Fassung packt die Web-App ein) – 0.16.0 liegt im Drive.
+Nutzer-Meldungen: Abruf am 14.11. leer.
+
 ## 13.11.2026 (26) – Version 0.15.2: Erinnerung in der Android-App läuft im Gerät, ohne Server
 
 Auf Marcels Auftrag: Die Offline-App (25) stellt die tägliche Erinnerung selbst zu (Android-Wecker, Uhrzeit des Geräts,

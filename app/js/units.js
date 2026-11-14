@@ -22,6 +22,7 @@ import {
 import {
   genPolstelle, genAsymptote, genQuotient, genTrigAbl, genTrigInt, genRotation, genUneigentlich, genUnabhaengig, genVarianz, genHyper, genKugel, genAbstandPG, genEbenenLage,
 } from './gen4.js';
+import { genBegrenzt, genBegrenztRate, genLogistisch, genWachstumArt, genSpurpunkt, genNormalenform, genParamPunkt } from './gen5.js';
 import {
   genWendestelle, genMonotonie, genSymmetrie, genGrenzwert, genTangente, genSteckbrief, genSchar, genExtremwert, genLn, genWachstum, genFlaecheZwischen,
   genVierfelder, genBedingt, genKumuliert, genSigma, genHypothese, genNormal, genKombinatorik,
@@ -40,7 +41,7 @@ const T = (s) => `<div class="big">${tex(s, true)}</div>`;
  * Bayern und Hessen-Leistungskurs: alles gilt.
  */
 const NICHT = {
-  'HE-GK': [genLn, genSigma, genNormal, genKreuz, genHypothese, genPolstelle, genAsymptote, genQuotient, genRotation, genUneigentlich, genKugel, genAbstandPG, genEbenenLage],
+  'HE-GK': [genLn, genSigma, genNormal, genKreuz, genHypothese, genPolstelle, genAsymptote, genQuotient, genRotation, genUneigentlich, genKugel, genAbstandPG, genEbenenLage, genLogistisch, genNormalenform],
   'HE-LK': [genPolstelle, genAsymptote, genQuotient, genKugel],
 };
 export const NICHT_TEXT = { 'HE-GK': 'nicht im Grundkurs', 'HE-LK': 'in Hessen kein Prüfungsstoff' };
@@ -457,11 +458,38 @@ export const UNITS = [
       { id: 'lage', kind: 'Brücke', title: 'Lage zweier Ebenen', run: quiz([genEbenenLage, genEbenenLage, genEbenenLage]) },
     ],
   },
+  {
+    id: 'a-wachstum', area: 'analysis', title: 'Wachstum mit Grenze', sub: 'Begrenztes und logistisches Wachstum',
+    steps: [
+      { id: 'regel', kind: 'Benennen', title: 'Vier Arten zu wachsen', run: info([
+        { title: 'Begrenztes Wachstum', html: `${T('f(t)=S-a\\,e^{-kt}')}<p>Der Bestand nähert sich der <b>Grenze</b> ${tex('S')}. Am Anfang (${tex('t=0')}) ist er ${tex('S-a')}. Er wächst am Anfang am schnellsten und dann immer langsamer.</p><p class="muted">Beispiele: ein Akku lädt, ein Getränk kühlt ab, jemand lernt Vokabeln.</p>` },
+        { title: 'Die Änderungsrate', html: `${T("f'(t)=k\\cdot\\bigl(S-f(t)\\bigr)")}<p>Je größer der <b>Abstand zur Grenze</b>, desto schneller wächst der Bestand. Ist die Grenze fast erreicht, tut sich kaum noch etwas.</p>` },
+        { title: 'Logistisches Wachstum', html: `${T('f(t)=\\dfrac{S}{1+a\\,e^{-kt}}')}<p>Eine <b>S-Kurve</b>: erst langsam (es sind wenige da), dann schnell, dann wieder langsam (die Grenze ${tex('S')} bremst). Am schnellsten wächst der Bestand bei der halben Grenze ${tex('\\tfrac{S}{2}')} – dort liegt der Wendepunkt.</p><p class="muted">Beispiele: ein Gerücht, eine Ansteckung, ein neues Produkt.</p>` },
+        { title: 'So unterscheidest du sie', html: `<p><b>Linear:</b> in gleichen Zeiten gleich viel dazu.<br><b>Exponentiell:</b> in gleichen Zeiten derselbe Faktor, keine Grenze.<br><b>Begrenzt:</b> am Anfang am schnellsten, dann langsamer bis zur Grenze.<br><b>Logistisch:</b> S-Kurve mit Grenze.</p>` },
+      ]) },
+      { id: 'modelle', kind: 'Brücke', title: 'Welches Wachstum ist das?', run: quiz([genWachstumArt, genWachstumArt, genWachstumArt, genWachstumArt]) },
+      { id: 'begrenzt', kind: 'Brücke', title: 'Begrenztes Wachstum lesen und ableiten', run: quiz([genBegrenzt, genBegrenzt, genBegrenztRate, genBegrenztRate]) },
+      { id: 'logistisch', kind: 'Festigen', nicht: ['HE-GK'], title: 'Logistisches Wachstum', run: quiz([genLogistisch, genLogistisch, genLogistisch]) },
+    ],
+  },
+  {
+    id: 'g-ebene2', area: 'geometrie', title: 'Ebenen genauer', sub: 'Parameterform, Normalenform, Spurpunkte',
+    steps: [
+      { id: 'regel', kind: 'Benennen', title: 'Drei Blicke auf eine Ebene', run: info([
+        { title: 'Parameterform', html: `${T('E:\\ \\vec x=\\vec a+r\\cdot\\vec u+s\\cdot\\vec v')}<p>Vom <b>Stützpunkt</b> aus läuft man ${tex('r')}-mal den ersten und ${tex('s')}-mal den zweiten <b>Richtungsvektor</b>. Jedes Paar ${tex('(r,s)')} gibt genau einen Punkt der Ebene.</p>` },
+        { title: 'Normalenform', html: `${T('E:\\ \\bigl[\\vec x-\\vec p\\bigr]\\cdot\\vec n=0')}<p>Der Normalenvektor ${tex('\\vec n')} steht senkrecht auf der Ebene. Ausmultipliziert wird daraus die Koordinatenform ${tex('n_1x_1+n_2x_2+n_3x_3=d')} mit ${tex('d=\\vec n\\cdot\\vec p')}.</p>` },
+        { title: 'Spurpunkte', html: `<p>Die <b>Spurpunkte</b> sind die Schnittpunkte mit den Koordinatenachsen. Für die ${tex('x_1')}-Achse setzt man ${tex('x_2=0')} und ${tex('x_3=0')}.</p>${T('2x_1+3x_2+4x_3=12\\ \\Rightarrow\\ S_1(6\\mid0\\mid0)')}<p class="muted">Mit den drei Spurpunkten lässt sich die Ebene gut zeichnen.</p>` },
+      ]) },
+      { id: 'param', kind: 'Brücke', title: 'Punkte in der Parameterform', run: quiz([genParamPunkt, genParamPunkt, genParamPunkt, genParamPunkt]) },
+      { id: 'normal', kind: 'Brücke', nicht: ['HE-GK'], title: 'Von der Normalenform zur Koordinatenform', run: quiz([genNormalenform, genNormalenform, genNormalenform]) },
+      { id: 'spur', kind: 'Festigen', title: 'Spurpunkte', run: quiz([genSpurpunkt, genSpurpunkt, genSpurpunkt, genSpurpunkt]) },
+    ],
+  },
 ];
 export const AREAS = [
-  { id: 'analysis', title: 'Analysis', soon: ['Wurzel- und Umkehrfunktion', 'Begrenztes und logistisches Wachstum', 'Integralfunktion', 'Newton-Verfahren'] },
+  { id: 'analysis', title: 'Analysis', soon: ['Wurzel- und Umkehrfunktion', 'Integralfunktion', 'Newton-Verfahren', 'Ortskurven'] },
   { id: 'stochastik', title: 'Stochastik', soon: ['Zweiseitige Tests', 'Histogramme lesen', 'Rückwärts nach n und p fragen'] },
-  { id: 'geometrie', title: 'Analytische Geometrie', soon: ['Ebenen in Parameterform', 'Spiegelungen', 'Spurpunkte', 'Abstand windschiefer Geraden'] },
+  { id: 'geometrie', title: 'Analytische Geometrie', soon: ['Schnittgerade zweier Ebenen', 'Spiegelungen', 'Hesse-Form', 'Abstand windschiefer Geraden'] },
   { id: 'pruefung', title: 'Prüfung', soon: ['Musterlösungen lesen', 'Zeit einteilen'] },
 ];
 
@@ -525,6 +553,10 @@ const META = {
     formeln: [['Unabhängigkeit', 'P(A\\cap B)=P(A)\\cdot P(B)'], ['Varianz', 'V(X)=\\sum x_i^2\\,p_i-\\mu^2'], ['Ohne Zurücklegen', 'P(X=k)=\\dfrac{\\binom{K}{k}\\binom{N-K}{n-k}}{\\binom{N}{n}}']] },
   'g-kugel': { boss: ['Kugel-Koloss', '◯', [genKugel, genAbstandPG, genEbenenLage]], why: 'GPS bestimmt deinen Standort als Schnittpunkt von Kugeln um Satelliten. Abstände zu Geraden braucht jede Flugsicherung.',
     formeln: [['Kugel', '(x_1-m_1)^2+(x_2-m_2)^2+(x_3-m_3)^2=r^2'], ['Lotfußpunkt', '\\overrightarrow{FP}\\cdot\\vec u=0']] },
+  'a-wachstum': { boss: ['Sättigungs-Sultan', 'S', [genBegrenzt, genBegrenztRate, genLogistisch, genWachstumArt]], why: 'Kein Wachstum geht ewig weiter: Ein Teich fasst nur so viele Fische, ein Markt nur so viele Kunden, ein Akku nur so viel Strom. Modelle mit Grenze beschreiben, wie schnell sie erreicht wird.',
+    formeln: [['Begrenztes Wachstum', 'f(t)=S-a\\,e^{-kt},\\quad f\'(t)=k\\,(S-f(t))'], ['Logistisches Wachstum', 'f(t)=\\dfrac{S}{1+a\\,e^{-kt}}'], ['Stärkstes Wachstum (logistisch)', 'f(t_W)=\\tfrac{S}{2},\\quad t_W=\\tfrac{\\ln a}{k}']] },
+  'g-ebene2': { boss: ['Spur-Späher', 'S₁', [genParamPunkt, genNormalenform, genSpurpunkt]], why: 'Architekten und 3D-Programme beschreiben Dachflächen, Wände und Rampen als Ebenen – mal über zwei Richtungen, mal über die Senkrechte dazu. Die Spurpunkte zeigen, wo eine Fläche auf den Boden und die Wände trifft.',
+    formeln: [['Parameterform', 'E:\\ \\vec x=\\vec a+r\\,\\vec u+s\\,\\vec v'], ['Normalenform → Koordinatenform', '\\vec n\\cdot\\vec x=\\vec n\\cdot\\vec p'], ['Spurpunkt auf der x₁-Achse', 'x_2=0,\\ x_3=0']] },
   operatoren: { boss: ['Operator-Orakel', '!', [genOperator]], why: 'Wer den Operator genau liest, schreibt in der Prüfung weder zu wenig noch zu viel.', formeln: [] },
 };
 for (const u of UNITS) {

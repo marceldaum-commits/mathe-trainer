@@ -307,7 +307,7 @@ for (const [name, fn] of Object.entries({ ...G, ...H, ...K, ...K4 })) {
   const test = UNITS.find((u) => u.id === 's-test');
   ok(unitExtra(test, GK) && !unitExtra(test, 'BY') && landList(test.bossGens, GK).length === test.bossGens.length, 'Lehrplan: Hypothesentests im Grundkurs als Zusatz markiert, bleiben spielbar');
   const extra = UNITS.flatMap((u) => u.steps.filter((s) => stepExtra(s, GK)).map((s) => `${u.id}/${s.id}`));
-  ok(extra.join() === 'expln/ln,s-verteilung/sigma,g-ebene/kreuz,g-kugel/kugel' && UNITS.every((u) => !unitExtra(u, 'BY') && u.steps.every((s) => !stepExtra(s, 'BY'))), `Lehrplan: markierte Schritte (${extra.join()})`);
+  ok(extra.join() === 'expln/ln,s-verteilung/sigma,g-ebene/kreuz,g-kugel/kugel,a-wachstum/logistisch,g-ebene2/normal' && UNITS.every((u) => !unitExtra(u, 'BY') && u.steps.every((s) => !stepExtra(s, 'BY'))), `Lehrplan: markierte Schritte (${extra.join()})`);
   ok(UNITS.filter((u) => unitExtra(u, GK)).map((u) => u.id).join() === 's-test,a-gebrochen,a-rotation,g-kugel' && UNITS.filter((u) => unitExtra(u, 'HE-LK')).map((u) => u.id).join() === 'a-gebrochen', 'Lehrplan: Zusatz-Einheiten je Kurs');
 }
 
@@ -349,6 +349,40 @@ for (const [name, fn] of Object.entries({ ...G, ...H, ...K, ...K4 })) {
     const w = PL.planWeeks(u, 21, t0); ok(w.length === 3 && w.flatMap((x) => x.units).map((x) => x.id).join() === '0,1,2,3,4,5,6,7,8,9' && w.every((x) => x.units.length >= 3) && w[1].start.getDate() === 20, 'Lernplan: 10 Einheiten in 3 Wochen, jede genau einmal, in Reihenfolge');
     ok(PL.planWeeks(u.slice(0, 2), 70, t0).length === 2 && PL.planWeeks(u, 0, t0).length === 1 && PL.planWeeks(u, 0, t0)[0].units.length === 10 && PL.planWeeks([], 30, t0)[0].units.length === 0, 'Lernplan: wenig Stoff, kein Tag mehr, nichts offen'); }
 }
+
+// 6h) Wachstum mit Grenze und Ebenen genauer (gen5): jede Lösung unabhängig nachgerechnet
+{ const K5 = await import('../app/js/gen5.js'); const R = (q) => q.options.find((o) => o.correct), W = (q) => q.options.filter((o) => !o.correct);
+  const dot3 = (a, b) => a[0] * b[0] + a[1] * b[1] + a[2] * b[2], cr = (a, b) => [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]], null3 = (v) => v.every((c) => Math.abs(c) < 1e-9);
+  /** Modell allein aus den Funktionswerten bestimmen – unabhängig vom Erzeuger. */
+  const modell = (f) => { const w = [0, 1, 2, 3, 4, 5].map(f), d = w.slice(1).map((v, i) => v - w[i]);
+    if (d.every((x) => close(x, d[0]))) return 'linear';
+    if (w.slice(1).every((v, i) => close(v / w[i], w[1] / w[0]))) return 'exp';
+    const L = f(400); return w.slice(1).every((v, i) => close((L - v) / (L - w[i]), (L - w[1]) / (L - w[0]))) ? 'begr' : 'log'; };
+  for (const lv of LV) for (let i = 0; i < REP; i++) {
+    { const q = K5.genBegrenzt(lv), t = `genBegrenzt (Stufe ${lv})`; basics('genBegrenzt', q, lv); const w = q.ask === 'grenze' ? q.f(5000) : q.f(0);
+      ok(close(R(q).num, w) && W(q).every((o) => !close(o.num, w)) && q.options.every((o) => o.num >= 0), `${t}: ${q.ask} stimmt (${q.formula})`); }
+    { const q = K5.genBegrenztRate(lv), t = `genBegrenztRate (Stufe ${lv})`; basics('genBegrenztRate', q, lv);
+      const w = q.ask === 'f0' ? nDeriv(q.f, 0) : q.ask === 'dgl' ? q.k * (q.S - q.B) : q.r / (q.S - q.B);
+      ok(Math.abs(R(q).num - w) < 1e-5 * (1 + Math.abs(w)) && W(q).every((o) => Math.abs(o.num - w) > 1e-3), `${t}: ${q.ask} stimmt (${q.formula})`);
+      if (q.ask === 'f0') ok(close(q.f(5000), q.S), `${t}: Funktion nähert sich der Grenze`); }
+    { const q = K5.genLogistisch(lv), t = `genLogistisch (Stufe ${lv})`; basics('genLogistisch', q, lv);
+      const tw = Math.log(q.a) / q.k, w = { grenze: q.f(5000), start: q.f(0), haelfte: q.f(tw), tw }[q.ask];
+      ok(close(q.f(tw), q.S / 2) && nDeriv(q.f, tw) >= nDeriv(q.f, tw - 0.3) && nDeriv(q.f, tw) >= nDeriv(q.f, tw + 0.3), `${t}: stärkstes Wachstum bei der halben Grenze`);
+      ok(Math.abs(R(q).num - w) < 1e-6 * (1 + Math.abs(w)) && W(q).every((o) => Math.abs(o.num - w) > 1e-3), `${t}: ${q.ask} stimmt (${q.formula})`); }
+    { const q = K5.genWachstumArt(lv), t = `genWachstumArt (Stufe ${lv})`; basics('genWachstumArt', q, lv);
+      ok(R(q).key === q.key && modell(q.f) === q.key && q.options.length === 4, `${t}: Modell stimmt mit den Funktionswerten überein (${q.key}, ${q.formula || q.prompt})`); }
+    { const q = K5.genSpurpunkt(lv), t = `genSpurpunkt (Stufe ${lv})`; basics('genSpurpunkt', q, lv);
+      const gut = q.art === 'ebene' ? (p) => close(dot3(q.n, p), q.d) && p.every((c, j) => j === q.ax || c === 0) : (p) => p[2] === 0 && null3(cr(p.map((c, j) => c - q.A[j]), q.v));
+      ok(gut(R(q).pt) && W(q).every((o) => !gut(o.pt)), `${t}: nur der richtige Punkt ist der Spurpunkt (${q.formula})`); }
+    { const q = K5.genNormalenform(lv), t = `genNormalenform (Stufe ${lv})`; basics('genNormalenform', q, lv);
+      const gut = (o) => null3(cr(o.n, q.n)) && !null3(o.n) && close(dot3(o.n, q.P), o.d);
+      ok(gut(R(q)) && W(q).every((o) => !gut(o)), `${t}: nur die richtige Gleichung hat den Normalenvektor und enthält P (${q.formula})`); }
+    { const q = K5.genParamPunkt(lv), t = `genParamPunkt (Stufe ${lv})`; basics('genParamPunkt', q, lv);
+      const in_ = (p) => close(dot3(cr(q.u, q.v), p.map((c, j) => c - q.A[j])), 0), pkt = (r, s2) => q.A.map((c, j) => c + r * q.u[j] + s2 * q.v[j]);
+      ok(!null3(cr(q.u, q.v)), `${t}: Richtungsvektoren spannen wirklich eine Ebene auf`);
+      if (q.art === 'punkt') { const soll = pkt(q.r, q.s); ok(R(q).pt.every((c, j) => c === soll[j]) && in_(R(q).pt) && W(q).every((o) => o.pt.some((c, j) => c !== soll[j])), `${t}: Punkt stimmt (${q.formula})`); }
+      else ok(pkt(R(q).r, R(q).s).every((c, j) => c === q.Q[j]) && W(q).every((o) => pkt(o.r, o.s).some((c, j) => c !== q.Q[j])), `${t}: nur das richtige Parameter-Paar trifft den Punkt (${q.formula})`); }
+  } }
 
 // 6g) Lehrplan-Ergänzungen (gen4): jede Lösung unabhängig nachgerechnet
 { const R = (q) => q.options.find((o) => o.correct), W = (q) => q.options.filter((o) => !o.correct), PX = [0.6, 1.3, 2.2];
@@ -681,6 +715,16 @@ for (const u of UNITS) {
   window.MTApp.erinnerungStand = () => 'kaputt'; st = await E.pushStand(); ok(st.kann && !st.an, 'Android-Erinnerung: unlesbare Antwort des Geräts bringt nichts durcheinander');
   { const vor = geraet.geuebt; store.touch(); ok(geraet.geuebt === vor + 1, 'Android-Erinnerung: Üben wird dem Gerät gemeldet (heute keine Mitteilung mehr)'); }
   delete window.MTApp; store.reset(); ok(!E.nativ(), 'Android-Erinnerung: ohne App wieder der Web-Weg'); }
+
+// 14d) Befunde aus der täglichen Stichprobe (14.11.2026)
+{ const G = await import('../app/js/gen.js');
+  for (let i = 0; i < 300; i++) {
+    const lo = G.genBetrag(1).options.find((o) => o.correct).num, hi = G.genBetrag(5).options.find((o) => o.correct).num;
+    ok(lo <= 7 && hi >= 11, 'Vektor-Länge: Stufe 5 nutzt nur die großen Tripel, Stufe 1 nur die kleinen');
+    for (const lv of [1, 3, 5]) { const q = G.genProdukt(lv), alles = [q.formula, q.explain, ...q.hints, ...q.options.map((o) => o.tex)].join(' ');
+      ok(!/\((-?\d+|-?\d*x(\^\{\d\})?)\)\\,e/.test(alles) && !/[^0-9]1e\^/.test(alles) && !/-1e\^/.test(alles), 'Produktregel: kein „(1)·e^x“, kein „1e^x“, einzelne Summanden ohne Klammer'); }
+    const b = G.genBinomial(1 + (i % 4)); ok(!b.options.some((o) => /Die 1 Nicht-Treffer/.test(o.why || '')), 'Bernoulli: „Der eine Nicht-Treffer fehlt“ statt „Die 1 Nicht-Treffer fehlen“');
+  } }
 
 // 15) Schwierigkeit und Serie
 store.level = 9; ok(store.level === 5, 'Schwierigkeit: nach oben begrenzt');

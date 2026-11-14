@@ -152,7 +152,11 @@ export function genProdukt(lv = 3) {
     const a = pick(lv <= 1 ? [1, 2] : [1, 2, 3, -2]), b = pick(lv <= 1 ? [1, 2, 4] : [1, 2, -1, -3, 4]), k = pick(tier(lv, [1], [1, 2], [2, -1], [-2, 3, -1], [-2, 3, -3]));
     const u = lv >= 5 ? [b, pick([0, a]), pick([1, 2, -1])] : [b, a], du = polyDeriv(u).concat(0).slice(0, u.length), U = polyTex(u);
     const E = `e^{${k === 1 ? '' : k === -1 ? '-' : ft(k)}x}`;
-    const mk = (coef, correct, why) => ({ tex: `f'(x)=(${polyTex(coef)})\\,${E}`, correct, why, val: (x) => polyEval(coef, x) * Math.exp(k * x) });
+    // Ein einzelner Summand braucht keine Klammer: „2x·e^x“ statt „(2x)·e^x“, „e^x“ statt „(1)·e^x“.
+    const mal = (coef) => { const n = coef.filter((c) => c !== 0).length, t = polyTex(coef); return n > 1 ? `(${t})\\,${E}` : t === '1' ? E : t === '-1' ? `-${E}` : `${t}\\,${E}`; };
+    const kl = (coef) => { const t = polyTex(coef); return coef.filter((c) => c !== 0).length > 1 || t.startsWith('-') ? `(${t})` : t; };
+    const dv = k === 1 ? E : k === -1 ? `-${E}` : `${ft(k)}${E}`;
+    const mk = (coef, correct, why) => ({ tex: `f'(x)=${mal(coef)}`, correct, why, val: (x) => polyEval(coef, x) * Math.exp(k * x) });
     const opts = [
       mk(u.map((c, i) => du[i] + k * c), true),
       k === 1 ? mk(u.map((c, i) => c - du[i]), false, `Die beiden Teile werden addiert, nicht subtrahiert: ${tex("u'v+uv'")}.`) : mk(du.map((c) => c * k), false, `Das ist ${tex("u'\\cdot v'")}. Die Produktregel lautet ${tex("u'v+uv'")}.`),
@@ -164,8 +168,8 @@ export function genProdukt(lv = 3) {
       prompt: 'Welche Ableitung ist richtig?',
       formula: `f(x)=(${U})\\,${E}`,
       options: shuffle(opts),
-      hints: ['Zwei Faktoren mit x: Das ist ein Fall für die Produktregel.', `${tex("(u\\cdot v)'=u'v+uv'")} mit ${tex(`u=${U}`)} und ${tex(`v=${E}`)}.`, `${tex(`u'=${polyTex(du)}`)} und ${tex(`v'=${ft(k)}${E}`)}.`],
-      explain: `Produktregel: ${tex(`f'(x)=(${polyTex(du)})\\cdot ${E}+(${U})\\cdot${par(k)}${E}=(${polyTex(u.map((c, i) => du[i] + k * c))})\\,${E}`)}.`,
+      hints: ['Zwei Faktoren mit x: Das ist ein Fall für die Produktregel.', `${tex("(u\\cdot v)'=u'v+uv'")} mit ${tex(`u=${U}`)} und ${tex(`v=${E}`)}.`, `${tex(`u'=${polyTex(du)}`)} und ${tex(`v'=${dv}`)}.`],
+      explain: `Produktregel: ${tex(`f'(x)=${kl(du)}\\cdot ${E}+(${U})\\cdot${k === 1 ? ' ' : par(k)}${E}=${mal(u.map((c, i) => du[i] + k * c))}`)}.`,
       f: (x) => polyEval(u, x) * Math.exp(k * x),
     };
   }
@@ -351,7 +355,7 @@ export function genBinomial(lv = 3) {
     { tex: `${B}\\cdot${P}^{${k}}\\cdot${Q}^{${n - k}}`, correct: true, num: binom(n, k) * p ** k * q ** (n - k) },
     { tex: `${P}^{${k}}\\cdot${Q}^{${n - k}}`, correct: false, why: `Das ist nur <b>ein</b> Pfad. Es fehlt die Anzahl der Pfade ${tex(B)}.`, num: p ** k * q ** (n - k) },
     { tex: `${B}\\cdot${P}^{${n - k}}\\cdot${Q}^{${k}}`, correct: false, why: `Die Exponenten sind vertauscht: ${tex('p')} gehört zu den ${k} Treffern.`, num: binom(n, k) * p ** (n - k) * q ** k },
-    { tex: `${B}\\cdot${P}^{${k}}`, correct: false, why: `Die ${n - k} Nicht-Treffer fehlen: Faktor ${tex(`${Q}^{${n - k}}`)}.`, num: binom(n, k) * p ** k },
+    { tex: `${B}\\cdot${P}^{${k}}`, correct: false, why: `${n - k === 1 ? 'Der eine Nicht-Treffer fehlt' : `Die ${n - k} Nicht-Treffer fehlen`}: Faktor ${tex(`${Q}^{${n - k}}`)}.`, num: binom(n, k) * p ** k },
   ];
   return {
     prompt: `${tex('X')} ist binomialverteilt. Welche Rechnung liefert ${tex(`P(X=${k})`)}?`,
@@ -442,7 +446,8 @@ const TRIPLES = [[[0, 3, 4], 5], [[1, 2, 2], 3], [[2, 3, 6], 7], [[4, 4, 7], 9],
 /** Betrag (Länge) eines Vektors. */
 export function genBetrag(lv = 3) {
   for (;;) {
-    const [base, len] = pick(TRIPLES.slice(0, tier(lv, 3, 4, 6, 8, 9)));
+    // Je Stufe ein eigener Ausschnitt der Liste: oben nur noch die großen Tripel, nicht wieder die leichten.
+    const [base, len] = pick(TRIPLES.slice(tier(lv, 0, 0, 2, 4, 5), tier(lv, 3, 4, 6, 8, 9)));
     const v = shuffle(base).map((c) => (lv >= 2 && rand() < 0.5 ? -c : c));
     const abs = v.map(Math.abs), sumAbs = abs[0] + abs[1] + abs[2], sq = len * len;
     const mk = (num, correct, why) => ({ tex: ft(num), num, correct, why });

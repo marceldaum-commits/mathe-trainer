@@ -63,6 +63,18 @@ zweiseitiger Test und Gütefunktion, Histogramme, Fragen rückwärts nach n/p/k,
 Schnittgerade zweier Ebenen, Abstand windschiefer Geraden, Spurpunkte, Parameterform der Ebene, Spiegelungen,
 Bewegungen mit Geschwindigkeitsvektor, Ortskurven, Mengenschreibweise.
 
+## Nachtrag 14.11.2026 (Version 0.16.0): zwei Einheiten aus der Fehl-Liste gebaut
+
+| Einheit | Bayern | Hessen GK | Hessen LK | Anmerkung |
+| --- | --- | --- | --- | --- |
+| a-wachstum (begrenztes und logistisches Wachstum, Modelle unterscheiden) | ja – **unsicher**: im LehrplanPLUS als Anwendung der e-Funktion (M12 4.3), nicht als eigener Punkt belegt | begrenztes Wachstum ja; **logistisch nein** | ja | Schritt „Logistisches Wachstum“ und die Aufgaben-Art im GK als Zusatz markiert |
+| g-ebene2 (Parameterform, Normalenform → Koordinatenform, Spurpunkte) | ja (M13 3) – Spurpunkte **unsicher** (nicht ausdrücklich genannt, als Hilfsmittel zum Zeichnen üblich) | Parameterform und Spurpunkte ja; **Normalenform nein** | ja | Schritt „Normalenform“ und die Aufgaben-Art im GK als Zusatz markiert |
+
+Damit erledigt: begrenztes/logistisches Wachstum, Spurpunkte, Parameterform der Ebene, Normalenform (ohne Hesse-Form).
+**Weiter offen:** Wurzel- und Umkehrfunktion, Integralfunktion, Newton-Verfahren, stetige Zufallsgrößen, zweiseitiger Test
+und Gütefunktion, Histogramme, Fragen rückwärts nach n/p/k, Hesse-Form, Schnittgerade zweier Ebenen, Abstand
+windschiefer Geraden, Spiegelungen, Bewegungen mit Geschwindigkeitsvektor, Ortskurven, Mengenschreibweise.
+
 ## Was noch fehlt (Vorrang im täglichen Ausbau)
 
 **Bayern:** gebrochen-rationale Funktionen mit Polstellen und Asymptoten, Quotientenregel · Wurzel- und

@@ -106,8 +106,8 @@ export function abenteuerView(after) {
   function start() {
     cleanup(); s = null;
     const rek = store.n('abenteuerRekord'), siege = store.n('abenteuerSieg');
-    el.className = 'view stack';
-    el.innerHTML = `<a class="back" href="#/pruefung">${ICON.left} Zurück</a>
+    el.className = 'view';
+    el.innerHTML = `<div class="stephead"><a class="x" href="#/pruefung" aria-label="Schließen">${ICON.close}</a><b class="grow">Abenteuer</b></div><div id="stage"><div class="stack">
       <section class="board ab-start"><div class="board-top"><span>ABENTEUER</span><b>● ${RAEUME} RÄUME</b></div>
         <div class="ab-held">${figurFor(DRACHE[0], DRACHE[1], { form: 'zack', farbe: ['#ff7418', '#d85042'], horn: 1 })}</div>
         <h2>Die Reise zum Abi-Drachen</h2>
@@ -116,7 +116,7 @@ export function abenteuerView(after) {
         <div class="picks ab-geb" role="radiogroup" aria-label="Gebiet">${Object.entries(GEBIETE).map(([k, v]) => `<button type="button" role="radio" class="pick" data-g="${k}" style="font-size:15px">${esc(v)}</button>`).join('')}</div>
         <small class="muted">Schwierigkeit: ${LEVELS[store.level - 1]}${store.ruhig ? ' · Ruhiger Modus: Fehler kosten kein Leben.' : ` · Du startest mit ${START_LEBEN} Leben.`}</small></section>
       ${rek ? `<div class="note tip"><b>Dein Rekord: ${rek} Punkte.</b> ${siege ? `${siege} ${siege === 1 ? 'Mal' : 'Mal'} den Drachen besiegt.` : 'Der Drache ist noch unbesiegt.'}</div>` : ''}
-      <div class="row"><button class="btn block" id="ab-start" type="button">Reise starten</button></div>`;
+      <div class="row"><button class="btn block" id="ab-start" type="button">Reise starten</button></div></div></div>`;
     const paint = () => el.querySelectorAll('.ab-geb button').forEach((b) => { const on = b.dataset.g === wahl; b.classList.toggle('sel', on); b.setAttribute('aria-checked', on); });
     el.querySelectorAll('.ab-geb button').forEach((b) => { b.onclick = () => { wahl = b.dataset.g; sfx('tap'); paint(); }; });
     paint();
@@ -141,7 +141,7 @@ export function abenteuerView(after) {
 
   /** Einen Raum betreten. */
   function raum(tuer) {
-    if (!$('#stage', el)) rahmen();
+    if (!$('#ab-bar', el)) rahmen();
     if (tuer.art === 'rast') { s.leben = Math.min(s.max, s.leben + 2); s.raum++; sfx('ok'); leiste(); return zwischen('Rastplatz', 'Du ruhst dich aus und bekommst 2 Leben zurück.', () => wege()); }
     if (tuer.art === 'schatz') { s.raum++; leiste(); return belohnung(1, 'Schatzkammer'); }
     kampf(gegner(tuer.art, tuer.gebiet, s.raum, s.lv), tuer.gebiet);
@@ -199,6 +199,8 @@ export function abenteuerView(after) {
           }
           stand();
           const tot = !s.ruhig && s.leben <= 0, sieg = hp <= 0;
+          // Platz schaffen: Nur die gewählte und die richtige Antwort bleiben stehen – so passt die Rückmeldung mit aufs Bild.
+          opts.querySelectorAll('.opt').forEach((n, j) => { if (n !== b && !q.options[j].correct) n.hidden = true; });
           note.innerHTML = text;
           const go = h(`<button class="btn block" id="ab-next" type="button">${tot || sieg ? 'Weiter' : 'Nächster Angriff'}</button>`);
           go.onclick = () => {
@@ -207,6 +209,7 @@ export function abenteuerView(after) {
             frage(); window.scrollTo(0, 0);
           };
           { const r = $('#ab-row', st); r.replaceChildren(go); r.hidden = false; }
+          (note.firstElementChild || b).scrollIntoView({ block: 'nearest' });
         };
         opts.append(b);
       });

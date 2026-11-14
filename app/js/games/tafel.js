@@ -1,6 +1,7 @@
 // Vierfeldertafel füllen: Aus wenigen Angaben die ganze Tafel erschließen – Zeile für Zeile, Spalte für Spalte.
 import { h, buzz, sfx, esc } from '../ui.js';
 import { store } from '../store.js';
+import { shuffle } from '../math.js';
 
 /** Alle neun Felder einer Tafel: innen a b / c d, Rand r1 r2 (Zeilen), c1 c2 (Spalten), n (gesamt). */
 export const KEYS = ['a', 'b', 'r1', 'c', 'd', 'r2', 'c1', 'c2', 'n'];
@@ -14,11 +15,15 @@ const LEICHT = [
   T('Sportverein', 'im Verein', 'nicht im Verein', 'Mädchen', 'Jungen', [8, 6, 5, 9], ['a', 'b', 'c', 'd']),
   T('Führerschein', 'bestanden', 'nicht bestanden', 'erster Versuch', 'zweiter Versuch', [14, 4, 6, 1], ['a', 'b', 'c', 'c2', 'n']),
   T('Mensa', 'isst vegetarisch', 'isst Fleisch', 'Unterstufe', 'Oberstufe', [12, 18, 28, 22], ['n', 'r1', 'c1', 'a', 'd']),
+  T('Schwimmbad', 'kann schwimmen', 'kann nicht schwimmen', 'Klasse 5', 'Klasse 6', [22, 25, 6, 3], ['a', 'b', 'c', 'r2', 'n']),
+  T('Bibliothek', 'leiht Bücher aus', 'leiht keine aus', 'unter 16', 'ab 16', [35, 20, 15, 30], ['n', 'r1', 'c1', 'a', 'c2']),
 ];
 const MITTEL = [
   T('Haustiere', 'hat ein Haustier', 'hat kein Haustier', 'Stadt', 'Land', [18, 27, 42, 13], ['n', 'r1', 'c1', 'a']),
   T('Bus oder Rad', 'kommt mit dem Bus', 'kommt mit dem Rad', 'wohnt im Ort', 'wohnt außerhalb', [9, 36, 41, 14], ['n', 'r1', 'a', 'd']),
   T('Qualitätskontrolle', 'fehlerfrei', 'fehlerhaft', 'Maschine 1', 'Maschine 2', [112, 68, 8, 12], ['c1', 'c2', 'a', 'd']),
+  T('Handyvertrag', 'hat einen Vertrag', 'hat Prepaid', 'Klasse 11', 'Klasse 12', [24, 31, 16, 9], ['n', 'r1', 'c1', 'a']),
+  T('Nachhilfe', 'nimmt Nachhilfe', 'nimmt keine', 'Note 1 bis 3', 'Note 4 bis 6', [6, 18, 54, 12], ['r1', 'r2', 'a', 'd']),
 ];
 const SCHWER = [
   T('Medikamententest', 'geheilt', 'nicht geheilt', 'Medikament', 'Placebo', [84, 36, 36, 44], [],
@@ -27,24 +32,36 @@ const SCHWER = [
     'Von 1000 Personen sind 50 krank. Der Test erkennt 45 der Kranken. Von den Gesunden erhalten 19 fälschlich ein positives Ergebnis.'),
   T('Umfrage', 'nutzt die App', 'nutzt sie nicht', 'unter 18', 'ab 18', [156, 84, 104, 56], [],
     'Befragt wurden 400 Personen, davon 260 unter 18. 60 % aller Befragten nutzen die App. Von den Befragten ab 18 nutzen 56 die App nicht.'),
+  T('Allergietest', 'Test positiv', 'Test negativ', 'allergisch', 'nicht allergisch', [72, 46, 8, 874], [],
+    'Von 1000 Personen sind 8 % allergisch. Der Test erkennt 90 % der Allergiker. Von den Nicht-Allergikern erhalten 5 % fälschlich ein positives Ergebnis.'),
+  T('Abo-Modell', 'hat ein Abo', 'hat kein Abo', 'nutzt täglich', 'nutzt seltener', [135, 45, 90, 330], [],
+    'Ein Streamingdienst befragt 600 Personen. 30 % haben ein Abo. Drei Viertel der Abonnenten nutzen den Dienst täglich. Insgesamt nutzen 225 Befragte den Dienst täglich.'),
 ];
 export const LEVELS = MITTEL;
 const SEHR_LEICHT = [
   T('Klassenfahrt', 'fährt mit', 'bleibt da', 'Klasse 10a', 'Klasse 10b', [20, 18, 5, 7], ['a', 'b', 'c', 'd']),
   T('Geschwister', 'hat Geschwister', 'Einzelkind', 'Mädchen', 'Jungen', [9, 7, 4, 5], ['a', 'b', 'c', 'd', 'r1']),
   T('Frühstück', 'frühstückt', 'frühstückt nicht', 'Unterstufe', 'Oberstufe', [30, 15, 10, 25], ['a', 'b', 'c', 'd', 'n']),
+  T('Musikschule', 'spielt ein Instrument', 'spielt keins', 'Klasse 9', 'Klasse 10', [11, 9, 14, 16], ['a', 'b', 'c', 'd']),
+  T('Pausenbrot', 'bringt Brot mit', 'kauft am Kiosk', 'Mädchen', 'Jungen', [13, 8, 6, 12], ['a', 'b', 'c', 'd', 'c1']),
 ];
 const ANSPRUCH = [
   T('Wahlfach', 'wählt Informatik', 'wählt Kunst', 'Klasse 11', 'Klasse 12', [34, 26, 41, 19], ['r1', 'c1', 'n', 'd']),
   T('Impfung', 'geimpft', 'nicht geimpft', 'erkrankt', 'gesund', [12, 188, 48, 52], ['n', 'c1', 'a', 'r2']),
   T('Lieferdienst', 'pünktlich', 'verspätet', 'Fahrrad', 'Auto', [72, 48, 18, 62], [],
     'Ein Lieferdienst wertet 200 Fahrten aus. 90 Fahrten wurden mit dem Fahrrad gemacht, davon waren 72 pünktlich. Insgesamt waren 80 Fahrten verspätet.'),
+  T('Online-Kauf', 'bestellt online', 'kauft im Laden', 'unter 30', 'ab 30', [66, 44, 34, 56], ['n', 'c1', 'r2', 'a']),
+  T('Zugfahrt', 'pünktlich', 'verspätet', 'Fernverkehr', 'Nahverkehr', [48, 132, 32, 28], [],
+    'Von 240 Zügen fahren 80 im Fernverkehr. 60 % der Fernzüge sind pünktlich. Insgesamt sind 60 Züge verspätet.'),
 ];
+/** So viele Tafeln hat eine Runde. */
+export const RUNDE = 3;
 /** Eigene Level für jede der fünf Schwierigkeiten. */
 export const levelsFor = (lv) => [SEHR_LEICHT, LEICHT, MITTEL, ANSPRUCH, SCHWER][Math.min(5, Math.max(1, lv | 0 || 3)) - 1];
 
 export function tafel(el, ctx) {
-  const LS = levelsFor(store.level);
+  // Jede Runde: drei Tafeln aus dem Satz der gewählten Schwierigkeit, zufällig gezogen – so bleibt die Runde kurz und trotzdem abwechslungsreich.
+  const LS = shuffle(levelsFor(store.level)).slice(0, RUNDE);
   let ri = 0, tries = 0, total = 0, solved = false;
 
   el.innerHTML = `<div class="stack">
