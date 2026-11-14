@@ -120,6 +120,24 @@ ungeprüft aus.
 (z. B. Premium gratis für aktive Schüler – starkes Werbe-Argument); welche Funktionen genau hinter die Bezahlschranke;
 Preis. Die Preis- und Angebotsfragen gehören in Marcels Marketing-Raum.
 
+## Premium: Marcels Entscheidungen vom 14.11.2026
+
+Marcel: „Das mit KI ist aber unter Bezahlversion.“ Per Auswahl entschieden:
+- **KI gehört in die Bezahl-Version.** Auf der Live-Seite wird sie nicht frei geschaltet, solange es keinen Bezahl-Zugang gibt.
+  Auf der Testseite bleibt sie zum Ausprobieren an.
+- **Bezahl-Modell: beides anbieten** – Abi-Pass (einmal zahlen, gültig bis zum Abi-Termin) und Monats-Abo.
+- **KI-Probe für alle: 3 Erklärungen einmalig je Gerät**, danach Hinweis auf Premium.
+- Vorschlag (noch nicht entschieden): Premium gratis für aktive Nachhilfe-Kunden; Verkauf über die Website statt im
+  Play Store (dort 15–30 % Gebühr); Tageslimit für Käufer (Vorschlag 30 KI-Abrufe am Tag).
+- **Preis:** offen. Erst messen, was ein KI-Abruf kostet (Leitstand), dann entscheidet Marcel (Marketing-Raum).
+
+Was in Premium kommt (Reihenfolge = Bau-Reihenfolge): 1. KI-Erklärung (fertig), 2. KI-Tutor mit Rückfragen,
+3. eigenen Rechenweg prüfen lassen, 4. KI-Sachaufgaben im Abi-Stil (vom Server nachgerechnet), 5. persönliche
+Probeklausur, 6. Wochenbericht für Eltern und Lernstand auf mehreren Geräten. Kostenlos bleibt alles, was heute da ist.
+
+Technik, die dafür fehlt (Vorschlag an den Leitstand, Meldung (29)): Zugangscode aus dem Shop, den die App einmal
+eingibt; der Server zählt Proben und Tageslimit und sagt der App, was noch übrig ist.
+
 ## Stand der Free-Fassung (13.11.2026, Version 0.3.0)
 
 Die Fehl-Liste vom 13.11. ist abgearbeitet. Ab jetzt wird nur noch erweitert.

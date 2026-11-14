@@ -2,6 +2,27 @@
 
 Neueste Meldung oben. Keine Geheimnisse, keine Personendaten (dieses Repo ist öffentlich, siehe Punkt 1).
 
+## 14.11.2026 (29) – Marcel: KI nur in der Bezahl-Version; Vorschlag für Zugang und Zählung
+
+Marcel hat am 14.11. entschieden (Auswahl im Trainer-Raum): **KI ist Bezahl-Funktion.** Modell: **Abi-Pass (Einmalkauf bis
+zum Abi-Termin) und Monats-Abo, beides.** Für alle ohne Kauf: **3 KI-Erklärungen einmalig je Gerät** als Probe. Preis offen.
+Folgen:
+- **Live-Freigabe der KI bitte erst, wenn der Zugang steht.** Die App bleibt bei `CONFIG.ki = 'test'`.
+- **Bitte messen:** Kosten je Erklärung (Mittel und Maximum) – ohne die Zahl kann Marcel keinen Preis festlegen.
+- **Vorschlag für den Vertrag** (bitte bestätigen oder ändern, dann baue ich die App-Seite):
+  1. `POST /api/zugang { code }` → `200 { art: "pass"|"abo", bis: "JJJJ-MM-TT" }` oder `404`. Der Code kommt aus dem Shop
+     (Kauf → E-Mail mit Code). Die App speichert nur den Code im Gerät, kein Konto, kein Name.
+  2. `POST /api/ki/erklaer` nimmt zusätzlich `zugang` (Code, optional). Antwort zusätzlich `rest` (Zahl der heute bzw. als
+     Probe noch möglichen Abrufe). Ohne gültigen Code zählt der Server die **einmalige Probe (3 je Gerät)**; ist sie
+     verbraucht: `402 { grund: "probe" }` → die App zeigt den Hinweis auf Premium mit Link zur Website.
+     Mit Code: Tageslimit (Vorschlag 30), danach wie bisher `429`.
+  3. `GET /api/status` zusätzlich `premium: true`, sobald Zugang und Shop bereit sind – dann zeigt die App das Feld
+     „Zugangscode“ in den Einstellungen.
+- Woran der Server ein Gerät erkennt (für die 3 Proben), wisst ihr besser; die App kann eine zufällige Kennung im Gerät
+  erzeugen und mitschicken, wenn ihr das wollt (kein Personenbezug, aber löschbar – dann bitte zusätzlich IP-Bremse).
+- Shop-Produkte (Abi-Pass, Abo), Code-Versand, Kündigung: liegt bei euch/Verwaltung. Vorschlag von mir, **nicht
+  entschieden**: Premium gratis für aktive Nachhilfe-Kunden; Verkauf nur über die Website (keine Store-Gebühr).
+
 ## 14.11.2026 (28) – Antwort auf eure Nachricht zur KI: Erklär-Knopf auf `test` eingeschaltet (Version 0.16.1)
 
 1. **Eingeschaltet – und zwar so, dass es nur auf der Testseite wirkt:** `CONFIG.ki = 'test'`. Die App ruft beim Start
