@@ -14,16 +14,16 @@ Neueste Meldung oben. Keine Geheimnisse, keine Personendaten (dieses Repo ist ö
   nur in der Web-App, in der Android-App nicht.
 - Ich melde in (39), sobald 0.22.0 nach dem Testlauf auf `test` liegt.
 
-**Selbst-Aktualisierung der Android-App** – nichts für den Server zu tun, aber vier Dinge zur Kenntnis:
+**Selbst-Aktualisierung der Android-App** – Quelle ist **euer Server**, nicht GitHub:
 
-1. **Neue Datei `app/stand.json`** (Version + Prüfsumme jeder Datei, erzeugt `npm run fix`). Sie wird mit ausgeliefert, die
-   Web-App selbst braucht sie nicht. Die Android-App liest sie von GitHub (raw.githubusercontent.com), nicht von eurem Server.
-2. **Zweig `live` wird damit zur Quelle der Store-Fassung:** Eine mit `MT_KANAL=store` gebaute App lädt nach jeder
-   Live-Freigabe die neuen Inhalte von selbst aus dem Zweig `live`. Für euch ändert sich am Ablauf nichts. Marcels
-   Test-Fassung lädt aus `test`.
-3. **Neuer Zweig `apk`** (nur eine Datei: die aktuelle Test-App-Datei zum Herunterladen). Bitte nicht ausliefern.
-4. **Datenschutzerklärung:** Bitte einen Satz ergänzen – die Android-App fragt beim Start GitHub nach neuen Dateien; es wird
-   nichts über den Nutzer gesendet, GitHub sieht die IP-Adresse.
+1. **Neue Datei `app/stand.json`** (Version + Prüfsumme jeder Datei, erzeugt `npm run fix`). **Bitte mit ausliefern** wie jede
+   andere Datei unter `app/` (Test: `https://trainer-test…/stand.json`, live: `https://trainer…/stand.json`). Die Android-App
+   liest sie beim Start, lädt nur geänderte Dateien nach und prüft jede gegen ihre Prüfsumme. Keine neuen Server-Funktionen
+   nötig, nur statische Dateien; bitte keine Weiterleitung auf diesen Adressen.
+2. Marcels Test-Fassung lädt von der Test-Seite, die spätere Store-Fassung (`MT_KANAL=store`) nur von der Live-Seite – also
+   immer nur das, was ihr freigegeben habt.
+3. **Marcel will das Repo privat stellen** („ist ja später Pay“). Bitte vorher sicherstellen, dass euer automatisches Abholen
+   von GitHub dann noch Zugriff hat (Deploy-Schlüssel o. Ä.), und Marcel sagen, wann er umstellen kann.
 
 Einzelheiten: docs/PLAYSTORE.md, Abschnitt „Selbst-Aktualisierung“.
 

@@ -43,8 +43,8 @@ public class LauncherActivity extends Activity {
     private WebView web;
 
     /* Selbst-Aktualisierung der Inhalte (siehe Update.java). Kanal „test“ lädt den Test-Stand, „store“ den freigegebenen. */
-    static final String REPO = "https://raw.githubusercontent.com/marceldaum-commits/mathe-trainer/";
-    static final String APK = REPO + "apk/Mathe-Trainer.apk";
+    /* Quelle ist der eigene Server (dieselben Dateien wie die Web-App) – kein fremder Dienst, das Repo kann privat sein. */
+    static final String QUELLE_TEST = "https://trainer-test.mathenachhilfe-online.com/", QUELLE_STORE = BASIS;
     /** Ordner mit dem geladenen Stand in Benutzung – oder null: dann gilt die eingepackte Fassung. */
     private volatile File geladen;
     private volatile String inhalt = "", bereit = "";
@@ -52,7 +52,7 @@ public class LauncherActivity extends Activity {
     private String kanal() { return getString(R.string.mt_kanal); }
     private String quelle() {
         String k = kanal();
-        return "test".equals(k) ? REPO + "test/app/" : "store".equals(k) ? REPO + "live/app/" : null;
+        return "test".equals(k) ? QUELLE_TEST : "store".equals(k) ? QUELLE_STORE : null;
     }
     private File updateOrdner() { return new File(getFilesDir(), "update"); }
     /** Beim Start: fertig Geladenes übernehmen. */
@@ -121,11 +121,6 @@ public class LauncherActivity extends Activity {
         /** Geladene Inhalte jetzt übernehmen: Die App startet ihre Seite neu. */
         @JavascriptInterface public void updateAnwenden() {
             runOnUiThread(() -> { updateStarte(); web.clearCache(true); web.loadUrl(BASIS); });
-        }
-        /** Neue App-Datei im Browser herunterladen (nur Test-Fassung – im Store kommt die App über den Store). */
-        @JavascriptInterface public void apkHolen() {
-            if (!"test".equals(kanal())) return;
-            runOnUiThread(() -> { try { startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(APK))); } catch (Exception keinBrowser) { /* nichts tun */ } });
         }
         /** Öffnet die Android-Einstellungen für die Mitteilungen dieser App. */
         @JavascriptInterface public void mitteilungenEinstellen() {

@@ -196,19 +196,19 @@ Noch offen: Drucken/Teilen, Prüfung auf einem echten Handy.
 
 Die App besteht aus der **Hülle** (Android-Teil: Fenster, Widget, Erinnerung) und den **Inhalten** (die Web-App im Ordner `app/`).
 
-- **Inhalte holt sich die App selbst.** Bei jedem Start mit Internet liest sie `app/stand.json` von GitHub (Version, Nummer der
+- **Inhalte holt sich die App selbst.** Bei jedem Start mit Internet liest sie `stand.json` vom eigenen Server (Version, Nummer der
   Hülle, Prüfsumme jeder Datei), lädt nur geänderte Dateien, prüft jede gegen ihre Prüfsumme und nutzt den neuen Stand ab dem
   nächsten Start – oder sofort über den Knopf „Jetzt nutzen“. Geht etwas schief, bleibt alles beim Alten; die eingepackte
   Fassung ist immer die Rückfallebene. Ohne Internet passiert nichts. Kein Rückschritt auf ältere Versionen.
-- **Kanal** (beim Bauen über `MT_KANAL`): `test` lädt den Zweig `test` (Marcels Handy, Standard), `store` lädt nur den
-  freigegebenen Zweig `live`, `aus` lädt nie. **Für den Play Store immer `MT_KANAL=store` bauen.**
+- **Kanal** (beim Bauen über `MT_KANAL`): `test` lädt von der Test-Seite (Marcels Handy, Standard), `store` lädt nur von der
+  Live-Seite (also nur Freigegebenes), `aus` lädt nie. Quelle ist immer der eigene Server – nie GitHub; das Repo kann privat sein (Marcel, 14.11.2026). **Für den Play Store immer `MT_KANAL=store` bauen.**
 - **Neue Hülle:** `android/huelle.json` zählt die Fassungen der Hülle; `npm run fix` erhöht die Nummer von selbst, sobald sich
   etwas unter `android/` ändert. Erwartet der Test-Stand eine neuere Hülle, zeigt die App (nur Kanal `test`) den Hinweis „Neue
-  App-Datei verfügbar“ mit Knopf zum Herunterladen. Die Datei liegt im Zweig `apk` als `Mathe-Trainer.apk`. Im Store-Kanal
+  App-Datei verfügbar“. Die Datei liegt wie bisher im Drive-Ordner „Mathe-Trainer“ (kein öffentlicher Download). Im Store-Kanal
   gibt es diesen Hinweis nicht – dort kommt die App über den Store (Store-Regel).
 - **Regel für neue Brücken-Funktionen:** Die Inhalte können neuer sein als die Hülle. Jede Funktion von `window.MTApp` deshalb
   immer mit `typeof … === 'function'` absichern.
-- **Datenschutz:** Die Android-App fragt beim Start GitHub (raw.githubusercontent.com) nach neuen Dateien. Dabei wird nichts
-  über den Nutzer gesendet; GitHub sieht wie jeder Webserver die IP-Adresse. Gehört in die Datenschutzerklärung der App.
+- **Datenschutz:** Die Android-App fragt beim Start den eigenen Server nach neuen Dateien – derselbe Server wie bei der
+  Web-App, kein weiterer Dienst. Dabei wird nichts über den Nutzer gesendet.
 - **Prüfen am Rechner:** `bash tests/android/pruefen.sh` (26 Prüfungen: Laden, Prüfsummen, unerlaubte Pfade, kein Rückschritt,
   Netz weg).

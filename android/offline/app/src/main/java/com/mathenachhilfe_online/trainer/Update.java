@@ -17,7 +17,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * Selbst-Aktualisierung der Inhalte: Die App schaut bei ihrer Quelle (GitHub) nach einer neueren Web-App,
+ * Selbst-Aktualisierung der Inhalte: Die App schaut bei ihrer Quelle (dem eigenen Server) nach einer neueren Web-App,
  * lädt nur geänderte Dateien, prüft jede gegen ihre Prüfsumme und nutzt den neuen Stand ab dem nächsten Start.
  * Geht dabei irgendetwas schief, bleibt alles beim Alten – die eingepackte Fassung ist immer die Rückfallebene.
  *

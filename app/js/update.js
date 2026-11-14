@@ -19,10 +19,9 @@ export function updateLeiste(app = globalThis.window?.MTApp) {
     const s = updateStand(app);
     const teile = [];
     if (s?.bereit) teile.push(`<div class="upd-zeile"><span><b>Neue Inhalte geladen</b> (Version ${esc(s.bereit)})</span><button class="btn small" id="upd-los" type="button">Jetzt nutzen</button></div>`);
-    if (s?.huelle) teile.push('<div class="upd-zeile"><span><b>Neue App-Datei verfügbar.</b> Sie bringt Neues für Widget oder Erinnerung.</span><button class="btn small ghost" id="upd-apk" type="button">Herunterladen</button></div>');
+    if (s?.huelle) teile.push('<div class="upd-zeile" id="upd-apk"><span><b>Neue App-Datei verfügbar.</b> Sie bringt Neues für Widget oder Erinnerung – bitte die neue Datei installieren.</span></div>');
     el.innerHTML = teile.join(''); el.hidden = !teile.length;
     el.querySelector('#upd-los')?.addEventListener('click', () => app.updateAnwenden?.());
-    el.querySelector('#upd-apk')?.addEventListener('click', () => app.apkHolen?.());
   };
   globalThis.window?.addEventListener('mt-update', male);
   male();
