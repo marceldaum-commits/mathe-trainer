@@ -43,7 +43,8 @@ button{font:inherit;color:inherit;cursor:pointer}
   backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
 .brand{display:flex;align-items:center;gap:10px;text-decoration:none;min-width:0}
 .brand-logo{flex:none;width:36px;height:36px;border-radius:10px;background:#000 url(../img/favicon.svg) center/78% no-repeat}
-.brand-text{display:grid;line-height:1.1;min-width:0}
+.brand-text{display:grid;line-height:1.1;min-width:0;text-decoration:none}
+.brand-logo{display:block}
 .brand-text b{font-weight:800;letter-spacing:-.03em;color:var(--head)}
 .brand-text small{font-size:calc(11px*var(--fs,1));color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .chips{display:flex;gap:6px;flex:none}
@@ -524,12 +525,6 @@ main:has(.stephead){padding-top:calc(10px + env(safe-area-inset-top))}
 }
 
 /* Leiste ganz oben: Knopf zur Website (Marcel, 13.11.2026). Am breiten Bildschirm sitzt der Knopf in der Kopfzeile. */
-.sitebar{display:flex;justify-content:center;align-items:center;gap:10px;padding:7px 12px calc(7px);padding-top:calc(7px + env(safe-area-inset-top));background:var(--navy-deep);color:#dbe4f7;font-size:calc(13px*var(--fs,1));font-weight:600;text-decoration:none}
-.sitebar b{padding:4px 12px;border-radius:99px;background:var(--orange);color:#fff;font-weight:800;white-space:nowrap}
-.sitebar~.top{padding-top:10px}
-body:has(.stephead) .sitebar{display:none}
-@media (min-width:1240px){.sitebar{display:none}}
-@media print{.sitebar{display:none}}
 
 /* Nichts darf seitlich über den Bildschirm hinausragen: breite Formeln bekommen ihren eigenen Rollbalken, die Seite nie. */
 html,body{overflow-x:clip}

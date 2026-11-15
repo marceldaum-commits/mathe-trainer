@@ -299,7 +299,7 @@ await page.goto(BASE); await page.waitForSelector('#home'); await shot('01-start
 if ((await page.locator('#nav a').count()) !== 4) fail('Menüleiste fehlt');
 { const man = await page.evaluate(async () => (await fetch(document.querySelector('link[rel="manifest"]').href)).json());   // App-Manifest: Kurzbefehle und Vorschaubilder sind erreichbar
   for (const f of [...man.icons, ...man.screenshots, ...man.shortcuts.flatMap((s) => s.icons)]) if (!(await page.evaluate(async (src) => (await fetch(src)).ok, f.src))) fail(`Manifest: ${f.src} fehlt`);
-  if ((await page.getAttribute('meta[name="theme-color"]', 'content')) !== '#0d1733') fail('Statusleisten-Farbe auf der Startseite ist nicht dunkelblau'); }
+  if ((await page.getAttribute('meta[name="theme-color"]', 'content')) !== (process.env.DARK ? '#0b1330' : '#ffffff')) fail('Statusleisten-Farbe auf der Startseite passt nicht zur Kopfzeile'); }
 if (await page.locator('#home a[href^="#/u/"]:not(.btn)').count()) fail('Startseite listet wieder einzelne Einheiten auf');
 const startHeight = await page.evaluate(() => document.documentElement.scrollHeight);
 if (startHeight > 2400) fail(`Startseite zu lang: ${startHeight}px`);
@@ -333,7 +333,7 @@ await page.click('#look');
 if (!(await page.locator('#fab').isVisible())) fail('Hilfe-Knopf fehlt');
 await page.goto(BASE); await page.waitForSelector('#ver'); if (!/^Version \d+\.\d+\.\d+ · \d{2}\.\d{2}\.\d{4}$/.test((await page.textContent('#ver')).trim())) fail(`Version mit Datum fehlt in der Fußzeile: ${await page.textContent('#ver')}`);
 await page.goto(`${BASE}#/lernen`); await page.waitForSelector('#fab');
-{ const sb = page.locator('.sitebar'); if (!(await sb.isVisible()) || (await sb.getAttribute('href')) !== 'https://www.mathenachhilfe-online.com/' || (await sb.boundingBox()).y > 4) fail('Knopf zur Website fehlt ganz oben'); }
+{ const lg = page.locator('.top a.brand-logo'); if (await page.locator('.sitebar').count()) fail('Die Leiste über der Kopfzeile soll weg sein'); if (!(await lg.isVisible()) || (await lg.getAttribute('href')) !== 'https://www.mathenachhilfe-online.com/' || (await lg.getAttribute('target')) !== '_blank') fail('Logo oben links führt nicht zur Website'); if ((await page.locator('.top a.brand-text').getAttribute('href')) !== '#/') fail('Schriftzug führt nicht zur Startseite'); if ((await page.locator('.top').boundingBox()).y > 1) fail('Kopfzeile sitzt nicht ganz oben'); }
 serverAus = true; let versuche = 0;
 await page.route('**/api/meldung', (r) => { versuche++; r.fulfill({ status: 503, contentType: 'application/json', body: '{"error":"nicht erreichbar"}' }); });   // Server fällt aus → Meldung muss im Gerät warten
 await page.click('#fab'); await page.waitForSelector('#help:not([hidden]) #hp-menu'); await shot('67-hilfe-menue');
@@ -358,7 +358,6 @@ for (const u of UNITS) {
   for (let i = 0; i < u.steps.length; i++) {
     if (!(u === UNITS[0] && i === 0)) { await page.goto(`${BASE}#/u/${u.id}/${i}`); await page.waitForSelector('#stage > *'); }
     await page.evaluate(() => window.scrollTo(0, 0));
-    if (await page.locator('.sitebar').isVisible()) fail('Website-Leiste muss beim Spielen ausgeblendet sein');
     { const btn = page.locator('#stage .row:last-child:not([hidden]) .btn:not([hidden])').last();   // Haupt-Knopf muss ohne Scrollen im Bild sein
       if (await btn.count() && await btn.isVisible()) { const r = await btn.boundingBox(), vh = page.viewportSize().height;
         if (!(r.y >= 0 && r.y + r.height <= vh + 1)) fail(`${u.id}/${u.steps[i].id}: Haupt-Knopf nicht ohne Scrollen sichtbar (y=${Math.round(r.y)}, Höhe Fenster ${vh})`); } }

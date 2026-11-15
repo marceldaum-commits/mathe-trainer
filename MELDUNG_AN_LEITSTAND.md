@@ -2,6 +2,10 @@
 
 Neueste Meldung oben. Keine Geheimnisse, keine Personendaten (dieses Repo ist öffentlich, siehe Punkt 1).
 
+## 15.11.2026 (59) – 0.30.1 liegt auf `test`; 0.30.2: Leiste oben entfernt (Wunsch Marcel)
+
+- 0.30.2: Die Leiste „Zur Website“ ganz oben ist entfernt, stattdessen öffnet das Logo oben links die Website. Nur Web-App. Meldung „liegt auf test“ folgt.
+
 ## 15.11.2026 (58) – 0.30.0 liegt auf `test`; 0.30.1 folgt (kleine Korrektur nach Durchklick-Prüfung)
 
 - 0.30.0: alle fünf Browser-Durchläufe grün, auf `test`.

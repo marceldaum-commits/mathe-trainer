@@ -447,10 +447,9 @@ function nav() {
   $('#nav').hidden = !!view.querySelector('.stephead');
   tint();
 }
-/** Farbe der Android-Statusleiste: dunkelblau wie die Leiste oben; beim Spielen wie der Seitenhintergrund. */
+/** Farbe der Android-Statusleiste: wie die Kopfzeile bzw. der Seitenhintergrund (hell oder dunkel). */
 function tint() {
-  const spiel = !!view.querySelector('.stephead'), breit = window.matchMedia('(min-width:1240px)').matches;
-  document.querySelector('meta[name="theme-color"]')?.setAttribute('content', spiel || breit ? (look.dark ? '#0b1330' : '#ffffff') : '#0d1733');
+  document.querySelector('meta[name="theme-color"]')?.setAttribute('content', look.dark ? '#0b1330' : '#ffffff');
 }
 window.addEventListener('mt-look', () => queueMicrotask(tint));
 window.addEventListener('mt-ruhig', () => chips());
