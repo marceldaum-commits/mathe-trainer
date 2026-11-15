@@ -86,7 +86,20 @@ export const store = {
     return { n, total: unit.steps.length, done: n === unit.steps.length };
   },
   /** Fortschritt löschen. Geräte-Kennung und Zugangscode bleiben – sie sind kein Lernstand. */
-  reset() { const { geraet, zugang, schrift, jahrgang } = mem; mem = FRESH(); if (geraet) mem.geraet = geraet; if (zugang) mem.zugang = zugang; if (schrift) mem.schrift = schrift; if (jahrgang) mem.jahrgang = jahrgang; save(); },
+  reset() { const { geraet, zugang, schrift, jahrgang, outfit } = mem; mem = FRESH(); if (outfit) mem.outfit = outfit; if (geraet) mem.geraet = geraet; if (zugang) mem.zugang = zugang; if (schrift) mem.schrift = schrift; if (jahrgang) mem.jahrgang = jahrgang; save(); },
+
+  /** Nur das Geübte löschen: Aufgaben-Statistik, Fehler-Kartei, Runden- und Prüfungs-Ergebnisse. Sterne, Punkte und Abzeichen bleiben. */
+  resetGeuebt() { mem.stats = {}; mem.kartei = {}; mem.runs = []; mem.exams = []; mem.tag = {}; save(); },
+  /** Sterne der genannten Einheiten löschen (z. B. alle einer Klassenstufe). Punkte und Abzeichen bleiben. */
+  resetEinheiten(ids) { for (const k of Object.keys(mem.done)) if (ids.includes(k.split('/')[0])) delete mem.done[k]; if (ids.includes(mem.last)) delete mem.last; save(); },
+  /** Summe aller Sterne – schaltet die Outfits für Pi frei. */
+  get sterne() { return Object.values(mem.done).reduce((s, x) => s + (x | 0), 0); },
+  /** Was Pi trägt: { hut, brille } (Kennungen aus figuren.js, '' = nichts). */
+  get outfit() { const o = mem.outfit && typeof mem.outfit === 'object' ? mem.outfit : {}; return { hut: typeof o.hut === 'string' ? o.hut : '', brille: typeof o.brille === 'string' ? o.brille : '' }; },
+  set outfit(v) { mem.outfit = { hut: String(v?.hut || '').slice(0, 20), brille: String(v?.brille || '').slice(0, 20) }; save(); },
+  /** Klassenarbeits-Trainer: { datum: 'JJJJ-MM-TT', units: [Kennungen] } oder null. */
+  get arbeit() { const a = mem.arbeit; return a && typeof a === 'object' && /^\d{4}-\d{2}-\d{2}$/.test(a.datum || '') && Array.isArray(a.units) && a.units.length ? { datum: a.datum, units: a.units.filter((x) => typeof x === 'string').slice(0, 40) } : null; },
+  set arbeit(v) { if (v) mem.arbeit = v; else delete mem.arbeit; save(); },
 
   /* Statistik je Thema (für Bericht und Schwächen-Erkennung) */
   record(topic, firstTry) {

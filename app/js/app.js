@@ -16,6 +16,8 @@ import { store, LEVELS } from './store.js';
 import { CONFIG, VERSION, STAND } from './config.js';
 import { $, h, esc, ICON, starsHtml, toast, sfx, sound, confetti, look, formelnEinpassen } from './ui.js';
 import { abiView, rundeView, blitzView } from './exam.js';
+import { kopfView, knobelHeuteGeloest } from './kopf.js';
+import { arbeitView, arbeitPlan } from './arbeit.js';
 import { checkBadges, titleOf } from './badges.js';
 import { api, serverOn, kiBereit, kiArt } from './api.js';
 import { updateLeiste } from './update.js';
@@ -149,6 +151,8 @@ function home() {
     const goal = dailyGoal(openSteps(), days), w = planNow();
     today.append(h(`<a class="card count" href="#/plan"><b class="big">${days}</b><span><h3>${days === 1 ? 'Tag' : 'Tage'} bis zum Mathe-Abi</h3><small class="muted">${w?.units.length ? `Diese Woche: ${esc(w.units.map((u) => u.title.replace(/^Grundlagen: /, '')).join(' · '))}` : goal ? `Tagesziel: ${goal} ${goal === 1 ? 'Schritt' : 'Schritte'} im Lernpfad.` : 'Alle Schritte geschafft – jetzt Abi-Modus und Wiederholen.'}</small></span></a>`));
   }
+  { const p = arbeitPlan(store.arbeit);
+    if (p && p.tage >= 0) ($('.board', el) || today).before(h(`<a class="card count" id="ar-start" href="#/arbeit"><b class="big">${p.tage}</b><span><h3>${p.tage === 0 ? `Heute ist die ${arbeitWort()}` : `${p.tage === 1 ? 'Tag' : 'Tage'} bis zur ${arbeitWort()}`}</h3><small class="muted">${p.tage === 0 ? 'Viel Erfolg!' : p.heute.length ? `Heute dran: ${p.heute.length} ${p.heute.length === 1 ? 'Schritt' : 'Schritte'} – ${esc(p.heute[0].s.title)}${p.heute.length > 1 ? ' …' : ''}` : 'Alle Schritte geschafft – jetzt den Themen-Mix.'}</small></span></a>`)); }
   // Kleine Kacheln nebeneinander statt langer Liste
   const tiles = [];
   if (istOber() && !started && !store.einstufung) tiles.push(tile('#/einstufung/ergebnis', '?', 'Einstufungstest', 'Wo fängst du am besten an?'));
@@ -179,10 +183,18 @@ function stufeView() {
 }
 
 /** „Teste dich“ in der Mittelstufe: Arbeitsblatt, Probe-Arbeit, freies Üben. (Abi-Modus und Co. gibt es nur in der Oberstufe.) */
+const kopfKarte = () => linkCard('#/kopf', '1·1', 'Kopfrechen-Arena', knobelHeuteGeloest() ? '60 Sekunden Einmaleins, Plus, Minus und mehr.' : '60 Sekunden rechnen – und die Knobelaufgabe des Tages wartet.');
+const arbeitWort = () => (istOber() ? 'Klausur' : 'Klassenarbeit');
+function arbeitKarte() {
+  const p = arbeitPlan(store.arbeit);
+  return linkCard('#/arbeit', p && p.tage >= 0 ? p.tage : ICON.star, `${arbeitWort()}s-Trainer`, !p ? 'Termin und Themen eintragen – die App macht den Plan.' : p.tage < 0 ? 'Geschrieben! Jetzt die nächste planen.' : p.tage === 0 ? 'Heute ist es so weit – viel Erfolg!' : `Noch ${p.tage} ${p.tage === 1 ? 'Tag' : 'Tage'} · ${p.heute.length ? `heute ${p.heute.length} ${p.heute.length === 1 ? 'Schritt' : 'Schritte'}` : 'alles geschafft, jetzt wiederholen'}`);
+}
 function testeDichView() {
   return h(`<div class="view stack">
     <div><span class="eyebrow">Testen · ${esc(jgName(store.jahrgang))}</span><h1 style="margin-top:8px">Zeig, was sitzt</h1></div>
     <section class="stack">
+      ${arbeitKarte()}
+      ${kopfKarte()}
       ${linkCard('#/blatt', 'PDF', 'Arbeitsblatt und Probe-Arbeit', 'Themen wählen, in der App lösen oder drucken – mit Lösungsblatt.')}
       ${LERN_AREAS().map((a) => linkCard(`#/ueben/${a.id}`, '10', `${esc(a.title)} gemischt`, 'Zehn Aufgaben quer durch das Gebiet – immer neu.')).join('')}
       ${linkCard('#/wiederholen', store.karteDue().length || ICON.check, 'Fehler-Kartei', 'Was schiefging, kommt hier wieder – bis es sitzt.')}
@@ -236,6 +248,8 @@ function pruefungView() {
       ${linkCard('#/aufgabe', 'a–e', 'Abi-Aufgabe am Stück', 'Ein Sachverhalt, mehrere Teilaufgaben – wie in der Prüfung.')}
       ${linkCard('#/tag', ICON.bolt, 'Tages-Runde', tb !== undefined ? `Heute: ${tb} Punkte` : 'Sechs Aufgaben, heute für alle gleich.')}
       ${linkCard('#/abenteuer', `<i class="mini-fig">${figurFor('Der Abi-Drache', 'Abi', { form: 'zack', farbe: ['#ff7418', '#d85042'], horn: 1 })}</i>`, 'Abenteuer', store.n('abenteuerRekord') ? `Dein Rekord: ${store.n('abenteuerRekord')} Punkte` : 'Sieben Räume, Belohnungen, am Ende der Abi-Drache.')}
+      ${kopfKarte()}
+      ${arbeitKarte()}
       ${linkCard('#/blitz', '60', 'Blitz-Runde', store.n('blitzRekord') ? `Dein Rekord: ${store.n('blitzRekord')} Punkte` : '60 Sekunden, Kombo-Faktor, so viele wie möglich.')}
       ${linkCard('#/duell', 'VS', 'Duell', best ? `Dein Bestwert: ${best.score} Punkte` : 'Fordere Mitschüler per Link heraus.')}
       ${serverOn() ? linkCard('#/klasse', ICON.star, 'Klassen-Rangliste', store.klasse ? `Klasse ${esc(store.klasse.code)}` : 'Mit einem Code gemeinsam antreten.') : ''}
@@ -381,7 +395,7 @@ function route() {
   const hash = location.hash;
   const m = hash.match(/^#\/u\/([\w-]+)(?:\/(\d+))?$/);
   const u = m && UNITS.find((x) => x.id === m[1]);
-  const x = hash.match(/^#\/(abi|tag|duell|blitz|bericht|einstellungen|wiederholen|erfolge|formeln|klasse|lehrplan|einstufung|aufgabe|plan|zertifikat|abenteuer|karte|theorie|karten|kiaufgabe|pro)(?:\/([\w-]+))?$/);
+  const x = hash.match(/^#\/(abi|tag|duell|blitz|bericht|einstellungen|wiederholen|erfolge|formeln|klasse|lehrplan|einstufung|aufgabe|plan|zertifikat|abenteuer|karte|theorie|karten|kiaufgabe|pro|kopf|arbeit)(?:\/([\w-]+))?$/);
   const gm = hash.match(/^#\/g\/(\w+)$/), g = gm && LERN_AREAS().find((a) => a.id === gm[1]);
   const pm = hash.match(/^#\/ueben\/(\w+?)(-grund)?$/), pa = pm && LERN_AREAS().find((a) => a.id === pm[1]);
   const bm = hash.match(/^#\/blatt(?:\/([\w.\-/]+))?$/);
@@ -393,7 +407,7 @@ function route() {
     const after = () => { chips(); setTimeout(badgeCheck, 600); };
     const r = { abi: () => abiView(['A', 'B'].includes(x[2]) ? x[2] : null, after), tag: () => rundeView('tag', undefined, (res) => { after(); meldeTag(res); }), duell: () => rundeView('duell', x[2], after), blitz: () => blitzView(after),
       bericht: berichtView, einstellungen: settingsView, wiederholen: karteiView, erfolge: erfolgeView, formeln: formelnView, klasse: klasseView, lehrplan: lehrplanView,
-      einstufung: () => (x[2] === 'ergebnis' ? einstufungErgebnis() : einstufungView()), aufgabe: () => verbundView(x[2]), plan: planView, zertifikat: () => zertifikatView(x[2]), abenteuer: () => abenteuerView(after), karte: karteView, theorie: () => theorieView(x[2]), karten: kartenView, kiaufgabe: kiAufgabeView, pro: proView }[x[1]]();
+      einstufung: () => (x[2] === 'ergebnis' ? einstufungErgebnis() : einstufungView()), aufgabe: () => verbundView(x[2]), plan: planView, zertifikat: () => zertifikatView(x[2]), abenteuer: () => abenteuerView(after), karte: karteView, theorie: () => theorieView(x[2]), karten: kartenView, kiaufgabe: kiAufgabeView, pro: proView, kopf: () => kopfView(after), arbeit: () => arbeitView(after) }[x[1]]();
     el = r.el; cleanup = r.cleanup || null;
   } else if (hash === '#/stufe') el = stufeView();
   else if (hash === '#/lernen') el = lernenView();
@@ -424,7 +438,7 @@ function nav() {
   const hash = location.hash || '#/';
   const um = hash.match(/^#\/u\/([\w-]+)/), unit = um && UNITS.find((x) => x.id === um[1]);
   const tab = unit ? (unit.area === 'pruefung' ? 'pruefung' : 'lernen')
-    : /^#\/(lernen|g\/|ueben\/|einstufung|karte|theorie)/.test(hash) ? 'lernen' : /^#\/(pruefung|abi|tag|duell|blitz|klasse|aufgabe|abenteuer|blatt|kiaufgabe)/.test(hash) ? 'pruefung' : /^#\/(mehr|bericht|einstellungen|wiederholen|erfolge|formeln|lehrplan|plan|zertifikat|karten|pro)/.test(hash) ? 'mehr' : 'start';
+    : /^#\/(lernen|g\/|ueben\/|einstufung|karte|theorie)/.test(hash) ? 'lernen' : /^#\/(pruefung|abi|tag|duell|blitz|klasse|aufgabe|abenteuer|blatt|kiaufgabe|kopf|arbeit)/.test(hash) ? 'pruefung' : /^#\/(mehr|bericht|einstellungen|wiederholen|erfolge|formeln|lehrplan|plan|zertifikat|karten|pro)/.test(hash) ? 'mehr' : 'start';
   document.querySelectorAll('#nav a').forEach((a) => { const on = a.dataset.tab === tab; a.classList.toggle('on', on); if (on) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current'); });
   { const pf = document.querySelector('#nav a[data-tab="pruefung"] span'); if (pf) pf.textContent = istOber() ? 'Prüfung' : 'Testen'; }
   $('#nav').hidden = !!view.querySelector('.stephead');

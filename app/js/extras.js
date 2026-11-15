@@ -4,6 +4,7 @@ import * as H from './gen2.js';
 import { quiz } from './quiz.js';
 import { store, LEVELS, LAENDER, KARTEI_TAGE } from './store.js';
 import { UNITS, AREAS, istOber, jgName } from './units.js';
+import { pi, HUETE, BRILLEN, outfitFrei, outfitJetzt } from './figuren.js';
 import { $, h, esc, ICON, sfx, toast, confetti, drucken } from './ui.js';
 import { CONFIG, VERSION, STAND } from './config.js';
 import { updateStand, updateSuchen } from './update.js';
@@ -69,7 +70,13 @@ export function settingsView() {
         <button class="btn small" id="st-pro-go" type="button">Einlösen</button></div>
       <div id="st-pro-note"></div></section>
     <section class="card stack"><h3>Fortschritt</h3><small class="muted">Alles liegt nur auf diesem Gerät. Es gibt kein Konto.</small>
-      <button class="btn ghost" id="st-reset" type="button">Fortschritt zurücksetzen</button></section>
+      <button class="btn ghost" id="st-reset" type="button">Zurücksetzen …</button>
+      <div class="stack st-reset-wahl" id="st-reset-wahl" hidden>
+        <button class="card unit" type="button" data-r="geuebt"><span><h3>Nur das Geübte</h3><small>Aufgaben-Statistik, Fehler-Kartei und Runden-Ergebnisse löschen. Sterne, Punkte und Abzeichen bleiben.</small></span></button>
+        <button class="card unit" type="button" data-r="klasse"><span><h3 id="st-reset-klasse"></h3><small>Die Sterne aller Einheiten dieser Stufe löschen, um sie noch einmal von vorn zu machen. Punkte und Abzeichen bleiben.</small></span></button>
+        <button class="card unit" type="button" data-r="alles"><span><h3>Alles</h3><small>Den gesamten Fortschritt auf diesem Gerät löschen.</small></span></button>
+      </div></section>
+    <section class="card stack"><h3>Pi anziehen</h3><small class="muted" id="st-pi-info"></small><div class="st-pi"><span class="pi-fig" id="st-pi-bild"></span><div class="stack grow"><div class="picks" id="st-hut" role="radiogroup" aria-label="Hut"></div><div class="picks" id="st-brille" role="radiogroup" aria-label="Brille"></div></div></div></section>
     <section class="card stack"><h3>Über diese App</h3><dl class="st-info" id="st-info"></dl>
       <button class="btn ghost" id="st-update" type="button">Nach Update suchen</button><small class="muted" id="st-update-note" role="status"></small></section>
   </div>`);
@@ -156,7 +163,21 @@ export function settingsView() {
   const note = () => { const d = store.abiDays(); $('#st-abi-note', el).textContent = store.abi ? (d === null ? 'Der Termin liegt in der Vergangenheit.' : `Noch ${d} ${d === 1 ? 'Tag' : 'Tage'}. Der Countdown steht auf der Startseite.`) : 'Mit Termin zeigt die Startseite einen Countdown und ein Tagesziel.'; };
   $('#st-abi', el).addEventListener('change', (ev) => { store.abi = ev.target.value; note(); });
   note();
-  $('#st-reset', el).onclick = () => { if (window.confirm('Wirklich allen Fortschritt auf diesem Gerät löschen?')) { store.reset(); toast('Fortschritt gelöscht.'); location.hash = '#/'; } };
+  { const wahl = $('#st-reset-wahl', el); $('#st-reset-klasse', el).textContent = `Nur ${jgName(store.jahrgang)}`;
+    $('#st-reset', el).onclick = () => { wahl.hidden = !wahl.hidden; };
+    wahl.querySelectorAll('button').forEach((b) => { b.onclick = () => {
+      const r = b.dataset.r, frage = r === 'geuebt' ? 'Wirklich alles Geübte löschen? Sterne, Punkte und Abzeichen bleiben.' : r === 'klasse' ? `Wirklich die Sterne aller Einheiten in „${jgName(store.jahrgang)}“ löschen?` : 'Wirklich allen Fortschritt auf diesem Gerät löschen?';
+      if (!window.confirm(frage)) return;
+      if (r === 'geuebt') store.resetGeuebt(); else if (r === 'klasse') store.resetEinheiten(UNITS.map((u) => u.id)); else store.reset();
+      toast(r === 'geuebt' ? 'Geübtes gelöscht.' : r === 'klasse' ? `${jgName(store.jahrgang)} zurückgesetzt.` : 'Fortschritt gelöscht.'); location.hash = '#/';
+    }; }); }
+  { const male = () => { const jetzt = outfitJetzt(), n = store.sterne;
+      $('#st-pi-bild', el).innerHTML = pi(); $('#st-pi-info', el).textContent = `Mit Sternen aus dem Lernpfad schaltest du Hüte und Brillen frei. Du hast ${n} ${n === 1 ? 'Stern' : 'Sterne'}.`;
+      for (const [sel, liste, key] of [['#st-hut', HUETE, 'hut'], ['#st-brille', BRILLEN, 'brille']]) {
+        const box = $(sel, el); box.innerHTML = '';
+        liste.forEach(([id, name, need]) => { const frei = outfitFrei(liste, id), b = h(`<button class="pick ${jetzt[key] === id ? 'sel' : ''}" type="button" role="radio" aria-checked="${jetzt[key] === id}" data-k="${id}" ${frei ? '' : 'disabled'}>${esc(name)}${frei ? '' : `<small> ab ${need} ★</small>`}</button>`);
+          b.onclick = () => { store.outfit = { ...outfitJetzt(), [key]: id }; sfx('tap'); male(); }; box.append(b); }); } };
+    male(); }
   return { el };
 }
 

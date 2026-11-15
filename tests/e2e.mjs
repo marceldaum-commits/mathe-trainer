@@ -947,6 +947,59 @@ await ctx2.close();
   if (!(await ap.locator('#upd').isVisible())) fail('Update: Hinweis verschwindet beim Seitenwechsel');
   await ac.close();
 }
+// Paket 0.30.0: Kopfrechen-Arena, Knobelaufgabe, Klassenarbeits-Trainer, Pi-Outfit, Zurücksetzen mit Auswahl
+{ const kc = await browser.newContext({ ...devices['Pixel 7'], serviceWorkers: 'block' }); const kp = await kc.newPage();
+  kp.on('pageerror', (e) => errors.push(`Paket 30: ${e}`)); kp.on('dialog', (d) => d.accept());
+  await kc.addInitScript(() => { window.__mtTest = true; window.__mtKopfSek = 6; });
+  const breit = async (wo) => { if (await kp.evaluate(() => document.documentElement.scrollWidth - innerWidth > 1)) fail(`${wo}: Seite ist zu breit`); };
+  const tippe = async (box, zahl) => { for (const z of String(zahl)) await kp.click(`${box} [data-t="${z === '-' ? '±' : z}"]`); };
+  await kp.goto(BASE); await kp.evaluate(() => { const done = {}; for (const s of ['waage', 'terme', 'term', 'klammer', 'gleichung', 'loesen', 'mix']) done[`k7-terme/${s}`] = 3; localStorage.setItem('mt.v1', JSON.stringify({ jahrgang: '7', done, xp: 100, stats: { Terme: { ok: 3, bad: 2 } }, runs: [{ kind: 'blitz', score: 5 }] })); });
+  await kp.goto(`${BASE}#/pruefung`); await kp.reload(); await kp.waitForSelector('a[href="#/kopf"]'); await kp.click('a[href="#/kopf"]'); await kp.waitForSelector('#kopf-arten');
+  if ((await kp.locator('.kopf-art').count()) !== 6) fail('Kopfrechnen: Klasse 7 soll sechs Disziplinen sehen');
+  await breit('Kopfrechen-Arena'); if (shots) await kp.screenshot({ path: `${shots}/84-kopfrechnen.png` });
+  // Knobelaufgabe: erst falsch, dann richtig
+  const kn = (await import('../app/js/kopf.js')).knobelFuer(await kp.evaluate(() => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; }));
+  if ((await kp.textContent('#knobel-text')) !== kn.text) fail('Knobelaufgabe: Text passt nicht zum Tag');
+  await tippe('#knobel-tasten', kn.sol + 1); await kp.click('#knobel-go'); await kp.waitForSelector('#knobel-note .note.tip');
+  await tippe('#knobel-tasten', kn.sol); await kp.click('#knobel-go'); await kp.waitForSelector('#knobel-ok');
+  if ((await kp.evaluate(() => JSON.parse(localStorage.getItem('mt.v1')).xp)) !== 105) fail('Knobelaufgabe: Punkte nach zweitem Versuch stimmen nicht');
+  // Eine Runde: zwei richtige, eine falsche, dann läuft die Zeit ab
+  await kp.click(`.kopf-art[data-a="${LEVEL % 2 ? 'mal' : 'minus'}"]`); await kp.waitForSelector('#kopf-q');
+  for (let k = 0; k < 2; k++) { const sol = await kp.getAttribute('#kopf-q', 'data-sol'), alt = await kp.textContent('#kopf-q'); await tippe('#kopf-tasten', sol); await kp.waitForFunction((t) => document.querySelector('#kopf-q')?.textContent !== t || !!document.querySelector('#kopf-end'), alt); if (await kp.locator('#kopf-end').count()) break; }
+  if (await kp.locator('#kopf-q').count()) { const sol = +(await kp.getAttribute('#kopf-q', 'data-sol')); await tippe('#kopf-tasten', String(Math.abs(sol) + 1).padStart(String(Math.abs(sol)).length, '1')); if (shots) await kp.screenshot({ path: `${shots}/85-kopfrechnen-runde.png` }); }
+  await kp.waitForSelector('#kopf-end', { timeout: 15000 });
+  if (+(await kp.textContent('#kopf-end')) < 1) fail('Kopfrechnen: richtige Antworten werden nicht gezählt');
+  if (!(await kp.evaluate((a) => JSON.parse(localStorage.getItem('mt.v1')).count[`kopf_${a}`] >= 1, LEVEL % 2 ? 'mal' : 'minus'))) fail('Kopfrechnen: Rekord wird nicht gespeichert');
+  // Klassenarbeits-Trainer
+  await kp.goto(`${BASE}#/arbeit`); await kp.waitForSelector('#ar-datum');
+  await kp.click('#ar-los'); await kp.waitForSelector('#ar-note .note.tip');
+  const termin = await kp.evaluate(() => { const d = new Date(); d.setDate(d.getDate() + 6); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; });
+  await kp.fill('#ar-datum', termin); await kp.click('#ar-themen .check[data-u="k7-terme"]'); await kp.click('#ar-themen .check[data-u="k7-prozent"]'); await kp.click('#ar-los'); await kp.waitForSelector('#ar-heute');
+  if ((await kp.textContent('#ar-count .big')) !== '6') fail('Klassenarbeit: Countdown stimmt nicht');
+  if (!/^\d+ %$/.test(await kp.textContent('#ar-proz')) || (await kp.textContent('#ar-proz')) === '0 %') fail('Klassenarbeit: Fortschritt zählt Erledigtes nicht');
+  if (!(await kp.locator('#ar-heute a.card').count())) fail('Klassenarbeit: kein Schritt für heute');
+  await breit('Klassenarbeits-Trainer'); if (shots) await kp.screenshot({ path: `${shots}/86-klassenarbeit.png`, fullPage: true });
+  await kp.click('#ar-mix'); await kp.waitForSelector('#stage .opt, #stage input'); await kp.click('#ar-x'); await kp.waitForSelector('#ar-neu');
+  await kp.goto(`${BASE}#/`); await kp.waitForSelector('#ar-start');
+  if (!/6/.test(await kp.textContent('#ar-start .big'))) fail('Klassenarbeit: Karte auf der Startseite fehlt');
+  // Pi anziehen: Kappe ist frei (21 Sterne), Krone nicht
+  await kp.goto(`${BASE}#/einstellungen`); await kp.waitForSelector('#st-hut');
+  if (!(await kp.locator('#st-hut [data-k="krone"]').isDisabled()) || (await kp.locator('#st-hut [data-k="kappe"]').isDisabled())) fail('Pi-Outfit: Freischaltung nach Sternen stimmt nicht');
+  const vorher = await kp.innerHTML('#st-pi-bild'); await kp.click('#st-hut [data-k="kappe"]'); await kp.click('#st-brille [data-k="rund"]');
+  if ((await kp.innerHTML('#st-pi-bild')) === vorher || (await kp.evaluate(() => JSON.parse(localStorage.getItem('mt.v1')).outfit.hut)) !== 'kappe') fail('Pi-Outfit: Auswahl wird nicht übernommen');
+  if (shots) { await kp.locator('#st-pi-bild').scrollIntoViewIfNeeded(); await kp.screenshot({ path: `${shots}/87-pi-outfit.png` }); }
+  // Zurücksetzen mit Auswahl
+  await kp.click('#st-reset'); await kp.click('#st-reset-wahl [data-r="geuebt"]'); await kp.waitForSelector('#home');
+  let m = await kp.evaluate(() => JSON.parse(localStorage.getItem('mt.v1')));
+  if (Object.keys(m.stats).length || m.runs.length || Object.keys(m.done).length !== 7 || m.xp < 100) fail('Zurücksetzen „Nur das Geübte“: löscht zu viel oder zu wenig');
+  await kp.goto(`${BASE}#/einstellungen`); await kp.waitForSelector('#st-reset'); await kp.click('#st-reset'); await kp.click('#st-reset-wahl [data-r="klasse"]'); await kp.waitForSelector('#home');
+  m = await kp.evaluate(() => JSON.parse(localStorage.getItem('mt.v1')));
+  if (Object.keys(m.done).length || m.xp < 100 || m.outfit.hut !== 'kappe' || !m.arbeit) fail('Zurücksetzen „Nur diese Klasse“: Sterne der Stufe bleiben oder anderes geht verloren');
+  await kp.goto(`${BASE}#/einstellungen`); await kp.waitForSelector('#st-reset'); await kp.click('#st-reset'); await kp.click('#st-reset-wahl [data-r="alles"]'); await kp.waitForSelector('#home');
+  m = await kp.evaluate(() => JSON.parse(localStorage.getItem('mt.v1')));
+  if (m.xp !== 0 || m.arbeit || m.jahrgang !== '7') fail('Zurücksetzen „Alles“: Fortschritt bleibt oder Klassenstufe geht verloren');
+  await kc.close();
+}
 await browser.close();
 if (errors.length) { console.error('Konsolen-Fehler:\n' + errors.join('\n')); process.exit(1); }
 console.log(`e2e: kompletter Durchlauf ohne Fehler (Stufe ${LEVEL}, ${xp} Punkte, ${UNITS.length} Einheiten mit Boss, Abi ${np} NP, Tages-Runde ${tagScore}, Blitz ${blitz}, ${got} Abzeichen, Duell, Kartei, Bericht, Formeln, Wochen-Ziel, Klasse mit nachgestelltem Server, offline ok)`);

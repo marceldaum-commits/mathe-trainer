@@ -964,6 +964,42 @@ ok(nextStreak({ n: 3, last: '2026-11-10' }, D('2026-11-12')).n === 1, 'Serie: au
   ok(U.updateStand(app({ kanal: 'store', bereit: '<b>x</b>', huelle: true })).bereit === '' , 'Update: nur echte Versionsnummern');
   ok(U.updateStand(app({ kanal: 'store', bereit: '1.0.0', huelle: true })).huelle === false, 'Update: im Store-Kanal kein Hinweis auf eine App-Datei');
   ok(U.updateStand(app({ kanal: 'irgendwas' })).kanal === 'aus', 'Update: unbekannter Kanal zählt als aus');
+  { // Kopfrechen-Arena und Knobelaufgabe
+    const K = await import('../app/js/kopf.js');
+    for (const [art] of K.KOPF_ARTEN) for (const st of [1, 2, 3]) for (let i = 0; i < 400; i++) { const q = K.kopfAufgabe(art, st);
+      if (!(Number.isInteger(q.sol) && Math.abs(q.sol) < 100000 && K.kopfProbe(q) && (['minus', 'plus'].includes(art) || q.sol > 0))) { ok(false, `Kopfrechnen ${art}/${st}: ${q.text} = ${q.sol}`); break; } }
+    ok(true, 'Kopfrechnen: jede Aufgabe hat eine ganze Zahl als Lösung, Text und Lösung passen');
+    ok(K.kopfArten('5').length === 4 && K.kopfArten('7').length === 6 && K.kopfArten('os').length === 6 && !K.kopfArten('5').some((a) => a[0] === 'minus'), 'Kopfrechnen: Disziplinen passen zur Klassenstufe');
+    ok(K.KNOBEL.length >= 28 && K.KNOBEL.every((k) => k.length === 4 && Number.isInteger(k[1]) && k[1] > 0 && k[0].length > 30 && k[0].endsWith('?') && k[2].length > 10 && k[3].length > 10) && new Set(K.KNOBEL.map((k) => k[0])).size === K.KNOBEL.length, 'Knobelaufgaben: vollständig, ganzzahlig, ohne Dopplung');
+    ok(K.knobelFuer('2026-11-15').text === K.knobelFuer('2026-11-15').text && new Set(Array.from({ length: 60 }, (_, i) => K.knobelFuer(`2026-12-${i}`).text)).size >= 15, 'Knobelaufgabe: pro Tag fest, über die Tage verschieden');
+    // Nachgerechnet, was sich nachrechnen lässt
+    const kn = (anf) => K.KNOBEL.find((k) => k[0].startsWith(anf))[1];
+    let q9 = 0; for (let n = 1; n <= 120; n++) q9 += String(n).split('9').length - 1;
+    let d3 = 0; for (let n = 1; n <= 100; n++) if (n % 3 === 0 && n % 6 !== 0) d3++;
+    let rest = 2; while (![2, 3, 4, 5, 6].every((t) => rest % t === 1)) rest++;
+    let nullen = 0; for (let n = 1; n <= 25; n++) { let m = n; while (m % 5 === 0) { nullen++; m /= 5; } }
+    let schnecke = 0, tag = 0; for (;;) { tag++; schnecke += 3; if (schnecke >= 10) break; schnecke -= 2; }
+    let qs = 0; for (let n = 10; n <= 99; n++) if (Math.floor(n / 10) + (n % 10) === 9 && (n % 10) * 10 + Math.floor(n / 10) === n + 27) qs = n;
+    ok(kn('Ein Buch hat 120') === q9 && kn('Wie viele Zahlen von 1 bis 100') === d3 && kn('Welche ist die kleinste Zahl') === rest && kn('Wie viele Nullen') === nullen && kn('Eine Schnecke') === tag && kn('Die Quersumme') === qs && kn('Eine Uhr') === 78 && kn('Wie viele Quadrate') === 9 + 4 + 1, 'Knobelaufgaben: Lösungen nachgerechnet');
+    // Outfits für Pi
+    const F = await import('../app/js/figuren.js');
+    ok(F.outfitFrei(F.HUETE, '', 0) && !F.outfitFrei(F.HUETE, 'krone', 149) && F.outfitFrei(F.HUETE, 'krone', 150) && !F.outfitFrei(F.HUETE, 'gibtsnicht', 999), 'Pi-Outfit: Freischalten nach Sternen');
+    ok(F.outfitJetzt({ hut: 'krone', brille: 'rund' }, 25).hut === '' && F.outfitJetzt({ hut: 'krone', brille: 'rund' }, 25).brille === 'rund' && F.outfitJetzt({ hut: '<x>', brille: 5 }, 999).hut === '', 'Pi-Outfit: nur freie, bekannte Teile');
+    const nackt = F.pi({}, { hut: '', brille: '' }), schick = F.pi({}, { hut: 'zylinder', brille: 'sonne' });
+    ok(schick.length > nackt.length + 100 && /<svg class="figur"/.test(schick) && !/<script|onload|href/i.test([...F.HUETE, ...F.BRILLEN].map((x) => x[3]).join('')) && [...F.HUETE, ...F.BRILLEN].every((x) => x[2] >= 0 && x[1].length > 2), 'Pi-Outfit: wird gezeichnet, Zeichnungen sind harmlos');
+    // Klassenarbeits-Trainer
+    const A = await import('../app/js/arbeit.js');
+    const us = [{ id: 'a', steps: [1, 2, 3, 4, 5, 6, 7].map((i) => ({ id: `s${i}`, title: `S${i}` })), bossGens: [Math.abs, Math.max] }, { id: 'b', steps: [1, 2, 3].map((i) => ({ id: `t${i}`, title: `T${i}` })), bossGens: [Math.max] }];
+    const heute = new Date(2026, 10, 15), keins = () => false;
+    ok(A.tageBis('2026-11-15', heute) === 0 && A.tageBis('2026-11-25', heute) === 10 && A.tageBis('2026-11-10', heute) === -5 && A.tageBis('2027-01-01', heute) === 47, 'Klassenarbeit: Tage bis zum Termin');
+    const p = A.arbeitPlan({ datum: '2026-11-21', units: ['a', 'b', 'weg'] }, us, keins, heute);
+    ok(p.tage === 6 && p.total === 10 && p.erledigt === 0 && p.proTag === 2 && p.heute.length === 2 && p.heute[0].u.id === 'a' && p.heute[0].i === 0 && p.phase === 'lernen' && !p.knapp && p.units.length === 2, 'Klassenarbeit: Plan verteilt die Schritte, der Vortag bleibt frei');
+    const eng = A.arbeitPlan({ datum: '2026-11-16', units: ['a', 'b'] }, us, keins, heute);
+    ok(eng.proTag === 6 && eng.knapp && eng.heute.length === 6, 'Klassenarbeit: bei wenig Zeit höchstens sechs Schritte am Tag, mit Hinweis');
+    const fit = A.arbeitPlan({ datum: '2026-11-20', units: ['b'] }, us, () => true, heute);
+    ok(fit.phase === 'fit' && fit.heute.length === 0 && fit.erledigt === 3, 'Klassenarbeit: alles geschafft');
+    ok(A.arbeitPlan({ datum: '2026-11-15', units: ['b'] }, us, keins, heute).phase === 'heute' && A.arbeitPlan({ datum: '2026-11-01', units: ['b'] }, us, keins, heute).phase === 'vorbei' && A.arbeitPlan({ datum: '2026-11-01', units: ['b'] }, us, keins, heute).heute.length === 0 && A.arbeitPlan(null) === null, 'Klassenarbeit: Tag der Arbeit und danach');
+    ok(A.arbeitGens(us).length === 2, 'Klassenarbeit: Themen-Mix ohne doppelte Aufgaben-Arten'); }
   { // Von Hand suchen
     const fenster = () => { const l = {}; return { addEventListener: (n, f) => { l[n] = f; }, removeEventListener: (n) => { delete l[n]; }, feuer: (n, detail) => l[n]?.({ detail }), hat: (n) => !!l[n] }; };
     ok((await U.updateSuchen({ updateStand: () => '{"kanal":"test"}' }, fenster())).art === 'aktuell', 'Update suchen: alte App-Datei ohne Such-Funktion bekommt einen ruhigen Hinweis');
