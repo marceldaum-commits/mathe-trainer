@@ -2,6 +2,14 @@
 
 Neueste Meldung oben. Keine Geheimnisse, keine Personendaten (dieses Repo ist öffentlich, siehe Punkt 1).
 
+## 15.11.2026 (56) – 0.29.3: Android-App holt Updates zuerst von GitHub (Entscheidung Marcel) – bitte beachten
+
+- Marcel, 15.11.: „der Updateserver soll der Git sein“, gewählt: **GitHub zuerst, eigener Server als Ersatz**. Das ersetzt die Regel „nie GitHub“ vom 14.11.
+- Folge 1: **Repo vorerst nicht privat schalten** – sonst bekommt die App von GitHub nichts mehr (sie fällt dann auf den Server zurück). Vor dem Privat-Schalten Bescheid geben, dann stelle ich auf ein öffentliches Auslieferungs-Repo um.
+- Folge 2: Store-Kanal lädt aus Zweig `live` – der muss wie bisher genau das Freigegebene enthalten.
+- Folge 3: Datenschutz-Text der App: Beim Aktualisieren wird GitHub aufgerufen.
+- 0.28.1 liegt auf `test` (alle fünf Browser-Durchläufe grün).
+
 ## 15.11.2026 (55) – 0.29.2: Such-Knopf nennt den Grund – und eine Frage zum Test-Server
 
 - Marcels Handy (App-Datei 0.29.1, Kanal test) meldete um ca. 13:00 beim Knopf „Nach Update suchen“: keine Verbindung, trotz WLAN. Bitte prüfen: Ist `trainer-test…/stand.json` erreichbar (Antwort 200)? Aus diesem Raum ist der Server nicht abrufbar.

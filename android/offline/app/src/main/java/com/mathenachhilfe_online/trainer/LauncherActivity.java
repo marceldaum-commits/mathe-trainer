@@ -43,16 +43,19 @@ public class LauncherActivity extends Activity {
     private WebView web;
 
     /* Selbst-Aktualisierung der Inhalte (siehe Update.java). Kanal „test“ lädt den Test-Stand, „store“ den freigegebenen. */
-    /* Quelle ist der eigene Server (dieselben Dateien wie die Web-App) – kein fremder Dienst, das Repo kann privat sein. */
+    /* Quelle ist zuerst GitHub (Marcel, 15.11.2026: „der Updateserver soll der Git sein“), als Ersatz der eigene Server. */
+    /* Geladen wird ohne Anmeldung – das geht nur, solange das Repo öffentlich ist. Jede Datei wird gegen ihre Prüfsumme geprüft. */
+    static final String GIT = "https://raw.githubusercontent.com/marceldaum-commits/mathe-trainer/";
     static final String QUELLE_TEST = "https://trainer-test.mathenachhilfe-online.com/", QUELLE_STORE = BASIS;
     /** Ordner mit dem geladenen Stand in Benutzung – oder null: dann gilt die eingepackte Fassung. */
     private volatile File geladen;
     private volatile String inhalt = "", bereit = "";
     private volatile boolean huelleNeu;
     private String kanal() { return getString(R.string.mt_kanal); }
-    private String quelle() {
+    /** Quellen in der Reihenfolge, in der gefragt wird – oder null: Kanal aus. */
+    private String[] quellen() {
         String k = kanal();
-        return "test".equals(k) ? QUELLE_TEST : "store".equals(k) ? QUELLE_STORE : null;
+        return "test".equals(k) ? new String[] { GIT + "test/app/", QUELLE_TEST } : "store".equals(k) ? new String[] { GIT + "live/app/", QUELLE_STORE } : null;
     }
     private File updateOrdner() { return new File(getFilesDir(), "update"); }
     /** Beim Start: fertig Geladenes übernehmen. */
@@ -69,19 +72,23 @@ public class LauncherActivity extends Activity {
     private volatile boolean sucht, meldeWunsch;
     /** melden: Die Web-App hat von Hand gesucht und bekommt immer eine Antwort (Ereignis mt-update-fertig: ok oder netz). */
     private void updateSuche(final boolean melden) {
-        final String q = quelle();
-        if (q == null) return;
+        final String[] qs = quellen();
+        if (qs == null) return;
         if (melden) meldeWunsch = true;
         if (sucht) return;   // läuft schon: Die laufende Suche antwortet gleich mit
         sucht = true;
         new Thread(() -> {
             String ergebnis = "ok";
-            try {
-                Update.Ergebnis e = Update.lade(updateOrdner(), q, BuildConfigInfo.version(this), pfad -> getAssets().open("www/" + pfad), Update.NETZ);
-                bereit = e.bereit == null ? "" : e.bereit;
-                huelleNeu = "test".equals(kanal()) && e.huelle > getResources().getInteger(R.integer.mt_huelle);
-                if (!bereit.isEmpty() || huelleNeu) runOnUiThread(() -> { if (web != null) web.evaluateJavascript("window.dispatchEvent(new Event('mt-update'))", null); });
-            } catch (Exception ohneNetz) { ergebnis = Update.grund(ohneNetz); /* kein Netz oder Quelle nicht erreichbar: beim nächsten Start wieder */ }
+            for (String q : qs) {
+                try {
+                    Update.Ergebnis e = Update.lade(updateOrdner(), q, BuildConfigInfo.version(this), pfad -> getAssets().open("www/" + pfad), Update.NETZ);
+                    bereit = e.bereit == null ? "" : e.bereit;
+                    huelleNeu = "test".equals(kanal()) && e.huelle > getResources().getInteger(R.integer.mt_huelle);
+                    if (!bereit.isEmpty() || huelleNeu) runOnUiThread(() -> { if (web != null) web.evaluateJavascript("window.dispatchEvent(new Event('mt-update'))", null); });
+                    ergebnis = "ok";
+                    break;
+                } catch (Exception ohneNetz) { ergebnis = Update.grund(ohneNetz); /* diese Quelle antwortet nicht: nächste fragen, sonst beim nächsten Start wieder */ }
+            }
             sucht = false;
             final String js = "window.dispatchEvent(new CustomEvent('mt-update-fertig',{detail:'" + ergebnis + "'}))";
             final boolean sagen = meldeWunsch; meldeWunsch = false;
