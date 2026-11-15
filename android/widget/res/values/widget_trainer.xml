@@ -2,6 +2,10 @@
 <resources>
     <string name="widget_name">Mathe-Trainer</string>
     <string name="widget_kicker">FORMEL DES TAGES</string>
+    <string name="widget_kicker_merk">MERKSATZ DES TAGES</string>
+    <string name="widget_weiter">Weiter:</string>
+    <string name="widget_lernen">Lernen</string>
+    <string name="widget_karten">Lernkarten</string>
     <string name="widget_tag">Tages-Runde</string>
     <string name="widget_abenteuer">Abenteuer</string>
     <string name="widget_wiederholen">Wiederholen</string>
@@ -47,5 +51,43 @@
         <item>Rotationsvolumen: V = π · Integral von f(x)²</item>
         <item>Operator „Bestimme“: Rechenweg zeigen, Ergebnis nennen</item>
         <item>Operator „Zeige“: Die Behauptung steht fest – du lieferst den Weg</item>
+    </string-array>
+    <string-array name="widget_merk_jung">
+        <item>Runden: Bei 0 bis 4 abrunden, bei 5 bis 9 aufrunden</item>
+        <item>Punkt vor Strich – und Klammern zuerst</item>
+        <item>Eine Primzahl hat genau zwei Teiler: 1 und sich selbst</item>
+        <item>Durch 3 teilbar, wenn die Quersumme durch 3 teilbar ist</item>
+        <item>Minus mal Minus ergibt Plus</item>
+        <item>Fläche des Rechtecks: Länge mal Breite</item>
+        <item>Umfang des Rechtecks: zwei Längen plus zwei Breiten</item>
+        <item>1 km = 1000 m, 1 m = 100 cm, 1 cm = 10 mm</item>
+        <item>Der Nenner sagt, in wie viele Teile geteilt wird – der Zähler zählt sie</item>
+        <item>Kürzen: Zähler und Nenner durch dieselbe Zahl teilen</item>
+        <item>Brüche addieren: erst gleicher Nenner, dann die Zähler</item>
+        <item>Mal 10: Jede Ziffer rückt eine Stelle nach links</item>
+        <item>Ein Viertel = 0,25 = 25 %</item>
+        <item>Rauminhalt des Quaders: Länge mal Breite mal Höhe</item>
+        <item>Mittelwert: alles addieren, durch die Anzahl teilen</item>
+        <item>Eine negative Zahl abziehen heißt: addieren</item>
+    </string-array>
+    <string-array name="widget_merk_mittel">
+        <item>Gleichung lösen: auf beiden Seiten dasselbe tun</item>
+        <item>Nur gleichartige Glieder zusammenfassen: x zu x, y zu y</item>
+        <item>Minus vor der Klammer dreht alle Vorzeichen um</item>
+        <item>Prozentwert = Grundwert · Prozentsatz</item>
+        <item>Um 20 % erhöht heißt: mal 1,2</item>
+        <item>Dreisatz: erst auf 1 rechnen, dann auf die gesuchte Anzahl</item>
+        <item>Gerade: f(x) = m · x + b – m ist die Steigung, b der y-Achsenabschnitt</item>
+        <item>Steigung: Höhenunterschied geteilt durch den Schritt nach rechts</item>
+        <item>Wahrscheinlichkeit: günstige durch mögliche Ergebnisse</item>
+        <item>Gegenereignis: P(nicht A) = 1 − P(A)</item>
+        <item>Wurzeln malnehmen: √a · √b = √(a · b)</item>
+        <item>pq-Formel: x = −p/2 ± √((p/2)² − q)</item>
+        <item>Satz des Pythagoras: a² + b² = c²</item>
+        <item>Scheitelform: f(x) = a · (x − d)² + e, Scheitel S(d | e)</item>
+        <item>Potenzen malnehmen: Hochzahlen addieren</item>
+        <item>Zinseszins: jedes Jahr mal (1 + p/100)</item>
+        <item>Sinus = Gegenkathete durch Hypotenuse</item>
+        <item>Kegel und Pyramide: ein Drittel von Grundfläche mal Höhe</item>
     </string-array>
 </resources>

@@ -122,6 +122,10 @@ public class LauncherActivity extends Activity {
         @JavascriptInterface public void updateAnwenden() {
             runOnUiThread(() -> { updateStarte(); web.clearCache(true); web.loadUrl(BASIS); });
         }
+        /** Die Web-App sagt dem Widget, was es zeigen soll: Klassenstufe, nächster Schritt (Titel und Adresse in der App), Lernserie. */
+        @JavascriptInterface public void widgetStand(String jg, String titel, String ziel, int serie) {
+            try { TrainerWidget.merke(LauncherActivity.this, jg, titel, ziel, serie); } catch (Exception egal) { /* Widget nicht da: nichts tun */ }
+        }
         /** Öffnet die Android-Einstellungen für die Mitteilungen dieser App. */
         @JavascriptInterface public void mitteilungenEinstellen() {
             runOnUiThread(() -> {

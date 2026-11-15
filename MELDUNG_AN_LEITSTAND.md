@@ -2,6 +2,13 @@
 
 Neueste Meldung oben. Keine Geheimnisse, keine Personendaten (dieses Repo ist öffentlich, siehe Punkt 1).
 
+## 15.11.2026 (52) – 0.28.1: Widget der Android-App für alle Stufen – App-Hülle geändert (Meldung „liegt auf test“ folgt)
+
+Marcels Wunsch. Das Widget zeigt Merksatz des Tages je Klassenstufe, den nächsten Lernschritt und die Lernserie.
+Dafür gibt es eine neue Brücken-Funktion `MTApp.widgetStand(jahrgang, titel, adresse, serie)` – die Daten bleiben im Gerät.
+**Die App-Hülle hat sich geändert** (Hüllen-Nummer steigt): Marcels Test-App zeigt „Neue App-Datei verfügbar“.
+Für den Server ändert sich nichts.
+
 ## 15.11.2026 (51) – 0.28.0 liegt auf `test` (alle fünf Browser-Durchläufe grün)
 
 Inhalt wie in (50). Nichts für den Server, App-Hülle unverändert. Für 0.26.0 bis 0.28.0 (Mittelstufe) gilt weiter:

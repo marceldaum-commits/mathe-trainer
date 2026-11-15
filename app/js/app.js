@@ -107,8 +107,14 @@ export function piSagt(spot, jetzt = new Date()) {
     : spot.last ? `Weiter bei „${spot.u.steps[spot.i].title}“?` : `Als Nächstes: „${spot.u.steps[spot.i].title}“.`;
   return `${gruss} ${satz}`;
 }
+/** Android-App: dem Widget sagen, was als Nächstes dran ist (Klassenstufe, Schritt, Lernserie). Bleibt im Gerät. */
+export function widgetMelden(spot = nextSpot()) {
+  if (typeof window.MTApp?.widgetStand !== 'function') return;
+  try { window.MTApp.widgetStand(store.jahrgang, spot ? spot.u.steps[spot.i].title : '', spot ? `#/u/${spot.u.id}/${spot.i}` : '', store.ruhig ? 0 : store.streak | 0); } catch { /* ältere App-Hülle */ }
+}
 function home() {
   const spot = nextSpot();
+  widgetMelden(spot);
   const started = store.xp > 0;
   const el = h(`<div class="view stack" id="home">
     <section class="hero ${started ? 'klein' : ''}">
@@ -312,6 +318,7 @@ function finish(u, i, res) {
   const stars = Math.max(0, Math.min(3, res.stars ?? 3));
   const before = titleOf().title;
   const r = store.complete(u.id, s.id, stars);
+  widgetMelden();
   if (store.level >= 5) store.bump('stufe5');
   const after = titleOf().title;
   chips();
