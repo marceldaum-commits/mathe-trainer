@@ -490,9 +490,146 @@ export function genKoerper(lv = 3) {
   }
 }
 
+/* ───────────── Weitere Themen der Klassen 7 bis 10 ───────────── */
+
+/** Winkel: Nebenwinkel, Scheitelwinkel, Winkelsumme im Dreieck und Viereck, gleichschenklige Dreiecke. */
+export function genWinkel(lv = 3) {
+  for (;;) {
+    const kind = pick(tier(lv, ['neben'], ['neben', 'scheitel', 'dreieck'], ['dreieck', 'gleichschenklig'], ['gleichschenklig', 'viereck', 'aussen'], ['viereck', 'aussen', 'basis']));
+    const W = (num, c, w) => N(num, c, w, `${ft(num)}^\\circ`), al = ri(4, 14) * 5, be = ri(4, 14) * 5;
+    let prompt, opts, hints, explain;
+    if (kind === 'neben') { prompt = `Zwei Winkel liegen nebeneinander an einer Geraden. Der eine ist ${al}° groß. Wie groß ist der andere (der Nebenwinkel)?`;
+      opts = [W(180 - al, true), W(al, false, 'Gleich groß sind Scheitelwinkel – sie liegen sich gegenüber. Nebenwinkel ergänzen sich zu 180°.'), W(90 - al > 0 ? 90 - al : 360 - al, false, 'Eine Gerade bildet einen gestreckten Winkel von 180°.'), W(180 + al, false, 'Die beiden Winkel ergeben zusammen 180° – der gegebene wird abgezogen.')];
+      hints = ['Nebenwinkel ergänzen sich zu einem gestreckten Winkel.', `${tex(`180^\\circ-${al}^\\circ`)}.`]; explain = `${tex(`180^\\circ-${al}^\\circ=${180 - al}^\\circ`)}.`; if (al === 90) continue; }
+    else if (kind === 'scheitel') { prompt = `Zwei Geraden schneiden sich. Ein Winkel ist ${al}° groß. Wie groß ist der Winkel, der ihm gegenüberliegt (der Scheitelwinkel)?`;
+      opts = [W(al, true), W(180 - al, false, 'Das ist der Nebenwinkel. Scheitelwinkel liegen sich gegenüber und sind gleich groß.'), W(360 - al, false, 'Scheitelwinkel sind gleich groß.'), W(2 * al, false, 'Scheitelwinkel sind gleich groß – nicht doppelt so groß.')];
+      hints = ['Scheitelwinkel liegen sich an einer Kreuzung gegenüber.', 'Sie sind immer gleich groß.']; explain = `Scheitelwinkel sind gleich groß: ${tex(`${al}^\\circ`)}.`; if (al === 90 || al === 60) continue; }
+    else if (kind === 'dreieck') { if (al + be >= 170) continue; const g = 180 - al - be; prompt = `In einem Dreieck sind zwei Winkel ${al}° und ${be}° groß. Wie groß ist der dritte?`;
+      opts = [W(g, true), W(360 - al - be, false, 'Im Dreieck ist die Winkelsumme 180°, nicht 360°.'), W(al + be, false, 'Das ist die Summe der beiden gegebenen Winkel – sie wird von 180° abgezogen.'), W(180 - al, false, 'Auch der zweite Winkel muss abgezogen werden.')];
+      hints = ['Alle drei Winkel eines Dreiecks ergeben zusammen 180°.', `${tex(`180^\\circ-${al}^\\circ-${be}^\\circ`)}.`]; explain = `${tex(`180^\\circ-${al}^\\circ-${be}^\\circ=${g}^\\circ`)}.`; }
+    else if (kind === 'gleichschenklig') { const b = ri(5, 16) * 5, s = 180 - 2 * b; prompt = `Ein gleichschenkliges Dreieck hat zwei Basiswinkel von je ${b}°. Wie groß ist der Winkel an der Spitze?`;
+      opts = [W(s, true), W(180 - b, false, 'Es gibt zwei gleich große Basiswinkel – beide werden abgezogen.'), W(b, false, 'Gleich groß sind nur die beiden Basiswinkel.'), W(90 - b > 0 ? 90 - b : 360 - 2 * b, false, 'Die Winkelsumme im Dreieck ist 180°.')];
+      hints = ['Im gleichschenkligen Dreieck sind die beiden Basiswinkel gleich groß.', `${tex(`180^\\circ-2\\cdot${b}^\\circ`)}.`]; explain = `${tex(`180^\\circ-2\\cdot${b}^\\circ=${s}^\\circ`)}.`; if (s <= 0 || b === 60) continue; }
+    else if (kind === 'basis') { const s = ri(2, 15) * 10, b = (180 - s) / 2; prompt = `Ein gleichschenkliges Dreieck hat an der Spitze einen Winkel von ${s}°. Wie groß ist jeder Basiswinkel?`;
+      opts = [W(b, true), W(180 - s, false, 'Das ist die Summe beider Basiswinkel – sie wird noch halbiert.'), W(s, false, 'Gleich groß sind die beiden Basiswinkel untereinander, nicht der Winkel an der Spitze.'), W((360 - s) / 2, false, 'Die Winkelsumme im Dreieck ist 180°.')];
+      hints = ['Die beiden Basiswinkel sind gleich groß.', `Zusammen bleiben ${tex(`180^\\circ-${s}^\\circ`)} für beide.`]; explain = `${tex(`(180^\\circ-${s}^\\circ):2=${ft(b)}^\\circ`)}.`; if (s === 60) continue; }
+    else if (kind === 'viereck') { const ga = ri(12, 24) * 5, d = 360 - al - be - ga; if (d < 30 || d > 160) continue; prompt = `In einem Viereck sind drei Winkel ${al}°, ${be}° und ${ga}° groß. Wie groß ist der vierte?`;
+      opts = [W(d, true), W(180 - al - be > 0 ? 180 - al - be : 540 - al - be - ga, false, 'Im Viereck ist die Winkelsumme 360°.'), W(al + be + ga - 180, false, 'Die drei Winkel werden von 360° abgezogen.'), W(360 - al - be, false, 'Auch der dritte Winkel muss abgezogen werden.')];
+      hints = ['Ein Viereck lässt sich in zwei Dreiecke zerlegen: 2 mal 180°.', `${tex(`360^\\circ-${al}^\\circ-${be}^\\circ-${ga}^\\circ`)}.`]; explain = `${tex(`360^\\circ-${al + be + ga}^\\circ=${d}^\\circ`)}.`; }
+    else { if (al + be >= 170) continue; prompt = `In einem Dreieck sind zwei Innenwinkel ${al}° und ${be}° groß. Wie groß ist der Außenwinkel am dritten Eckpunkt?`;
+      opts = [W(al + be, true), W(180 - al - be, false, 'Das ist der dritte Innenwinkel. Der Außenwinkel ist sein Nebenwinkel.'), W(360 - al - be, false, 'Der Außenwinkel ergänzt den dritten Innenwinkel zu 180°.'), W(180 - al, false, 'Der Außenwinkel ist so groß wie die beiden anderen Innenwinkel zusammen.')];
+      hints = ['Der Außenwinkel ist der Nebenwinkel des dritten Innenwinkels.', `Dritter Innenwinkel: ${tex(`${180 - al - be}^\\circ`)}.`]; explain = `Der Außenwinkel ist so groß wie die beiden anderen Innenwinkel zusammen: ${tex(`${al}^\\circ+${be}^\\circ=${al + be}^\\circ`)}.`; if (al + be === 90) continue; }
+    if (!gut(opts) || opts.some((o) => o.num <= 0 || o.num >= 360)) continue;
+    return { prompt, options: shuffle(opts), hints, explain, kind };
+  }
+}
+
+const gl = (a, b, c) => `${a === 1 ? '' : a === -1 ? '-' : a}x${b < 0 ? '-' : '+'}${Math.abs(b) === 1 ? '' : Math.abs(b)}y=${c}`;
+/** Lineare Gleichungssysteme mit zwei Unbekannten. */
+export function genLGS(lv = 3) {
+  for (;;) {
+    const x0 = ri(lv >= 4 ? -4 : 1, 6), y0 = ri(lv >= 4 ? -4 : 1, 6);
+    const [a1, b1, a2, b2] = tier(lv, [1, 1, 1, -1], pick([[1, 1, 1, -1], [1, 2, 1, -1], [2, 1, 1, -1]]), pick([[2, 1, 1, -1], [1, 2, 3, -2], [3, 1, 1, 2]]), pick([[2, 3, 1, -2], [3, 2, 2, -1], [1, 4, 3, -2]]), pick([[3, 4, 2, -3], [5, 2, 3, -4], [2, 5, 4, -3]]));
+    if (x0 === y0 || x0 === 0 || y0 === 0) continue;
+    const c1 = a1 * x0 + b1 * y0, c2 = a2 * x0 + b2 * y0, loest = (x, y) => a1 * x + b1 * y === c1 && a2 * x + b2 * y === c2;
+    const O = (x, y, correct, why) => ({ tex: `x=${x},\\ y=${y}`, x, y, num: x * 100 + y, correct, why });
+    const opts = [O(x0, y0, true), O(y0, x0, false, `${tex('x')} und ${tex('y')} sind vertauscht – mach die Probe in beiden Gleichungen.`), O(x0 + b1, y0 - a1, false, 'Dieses Paar erfüllt nur die erste Gleichung. Die Lösung muss in <b>beide</b> passen.'), O(x0, -y0, false, 'Ein Vorzeichen stimmt nicht – mach die Probe in der zweiten Gleichung.')];
+    if (!uniq(opts) || opts.slice(1).some((o) => loest(o.x, o.y))) continue;
+    return { prompt: 'Welches Zahlenpaar löst das Gleichungssystem?', formula: `\\begin{array}{l}${gl(a1, b1, c1)}\\\\${gl(a2, b2, c2)}\\end{array}`, options: shuffle(opts),
+      hints: [b1 === -b2 ? `Addiere beide Gleichungen – dann fällt ${tex('y')} heraus.` : 'Löse eine Gleichung nach einer Unbekannten auf und setze sie in die andere ein – oder mach die Probe mit den Antworten.', 'Eine Lösung muss beide Gleichungen erfüllen. Setze ein und rechne nach.'],
+      explain: `Probe: ${tex(`${gl(a1, b1, c1).split('=')[0].replace('x', `\\cdot${kl(x0)}`).replace('y', `\\cdot${kl(y0)}`)}=${c1}`)} und in der zweiten Gleichung ebenso – beide stimmen für ${tex(`x=${x0}`)}, ${tex(`y=${y0}`)}.`, a1, b1, c1, a2, b2, c2, x0, y0 };
+  }
+}
+
+/** Binomische Formeln: ausmultiplizieren und als Quadrat schreiben. */
+export function genBinom(lv = 3) {
+  for (;;) {
+    const kind = pick(tier(lv, ['plus'], ['plus', 'minus'], ['minus', 'dritte', 'plus'], ['faktor', 'dritte', 'zurueck'], ['zurueck', 'faktor', 'drittefaktor']));
+    const a = ri(2, 9), k = ri(2, 4), T = (t, correct, why) => ({ tex: t, correct, why });
+    let formula, opts, hints, explain, prompt = 'Multipliziere aus.';
+    if (kind === 'plus' || kind === 'minus') { const s = kind === 'plus' ? '+' : '-', g = kind === 'plus' ? '-' : '+'; formula = `(x${s}${a})^2`;
+      opts = [T(`x^2${s}${2 * a}x+${a * a}`, true), T(`x^2+${a * a}`, false, 'Das gemischte Glied fehlt: Jedes Glied der ersten Klammer wird mit jedem der zweiten malgenommen.'), T(`x^2${s}${a}x+${a * a}`, false, 'Das gemischte Glied kommt zweimal vor – es wird verdoppelt.'), T(`x^2${g}${2 * a}x+${a * a}`, false, 'Das Vorzeichen des gemischten Glieds richtet sich nach dem Zeichen in der Klammer.')];
+      hints = [`${tex(`(a${s}b)^2=a^2${s}2ab+b^2`)}.`, `Hier ist ${tex('a=x')} und ${tex(`b=${a}`)}.`]; explain = `${tex(`(x${s}${a})^2=x^2${s}2\\cdot${a}\\cdot x+${a}^2=${opts[0].tex}`)}.`; }
+    else if (kind === 'dritte') { formula = `(x+${a})(x-${a})`;
+      opts = [T(`x^2-${a * a}`, true), T(`x^2+${a * a}`, false, 'Plus mal Minus ergibt Minus.'), T(`x^2-${2 * a}x-${a * a}`, false, 'Die gemischten Glieder heben sich auf.'), T(`x^2-${2 * a}`, false, `${tex(`${a}\\cdot${a}`)} ist ${a * a}, nicht ${2 * a}.`)];
+      hints = [`${tex('(a+b)(a-b)=a^2-b^2')}.`, 'Die gemischten Glieder heben sich gegenseitig auf.']; explain = `${tex(`(x+${a})(x-${a})=x^2-${a}^2=x^2-${a * a}`)}.`; if (a === 2) continue; }
+    else if (kind === 'faktor') { formula = `(${k}x+${a})^2`;
+      opts = [T(`${k * k}x^2+${2 * k * a}x+${a * a}`, true), T(`${k}x^2+${2 * k * a}x+${a * a}`, false, `Auch die Zahl vor ${tex('x')} wird quadriert.`), T(`${k * k}x^2+${a * a}`, false, 'Das gemischte Glied fehlt.'), T(`${k * k}x^2+${k * a}x+${a * a}`, false, 'Das gemischte Glied wird verdoppelt.')];
+      hints = [`${tex('(a+b)^2=a^2+2ab+b^2')} mit ${tex(`a=${k}x`)}.`, `${tex(`(${k}x)^2=${k * k}x^2`)}.`]; explain = `${tex(`(${k}x+${a})^2=${opts[0].tex}`)}.`; }
+    else if (kind === 'drittefaktor') { formula = `(${k}x+${a})(${k}x-${a})`;
+      opts = [T(`${k * k}x^2-${a * a}`, true), T(`${k}x^2-${a * a}`, false, `Auch die Zahl vor ${tex('x')} wird quadriert.`), T(`${k * k}x^2+${a * a}`, false, 'Plus mal Minus ergibt Minus.'), T(`${k * k}x^2-${2 * k * a}x-${a * a}`, false, 'Die gemischten Glieder heben sich auf.')];
+      hints = [`${tex('(a+b)(a-b)=a^2-b^2')} mit ${tex(`a=${k}x`)}.`, `${tex(`(${k}x)^2=${k * k}x^2`)}.`]; explain = `${tex(`(${k}x)^2-${a}^2=${opts[0].tex}`)}.`; }
+    else { const s = rand() < 0.5 ? '+' : '-', g = s === '+' ? '-' : '+'; prompt = 'Schreibe als Quadrat.'; formula = `x^2${s}${2 * a}x+${a * a}`;
+      opts = [T(`(x${s}${a})^2`, true), T(`(x${g}${a})^2`, false, 'Das Zeichen in der Klammer richtet sich nach dem gemischten Glied.'), T(`(x${s}${2 * a})^2`, false, `In der Klammer steht die Zahl, deren Quadrat ${a * a} ist.`), T(`(x${s}${a * a})^2`, false, `In der Klammer steht die Wurzel aus ${a * a}.`)];
+      hints = [`Die letzte Zahl ist ein Quadrat: ${tex(`${a * a}=${a}^2`)}.`, `Probe mit dem gemischten Glied: ${tex(`2\\cdot${a}=${2 * a}`)}.`]; explain = `${tex(`x^2${s}${2 * a}x+${a * a}=(x${s}${a})^2`)}.`; if (a === 2) continue; }
+    if (!uniq(opts)) continue;
+    return { prompt, formula, options: shuffle(opts), hints, explain, kind };
+  }
+}
+
+/** Strahlensätze und Ähnlichkeit. */
+export function genStrahlensatz(lv = 3) {
+  for (;;) {
+    const kind = pick(tier(lv, ['streckung'], ['streckung', 'parallel'], ['parallel', 'schatten'], ['schatten', 'rueck'], ['rueck', 'flaeche']));
+    const k = pick(tier(lv, [2, 3], [2, 3, 4], [1.5, 2.5, 3], [1.5, 2.5, 4], [1.5, 2.5, 3.5])), a = ri(2, 8) * (Number.isInteger(k) ? 1 : 2), p = ri(2, 6) * (Number.isInteger(k) ? 1 : 2);
+    const L = (num, c, w, e = 'cm') => N(+num.toFixed(4), c, w, `${ft(num)}\\,\\text{${e}}`);
+    let prompt, opts, hints, explain;
+    if (kind === 'streckung') { prompt = `Ein Dreieck wird mit dem Faktor ${fmt(k)} vergrößert. Eine Seite war ${a} cm lang. Wie lang ist sie danach?`;
+      opts = [L(a * k, true), L(a + k, false, 'Beim Vergrößern wird malgenommen, nicht addiert.'), L(a / k, false, 'Das wäre eine Verkleinerung.'), L(a * k * k, false, 'Mit dem Quadrat des Faktors wachsen Flächen – Längen wachsen mit dem Faktor selbst.')];
+      hints = ['Jede Länge wird mit demselben Faktor malgenommen.', `${tex(`${a}\\cdot${ft(k)}`)}.`]; explain = `${tex(`${a}\\cdot${ft(k)}=${ft(a * k)}\\,\\text{cm}`)}.`; }
+    else if (kind === 'parallel') { prompt = `Zwei Strahlen gehen von Z aus und werden von zwei parallelen Geraden geschnitten. Auf dem ersten Strahl ist ZA = ${a} cm und ZA′ = ${fmt(a * k)} cm. Die innere Parallele AB ist ${p} cm lang. Wie lang ist die äußere Parallele A′B′?`;
+      opts = [L(p * k, true), L(p + (a * k - a), false, 'Die Strecken wachsen im selben <b>Verhältnis</b>, nicht um denselben Betrag.'), L(p / k, false, 'Die äußere Parallele ist länger als die innere.'), L(p * a, false, 'Gebraucht wird das Verhältnis der beiden Abschnitte auf dem Strahl.')];
+      hints = ['Die Parallelen verhalten sich wie die Abschnitte vom Scheitel aus.', `Faktor: ${tex(`${ft(a * k)}:${a}=${ft(k)}`)}.`]; explain = `${tex(`${p}\\cdot${ft(k)}=${ft(p * k)}\\,\\text{cm}`)}.`; }
+    else if (kind === 'schatten') { const stab = pick([1, 1.5, 2]), ss = stab * pick([1.5, 2, 0.5]), bs = ss * pick([4, 6, 8]), h = (bs * stab) / ss; prompt = `Ein ${fmt(stab)} m langer Stab wirft einen ${fmt(ss)} m langen Schatten. Zur selben Zeit ist der Schatten eines Baums ${fmt(bs)} m lang. Wie hoch ist der Baum?`;
+      opts = [L(h, true, undefined, 'm'), L(bs + (stab - ss), false, 'Höhe und Schatten stehen im selben <b>Verhältnis</b> – es wird nicht einfach die Differenz genommen.', 'm'), L((bs * ss) / stab, false, 'Das Verhältnis ist umgedreht: Höhe durch Schatten, nicht Schatten durch Höhe.', 'm'), L(bs * stab, false, 'Es fehlt das Teilen durch die Schattenlänge des Stabs.', 'm')];
+      hints = ['Stab und Baum bilden mit ihren Schatten ähnliche Dreiecke.', `Höhe durch Schatten ist bei beiden gleich: ${tex(`${ft(stab)}:${ft(ss)}`)}.`]; explain = `${tex(`h=${ft(bs)}\\cdot\\dfrac{${ft(stab)}}{${ft(ss)}}=${ft(h)}\\,\\text{m}`)}.`; }
+    else if (kind === 'rueck') { prompt = `Zwei ähnliche Dreiecke: Eine Seite ist im kleinen ${a} cm, im großen ${fmt(a * k)} cm lang. Eine andere Seite ist im großen ${fmt(p * k)} cm lang. Wie lang ist sie im kleinen Dreieck?`;
+      opts = [L(p, true), L(p * k * k, false, 'Gesucht ist die Seite im <b>kleinen</b> Dreieck – es wird geteilt.'), L(p * k - (a * k - a), false, 'Ähnliche Dreiecke haben gleiche Verhältnisse, nicht gleiche Differenzen.'), L((p * k) / a, false, 'Geteilt wird durch den Vergrößerungsfaktor, nicht durch die Seitenlänge.')];
+      hints = ['Bestimme zuerst den Faktor zwischen den beiden Dreiecken.', `Faktor: ${tex(`${ft(a * k)}:${a}=${ft(k)}`)}.`]; explain = `${tex(`${ft(p * k)}:${ft(k)}=${p}\\,\\text{cm}`)}.`; }
+    else { const A = ri(3, 12) * 2; prompt = `Eine Figur mit dem Flächeninhalt ${A} cm² wird mit dem Faktor ${fmt(k)} vergrößert. Wie groß ist der Flächeninhalt danach?`;
+      opts = [L(A * k * k, true, undefined, 'cm²'), L(A * k, false, 'Die Fläche wächst mit dem <b>Quadrat</b> des Faktors – in beide Richtungen wird gestreckt.', 'cm²'), L(A + k * k, false, 'Es wird malgenommen, nicht addiert.', 'cm²'), L(A * 2 * k, false, 'Quadrat heißt: Faktor mal Faktor, nicht 2 mal Faktor.', 'cm²')];
+      opts.forEach((o) => { o.tex = o.tex.replace('\\text{cm²}', '\\text{cm}^2'); });
+      hints = ['Längen wachsen mit dem Faktor, Flächen mit seinem Quadrat.', `${tex(`${ft(k)}^2=${ft(k * k)}`)}.`]; explain = `${tex(`${A}\\cdot${ft(k)}^2=${ft(A * k * k)}\\,\\text{cm}^2`)}.`; }
+    if (!gut(opts) || opts.some((o) => o.num <= 0)) continue;
+    return { prompt, options: shuffle(opts), hints, explain, kind };
+  }
+}
+
+/** Logarithmus: als Hochzahl verstehen, Exponentialgleichungen, Rechengesetze. */
+export function genLog(lv = 3) {
+  for (;;) {
+    const kind = pick(tier(lv, ['wert'], ['wert', 'zehn'], ['bruch', 'eins', 'wert'], ['gleichung', 'bruch', 'summe'], ['summe', 'gleichung', 'potenz']));
+    const b = pick([2, 3, 5]), e = b === 2 ? ri(2, 6) : b === 3 ? ri(2, 4) : ri(2, 3);
+    let prompt = 'Berechne.', formula, opts, hints, explain;
+    if (kind === 'wert') { formula = `\\log_{${b}}${b ** e}`;
+      opts = [N(e, true), N(b ** e / b, false, 'Der Logarithmus fragt nach der <b>Hochzahl</b>, nicht nach einem Quotienten.'), N(e + 1, false, `${tex(`${b}^{${e + 1}}=${b ** (e + 1)}`)} – das ist zu groß.`), N(b, false, 'Das ist die Basis. Gesucht ist die Hochzahl.')];
+      hints = [`${tex(`\\log_{${b}}${b ** e}`)} fragt: ${b} hoch wie viel ergibt ${b ** e}?`, `${tex(`${b}^{?}=${b ** e}`)}.`]; explain = `${tex(`${b}^{${e}}=${b ** e}`)}, also ${tex(`\\log_{${b}}${b ** e}=${e}`)}.`; }
+    else if (kind === 'zehn') { const n = ri(2, 5); formula = `\\lg ${gX(10 ** n)}`;
+      opts = [N(n, true), N(n + 1, false, 'Zähle die Nullen, nicht die Ziffern.'), N(10 ** n / 10, false, 'Der Logarithmus fragt nach der Hochzahl.'), N(10, false, 'Das ist die Basis. Gesucht ist die Hochzahl.')];
+      hints = [`${tex('\\lg')} ist der Logarithmus zur Basis 10.`, '10 hoch wie viel ergibt diese Zahl? Zähle die Nullen.']; explain = `${tex(`10^{${n}}=${gX(10 ** n)}`)}, also ${n}.`; }
+    else if (kind === 'bruch') { formula = `\\log_{${b}}\\dfrac{1}{${b ** e}}`;
+      opts = [N(-e, true), N(e, false, 'Ein Bruch mit 1 im Zähler entsteht durch eine <b>negative</b> Hochzahl.'), N(1 / e, false, 'Die Hochzahl ist negativ, kein Bruch.', br(1, e)), N(-(e + 1), false, `${tex(`${b}^{${e}}=${b ** e}`)} – die Hochzahl ist ${e}.`)];
+      hints = [`${tex(`${b}^{-n}=\\dfrac{1}{${b}^n}`)}.`, `${tex(`${b}^{${e}}=${b ** e}`)}.`]; explain = `${tex(`${b}^{-${e}}=\\dfrac{1}{${b ** e}}`)}, also ${tex(`-${e}`)}.`; }
+    else if (kind === 'eins') { const eins = rand() < 0.5; formula = eins ? `\\log_{${b}}1` : `\\log_{${b}}${b}`;
+      opts = [N(eins ? 0 : 1, true), N(eins ? 1 : 0, false, eins ? `${tex(`${b}^1=${b}`)}, nicht 1.` : `${tex(`${b}^0=1`)}, nicht ${b}.`), N(b, false, 'Das ist die Basis. Gesucht ist die Hochzahl.'), N(-1, false, `${tex(`${b}^{-1}=\\tfrac{1}{${b}}`)}.`)];
+      hints = ['Jede Zahl hoch 0 ist 1, jede Zahl hoch 1 ist sie selbst.', `${b} hoch wie viel ergibt ${eins ? 1 : b}?`]; explain = eins ? `${tex(`${b}^0=1`)}, also 0.` : `${tex(`${b}^1=${b}`)}, also 1.`; }
+    else if (kind === 'gleichung') { prompt = `Löse die Gleichung.`; formula = `${b}^x=${b ** e}`;
+      opts = [N(e, true), N(b ** e / b, false, 'Hier steht eine Potenz, kein Produkt: Gesucht ist die Hochzahl.'), N(e - 1, false, `${tex(`${b}^{${e - 1}}=${b ** (e - 1)}`)} – das ist zu klein.`), N(b ** e - b, false, 'Hier steht eine Potenz, keine Summe.')];
+      hints = ['Gesucht ist die Hochzahl – das ist genau der Logarithmus.', `${tex(`x=\\log_{${b}}${b ** e}`)}.`]; explain = `${tex(`${b}^{${e}}=${b ** e}`)}, also ${tex(`x=${e}`)}.`; if (b ** e / b === e || b ** e - b === e) continue; }
+    else if (kind === 'summe') { const f = b === 2 ? ri(1, 4) : ri(1, 2); formula = `\\log_{${b}}${b ** e}+\\log_{${b}}${b ** f}`;
+      opts = [N(e + f, true), N(e * f, false, 'Beim Addieren von Logarithmen werden die Hochzahlen addiert, nicht malgenommen.'), N(b ** e + b ** f, false, 'Rechne erst jeden Logarithmus einzeln aus.'), N(e + f + 1, false, 'Rechne jeden Logarithmus einzeln aus und addiere.')];
+      hints = ['Rechne jeden Logarithmus einzeln aus.', `${tex(`\\log_b u+\\log_b v=\\log_b(u\\cdot v)`)}.`]; explain = `${tex(`${e}+${f}=${e + f}`)} – oder ${tex(`\\log_{${b}}(${b ** e}\\cdot${b ** f})=\\log_{${b}}${b ** (e + f)}`)}.`; if (e * f === e + f) continue; }
+    else { const n = ri(2, 4); formula = `\\log_{${b}}\\left(${b ** e}^{${n}}\\right)`;
+      opts = [N(e * n, true), N(e + n, false, 'Die Hochzahl kommt als Faktor vor den Logarithmus – es wird malgenommen.'), N(e ** n, false, 'Die Hochzahl kommt als Faktor nach vorn, sie wird nicht nochmals potenziert.'), N(e, false, 'Die äußere Hochzahl darf nicht wegfallen.')];
+      hints = [`${tex('\\log_b(u^n)=n\\cdot\\log_b u')}.`, `${tex(`\\log_{${b}}${b ** e}=${e}`)}.`]; explain = `${tex(`${n}\\cdot\\log_{${b}}${b ** e}=${n}\\cdot${e}=${e * n}`)}.`; if (e + n === e * n || e ** n === e * n) continue; }
+    if (!gut(opts)) continue;
+    return { prompt, formula, options: shuffle(opts), hints, explain, kind };
+  }
+}
+
 /** Alle Erzeuger dieser Datei – für Tests und Verzeichnisse. */
-export const MITTEL_GENS = { genRunden, genRechenregel, genTeiler, genEinheit, genRechteck, genKuerzen, genBruchVergleich, genDezimal, genBruchDezimal, genNegativ, genTerm, genDreisatz, genLinFunktion, genWurzel, genZinseszins, genQuader, genKoerper };
+export const MITTEL_GENS = { genRunden, genRechenregel, genTeiler, genEinheit, genRechteck, genKuerzen, genBruchVergleich, genDezimal, genBruchDezimal, genNegativ, genTerm, genDreisatz, genLinFunktion, genWurzel, genZinseszins, genQuader, genKoerper, genWinkel, genLGS, genBinom, genStrahlensatz, genLog };
 
 for (const [fn, topic] of [[genRunden, 'Runden'], [genRechenregel, 'Rechenregeln'], [genTeiler, 'Teiler und Vielfache'], [genEinheit, 'Größen umrechnen'], [genRechteck, 'Umfang und Flächeninhalt'],
   [genKuerzen, 'Kürzen und Erweitern'], [genBruchVergleich, 'Brüche vergleichen'], [genDezimal, 'Dezimalzahlen'], [genBruchDezimal, 'Bruch, Dezimalzahl, Prozent'], [genNegativ, 'Negative Zahlen'],
-  [genTerm, 'Terme'], [genDreisatz, 'Dreisatz'], [genLinFunktion, 'Lineare Funktionen'], [genWurzel, 'Wurzeln'], [genZinseszins, 'Zinseszins und Wachstum'], [genQuader, 'Quader und Würfel'], [genKoerper, 'Körper berechnen']]) fn.topic = topic;
+  [genTerm, 'Terme'], [genDreisatz, 'Dreisatz'], [genLinFunktion, 'Lineare Funktionen'], [genWurzel, 'Wurzeln'], [genZinseszins, 'Zinseszins und Wachstum'], [genQuader, 'Quader und Würfel'], [genKoerper, 'Körper berechnen'], [genWinkel, 'Winkel'], [genLGS, 'Gleichungssysteme'], [genBinom, 'Binomische Formeln'], [genStrahlensatz, 'Strahlensätze'], [genLog, 'Logarithmus']]) fn.topic = topic;

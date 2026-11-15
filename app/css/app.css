@@ -904,3 +904,22 @@ textarea.field{resize:vertical;min-height:72px;font:inherit;padding:10px 12px}
 .au-stapel i{display:block;width:32px;height:16px;border-radius:5px;background:var(--kind-2,#2f9bff)}
 .au-turm.hand .au-stapel i:last-child{background:var(--orange);transform:translateY(-5px)}
 .au-turm b{font-weight:800;color:var(--head)}
+
+/* Spiele Klasse 7 bis 10 */
+.wg-buehne{display:grid;gap:10px;justify-items:center;padding:12px 8px}
+.wg-gl{min-height:34px;font-size:calc(18px*var(--fs,1))}
+.wg-waage{display:grid;grid-template-columns:1fr auto 1fr;gap:8px;align-items:end;width:100%;max-width:340px;position:relative}
+.wg-schale{display:flex;flex-wrap:wrap;gap:4px;justify-content:center;align-content:flex-end;min-height:92px;padding:8px 6px;border-bottom:5px solid var(--head);border-radius:0 0 16px 16px;background:var(--card)}
+.wg-mitte{font-size:calc(24px*var(--fs,1));font-weight:800;color:var(--head);padding-bottom:10px}
+.wg-kiste{display:grid;place-items:center;width:34px;height:34px;border-radius:8px;background:var(--orange);color:#fff;font-style:italic;font-weight:800;font-size:calc(17px*var(--fs,1))}
+.wg-gew{display:block;width:17px;height:17px;border-radius:50%;background:var(--kind-2,#2f9bff)}
+.wg-knoepfe{display:grid;grid-template-columns:repeat(auto-fit,minmax(96px,1fr));gap:8px}
+.wg-knoepfe .pick{padding:8px 6px;font-size:calc(14px*var(--fs,1));line-height:1.25}
+.gr-feld{fill:var(--card);stroke:var(--head);stroke-width:2;cursor:pointer;transition:fill .15s}
+.gr-feld.an{fill:var(--orange)}
+.gr-feld:focus-visible{outline:none;stroke:var(--kind-2,#2f9bff);stroke-width:4}
+.pq-q{stroke:var(--head);stroke-width:1.5;stroke-linejoin:round}
+.pq-q.pq-a{fill:color-mix(in srgb,var(--kind-2,#2f9bff) 35%,transparent)}
+.pq-q.pq-b{fill:color-mix(in srgb,var(--mint) 45%,transparent)}
+.pq-q.pq-c{fill:color-mix(in srgb,var(--orange) 40%,transparent)}
+.pq-d{fill:var(--card);stroke:var(--head);stroke-width:2.5;stroke-linejoin:round}

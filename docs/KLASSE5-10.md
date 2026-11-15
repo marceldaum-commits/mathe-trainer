@@ -37,6 +37,8 @@ Optisch muss es auch an Kinder angepasst sein.“
   ab Klasse 7 die ruhigere Fassung.
 - **Schwierigkeit 1 und 2:** Die App zählt mit (z. B. „Jetzt: 12 Kästchen“). Ab Stufe 3 zählt das Kind selbst.
 
+Seit 0.29.0 gibt es auch für Klasse 7 bis 10 Spiele (Gleichungs-Waage, Prozent-Streifen, Geraden-Zieher, Glücksrad,
+Pythagoras-Quadrate, Murmelbahn, Wachstums-Säulen, Dreieck im Kreis – je `games/<name>.js`, Aufbau wie die übrigen).
 Vorhandene Spiele (seit 0.28.0 hat jede Einheit der Klassen 5 und 6 eines): Zahlenstrahl, Thermometer (`games/strahl.js`),
 Bruch-Streifen (`streifen.js`), Kästchen-Baumeister (`kaestchen.js`), Plättchen-Felder (`felder.js`),
 Stellenwert-Schieber (`stellen.js`), Würfel-Baumeister (`wuerfel.js`), Türme ausgleichen (`ausgleich.js`). **Jede neue Einheit für Klasse 5 und 6 braucht ein solches Spiel.**

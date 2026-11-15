@@ -9,9 +9,18 @@ import { felder } from './games/felder.js';
 import { stellen } from './games/stellen.js';
 import { wuerfel } from './games/wuerfel.js';
 import { ausgleich } from './games/ausgleich.js';
-import { mixOf, genScheitel } from './gen.js';
+import { waage } from './games/waage.js';
+import { prozent } from './games/prozent.js';
+import { geraden } from './games/geraden.js';
+import { gluecksrad } from './games/gluecksrad.js';
+import { quadrate } from './games/quadrate.js';
+import { zinsen } from './games/zinsen.js';
+import { kreis } from './games/kreis.js';
+import { murmelbahn } from './games/murmelbahn.js';
+import { mixOf, genScheitel, genBaum } from './gen.js';
+import { genVierfelder, genBedingt } from './gen2.js';
 import { genBruch, genKlammer, genLinGl, genQuadGl, genPotenz, genSteigung, genHaeufigkeit, genProzent, genKennwerte, genLaplace, genGegen, genPythagoras, genTrig, genFlaeche } from './gen3.js';
-import { genRunden, genRechenregel, genTeiler, genEinheit, genRechteck, genKuerzen, genBruchVergleich, genDezimal, genBruchDezimal, genNegativ, genTerm, genDreisatz, genLinFunktion, genWurzel, genZinseszins, genQuader, genKoerper } from './gen6.js';
+import { genRunden, genRechenregel, genTeiler, genEinheit, genRechteck, genKuerzen, genBruchVergleich, genDezimal, genBruchDezimal, genNegativ, genTerm, genDreisatz, genLinFunktion, genWurzel, genZinseszins, genQuader, genKoerper, genWinkel, genLGS, genBinom, genStrahlensatz, genLog } from './gen6.js';
 
 const T = (s) => `<div class="big">${tex(s, true)}</div>`;
 const mix = (...g) => quiz(Array(6).fill(mixOf([g])));
@@ -28,9 +37,9 @@ export const MITTEL_BALD = {
   5: ['Schriftlich rechnen', 'Winkel messen', 'Diagramme lesen', 'Koordinatensystem'],
   6: ['Brüche malnehmen und teilen', 'Winkel im Dreieck', 'Kreis', 'Zufallsversuche'],
   7: ['Gleichungen mit Klammern', 'Zinsen', 'Dreiecke konstruieren', 'Achsen- und Punktspiegelung'],
-  8: ['Gleichungssysteme', 'Binomische Formeln', 'Kreis: Umfang und Fläche', 'Baumdiagramme'],
-  9: ['Ähnlichkeit und Strahlensätze', 'Quadratische Funktionen im Sachzusammenhang', 'Mehrstufige Zufallsversuche'],
-  10: ['Logarithmus', 'Sinus- und Kosinussatz', 'Kugel und Kegel im Sachzusammenhang', 'Bedingte Wahrscheinlichkeit'],
+  8: ['Kreis: Umfang und Fläche', 'Baumdiagramme', 'Flächen von Dreieck und Trapez'],
+  9: ['Quadratische Funktionen im Sachzusammenhang', 'Mehrstufige Zufallsversuche', 'Kreis und Zylinder'],
+  10: ['Sinus- und Kosinussatz', 'Kugel und Kegel im Sachzusammenhang', 'Sinusfunktion'],
 };
 
 export const MITTEL = [
@@ -165,6 +174,7 @@ export const MITTEL = [
     meta: { boss: ['Term-Troll', 'x', [genTerm, genKlammer, genLinGl]], why: 'Mit Variablen lässt sich ein Rechenweg aufschreiben, bevor man die Zahlen kennt – so funktionieren Formeln, Tabellenkalkulation und jedes Computerprogramm. Gleichungen beantworten die Frage: Für welche Zahl stimmt das?',
       formeln: [['Zusammenfassen', '3x+5x=8x'], ['Ausmultiplizieren', 'a\\cdot(b+c)=a\\,b+a\\,c'], ['Gleichung lösen', '3x+4=19\\ \\Rightarrow\\ 3x=15\\ \\Rightarrow\\ x=5']] },
     steps: [
+      { id: 'waage', kind: 'Entdecken', title: 'Gleichungs-Waage', run: waage },
       { id: 'terme', kind: 'Benennen', title: 'Rechnen mit Variablen', run: info([
         { title: 'Was ein Term ist', html: `<p>Ein Term ist ein Rechenausdruck mit Platzhaltern. In ${tex('4x+7')} steht ${tex('4x')} für „4 mal ${tex('x')}“ – der Malpunkt wird weggelassen.</p><p>Für ${tex('x=2')}: ${tex('4\\cdot 2+7=15')}.</p>` },
         { title: 'Zusammenfassen', html: `${T('3x+5x-2x=6x\\qquad 2x+3y+4x=6x+3y')}<p>Nur gleichartige Glieder gehören zusammen: ${tex('x')} zu ${tex('x')}, ${tex('y')} zu ${tex('y')}. Äpfel und Birnen bleiben getrennt.</p>` },
@@ -182,6 +192,7 @@ export const MITTEL = [
     meta: { boss: ['Rabatt-Rabe', '%', [genProzent, genDreisatz]], why: 'Rabatte, Zinsen, Wahlergebnisse, Akkustand: Prozente begegnen dir jeden Tag. Mit dem Dreisatz rechnest du Rezepte um, vergleichst Preise und planst, wie lange etwas dauert.',
       formeln: [['Prozentwert', 'W=G\\cdot\\dfrac{p}{100}'], ['Dreisatz', '\\text{erst auf 1, dann auf die gesuchte Anzahl}']] },
     steps: [
+      { id: 'streifen', kind: 'Entdecken', title: 'Prozent-Streifen', run: prozent },
       { id: 'prozent', kind: 'Benennen', title: 'Prozent', run: info([
         { title: 'Grundwert, Prozentsatz, Prozentwert', html: `${T('W=G\\cdot\\dfrac{p}{100}')}<p>${tex('G')} ist das Ganze (100 %), ${tex('p')} der Prozentsatz, ${tex('W')} der Anteil. 20 % von 80 € sind ${tex('80\\cdot 0{,}2=16')} €.</p>` },
         { title: 'Mehr und weniger', html: `<p>„Um 20 % erhöht“ heißt: mal ${tex('1{,}2')}. „Um 20 % gesenkt“ heißt: mal ${tex('0{,}8')}. So geht es in einem Schritt.</p>` },
@@ -196,10 +207,27 @@ export const MITTEL = [
     ] },
 
   /* ───────────── Klasse 8 ───────────── */
+  { id: 'k7-winkel', jg: '7', area: 'mgeo', title: 'Winkel und Dreiecke', sub: 'Nebenwinkel, Scheitelwinkel, Winkelsumme',
+    meta: { boss: ['Winkel-Wiesel', '∠', [genWinkel]], why: 'Dachdecker, Vermesser und Spiele-Programmierer rechnen ständig mit Winkeln. Wer die wenigen Winkel-Regeln kennt, kann fehlende Winkel ausrechnen, ohne zu messen.',
+      formeln: [['Nebenwinkel', '\\alpha+\\beta=180^\\circ'], ['Winkelsumme im Dreieck', '\\alpha+\\beta+\\gamma=180^\\circ'], ['Winkelsumme im Viereck', '360^\\circ']] },
+    steps: [
+      { id: 'kreuzung', kind: 'Benennen', title: 'Winkel an Geraden', run: info([
+        { title: 'Nebenwinkel', html: `${T('\\alpha+\\beta=180^\\circ')}<p>Zwei Winkel, die nebeneinander an einer Geraden liegen, ergänzen sich zu einem gestreckten Winkel. Ist der eine 70°, dann ist der andere 110°.</p>` },
+        { title: 'Scheitelwinkel', html: `<p>Schneiden sich zwei Geraden, entstehen vier Winkel. Die Winkel, die sich <b>gegenüberliegen</b>, sind gleich groß – wie bei einer geöffneten Schere.</p>` },
+      ]) },
+      { id: 'geraden', kind: 'Brücke', title: 'Winkel an Geraden', run: quiz([genWinkel, genWinkel, genWinkel, genWinkel]) },
+      { id: 'summe', kind: 'Benennen', title: 'Winkelsumme', run: info([
+        { title: 'Im Dreieck: 180°', html: `${T('\\alpha+\\beta+\\gamma=180^\\circ')}<p>Reißt du die drei Ecken eines Papierdreiecks ab und legst sie aneinander, entsteht immer eine gerade Linie. Kennst du zwei Winkel, kennst du auch den dritten.</p>` },
+        { title: 'Gleichschenklig und Viereck', html: `<p>Im <b>gleichschenkligen</b> Dreieck sind die beiden Basiswinkel gleich groß. Ein <b>Viereck</b> lässt sich in zwei Dreiecke zerlegen – seine Winkelsumme ist ${tex('2\\cdot 180^\\circ=360^\\circ')}.</p>` },
+      ]) },
+      { id: 'dreieck', kind: 'Brücke', title: 'Fehlende Winkel', run: quiz([genWinkel, genWinkel, genWinkel, genWinkel]) },
+      { id: 'mix', kind: 'Festigen', title: 'Winkel gemischt', run: mix(genWinkel) },
+    ] },
   { id: 'k8-linear', jg: '8', area: 'malgebra', title: 'Lineare Funktionen', sub: 'Steigung, Achsenabschnitt, Nullstelle',
     meta: { boss: ['Geraden-Greif', 'm', [genLinFunktion, genSteigung]], why: 'Ein Handytarif mit Grundgebühr, eine Taxifahrt, ein gleichmäßig voll laufendes Becken: Alles, was gleichmäßig wächst oder fällt, ist eine lineare Funktion.',
       formeln: [['Gerade', 'f(x)=m\\,x+b'], ['Steigung', 'm=\\dfrac{y_2-y_1}{x_2-x_1}'], ['Nullstelle', 'm\\,x+b=0\\ \\Rightarrow\\ x=-\\dfrac bm']] },
     steps: [
+      { id: 'zieher', kind: 'Entdecken', title: 'Geraden-Zieher', run: geraden },
       { id: 'gerade', kind: 'Benennen', title: 'Die Geradengleichung', run: info([
         { title: 'Steigung und Achsenabschnitt', html: `${T('f(x)=m\\,x+b')}<p>${tex('m')} ist die <b>Steigung</b>: ein Schritt nach rechts, ${tex('m')} Schritte nach oben. ${tex('b')} ist der <b>y-Achsenabschnitt</b>: Dort schneidet die Gerade die y-Achse.</p>` },
         { title: 'Nullstelle', html: `${T('2x-6=0\\ \\Rightarrow\\ x=3')}<p>Die Nullstelle ist die Stelle, an der die Gerade die x-Achse schneidet – dort ist der Funktionswert null.</p>` },
@@ -213,6 +241,7 @@ export const MITTEL = [
     meta: { boss: ['Würfel-Wicht', 'P', [genLaplace, genGegen]], why: 'Wie wahrscheinlich ist ein Sechser, ein Regentag, ein Gewinn? Wahrscheinlichkeiten machen Zufall berechenbar – für Spiele, Versicherungen und Wettervorhersagen.',
       formeln: [['Laplace', 'P(E)=\\dfrac{\\text{günstige}}{\\text{mögliche}}'], ['Gegenereignis', 'P(\\overline E)=1-P(E)']] },
     steps: [
+      { id: 'rad', kind: 'Entdecken', title: 'Glücksrad', run: gluecksrad },
       { id: 'laplace', kind: 'Benennen', title: 'Wahrscheinlichkeit berechnen', run: info([
         { title: 'Günstige durch mögliche', html: `${T('P(E)=\\dfrac{\\text{günstige}}{\\text{mögliche}}')}<p>Beim Würfeln gibt es sechs gleich wahrscheinliche Ergebnisse. „Gerade Zahl“ sind drei davon: ${tex('\\tfrac36=\\tfrac12')}.</p><p class="muted">Das gilt nur, wenn alle Ergebnisse gleich wahrscheinlich sind.</p>` },
         { title: 'Das Gegenteil hilft', html: `${T('P(\\overline E)=1-P(E)')}<p>Oft ist das Gegenteil leichter: „Keine Sechs“ hat die Wahrscheinlichkeit ${tex('1-\\tfrac16=\\tfrac56')}.</p>` },
@@ -223,6 +252,30 @@ export const MITTEL = [
     ] },
 
   /* ───────────── Klasse 9 ───────────── */
+  { id: 'k8-lgs', jg: '8', area: 'malgebra', title: 'Gleichungssysteme', sub: 'Zwei Gleichungen, zwei Unbekannte',
+    meta: { boss: ['Doppel-Drache', 'x y', [genLGS]], why: 'Zwei Handytarife, zwei Angebote, zwei Züge, die sich begegnen: Sobald zwei Bedingungen gleichzeitig gelten sollen, entsteht ein Gleichungssystem. Seine Lösung ist der Punkt, an dem sich zwei Geraden schneiden.',
+      formeln: [['Einsetzen', 'y=2x\\ \\text{in}\\ x+y=9:\\quad x+2x=9'], ['Addieren', '(x+y)+(x-y)=2x']] },
+    steps: [
+      { id: 'idee', kind: 'Benennen', title: 'Zwei Bedingungen gleichzeitig', run: info([
+        { title: 'Was eine Lösung ist', html: `${T('\\begin{array}{l}x+y=7\\\\x-y=1\\end{array}')}<p>Gesucht ist ein Zahlenpaar, das <b>beide</b> Gleichungen erfüllt. Hier passt ${tex('x=4')}, ${tex('y=3')}: ${tex('4+3=7')} und ${tex('4-3=1')}.</p>` },
+        { title: 'Additionsverfahren', html: `<p>Addierst du beide Gleichungen, fällt ${tex('y')} heraus:</p>${T('2x=8\\ \\Rightarrow\\ x=4')}<p>Dann ${tex('x')} in eine der Gleichungen einsetzen: ${tex('4+y=7')}, also ${tex('y=3')}.</p>` },
+        { title: 'Einsetzungsverfahren', html: `<p>Ist eine Gleichung schon nach einer Unbekannten aufgelöst, setzt du sie in die andere ein:</p>${T('y=2x\\ \\text{in}\\ x+y=9:\\quad 3x=9')}<p class="muted">Am Ende immer die Probe in beiden Gleichungen machen.</p>` },
+      ]) },
+      { id: 'loesen', kind: 'Brücke', title: 'Systeme lösen', run: quiz([genLGS, genLGS, genLGS, genLGS]) },
+      { id: 'mix', kind: 'Festigen', title: 'Gleichungssysteme', run: mix(genLGS, genLinGl) },
+    ] },
+  { id: 'k8-binom', jg: '8', area: 'malgebra', title: 'Binomische Formeln', sub: 'Klammern quadrieren und zurück',
+    meta: { boss: ['Klammer-Krake', '( )²', [genBinom, genKlammer]], why: 'Mit den binomischen Formeln rechnest du 31² oder 49 mal 51 im Kopf. Später brauchst du sie für Parabeln, für die pq-Formel und überall, wo Klammern quadriert werden.',
+      formeln: [['Erste', '(a+b)^2=a^2+2ab+b^2'], ['Zweite', '(a-b)^2=a^2-2ab+b^2'], ['Dritte', '(a+b)(a-b)=a^2-b^2']] },
+    steps: [
+      { id: 'formeln', kind: 'Benennen', title: 'Die drei Formeln', run: info([
+        { title: 'Erste und zweite Formel', html: `${T('(a+b)^2=a^2+2ab+b^2')}${T('(a-b)^2=a^2-2ab+b^2')}<p>Ein Quadrat mit der Seite ${tex('a+b')} besteht aus zwei Quadraten und <b>zwei</b> gleichen Rechtecken – daher das ${tex('2ab')}. Der häufigste Fehler: das gemischte Glied vergessen.</p>` },
+        { title: 'Dritte Formel', html: `${T('(a+b)(a-b)=a^2-b^2')}<p>Die gemischten Glieder heben sich auf. Kopfrechnen damit: ${tex('49\\cdot 51=(50-1)(50+1)=2500-1=2499')}.</p>` },
+      ]) },
+      { id: 'aus', kind: 'Brücke', title: 'Ausmultiplizieren', run: quiz([genBinom, genBinom, genBinom, genBinom]) },
+      { id: 'klammer', kind: 'Brücke', title: 'Klammern', run: quiz([genKlammer, genBinom, genKlammer]) },
+      { id: 'mix', kind: 'Festigen', title: 'Binome gemischt', run: mix(genBinom, genKlammer) },
+    ] },
   { id: 'k9-quadrat', jg: '9', area: 'malgebra', title: 'Wurzeln und quadratische Gleichungen', sub: 'Wurzeln, Parabeln, pq-Formel',
     meta: { boss: ['Parabel-Panther', 'x²', [genWurzel, genQuadGl, genScheitel]], why: 'Wurfbahnen, Bremswege und Brückenbögen sind Parabeln. Mit quadratischen Gleichungen findest du heraus, wann ein Ball landet oder wie breit ein Tor sein muss.',
       formeln: [['Wurzelgesetz', '\\sqrt a\\cdot\\sqrt b=\\sqrt{a\\cdot b}'], ['pq-Formel', 'x_{1,2}=-\\dfrac p2\\pm\\sqrt{\\left(\\dfrac p2\\right)^2-q}'], ['Scheitelform', 'f(x)=a\\,(x-d)^2+e']] },
@@ -232,6 +285,7 @@ export const MITTEL = [
         { title: 'Rechnen mit Wurzeln', html: `${T('\\sqrt 2\\cdot\\sqrt 8=\\sqrt{16}=4\\qquad\\sqrt{50}=\\sqrt{25\\cdot 2}=5\\sqrt 2')}<p>Beim Malnehmen darf man unter einer Wurzel zusammenfassen. Beim <b>Addieren nicht</b>: ${tex('\\sqrt 9+\\sqrt{16}=7')}, aber ${tex('\\sqrt{25}=5')}.</p>` },
       ]) },
       { id: 'wurzeln', kind: 'Brücke', title: 'Wurzeln', run: quiz([genWurzel, genWurzel, genWurzel, genWurzel]) },
+      { id: 'bahn', kind: 'Entdecken', title: 'Murmelbahn', run: murmelbahn },
       { id: 'quad', kind: 'Benennen', title: 'Quadratische Gleichungen und Parabeln', run: info([
         { title: 'pq-Formel', html: `${T('x^2+p\\,x+q=0')}${T('x_{1,2}=-\\dfrac p2\\pm\\sqrt{\\left(\\dfrac p2\\right)^2-q}')}<p>Vorher durch die Zahl vor ${tex('x^2')} teilen. Steht unter der Wurzel eine negative Zahl, gibt es keine Lösung.</p>` },
         { title: 'Scheitelform', html: `${T('f(x)=a\\,(x-d)^2+e')}<p>Der Scheitel liegt bei ${tex('S(d\\mid e)')}. Ist ${tex('a')} positiv, ist die Parabel nach oben offen.</p>` },
@@ -244,6 +298,7 @@ export const MITTEL = [
     meta: { boss: ['Dreiecks-Drache', 'c²', [genPythagoras]], why: 'Wie lang muss die Leiter sein, wie groß ist die Bildschirmdiagonale, wie weit ist es quer über den Platz? Überall, wo ein rechter Winkel ist, hilft Pythagoras.',
       formeln: [['Pythagoras', 'a^2+b^2=c^2']] },
     steps: [
+      { id: 'quadrate', kind: 'Entdecken', title: 'Pythagoras-Quadrate', run: quadrate },
       { id: 'satz', kind: 'Benennen', title: 'Der Satz', run: info([
         { title: 'Katheten und Hypotenuse', html: `${T('a^2+b^2=c^2')}<p>Im rechtwinkligen Dreieck heißt die längste Seite <b>Hypotenuse</b> – sie liegt dem rechten Winkel gegenüber. Die beiden anderen sind die <b>Katheten</b>.</p>` },
         { title: 'Eine Seite berechnen', html: `<p>Hypotenuse gesucht: Quadrate addieren, Wurzel ziehen. Kathete gesucht: Quadrate abziehen, Wurzel ziehen.</p>${T('c=\\sqrt{3^2+4^2}=5\\qquad b=\\sqrt{13^2-5^2}=12')}` },
@@ -253,10 +308,27 @@ export const MITTEL = [
     ] },
 
   /* ───────────── Klasse 10 ───────────── */
+  { id: 'k9-aehnlich', jg: '9', area: 'mgeo', title: 'Ähnlichkeit und Strahlensätze', sub: 'Vergrößern, Verkleinern, Höhen bestimmen',
+    meta: { boss: ['Schatten-Schakal', '∼', [genStrahlensatz]], why: 'Mit einem Stab und seinem Schatten lässt sich die Höhe eines Baums bestimmen, ohne hinaufzuklettern. Landkarten, Modelle und Zoom am Handy funktionieren genauso: alles wird mit demselben Faktor gestreckt.',
+      formeln: [['Streckfaktor', "k=\\dfrac{\\text{Bildlänge}}{\\text{Originallänge}}"], ['Flächen', "A'=k^2\\cdot A"], ['Strahlensatz', "\\dfrac{ZA'}{ZA}=\\dfrac{A'B'}{AB}"]] },
+    steps: [
+      { id: 'faktor', kind: 'Benennen', title: 'Ähnliche Figuren', run: info([
+        { title: 'Derselbe Faktor für jede Länge', html: `<p>Zwei Figuren sind <b>ähnlich</b>, wenn die eine eine Vergrößerung oder Verkleinerung der anderen ist. Jede Länge wird mit demselben Faktor ${tex('k')} malgenommen, die Winkel bleiben gleich.</p>${T("k=\\dfrac{\\text{Bildlänge}}{\\text{Originallänge}}")}` },
+        { title: 'Flächen wachsen schneller', html: `${T("A'=k^2\\cdot A")}<p>Wird ein Foto doppelt so breit <b>und</b> doppelt so hoch, ist seine Fläche viermal so groß.</p>` },
+      ]) },
+      { id: 'strecken', kind: 'Brücke', title: 'Vergrößern und Verkleinern', run: quiz([genStrahlensatz, genStrahlensatz, genStrahlensatz, genStrahlensatz]) },
+      { id: 'strahlen', kind: 'Benennen', title: 'Strahlensätze', run: info([
+        { title: 'Zwei Strahlen, zwei Parallelen', html: `<p>Gehen zwei Strahlen von einem Punkt Z aus und werden von zwei <b>parallelen</b> Geraden geschnitten, entstehen zwei ähnliche Dreiecke.</p>${T("\\dfrac{ZA'}{ZA}=\\dfrac{A'B'}{AB}")}<p>Die Parallelen verhalten sich wie die Abschnitte vom Punkt Z aus.</p>` },
+        { title: 'Höhe mit Schatten', html: `<p>Stab und Baum stehen beide senkrecht, die Sonne scheint für beide im selben Winkel. Also gilt: Höhe durch Schatten ist bei beiden gleich.</p>` },
+      ]) },
+      { id: 'anwenden', kind: 'Brücke', title: 'Längen bestimmen', run: quiz([genStrahlensatz, genStrahlensatz, genStrahlensatz, genStrahlensatz]) },
+      { id: 'mix', kind: 'Festigen', title: 'Ähnlichkeit gemischt', run: mix(genStrahlensatz, genPythagoras) },
+    ] },
   { id: 'k10-wachstum', jg: '10', area: 'malgebra', title: 'Potenzen und Wachstum', sub: 'Potenzgesetze, Zinseszins, Zerfall',
     meta: { boss: ['Zins-Zyklop', 'qⁿ', [genPotenz, genZinseszins]], why: 'Zinsen auf dem Sparkonto, die Ausbreitung einer Nachricht, der Wertverlust eines Autos: Was sich jedes Jahr um denselben Prozentsatz ändert, wächst oder fällt exponentiell – am Anfang unauffällig, dann rasant.',
       formeln: [['Potenzgesetze', 'x^a\\cdot x^b=x^{a+b}\\qquad(x^a)^b=x^{a\\cdot b}'], ['Zinseszins', 'K_n=K_0\\cdot q^n\\qquad q=1+\\dfrac{p}{100}']] },
     steps: [
+      { id: 'saeulen', kind: 'Entdecken', title: 'Wachstums-Säulen', run: zinsen },
       { id: 'potenzen', kind: 'Benennen', title: 'Potenzgesetze', run: info([
         { title: 'Gleiche Basis', html: `${T('x^a\\cdot x^b=x^{a+b}\\qquad\\dfrac{x^a}{x^b}=x^{a-b}')}<p>Beim Malnehmen werden die Hochzahlen addiert, beim Teilen abgezogen.</p>` },
         { title: 'Potenz einer Potenz, negative Hochzahl', html: `${T('(x^a)^b=x^{a\\cdot b}\\qquad x^{-n}=\\dfrac{1}{x^n}')}<p>Eine negative Hochzahl bedeutet: Kehrwert.</p>` },
@@ -273,6 +345,7 @@ export const MITTEL = [
     meta: { boss: ['Kegel-König', 'π', [genTrig, genKoerper, genFlaeche]], why: 'Mit Sinus und Kosinus berechnet man Höhen, die man nicht messen kann – Türme, Berge, Flugbahnen. Und fast jeder Gegenstand um dich herum ist aus Zylindern, Kegeln und Kugeln zusammengesetzt.',
       formeln: [['Sinus, Kosinus, Tangens', '\\sin\\alpha=\\dfrac{\\text{Gegenkathete}}{\\text{Hypotenuse}}\\qquad\\cos\\alpha=\\dfrac{\\text{Ankathete}}{\\text{Hypotenuse}}'], ['Zylinder und Kegel', 'V_Z=\\pi\\,r^2\\,h\\qquad V_K=\\tfrac13\\,\\pi\\,r^2\\,h'], ['Kugel', 'V=\\tfrac43\\,\\pi\\,r^3']] },
     steps: [
+      { id: 'kreis', kind: 'Entdecken', title: 'Dreieck im Kreis', run: kreis },
       { id: 'trig', kind: 'Benennen', title: 'Sinus, Kosinus, Tangens', run: info([
         { title: 'Seitenverhältnisse im rechtwinkligen Dreieck', html: `${T('\\sin\\alpha=\\dfrac{\\text{Gegenkathete}}{\\text{Hypotenuse}}\\qquad\\cos\\alpha=\\dfrac{\\text{Ankathete}}{\\text{Hypotenuse}}')}${T('\\tan\\alpha=\\dfrac{\\text{Gegenkathete}}{\\text{Ankathete}}')}<p>Die Gegenkathete liegt dem Winkel gegenüber, die Ankathete liegt an ihm an.</p>` },
       ]) },
@@ -283,5 +356,38 @@ export const MITTEL = [
       ]) },
       { id: 'volumen', kind: 'Brücke', title: 'Rauminhalte', run: quiz([genKoerper, genKoerper, genKoerper, genKoerper]) },
       { id: 'mix', kind: 'Festigen', title: 'Geometrie gemischt', run: mix(genTrig, genKoerper, genFlaeche) },
+    ] },
+  { id: 'k10-log', jg: '10', area: 'malgebra', title: 'Logarithmus', sub: 'Hochzahlen suchen, Exponentialgleichungen',
+    meta: { boss: ['Log-Luchs', 'log', [genLog, genPotenz]], why: 'Wie lange dauert es, bis sich ein Guthaben verdoppelt? Wann ist ein Medikament abgebaut? Immer wenn die gesuchte Zahl in der Hochzahl steht, hilft der Logarithmus. Auch Lautstärke (Dezibel) und Erdbebenstärke werden so gemessen.',
+      formeln: [['Bedeutung', '\\log_b a=x\\ \\Leftrightarrow\\ b^x=a'], ['Produkt', '\\log_b(u\\cdot v)=\\log_b u+\\log_b v'], ['Potenz', '\\log_b(u^n)=n\\cdot\\log_b u']] },
+    steps: [
+      { id: 'idee', kind: 'Benennen', title: 'Die Frage nach der Hochzahl', run: info([
+        { title: 'Was der Logarithmus bedeutet', html: `${T('\\log_b a=x\\ \\Leftrightarrow\\ b^x=a')}<p>${tex('\\log_2 8')} fragt: 2 hoch wie viel ergibt 8? Antwort: 3, denn ${tex('2^3=8')}.</p><p class="muted">${tex('\\lg')} ist die Abkürzung für die Basis 10: ${tex('\\lg 1000=3')}.</p>` },
+        { title: 'Besondere Werte', html: `${T('\\log_b 1=0\\qquad\\log_b b=1\\qquad\\log_b\\dfrac1b=-1')}<p>Denn ${tex('b^0=1')}, ${tex('b^1=b')} und ${tex('b^{-1}=\\tfrac1b')}.</p>` },
+      ]) },
+      { id: 'werte', kind: 'Brücke', title: 'Logarithmen berechnen', run: quiz([genLog, genLog, genLog, genLog]) },
+      { id: 'gesetze', kind: 'Benennen', title: 'Rechengesetze', run: info([
+        { title: 'Aus Mal wird Plus', html: `${T('\\log_b(u\\cdot v)=\\log_b u+\\log_b v')}${T('\\log_b(u^n)=n\\cdot\\log_b u')}<p>Das sind die Potenzgesetze, rückwärts gelesen: Beim Malnehmen werden Hochzahlen addiert.</p>` },
+        { title: 'Exponentialgleichungen', html: `${T('2^x=32\\ \\Rightarrow\\ x=\\log_2 32=5')}<p>Steht die Unbekannte in der Hochzahl, ist die Lösung ein Logarithmus.</p>` },
+      ]) },
+      { id: 'rechnen', kind: 'Brücke', title: 'Gesetze anwenden', run: quiz([genLog, genLog, genPotenz, genLog]) },
+      { id: 'mix', kind: 'Festigen', title: 'Logarithmus gemischt', run: mix(genLog, genPotenz) },
+    ] },
+  { id: 'k10-daten', jg: '10', area: 'mdaten', title: 'Baumdiagramm und Vierfeldertafel', sub: 'Mehrstufige Versuche, bedingte Wahrscheinlichkeit',
+    meta: { boss: ['Tafel-Tiger', '▦', [genBaum, genVierfelder, genBedingt]], why: 'Ein positiver Schnelltest heißt nicht sicher „krank“ – wie wahrscheinlich es wirklich ist, zeigt die Vierfeldertafel. Mit Baumdiagrammen berechnest du Chancen, wenn mehrere Zufälle hintereinander passieren.',
+      formeln: [['Pfadregel', '\\text{entlang des Pfads malnehmen}'], ['Summenregel', '\\text{passende Pfade addieren}'], ['Bedingt', 'P_B(A)=\\dfrac{P(A\\cap B)}{P(B)}']] },
+    steps: [
+      { id: 'baum', kind: 'Benennen', title: 'Baumdiagramm', run: info([
+        { title: 'Pfadregel', html: `<p>Passieren zwei Zufälle nacheinander, zeichnest du einen Baum. Entlang eines Pfads werden die Wahrscheinlichkeiten <b>malgenommen</b>.</p>${T('P(\\text{zweimal Sechs})=\\tfrac16\\cdot\\tfrac16=\\tfrac1{36}')}` },
+        { title: 'Summenregel', html: `<p>Gehören mehrere Pfade zum Ereignis, werden ihre Wahrscheinlichkeiten <b>addiert</b>. Beim Ziehen ohne Zurücklegen ändern sich die Wahrscheinlichkeiten in der zweiten Stufe.</p>` },
+      ]) },
+      { id: 'pfade', kind: 'Brücke', title: 'Pfade berechnen', run: quiz([genBaum, genBaum, genBaum, genBaum]) },
+      { id: 'tafel', kind: 'Benennen', title: 'Vierfeldertafel', run: info([
+        { title: 'Zwei Merkmale auf einen Blick', html: `<p>Eine Vierfeldertafel ordnet eine Gruppe nach zwei Merkmalen, zum Beispiel „Sportverein ja/nein“ und „Klasse 9/10“. Zeilen und Spalten ergeben am Rand jeweils die Summen – so lassen sich fehlende Felder ausrechnen.</p>` },
+        { title: 'Bedingte Wahrscheinlichkeit', html: `${T('P_B(A)=\\dfrac{P(A\\cap B)}{P(B)}')}<p>„Unter der Bedingung B“ heißt: Du schaust nur noch auf die Zeile oder Spalte von B – sie ist das neue Ganze.</p>` },
+      ]) },
+      { id: 'felder', kind: 'Brücke', title: 'Tafeln ausfüllen', run: quiz([genVierfelder, genVierfelder, genVierfelder]) },
+      { id: 'bedingt', kind: 'Brücke', title: 'Unter einer Bedingung', run: quiz([genBedingt, genBedingt, genBedingt]) },
+      { id: 'mix', kind: 'Festigen', title: 'Zufall gemischt', run: mix(genBaum, genVierfelder, genBedingt) },
     ] },
 ];

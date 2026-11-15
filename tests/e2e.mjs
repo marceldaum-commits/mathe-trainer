@@ -236,6 +236,30 @@ async function playKaestchen() {
     await page.click('#kg-go'); await page.waitForSelector('#kg-note .note.ok'); await page.click('#kg-go'); }
 }
 const FDL = await game('felder'), SWL = await game('stellen'), WUL = await game('wuerfel'), AUL = await game('ausgleich');
+const WGL = await game('waage'), PZL = await game('prozent'), GZL = await game('geraden'), GRL = await game('gluecksrad'), PQL = await game('quadrate'), ZWL = await game('zinsen'), EKL = await game('kreis');
+const stufe = async (id, i, n) => page.waitForFunction(([s, t]) => document.querySelector(s).textContent === t && !document.querySelector(s.replace('-n', '-note')).innerHTML, [`#${id}-n`, `${i + 1}/${n}`]);
+async function playWaage() {
+  for (let i = 0; i < WGL.length; i++) { const M = WGL[i]; await stufe('wg', i, WGL.length);
+    if (first('waage-falsch') && M.b > 0) { await page.click('#wg-t2'); await page.waitForSelector('#wg-note .note.tip'); }
+    for (let k = 0; k < M.b; k++) await page.click('#wg-e');
+    for (let k = 0; k < M.c; k++) await page.click('#wg-x');
+    if (first('waage-bild')) await shot('93-waage');
+    await page.click('#wg-t2'); await page.waitForSelector('#wg-note .note.ok'); await page.click('#wg-go'); }
+}
+async function playEinsteller(id, L, wert, bild) {
+  for (let i = 0; i < L.length; i++) { await stufe(id, i, L.length);
+    if (first(`${id}-falsch`)) { await page.click(`#${id}-go`); await page.waitForSelector(`#${id}-note .note.tip`); }
+    for (const [sel, v] of wert(L[i])) await setRange(sel, v);
+    if (first(`${id}-bild`)) await shot(bild);
+    await page.click(`#${id}-go`); await page.waitForSelector(`#${id}-note .note.ok`); await page.click(`#${id}-go`); }
+}
+async function playRad() {
+  for (let i = 0; i < GRL.length; i++) { await stufe('gr', i, GRL.length);
+    if (first('gr-falsch')) { await page.click('#gr-go'); await page.waitForSelector('#gr-note .note.tip'); }
+    for (let k = 0; k < GRL[i].soll; k++) await page.locator(`.gr-feld[data-i="${k}"]`).click();
+    if (first('gr-bild')) await shot('96-gluecksrad');
+    await page.click('#gr-go'); await page.waitForSelector('#gr-note .note.ok'); await page.click('#gr-go'); }
+}
 async function playFelder() {
   for (const M of FDL) { await page.waitForFunction((n) => document.querySelector('#fd-in').max === String(n) && !document.querySelector('#fd-in').disabled, M.n);
     if (first('felder-falsch') && M.n % 4 !== 0) { await setRange('#fd-in', 4); await page.click('#fd-go'); await page.waitForSelector('#fd-note .note.tip'); }
@@ -261,7 +285,7 @@ async function playAusgleich() {
     if (first('ausgleich-bild')) await shot('92-tuerme');
     await page.click('#au-go'); }
 }
-const HANDLERS = [['#fd', playFelder], ['#sw', playStellen], ['#wu', playWuerfel], ['#au', playAusgleich], ['#zs', () => playStrahl(ZS, 'zs')], ['#fr', () => playStrahl(FRL, 'fr')], ['#sf', playStreifen], ['#kg', playKaestchen], ['#tf', playTafel], ['#mb-c', playMurmelbahn], ['#fg-c', playFlug], ['#tg-c', playTangente], ['#p-f', playPaare], ['#z-d', playZeichnen], ['#fl-c', playFlaeche], ['#lb-c', playLabor], ['#lo-c', playLotse], ['#wk-c', playWerkstatt], ['#rm-c', playRaum], ['#bs', playBoss], ['#i-next', info]];
+const HANDLERS = [['#wg', playWaage], ['#pz', () => playEinsteller('pz', PZL, (M) => [['#pz-in', M.ziel]], '94-prozent')], ['#gz', () => playEinsteller('gz', GZL, (M) => [['#gz-m', M.m], ['#gz-b', M.b]], '95-geraden')], ['#gr', playRad], ['#pq', () => playEinsteller('pq', PQL, (M) => [['#pq-a', M.sol[0]], ['#pq-b', M.sol[1]]], '97-pythagoras')], ['#zw', () => playEinsteller('zw', ZWL, (M) => [['#zw-in', M.sol]], '98-wachstum')], ['#ek', () => playEinsteller('ek', EKL, (M) => [['#ek-in', M.ziel]], '99-einheitskreis')], ['#fd', playFelder], ['#sw', playStellen], ['#wu', playWuerfel], ['#au', playAusgleich], ['#zs', () => playStrahl(ZS, 'zs')], ['#fr', () => playStrahl(FRL, 'fr')], ['#sf', playStreifen], ['#kg', playKaestchen], ['#tf', playTafel], ['#mb-c', playMurmelbahn], ['#fg-c', playFlug], ['#tg-c', playTangente], ['#p-f', playPaare], ['#z-d', playZeichnen], ['#fl-c', playFlaeche], ['#lb-c', playLabor], ['#lo-c', playLotse], ['#wk-c', playWerkstatt], ['#rm-c', playRaum], ['#bs', playBoss], ['#i-next', info]];
 
 /* ───────────── Start, Menü, Schwierigkeit, Hell/Dunkel ───────────── */
 await page.goto(BASE); await page.waitForSelector('#home'); await shot('01-start');

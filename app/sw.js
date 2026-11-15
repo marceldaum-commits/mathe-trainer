@@ -1,6 +1,6 @@
 // Service Worker: macht die App offline nutzbar und liefert Updates aus.
 // CACHE muss zur VERSION in js/config.js passen; ASSETS pflegt `npm run fix` (tools/check.mjs).
-const CACHE = 'mt-0.28.1';
+const CACHE = 'mt-0.29.0';
 const ASSETS = [
   "./",
   "css/app.css",
@@ -27,20 +27,27 @@ const ASSETS = [
   "js/games/felder.js",
   "js/games/flaeche.js",
   "js/games/flug.js",
+  "js/games/geraden.js",
+  "js/games/gluecksrad.js",
   "js/games/kaestchen.js",
+  "js/games/kreis.js",
   "js/games/labor.js",
   "js/games/lotse.js",
   "js/games/murmelbahn.js",
   "js/games/paare.js",
+  "js/games/prozent.js",
+  "js/games/quadrate.js",
   "js/games/raum.js",
   "js/games/stellen.js",
   "js/games/strahl.js",
   "js/games/streifen.js",
   "js/games/tafel.js",
   "js/games/tangente.js",
+  "js/games/waage.js",
   "js/games/werkstatt.js",
   "js/games/wuerfel.js",
   "js/games/zeichnen.js",
+  "js/games/zinsen.js",
   "js/gen.js",
   "js/gen2.js",
   "js/gen3.js",

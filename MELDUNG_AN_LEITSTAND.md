@@ -2,6 +2,12 @@
 
 Neueste Meldung oben. Keine Geheimnisse, keine Personendaten (dieses Repo ist öffentlich, siehe Punkt 1).
 
+## 15.11.2026 (53) – 0.29.0: großes Paket für Klasse 7 bis 10 (Meldung „liegt auf test“ folgt nach dem Testlauf)
+
+- Sieben neue Entdecker-Spiele für Klasse 7 bis 10, fünf neue Aufgaben-Arten, sechs neue Einheiten (Einzelheiten im Baulog `docs/PLAN.md`).
+- **Nur Inhalte** – keine Änderung an Server, Schnittstellen oder App-Hülle. Die Android-App holt sich das selbst.
+- Live-Gang der Mittelstufe weiterhin erst nach Marcels Go.
+
 ## 15.11.2026 (52) – 0.28.1: Widget der Android-App für alle Stufen – App-Hülle geändert (Meldung „liegt auf test“ folgt)
 
 Marcels Wunsch. Das Widget zeigt Merksatz des Tages je Klassenstufe, den nächsten Lernschritt und die Lernserie.
