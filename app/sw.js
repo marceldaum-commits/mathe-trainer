@@ -81,6 +81,7 @@ const ASSETS = [
   "js/units.js",
   "js/update.js",
   "js/verbund.js",
+  "js/wache.js",
   "manifest.webmanifest",
   "vendor/katex/fonts/KaTeX_AMS-Regular.woff2",
   "vendor/katex/fonts/KaTeX_Caligraphic-Bold.woff2",

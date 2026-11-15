@@ -459,6 +459,7 @@ window.addEventListener('hashchange', route);
 window.addEventListener('beforeinstallprompt', (ev) => { ev.preventDefault(); installEvent = ev; window.__mtInstall = ev; if (['#/mehr', '', '#/'].includes(location.hash)) route(); });
 window.addEventListener('appinstalled', () => { installEvent = null; window.__mtInstall = null; toast('Installiert. Der Mathe-Trainer liegt jetzt bei deinen Apps.'); });
 route();
+window.__mtGestartet?.();   // Start-Wache (wache.js): Die App läuft
 // Zu breite Formeln einpassen – nach jedem Umbau der Seite und wenn sich die Breite ändert.
 { let dran = false; const los = () => { if (dran) return; dran = true; requestAnimationFrame(() => { dran = false; formelnEinpassen(); }); };
   new MutationObserver(los).observe(document.body, { childList: true, subtree: true });

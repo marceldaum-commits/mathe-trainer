@@ -27,7 +27,14 @@ await page.route('**/api/status', (r) => r.fulfill({ json: { ok: true, stufe: 'l
 const apiCalls = [];
 page.on('request', (r) => { const p = new URL(r.url()).pathname; if (p.startsWith('/api/') && p !== '/api/meldung') apiCalls.push(p); });
 const shot = async (name) => { if (shots) await page.screenshot({ path: `${shots}/${name}.png` }); };
-process.on('uncaughtException', async (e) => { console.error(String(e).split('\n')[0]); console.error((String(e?.stack || '').split('\n').find((z) => /e2e\.mjs:\d+/.test(z)) || '').trim()); if (shots) await page.screenshot({ path: `${shots}/fehler.png` }).catch(() => {}); process.exit(1); });
+const spur = [];   // die letzten Ereignisse der Seite – wird nur ausgegeben, wenn der Test abbricht
+const merke = (t) => { spur.push(`${new Date().toISOString().slice(11, 23)} ${t}`); if (spur.length > 60) spur.shift(); };
+page.on('requestfailed', (r) => merke(`Abruf gescheitert: ${r.url().replace(BASE, '')} ${r.failure()?.errorText || ''}`)); page.on('pageerror', (e) => merke(`Seitenfehler: ${String(e).slice(0, 200)}`)); page.on('console', (m) => { if (m.type() !== 'log') merke(`Konsole ${m.type()}: ${m.text().slice(0, 200)}`); });
+page.on('framenavigated', (f) => { if (f === page.mainFrame()) merke(`Seite: ${f.url().replace(BASE, '/')}`); }); page.on('response', (r) => { if (r.status() >= 400) merke(`Antwort ${r.status()}: ${r.url().replace(BASE, '')}`); });
+// Pausiert die Test-Umgebung den Rechner (Cloud-Container werden manchmal angehalten und fortgesetzt), reißen Abrufe ab und Seiten bleiben leer.
+// Der Herzschlag erkennt das: Zwischen zwei Schlägen sollte etwa eine Sekunde liegen.
+{ let zuletzt = Date.now(); setInterval(() => { const jetzt = Date.now(); if (jetzt - zuletzt > 8000) merke(`RECHNER PAUSIERT: ${Math.round((jetzt - zuletzt) / 1000)} s ohne Herzschlag`); zuletzt = jetzt; }, 1000).unref(); }
+process.on('uncaughtException', async (e) => { console.error(String(e).split('\n')[0]); console.error('Letzte Ereignisse:\n  ' + spur.slice(-25).join('\n  ')); try { console.error('Zustand: ' + JSON.stringify(await page.evaluate(() => ({ adresse: location.href, bereit: document.readyState, sw: !!navigator.serviceWorker?.controller, ansicht: document.querySelector('#view')?.children.length, skripte: performance.getEntriesByType('resource').filter((r) => r.name.endsWith('.js')).length })))); } catch { /* Seite antwortet nicht */ } console.error((String(e?.stack || '').split('\n').find((z) => /e2e\.mjs:\d+/.test(z)) || '').trim()); if (shots) await page.screenshot({ path: `${shots}/fehler.png` }).catch(() => {}); process.exit(1); });
 const fail = (msg) => { throw new Error(msg); };
 const sheetNext = async () => { await page.waitForSelector('#sheet:not([hidden]) #sh-go'); await page.waitForTimeout(250); await page.click('#sh-go'); await page.waitForSelector('#sheet', { state: 'hidden' }); };
 const px = async (sel, view, x, y) => {
@@ -952,6 +959,18 @@ await ctx2.close();
   await ap.goto(`${BASE}#/lernen`); await ap.waitForTimeout(200);
   if (!(await ap.locator('#upd').isVisible())) fail('Update: Hinweis verschwindet beim Seitenwechsel');
   await ac.close();
+}
+// Start-Wache: Lädt das Programm nicht, gibt es einen Neu-Lade-Versuch und danach einen Hinweis mit Knopf – nie eine leere Seite
+{ const wc = await browser.newContext({ ...devices['Pixel 7'], serviceWorkers: 'block' }); const wp = await wc.newPage();
+  await wc.addInitScript(() => { window.__mtWacheMs = 1500; });
+  let abrufe = 0, sperre = true; await wc.route('**/js/app.js', (r) => { abrufe++; return sperre ? r.abort() : r.continue(); });
+  await wp.goto(BASE); await wp.waitForSelector('#wache-neu', { timeout: 15000 });
+  if (abrufe < 2) fail('Start-Wache: kein eigener Neu-Lade-Versuch vor dem Hinweis');
+  if (shots) await wp.screenshot({ path: `${shots}/88-start-wache.png` });
+  sperre = false; await wp.click('#wache-neu'); await wp.waitForSelector('#home');
+  if (!(await wp.evaluate(() => window.__mtBereit === true && sessionStorage.getItem('mt.wache') === null))) fail('Start-Wache: nach geglücktem Start nicht zurückgesetzt');
+  await wp.waitForTimeout(2500); if (await wp.locator('#wache').count()) fail('Start-Wache: Hinweis erscheint, obwohl die App läuft');
+  await wc.close();
 }
 // Paket 0.30.0: Kopfrechen-Arena, Knobelaufgabe, Klassenarbeits-Trainer, Pi-Outfit, Zurücksetzen mit Auswahl
 { const kc = await browser.newContext({ ...devices['Pixel 7'], serviceWorkers: 'block' }); const kp = await kc.newPage();
