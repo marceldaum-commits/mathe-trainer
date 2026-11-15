@@ -922,6 +922,14 @@ ok(nextStreak({ n: 3, last: '2026-11-10' }, D('2026-11-12')).n === 1, 'Serie: au
         for (const M of Ek.levelsFor(lv)) { const z = (M.text.match(/\d+(,\d+)?/g) || []).map((t) => parseFloat(t.replace(',', '.'))), r = (M.ziel * Math.PI) / 180, s2 = (v) => Math.round(v * 100) / 100;
           ok(M.ziel % 5 === 0 && M.ziel > 0 && M.ziel <= 90, `Dreieck im Kreis: Winkel einstellbar (${M.text})`);
           if (/etwa|soll 0,5/.test(M.text)) { const f = /Sinus/.test(M.text) ? Math.sin : Math.cos; ok(z.includes(s2(f(r))) && [...Array(19).keys()].filter((k) => s2(f((k * 5 * Math.PI) / 180)) === s2(f(r))).length === 1, `Dreieck im Kreis: Wert stimmt und ist eindeutig (${M.text})`); } } }
+      { const Zp = await import('../app/js/games/zahlenpaare.js'), Bm = await import('../app/js/games/bruchmal.js');
+        for (const [name, lf] of [['zahlenpaare', Zp.levelsFor], ['bruchmal', Bm.levelsFor]]) ok(new Set([1, 2, 3, 4, 5].map((lv) => JSON.stringify(lf(lv)))).size === 5 && [1, 2, 3, 4, 5].every((lv) => lf(lv).length >= 3), `${name}: fünf verschiedene Level-Sätze mit je mindestens drei Aufgaben`);
+        for (const lv of [1, 2, 3, 4, 5]) {
+          for (const M of Zp.levelsFor(lv)) { const g = Zp.gemischt(M);
+            ok(M.paare.every(([a, b]) => a + b === M.ziel && a > 0 && b > 0) && M.zahlen.every((v, i) => M.zahlen.filter((w, j) => j !== i && v + w === M.ziel).length === 1) && M.zahlen.length <= 8, `Zahlen-Paare: jede Zahl hat genau einen Partner (Ziel ${M.ziel})`);
+            ok(g.length === M.zahlen.length && new Set(g.map((x) => x.i)).size === g.length && g.every((x) => M.zahlen[x.i] === x.v) && g.every((x, k) => k === 0 || x.v + g[k - 1].v !== M.ziel || M.paare.length < 3), `Zahlen-Paare: gemischt, Partner liegen nicht nebeneinander (Ziel ${M.ziel})`); }
+          for (const M of Bm.levelsFor(lv)) { const [z, n] = Bm.produkt(M);
+            ok(M.a < M.b && M.c < M.d && M.a >= 1 && M.c >= 1 && M.b <= 6 && M.d <= 6 && Bm.richtig(M, M.a, M.c) && !Bm.richtig(M, M.a, M.c + 1) && Math.abs(z / n - (M.a / M.b) * (M.c / M.d)) < 1e-12, `Bruch-Felder: ${M.c}/${M.d} von ${M.a}/${M.b}`); } } }
       for (const u of Un.ALLE_UNITS.filter((x) => ['7', '8', '9', '10'].includes(x.jg))) ok(new Set(u.steps.map((s) => s.id)).size === u.steps.length && u.steps.some((s) => s.kind === 'Festigen'), `${u.id}: Schritte eindeutig, mit Festigen`);
       for (const jg of ['7', '8', '9', '10']) { const us = Un.ALLE_UNITS.filter((x) => x.jg === jg); ok(us.length >= 3 && us.filter((u) => u.steps.some((s) => s.kind === 'Entdecken')).length >= 2, `Klasse ${jg}: mindestens drei Einheiten, zwei davon mit Spiel`); } }
     for (const u of Un.ALLE_UNITS.filter((x) => ['5', '6'].includes(x.jg))) ok(u.steps[0].kind === 'Entdecken' || u.steps.some((s) => s.kind === 'Entdecken'), `${u.id}: Einheiten der Klassen 5 und 6 haben ein Spiel zum Entdecken`);

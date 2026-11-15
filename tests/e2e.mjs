@@ -238,6 +238,13 @@ async function playKaestchen() {
 const FDL = await game('felder'), SWL = await game('stellen'), WUL = await game('wuerfel'), AUL = await game('ausgleich');
 const WGL = await game('waage'), PZL = await game('prozent'), GZL = await game('geraden'), GRL = await game('gluecksrad'), PQL = await game('quadrate'), ZWL = await game('zinsen'), EKL = await game('kreis');
 const stufe = async (id, i, n) => page.waitForFunction(([s, t]) => document.querySelector(s).textContent === t && !document.querySelector(s.replace('-n', '-note')).innerHTML, [`#${id}-n`, `${i + 1}/${n}`]);
+const ZPL = await game('zahlenpaare'), BML = await game('bruchmal');
+async function playZahlenpaare() {
+  for (let i = 0; i < ZPL.length; i++) { const M = ZPL[i]; await page.waitForFunction(([t, n]) => document.querySelector('#zp-n').textContent === t && document.querySelectorAll('.zp-karte').length === n && !document.querySelector('.zp-karte.weg'), [`${i + 1}/${ZPL.length}`, M.zahlen.length]);
+    if (first('zp-falsch')) { await page.click('.zp-karte[data-i="0"]'); await page.click('.zp-karte[data-i="2"]'); await page.waitForSelector('#zp-note .note.tip'); }
+    for (let p = 0; p < M.paare.length; p++) { await page.click(`.zp-karte[data-i="${2 * p}"]`); await page.click(`.zp-karte[data-i="${2 * p + 1}"]`); if (first('zp-bild')) await shot('92-zahlenpaare'); }
+    await page.waitForSelector('#zp-go:not([hidden])'); await page.click('#zp-go'); }
+}
 async function playWaage() {
   for (let i = 0; i < WGL.length; i++) { const M = WGL[i]; await stufe('wg', i, WGL.length);
     if (first('waage-falsch') && M.b > 0) { await page.click('#wg-t2'); await page.waitForSelector('#wg-note .note.tip'); }
@@ -285,7 +292,7 @@ async function playAusgleich() {
     if (first('ausgleich-bild')) await shot('92-tuerme');
     await page.click('#au-go'); }
 }
-const HANDLERS = [['#wg', playWaage], ['#pz', () => playEinsteller('pz', PZL, (M) => [['#pz-in', M.ziel]], '94-prozent')], ['#gz', () => playEinsteller('gz', GZL, (M) => [['#gz-m', M.m], ['#gz-b', M.b]], '95-geraden')], ['#gr', playRad], ['#pq', () => playEinsteller('pq', PQL, (M) => [['#pq-a', M.sol[0]], ['#pq-b', M.sol[1]]], '97-pythagoras')], ['#zw', () => playEinsteller('zw', ZWL, (M) => [['#zw-in', M.sol]], '98-wachstum')], ['#ek', () => playEinsteller('ek', EKL, (M) => [['#ek-in', M.ziel]], '99-einheitskreis')], ['#fd', playFelder], ['#sw', playStellen], ['#wu', playWuerfel], ['#au', playAusgleich], ['#zs', () => playStrahl(ZS, 'zs')], ['#fr', () => playStrahl(FRL, 'fr')], ['#sf', playStreifen], ['#kg', playKaestchen], ['#tf', playTafel], ['#mb-c', playMurmelbahn], ['#fg-c', playFlug], ['#tg-c', playTangente], ['#p-f', playPaare], ['#z-d', playZeichnen], ['#fl-c', playFlaeche], ['#lb-c', playLabor], ['#lo-c', playLotse], ['#wk-c', playWerkstatt], ['#rm-c', playRaum], ['#bs', playBoss], ['#i-next', info]];
+const HANDLERS = [['#zp', playZahlenpaare], ['#bm', () => playEinsteller('bm', BML, (M) => [['#bm-a', M.a], ['#bm-c', M.c]], '92-bruchfelder')], ['#wg', playWaage], ['#pz', () => playEinsteller('pz', PZL, (M) => [['#pz-in', M.ziel]], '94-prozent')], ['#gz', () => playEinsteller('gz', GZL, (M) => [['#gz-m', M.m], ['#gz-b', M.b]], '95-geraden')], ['#gr', playRad], ['#pq', () => playEinsteller('pq', PQL, (M) => [['#pq-a', M.sol[0]], ['#pq-b', M.sol[1]]], '97-pythagoras')], ['#zw', () => playEinsteller('zw', ZWL, (M) => [['#zw-in', M.sol]], '98-wachstum')], ['#ek', () => playEinsteller('ek', EKL, (M) => [['#ek-in', M.ziel]], '99-einheitskreis')], ['#fd', playFelder], ['#sw', playStellen], ['#wu', playWuerfel], ['#au', playAusgleich], ['#zs', () => playStrahl(ZS, 'zs')], ['#fr', () => playStrahl(FRL, 'fr')], ['#sf', playStreifen], ['#kg', playKaestchen], ['#tf', playTafel], ['#mb-c', playMurmelbahn], ['#fg-c', playFlug], ['#tg-c', playTangente], ['#p-f', playPaare], ['#z-d', playZeichnen], ['#fl-c', playFlaeche], ['#lb-c', playLabor], ['#lo-c', playLotse], ['#wk-c', playWerkstatt], ['#rm-c', playRaum], ['#bs', playBoss], ['#i-next', info]];
 
 /* ───────────── Start, Menü, Schwierigkeit, Hell/Dunkel ───────────── */
 await page.goto(BASE); await page.waitForSelector('#home'); await shot('01-start');

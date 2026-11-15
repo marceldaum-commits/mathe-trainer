@@ -955,3 +955,15 @@ button.card.unit{text-align:left;width:100%;font:inherit;color:inherit;cursor:po
 .st-pi .pick{min-height:40px;font-size:calc(13.5px*var(--fs,1));padding:0 10px}
 .st-pi .pick small{font-weight:600;color:var(--muted)}
 .st-pi .pick:disabled{opacity:.55}
+
+/* Spiele: Zahlen-Paare, Bruch-Felder */
+.zp-feld{display:grid;grid-template-columns:repeat(auto-fit,minmax(70px,1fr));gap:10px;padding:12px;width:100%}
+.zp-karte{min-height:58px;border-radius:16px;border:2px solid var(--line);background:var(--card);font-size:calc(21px*var(--fs,1));font-weight:800;color:var(--head);font-variant-numeric:tabular-nums;touch-action:manipulation;cursor:pointer}
+.zp-karte.sel{border-color:var(--orange);background:var(--orange-soft);transform:translateY(-2px)}
+.zp-karte.weg{border-color:transparent;background:var(--mint-soft);color:var(--mint-ink);opacity:.75}
+.bm-z{fill:var(--card);stroke:var(--line);stroke-width:1}
+.bm-z.spalte{fill:color-mix(in srgb,var(--kind-2,#2f9bff) 30%,var(--card))}
+.bm-z.zeile{fill:color-mix(in srgb,var(--mint) 38%,var(--card))}
+.bm-z.beide{fill:var(--orange)}
+.bm-regler .slider{grid-template-columns:70px 1fr 44px}
+.bm-regler .slider label{font-style:normal;font-family:inherit;font-size:calc(15px*var(--fs,1));text-align:left}

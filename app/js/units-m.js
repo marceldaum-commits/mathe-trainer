@@ -10,6 +10,8 @@ import { stellen } from './games/stellen.js';
 import { wuerfel } from './games/wuerfel.js';
 import { ausgleich } from './games/ausgleich.js';
 import { waage } from './games/waage.js';
+import { zahlenpaare } from './games/zahlenpaare.js';
+import { bruchmal } from './games/bruchmal.js';
 import { prozent } from './games/prozent.js';
 import { geraden } from './games/geraden.js';
 import { gluecksrad } from './games/gluecksrad.js';
@@ -20,7 +22,7 @@ import { murmelbahn } from './games/murmelbahn.js';
 import { mixOf, genScheitel, genBaum } from './gen.js';
 import { genVierfelder, genBedingt } from './gen2.js';
 import { genBruch, genKlammer, genLinGl, genQuadGl, genPotenz, genSteigung, genHaeufigkeit, genProzent, genKennwerte, genLaplace, genGegen, genPythagoras, genTrig, genFlaeche } from './gen3.js';
-import { genRunden, genRechenregel, genTeiler, genEinheit, genRechteck, genKuerzen, genBruchVergleich, genDezimal, genBruchDezimal, genNegativ, genTerm, genDreisatz, genLinFunktion, genWurzel, genZinseszins, genQuader, genKoerper, genWinkel, genLGS, genBinom, genStrahlensatz, genLog } from './gen6.js';
+import { genRunden, genRechenregel, genTeiler, genEinheit, genRechteck, genKuerzen, genBruchVergleich, genDezimal, genBruchDezimal, genNegativ, genTerm, genDreisatz, genLinFunktion, genWurzel, genZinseszins, genQuader, genKoerper, genWinkel, genLGS, genBinom, genStrahlensatz, genLog, genVorteil, genBruchMal, genZuordnung, genZins, genKreis, genParabelSach, genSinussatz } from './gen6.js';
 
 const T = (s) => `<div class="big">${tex(s, true)}</div>`;
 const mix = (...g) => quiz(Array(6).fill(mixOf([g])));
@@ -35,11 +37,11 @@ export const MITTEL_AREAS = [
 /** Was je Klasse als Nächstes kommt (für die Karte „Kommt bald“). */
 export const MITTEL_BALD = {
   5: ['Schriftlich rechnen', 'Winkel messen', 'Diagramme lesen', 'Koordinatensystem'],
-  6: ['Brüche malnehmen und teilen', 'Winkel im Dreieck', 'Kreis', 'Zufallsversuche'],
-  7: ['Gleichungen mit Klammern', 'Zinsen', 'Dreiecke konstruieren', 'Achsen- und Punktspiegelung'],
-  8: ['Kreis: Umfang und Fläche', 'Baumdiagramme', 'Flächen von Dreieck und Trapez'],
-  9: ['Quadratische Funktionen im Sachzusammenhang', 'Mehrstufige Zufallsversuche', 'Kreis und Zylinder'],
-  10: ['Sinus- und Kosinussatz', 'Kugel und Kegel im Sachzusammenhang', 'Sinusfunktion'],
+  6: ['Winkel im Dreieck', 'Prozent: erste Schritte', 'Zufallsversuche'],
+  7: ['Gleichungen mit Klammern', 'Dreiecke konstruieren', 'Achsen- und Punktspiegelung'],
+  8: ['Baumdiagramme', 'Flächen von Dreieck und Trapez', 'Prismen'],
+  9: ['Mehrstufige Zufallsversuche', 'Kreis und Zylinder', 'Wurzelgleichungen'],
+  10: ['Kugel und Kegel im Sachzusammenhang', 'Sinusfunktion', 'Exponentialfunktionen'],
 };
 
 export const MITTEL = [
@@ -107,6 +109,22 @@ export const MITTEL = [
     ] },
 
   /* ───────────── Klasse 6 ───────────── */
+  { id: 'k5-rechnen', jg: '5', area: 'mzahl', title: 'Geschickt rechnen', sub: 'Rechenvorteile und Überschlag',
+    meta: { boss: ['Trick-Tiger', '+·', [genVorteil, genRechenregel]], why: 'Wer geschickt rechnet, ist im Kopf schneller als andere mit dem Taschenrechner. Und mit einem Überschlag merkst du sofort, wenn an der Kasse oder in der Klassenarbeit ein Ergebnis nicht stimmen kann.',
+      formeln: [['Tauschen', 'a+b=b+a\\qquad a\\cdot b=b\\cdot a'], ['Verteilen', 'a\\cdot(b+c)=a\\cdot b+a\\cdot c'], ['Überschlag', '\\text{erst runden, dann rechnen}']] },
+    steps: [
+      { id: 'paare', kind: 'Entdecken', title: 'Zahlen-Paare', run: zahlenpaare },
+      { id: 'vorteile', kind: 'Benennen', title: 'Rechenvorteile', run: info([
+        { title: 'Tauschen und geschickt zusammenfassen', html: `${T('37+48+63=(37+63)+48=148')}<p>Beim Addieren und beim Malnehmen darfst du die Reihenfolge ändern. Such dir Zahlen, die zusammen etwas Rundes ergeben – wie im Spiel eben.</p>${T('4\\cdot 17\\cdot 25=(4\\cdot 25)\\cdot 17=1700')}` },
+        { title: 'Verteilen', html: `${T('6\\cdot 99=6\\cdot 100-6\\cdot 1=594')}<p>Eine schwierige Zahl zerlegst du in zwei einfache. Umgekehrt geht es auch: ${tex('7\\cdot 23+7\\cdot 77=7\\cdot 100')}.</p>` },
+      ]) },
+      { id: 'tricks', kind: 'Brücke', title: 'Geschickt rechnen', run: quiz([genVorteil, genVorteil, genVorteil, genVorteil]) },
+      { id: 'schaetzen', kind: 'Benennen', title: 'Überschlag', run: info([
+        { title: 'Erst runden, dann rechnen', html: `<p>Beim Überschlag rundest du die Zahlen so, dass du im Kopf rechnen kannst.</p>${T('389+212\\approx 400+200=600')}<p class="muted">Das genaue Ergebnis ist 601 – der Überschlag liegt ganz nah dran und zeigt, ob eine Rechnung stimmen kann.</p>` },
+      ]) },
+      { id: 'ueben', kind: 'Brücke', title: 'Tricks und Überschlag', run: quiz([genVorteil, genRechenregel, genVorteil, genVorteil]) },
+      { id: 'mix', kind: 'Festigen', title: 'Rechnen gemischt', run: mix(genVorteil, genRechenregel) },
+    ] },
   { id: 'k6-bruch', jg: '6', area: 'mzahl', title: 'Brüche', sub: 'Kürzen, erweitern, vergleichen, rechnen',
     meta: { boss: ['Bruch-Bändiger', '¾', [genKuerzen, genBruchVergleich, genBruch]], why: 'Eine halbe Pizza, ein Viertelliter Milch, drei Achtel einer Strecke: Brüche beschreiben Anteile. Ohne sie gäbe es weder Rezepte noch Prozentrechnung.',
       formeln: [['Kürzen und Erweitern', '\\dfrac ab=\\dfrac{a\\cdot k}{b\\cdot k}'], ['Brüche addieren', '\\dfrac ab+\\dfrac cd=\\dfrac{a\\,d+c\\,b}{b\\,d}'], ['Brüche malnehmen', '\\dfrac ab\\cdot\\dfrac cd=\\dfrac{a\\,c}{b\\,d}']] },
@@ -124,6 +142,22 @@ export const MITTEL = [
       ]) },
       { id: 'rechnen', kind: 'Brücke', title: 'Brüche rechnen', run: quiz([genBruch, genBruch, genBruch, genBruch]) },
       { id: 'mix', kind: 'Festigen', title: 'Brüche gemischt', run: mix(genKuerzen, genBruchVergleich, genBruch) },
+    ] },
+  { id: 'k6-bruchmal', jg: '6', area: 'mzahl', title: 'Brüche malnehmen und teilen', sub: 'Bruch von Bruch, Kehrwert',
+    meta: { boss: ['Kehrwert-Kobold', '÷', [genBruchMal, genKuerzen]], why: 'Ein halbes Rezept, drei Viertel einer halben Pizza, ein Fünftel vom Taschengeld sparen: „Bruchteil von etwas“ ist Malnehmen mit Brüchen. Teilen brauchst du, wenn du wissen willst, wie oft ein Stück in etwas hineinpasst.',
+      formeln: [['Malnehmen', '\\dfrac ab\\cdot\\dfrac cd=\\dfrac{a\\cdot c}{b\\cdot d}'], ['Teilen', '\\dfrac ab:\\dfrac cd=\\dfrac ab\\cdot\\dfrac dc']] },
+    steps: [
+      { id: 'felder', kind: 'Entdecken', title: 'Bruch-Felder', run: bruchmal },
+      { id: 'mal', kind: 'Benennen', title: 'Brüche malnehmen', run: info([
+        { title: 'Zähler mal Zähler, Nenner mal Nenner', html: `${T('\\dfrac23\\cdot\\dfrac34=\\dfrac{2\\cdot 3}{3\\cdot 4}=\\dfrac{6}{12}=\\dfrac12')}<p>Im Spiel hast du es gesehen: Die doppelt gefärbten Felder sind „Zähler mal Zähler“, alle Felder zusammen „Nenner mal Nenner“.</p><p class="muted">„Von“ bedeutet malnehmen: ${tex('\\tfrac34')} von 20 sind ${tex('20:4\\cdot 3=15')}.</p>` },
+        { title: 'Vorher kürzen', html: `${T('\\dfrac{4}{9}\\cdot\\dfrac{3}{8}=\\dfrac{1}{3}\\cdot\\dfrac{1}{2}=\\dfrac16')}<p>Über Kreuz kürzen, bevor du ausrechnest – dann bleiben die Zahlen klein.</p>` },
+      ]) },
+      { id: 'malueben', kind: 'Brücke', title: 'Malnehmen', run: quiz([genBruchMal, genBruchMal, genBruchMal, genBruchMal]) },
+      { id: 'teilen', kind: 'Benennen', title: 'Durch Brüche teilen', run: info([
+        { title: 'Mit dem Kehrwert malnehmen', html: `${T('\\dfrac34:\\dfrac12=\\dfrac34\\cdot\\dfrac21=\\dfrac64=\\dfrac32')}<p>Die Frage „Wie oft passt ein Halbes in drei Viertel?“ hat die Antwort anderthalbmal. Den <b>Kehrwert</b> bekommst du, indem du Zähler und Nenner vertauschst.</p>` },
+      ]) },
+      { id: 'teilueben', kind: 'Brücke', title: 'Teilen', run: quiz([genBruchMal, genBruchMal, genBruchMal, genKuerzen]) },
+      { id: 'mix', kind: 'Festigen', title: 'Brüche gemischt', run: mix(genBruchMal, genKuerzen) },
     ] },
   { id: 'k6-dezimal', jg: '6', area: 'mzahl', title: 'Dezimalzahlen', sub: 'Rechnen mit Komma, Bruch und Prozent',
     meta: { boss: ['Komma-Kobold', '0,1', [genDezimal, genBruchDezimal]], why: 'Preise, Zeiten im Sport, Messwerte: Fast alles, was genau gemessen wird, steht als Kommazahl da. Wer Bruch, Kommazahl und Prozent ineinander umrechnen kann, versteht dieselbe Angabe in jeder Form.',
@@ -207,6 +241,31 @@ export const MITTEL = [
     ] },
 
   /* ───────────── Klasse 8 ───────────── */
+  { id: 'k7-zuordnung', jg: '7', area: 'malgebra', title: 'Zuordnungen', sub: 'Proportional und antiproportional',
+    meta: { boss: ['Je-desto-Dachs', '∝', [genZuordnung, genDreisatz]], why: 'Doppelt so viele Brötchen kosten doppelt so viel – aber doppelt so viele Helfer brauchen nur halb so lang. Wer diese beiden Muster auseinanderhält, löst fast jede Sachaufgabe.',
+      formeln: [['Proportional', 'y=k\\cdot x\\quad(\\text{Quotient bleibt gleich})'], ['Antiproportional', 'x\\cdot y=k\\quad(\\text{Produkt bleibt gleich})']] },
+    steps: [
+      { id: 'prop', kind: 'Benennen', title: 'Zwei Muster', run: info([
+        { title: 'Proportional: je mehr, desto mehr', html: `<p>Zum Doppelten gehört das Doppelte, zum Dreifachen das Dreifache. 3 Hefte kosten 6 €, also kosten 6 Hefte 12 €.</p>${T('y=k\\cdot x')}<p class="muted">Teilst du y durch x, kommt immer dieselbe Zahl heraus – der Preis für ein Stück.</p>` },
+        { title: 'Antiproportional: je mehr, desto weniger', html: `<p>Zum Doppelten gehört die Hälfte. 2 Maler brauchen 12 Stunden, 4 Maler nur 6 Stunden.</p>${T('x\\cdot y=k')}<p class="muted">Nimmst du x mal y, kommt immer dieselbe Zahl heraus – die gesamte Arbeit.</p>` },
+        { title: 'Achtung: nicht alles passt', html: `<p>„Je älter, desto größer“ stimmt zwar – aber ein doppelt so altes Kind ist nicht doppelt so groß. Das ist weder proportional noch antiproportional.</p>` },
+      ]) },
+      { id: 'erkennen', kind: 'Brücke', title: 'Zuordnungen erkennen und rechnen', run: quiz([genZuordnung, genZuordnung, genZuordnung, genZuordnung]) },
+      { id: 'dreisatz', kind: 'Brücke', title: 'Dreisatz', run: quiz([genDreisatz, genZuordnung, genDreisatz, genZuordnung]) },
+      { id: 'mix', kind: 'Festigen', title: 'Zuordnungen gemischt', run: mix(genZuordnung, genDreisatz) },
+    ] },
+  { id: 'k7-zinsen', jg: '7', area: 'malgebra', title: 'Zinsrechnung', sub: 'Kapital, Zinssatz, Zinsen',
+    meta: { boss: ['Zins-Zebra', '€', [genZins, genProzent]], why: 'Sparbuch, Kredit fürs erste Auto, Ratenkauf beim Handy: Überall stecken Zinsen. Wer sie ausrechnen kann, erkennt, was ein Angebot wirklich kostet.',
+      formeln: [['Jahreszinsen', 'Z=K\\cdot\\dfrac{p}{100}'], ['Monate', 'Z_m=Z\\cdot\\dfrac{m}{12}'], ['Tage', 'Z_t=Z\\cdot\\dfrac{t}{360}']] },
+    steps: [
+      { id: 'begriffe', kind: 'Benennen', title: 'Zinsen sind Prozente', run: info([
+        { title: 'Neue Namen, gleiche Rechnung', html: `${T('Z=K\\cdot\\dfrac{p}{100}')}<p>Das <b>Kapital</b> ${tex('K')} ist der Grundwert, der <b>Zinssatz</b> ${tex('p')} der Prozentsatz, die <b>Zinsen</b> ${tex('Z')} der Prozentwert. 800 € zu 3 % bringen in einem Jahr ${tex('800\\cdot 0{,}03=24')} €.</p>` },
+        { title: 'Weniger als ein Jahr', html: `${T('Z_m=Z\\cdot\\dfrac{m}{12}\\qquad Z_t=Z\\cdot\\dfrac{t}{360}')}<p>Der Zinssatz gilt immer für ein ganzes Jahr. Für 6 Monate gibt es die Hälfte der Jahreszinsen. Banken rechnen mit 30 Tagen pro Monat und 360 Tagen pro Jahr.</p>` },
+      ]) },
+      { id: 'jahr', kind: 'Brücke', title: 'Zinsen berechnen', run: quiz([genZins, genZins, genZins, genZins]) },
+      { id: 'prozent', kind: 'Brücke', title: 'Zinsen und Prozente', run: quiz([genProzent, genZins, genProzent, genZins]) },
+      { id: 'mix', kind: 'Festigen', title: 'Zinsen gemischt', run: mix(genZins, genProzent) },
+    ] },
   { id: 'k7-winkel', jg: '7', area: 'mgeo', title: 'Winkel und Dreiecke', sub: 'Nebenwinkel, Scheitelwinkel, Winkelsumme',
     meta: { boss: ['Winkel-Wiesel', '∠', [genWinkel]], why: 'Dachdecker, Vermesser und Spiele-Programmierer rechnen ständig mit Winkeln. Wer die wenigen Winkel-Regeln kennt, kann fehlende Winkel ausrechnen, ohne zu messen.',
       formeln: [['Nebenwinkel', '\\alpha+\\beta=180^\\circ'], ['Winkelsumme im Dreieck', '\\alpha+\\beta+\\gamma=180^\\circ'], ['Winkelsumme im Viereck', '360^\\circ']] },
@@ -276,6 +335,22 @@ export const MITTEL = [
       { id: 'klammer', kind: 'Brücke', title: 'Klammern', run: quiz([genKlammer, genBinom, genKlammer]) },
       { id: 'mix', kind: 'Festigen', title: 'Binome gemischt', run: mix(genBinom, genKlammer) },
     ] },
+  { id: 'k8-kreis', jg: '8', area: 'mgeo', title: 'Kreis', sub: 'Umfang und Flächeninhalt',
+    meta: { boss: ['Pi-Pirat', 'π', [genKreis]], why: 'Wie weit rollt ein Fahrrad bei einer Radumdrehung? Wie viel Teig braucht eine Pizza mit doppeltem Durchmesser? Für alles Runde brauchst du die Kreiszahl π.',
+      formeln: [['Umfang', 'U=2\\cdot\\pi\\cdot r=\\pi\\cdot d'], ['Flächeninhalt', 'A=\\pi\\cdot r^2'], ['Kreiszahl', '\\pi\\approx 3{,}14']] },
+    steps: [
+      { id: 'pi', kind: 'Benennen', title: 'Die Kreiszahl π', run: info([
+        { title: 'Umfang', html: `${T('U=2\\cdot\\pi\\cdot r=\\pi\\cdot d')}<p>Legst du ein Maßband um einen Teller und teilst durch den Durchmesser, kommt immer ungefähr 3,14 heraus – egal wie groß der Teller ist. Diese Zahl heißt ${tex('\\pi')}.</p>` },
+        { title: 'Flächeninhalt', html: `${T('A=\\pi\\cdot r^2')}<p>Hier wird der <b>Radius</b> quadriert. Bei doppeltem Radius ist die Fläche viermal so groß – deshalb ist die große Pizza oft das bessere Angebot.</p><p class="muted">Ergebnisse wie ${tex('9\\pi')} sind genau. Mit ${tex('\\pi\\approx 3{,}14')} sind das etwa 28,3.</p>` },
+      ]) },
+      { id: 'umfang', kind: 'Brücke', title: 'Umfang und Fläche', run: quiz([genKreis, genKreis, genKreis, genKreis]) },
+      { id: 'teile', kind: 'Benennen', title: 'Rückwärts und in Teilen', run: info([
+        { title: 'Vom Umfang zum Radius', html: `${T('U=10\\pi\\ \\Rightarrow\\ r=\\dfrac{10\\pi}{2\\pi}=5')}<p>Ist der Durchmesser gegeben, halbiere ihn zuerst – in die Flächenformel gehört der Radius.</p>` },
+        { title: 'Halbkreis, Viertelkreis, Kreisring', html: `<p>Rechne den ganzen Kreis aus und teile dann. Beim Kreisring ziehst du den kleinen Kreis vom großen ab:</p>${T('A=\\pi\\cdot r_a^2-\\pi\\cdot r_i^2')}` },
+      ]) },
+      { id: 'rueck', kind: 'Brücke', title: 'Kreisteile', run: quiz([genKreis, genKreis, genKreis, genKreis]) },
+      { id: 'mix', kind: 'Festigen', title: 'Kreis gemischt', run: mix(genKreis) },
+    ] },
   { id: 'k9-quadrat', jg: '9', area: 'malgebra', title: 'Wurzeln und quadratische Gleichungen', sub: 'Wurzeln, Parabeln, pq-Formel',
     meta: { boss: ['Parabel-Panther', 'x²', [genWurzel, genQuadGl, genScheitel]], why: 'Wurfbahnen, Bremswege und Brückenbögen sind Parabeln. Mit quadratischen Gleichungen findest du heraus, wann ein Ball landet oder wie breit ein Tor sein muss.',
       formeln: [['Wurzelgesetz', '\\sqrt a\\cdot\\sqrt b=\\sqrt{a\\cdot b}'], ['pq-Formel', 'x_{1,2}=-\\dfrac p2\\pm\\sqrt{\\left(\\dfrac p2\\right)^2-q}'], ['Scheitelform', 'f(x)=a\\,(x-d)^2+e']] },
@@ -323,6 +398,18 @@ export const MITTEL = [
       ]) },
       { id: 'anwenden', kind: 'Brücke', title: 'Längen bestimmen', run: quiz([genStrahlensatz, genStrahlensatz, genStrahlensatz, genStrahlensatz]) },
       { id: 'mix', kind: 'Festigen', title: 'Ähnlichkeit gemischt', run: mix(genStrahlensatz, genPythagoras) },
+    ] },
+  { id: 'k9-parabel', jg: '9', area: 'malgebra', title: 'Parabeln im Alltag', sub: 'Wurfbahn, Brückenbogen, größter Wert',
+    meta: { boss: ['Wurf-Wal', '⌒', [genParabelSach, genScheitel]], why: 'Jeder geworfene Ball, jeder Wasserstrahl und viele Brückenbögen sind Parabeln. Aus der Gleichung liest du ab, wie hoch der Ball fliegt und wo er landet – oder wie ein Zaun gestellt werden muss, damit das Beet möglichst groß wird.',
+      formeln: [['Scheitel', 'h(x)=-(x-d)^2+e\\ \\Rightarrow\\ S(d\\mid e)'], ['Landung', 'h(x)=0'], ['Größter Wert', '\\text{liegt am Scheitel}']] },
+    steps: [
+      { id: 'lesen', kind: 'Benennen', title: 'Die Bahn lesen', run: info([
+        { title: 'Was der Scheitel verrät', html: `${T('h(x)=-(x-3)^2+9')}<p>Das Minus vor der Klammer heißt: Die Parabel ist nach unten geöffnet. Der Scheitel ${tex('S(3\\mid 9)')} ist der höchste Punkt – nach 3 m Weite ist der Ball 9 m hoch.</p>` },
+        { title: 'Abwurf und Landung', html: `<p><b>Abwurf:</b> ${tex('x=0')} einsetzen: ${tex('h(0)=-9+9=0')}.</p><p><b>Landung:</b> Die Höhe ist 0: ${tex('(x-3)^2=9')}, also ${tex('x=3\\pm 3')}. Der Ball landet bei 6 m.</p>` },
+      ]) },
+      { id: 'wurf', kind: 'Brücke', title: 'Wurfbahnen', run: quiz([genParabelSach, genParabelSach, genParabelSach, genParabelSach]) },
+      { id: 'scheitel', kind: 'Brücke', title: 'Scheitel ablesen', run: quiz([genScheitel, genParabelSach, genScheitel]) },
+      { id: 'mix', kind: 'Festigen', title: 'Parabeln gemischt', run: mix(genParabelSach, genScheitel) },
     ] },
   { id: 'k10-wachstum', jg: '10', area: 'malgebra', title: 'Potenzen und Wachstum', sub: 'Potenzgesetze, Zinseszins, Zerfall',
     meta: { boss: ['Zins-Zyklop', 'qⁿ', [genPotenz, genZinseszins]], why: 'Zinsen auf dem Sparkonto, die Ausbreitung einer Nachricht, der Wertverlust eines Autos: Was sich jedes Jahr um denselben Prozentsatz ändert, wächst oder fällt exponentiell – am Anfang unauffällig, dann rasant.',
@@ -389,5 +476,20 @@ export const MITTEL = [
       { id: 'felder', kind: 'Brücke', title: 'Tafeln ausfüllen', run: quiz([genVierfelder, genVierfelder, genVierfelder]) },
       { id: 'bedingt', kind: 'Brücke', title: 'Unter einer Bedingung', run: quiz([genBedingt, genBedingt, genBedingt]) },
       { id: 'mix', kind: 'Festigen', title: 'Zufall gemischt', run: mix(genBaum, genVierfelder, genBedingt) },
+    ] },
+  { id: 'k10-sinussatz', jg: '10', area: 'mgeo', title: 'Sinus- und Kosinussatz', sub: 'Rechnen in beliebigen Dreiecken',
+    meta: { boss: ['Dreiecks-Dachs', '△', [genSinussatz, genTrig]], why: 'Vermesser, Seeleute und Navigations-Apps rechnen mit Dreiecken, die keinen rechten Winkel haben. Mit Sinus- und Kosinussatz bestimmst du Entfernungen, die sich nicht direkt messen lassen – etwa die Breite eines Flusses.',
+      formeln: [['Sinussatz', '\\dfrac{a}{\\sin\\alpha}=\\dfrac{b}{\\sin\\beta}=\\dfrac{c}{\\sin\\gamma}'], ['Kosinussatz', 'c^2=a^2+b^2-2ab\\cdot\\cos\\gamma'], ['Flächeninhalt', 'A=\\tfrac12\\cdot a\\cdot b\\cdot\\sin\\gamma']] },
+    steps: [
+      { id: 'sinus', kind: 'Benennen', title: 'Der Sinussatz', run: info([
+        { title: 'Seite und Winkel gegenüber', html: `${T('\\dfrac{a}{\\sin\\alpha}=\\dfrac{b}{\\sin\\beta}=\\dfrac{c}{\\sin\\gamma}')}<p>Jede Seite geteilt durch den Sinus des Winkels gegenüber ergibt dieselbe Zahl. Du brauchst also ein bekanntes Paar aus Seite und gegenüberliegendem Winkel.</p>` },
+      ]) },
+      { id: 'sinueben', kind: 'Brücke', title: 'Mit dem Sinussatz rechnen', run: quiz([genSinussatz, genSinussatz, genSinussatz]) },
+      { id: 'kosinus', kind: 'Benennen', title: 'Der Kosinussatz', run: info([
+        { title: 'Pythagoras mit Korrektur', html: `${T('c^2=a^2+b^2-2ab\\cdot\\cos\\gamma')}<p>Bei 90° ist ${tex('\\cos\\gamma=0')} – dann bleibt der Satz des Pythagoras übrig. Bei spitzem Winkel wird ${tex('c')} kürzer, bei stumpfem länger.</p>` },
+        { title: 'Welcher Satz wann?', html: `<p><b>Sinussatz:</b> wenn ein Paar aus Seite und Winkel gegenüber bekannt ist.</p><p><b>Kosinussatz:</b> bei zwei Seiten mit eingeschlossenem Winkel oder bei drei Seiten.</p>` },
+      ]) },
+      { id: 'kosueben', kind: 'Brücke', title: 'Mit dem Kosinussatz rechnen', run: quiz([genSinussatz, genSinussatz, genSinussatz, genSinussatz]) },
+      { id: 'mix', kind: 'Festigen', title: 'Dreiecke gemischt', run: mix(genSinussatz, genTrig) },
     ] },
 ];

@@ -2,6 +2,12 @@
 
 Neueste Meldung oben. Keine Geheimnisse, keine Personendaten (dieses Repo ist öffentlich, siehe Punkt 1).
 
+## 15.11.2026 (57) – 0.30.0: großes Paket (Meldung „liegt auf test“ folgt nach dem Testlauf)
+
+- Neu: Zurücksetzen mit Auswahl, Kopfrechen-Arena mit Knobelaufgabe des Tages, Outfits für Pi, Klassenarbeits-Trainer, sieben neue Einheiten für Klasse 5 bis 10 (Einzelheiten im Baulog `docs/PLAN.md`).
+- **Nur Inhalte der Web-App** – keine Server-Schnittstelle, keine App-Hülle. Alles im freien Teil.
+- Der Klassenarbeits-Trainer verlinkt wie andere Stellen auf die Probestunde (`CONFIG.probestunde`).
+
 ## 15.11.2026 (56) – 0.29.3: Android-App holt Updates zuerst von GitHub (Entscheidung Marcel) – bitte beachten
 
 - Marcel, 15.11.: „der Updateserver soll der Git sein“, gewählt: **GitHub zuerst, eigener Server als Ersatz**. Das ersetzt die Regel „nie GitHub“ vom 14.11.

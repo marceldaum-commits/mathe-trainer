@@ -627,9 +627,231 @@ export function genLog(lv = 3) {
   }
 }
 
+/* ───────────── Paket 0.30: weitere Themen für jede Klasse ───────────── */
+
+/** Geschickt rechnen: Rechenvorteile und Überschlag (Klasse 5). */
+export function genVorteil(lv = 3) {
+  for (;;) {
+    const kind = pick(tier(lv, ['hundert', 'tausch'], ['hundert', 'tausch', 'neun'], ['neun', 'verteilen', 'ueberschlag'], ['verteilen', 'ueberschlag', 'mal25'], ['mal25', 'verteilen', 'ueberschlagmal']));
+    let prompt = 'Rechne geschickt.', formula, opts, hints, explain;
+    if (kind === 'hundert') { const a = ri(12, 88), b = 100 - a, c = ri(11, 79); if (a % 10 === 0) continue; formula = `${a}+${c}+${b}`;
+      opts = [N(100 + c, true), N(100 + c - 10, false, `${a} und ${b} ergänzen sich genau zu 100.`), N(100 + c + 10, false, `${a} und ${b} ergänzen sich genau zu 100.`), N(a + c, false, `Auch die ${b} gehört dazu.`)];
+      hints = ['Welche zwei Zahlen ergeben zusammen eine runde Zahl?', `${tex(`${a}+${b}=100`)} – beim Addieren darf man die Reihenfolge tauschen.`]; explain = `${tex(`(${a}+${b})+${c}=100+${c}=${100 + c}`)}.`; }
+    else if (kind === 'tausch') { const [x, y] = pick([[2, 5], [4, 25], [5, 20], [2, 50]]), c = ri(3, 19); formula = `${x}\\cdot${c}\\cdot${y}`;
+      opts = [N(x * y * c, true), N(x * c + y, false, 'Hier steht überall „mal“ – es wird nichts addiert.'), N(x * y + c, false, `${c} wird malgenommen, nicht addiert.`), N(x * y * (c + 1), false, `${tex(`${x}\\cdot${y}=${x * y}`)}, dann mal ${c}.`)];
+      hints = ['Welche zwei Zahlen ergeben beim Malnehmen eine runde Zahl?', `${tex(`${x}\\cdot${y}=${x * y}`)} – beim Malnehmen darf man die Reihenfolge tauschen.`]; explain = `${tex(`(${x}\\cdot${y})\\cdot${c}=${x * y}\\cdot${c}=${x * y * c}`)}.`; }
+    else if (kind === 'neun') { const n = pick([9, 99, 19, 29, 49]), c = ri(3, 9), r = n + 1; formula = `${c}\\cdot${n}`;
+      opts = [N(c * n, true), N(c * r, false, `Das ist ${c} mal ${r}. Es muss noch ${c}-mal 1 abgezogen werden.`), N(c * r - 1, false, `Abgezogen wird ${c}-mal die 1, nicht nur einmal.`), N(c * r + c, false, `${n} ist 1 <b>weniger</b> als ${r} – es wird abgezogen.`)];
+      hints = [`${n} ist fast ${r}.`, `${tex(`${c}\\cdot${r}-${c}\\cdot 1`)}.`]; explain = `${tex(`${c}\\cdot${n}=${c}\\cdot${r}-${c}=${c * r}-${c}=${c * n}`)}.`; }
+    else if (kind === 'verteilen') { const c = ri(3, 9), a = ri(11, 49), b = pick([10, 20, 50, 100]) - (a % 10) - (a % 10 === 0 ? 3 : 0), sum = a + b; if (b <= 0 || sum % 10 !== 0) continue; formula = `${c}\\cdot${a}+${c}\\cdot${b}`;
+      opts = [N(c * sum, true), N(c * a + b, false, `Auch die ${b} wird mit ${c} malgenommen.`), N(c * c * sum, false, `Die ${c} wird nur einmal ausgeklammert.`), N(c + sum, false, `Die Summe wird mit ${c} malgenommen.`)];
+      hints = [`In beiden Teilen steckt der Faktor ${c}.`, `${tex(`${c}\\cdot(${a}+${b})`)}.`]; explain = `${tex(`${c}\\cdot(${a}+${b})=${c}\\cdot${sum}=${c * sum}`)}.`; }
+    else if (kind === 'mal25') { const c = pick([12, 16, 24, 28, 32, 36, 44, 48]), f = pick([25, 5, 50]), t = f === 25 ? 4 : f === 5 ? 2 : 2, z = f * t; formula = `${c}\\cdot${f}`;
+      opts = [N(c * f, true), N((c / t) * z * 10, false, 'Eine Null zu viel.'), N(c * z, false, `${f} ist nur ${f === 25 ? 'ein Viertel' : 'die Hälfte'} von ${z} – es muss noch durch ${t} geteilt werden.`), N((c * f) + f, false, 'Zerlege geschickt statt zu schätzen.')];
+      hints = [`${f} ist ${f === 25 ? 'ein Viertel von 100' : `die Hälfte von ${z}`}.`, `${tex(`${c}:${t}=${c / t}`)}, dann mal ${z}.`]; explain = `${tex(`${c}\\cdot${f}=(${c}:${t})\\cdot${z}=${c / t}\\cdot${z}=${c * f}`)}.`; }
+    else if (kind === 'ueberschlag') { const a = ri(21, 89) * 10 + pick([-3, -2, -1, 1, 2, 3]) + 0, b = ri(11, 59) * 10 + pick([-3, -2, 2, 3]), ra = Math.round(a / 100) * 100, rb = Math.round(b / 100) * 100; if (a % 100 >= 40 && a % 100 <= 60) continue; if (b % 100 >= 40 && b % 100 <= 60) continue;
+      prompt = `Überschlage: Runde beide Zahlen auf Hunderter und addiere dann. ${a} + ${b} ≈ ?`;
+      opts = [N(ra + rb, true), N(ra + rb + 100, false, 'Schau genau hin, ob auf- oder abgerundet wird.'), N(ra + rb - 100, false, 'Schau genau hin, ob auf- oder abgerundet wird.'), N(a + b, false, 'Das ist das genaue Ergebnis – beim Überschlag wird zuerst gerundet.')];
+      hints = ['Runde jede Zahl einzeln auf Hunderter.', `${a} ≈ ${ra} und ${b} ≈ ${rb}.`]; explain = `${tex(`${ra}+${rb}=${ra + rb}`)}. Der Überschlag zeigt schnell, ob ein Ergebnis stimmen kann.`; }
+    else { const a = ri(2, 8) * 10 + pick([-2, -1, 1, 2]), b = ri(2, 6) * 100 + pick([-12, -8, 9, 11]), ra = Math.round(a / 10) * 10, rb = Math.round(b / 100) * 100;
+      prompt = `Überschlage: Runde ${a} auf Zehner und ${b} auf Hunderter und nimm dann mal. ${a} · ${b} ≈ ?`;
+      opts = [N(ra * rb, true), N((ra * rb) / 10, false, 'Zähle die Nullen: Sie werden alle angehängt.'), N(ra * rb * 10, false, 'Eine Null zu viel.'), N(ra + rb, false, 'Hier wird malgenommen, nicht addiert.')];
+      hints = [`${a} ≈ ${ra} und ${b} ≈ ${rb}.`, 'Nimm die vorderen Ziffern mal und hänge dann alle Nullen an.']; explain = `${tex(`${ra}\\cdot${rb}=${gX(ra * rb)}`)}.`; }
+    if (!gut(opts) || opts.some((o) => o.num <= 0)) continue;
+    return { prompt, formula, options: shuffle(opts), hints, explain, kind };
+  }
+}
+
+const Q = (z, n, correct, why) => { const g = gcd(z, n) || 1, a = z / g, b = n / g; return { tex: b === 1 ? String(a) : br(a, b), num: z / n, correct, why }; };
+/** Brüche malnehmen und teilen (Klasse 6). */
+export function genBruchMal(lv = 3) {
+  for (;;) {
+    const kind = pick(tier(lv, ['zahl'], ['zahl', 'mal'], ['mal', 'von', 'teil'], ['teil', 'kuerz', 'von'], ['kuerz', 'teil', 'teilzahl']));
+    const b = ri(2, tier(lv, 5, 6, 8, 9, 12)), a = ri(1, b - 1), d = ri(2, tier(lv, 5, 6, 8, 9, 12)), c = ri(1, d - 1), k = ri(2, 6);
+    if (gcd(a, b) !== 1 || gcd(c, d) !== 1) continue;
+    let prompt = 'Berechne und kürze so weit wie möglich.', formula, opts, hints, explain;
+    if (kind === 'zahl') { formula = `${k}\\cdot${br(a, b)}`;
+      opts = [Q(k * a, b, true), Q(k * a, k * b, false, 'Nur der Zähler wird malgenommen – sonst hätte man bloß erweitert.'), Q(a, k * b, false, 'Die Zahl gehört in den Zähler, nicht in den Nenner.'), Q(k + a, b, false, 'Malnehmen, nicht addieren.')];
+      hints = [`${k}-mal ${tex(br(a, b))} heißt: ${k}-mal so viele ${b === 2 ? 'Halbe' : 'Teile'}.`, 'Zähler mal Zahl, der Nenner bleibt.']; explain = `${tex(`${k}\\cdot${br(a, b)}=${br(k * a, b)}${gcd(k * a, b) > 1 ? `=${Q(k * a, b).tex}` : ''}`)}.`; }
+    else if (kind === 'mal' || kind === 'kuerz') { if (kind === 'kuerz' && gcd(a, d) === 1 && gcd(c, b) === 1) continue; formula = `${br(a, b)}\\cdot${br(c, d)}`;
+      opts = [Q(a * c, b * d, true), Q(a * d, b * c, false, 'Beim Malnehmen wird <b>nicht</b> der Kehrwert gebildet – das gehört zum Teilen.'), Q(a * d + c * b, b * d, false, 'Das ist die Summe. Beim Malnehmen braucht man keinen gemeinsamen Nenner.'), Q(a * c, b + d, false, 'Die Nenner werden malgenommen, nicht addiert.')];
+      hints = ['Zähler mal Zähler, Nenner mal Nenner.', kind === 'kuerz' ? 'Vor dem Ausrechnen über Kreuz kürzen spart Arbeit.' : `${tex(br(`${a}\\cdot${c}`, `${b}\\cdot${d}`))}.`]; explain = `${tex(`${br(`${a}\\cdot${c}`, `${b}\\cdot${d}`)}=${br(a * c, b * d)}${gcd(a * c, b * d) > 1 ? `=${Q(a * c, b * d).tex}` : ''}`)}.`; }
+    else if (kind === 'von') { const G = b * ri(2, 9); prompt = `Wie viel sind ${tex(br(a, b))} von ${G}?`; formula = undefined;
+      opts = [Q(G * a, b, true), Q(G, b, false, `Das ist erst ein ${b === 2 ? 'Halbes' : 'Teil'} – gefragt sind ${a} davon.`), Q(G * b, a, false, 'Geteilt wird durch den Nenner, malgenommen mit dem Zähler.'), Q(G * a, 1, false, 'Es muss noch durch den Nenner geteilt werden.')];
+      hints = ['„Von“ heißt bei Brüchen: malnehmen.', `Erst durch ${b} teilen, dann mal ${a}.`]; explain = `${tex(`${G}:${b}\\cdot${a}=${(G / b) * a}`)}.`; if (a === 1) continue; }
+    else if (kind === 'teil') { formula = `${br(a, b)}:${br(c, d)}`;
+      opts = [Q(a * d, b * c, true), Q(a * c, b * d, false, 'Beim Teilen wird mit dem <b>Kehrwert</b> malgenommen.'), Q(b * c, a * d, false, 'Der Kehrwert wird vom zweiten Bruch gebildet, nicht vom ersten.'), Q(a, b * c, false, 'Auch der Nenner des zweiten Bruchs gehört dazu: Er wandert in den Zähler.')];
+      hints = ['Durch einen Bruch teilen heißt: mit dem Kehrwert malnehmen.', `${tex(`${br(a, b)}\\cdot${br(d, c)}`)}.`]; explain = `${tex(`${br(a, b)}\\cdot${br(d, c)}=${br(a * d, b * c)}${gcd(a * d, b * c) > 1 ? `=${Q(a * d, b * c).tex}` : ''}`)}.`; }
+    else { formula = `${br(a, b)}:${k}`;
+      opts = [Q(a, b * k, true), Q(a * k, b, false, 'Das wäre malnehmen. Beim Teilen wird der Bruch kleiner.'), Q(a, b + k, false, 'Der Nenner wird malgenommen, nicht addiert.'), Q(a * k, b * k, false, 'Zähler und Nenner mit derselben Zahl malnehmen ändert den Wert nicht.')];
+      hints = [`Durch ${k} teilen heißt: Jedes Stück wird in ${k} Teile geschnitten.`, `Der Nenner wird ${k}-mal so groß.`]; explain = `${tex(`${br(a, b)}:${k}=${br(a, `${b}\\cdot${k}`)}=${br(a, b * k)}`)}.`; }
+    if (!gut(opts) || opts[0].num === 1) continue;
+    return { prompt, formula, options: shuffle(opts), hints, explain, kind };
+  }
+}
+
+/** Zuordnungen: proportional und antiproportional (Klasse 7). */
+export function genZuordnung(lv = 3) {
+  for (;;) {
+    const kind = pick(tier(lv, ['prop'], ['prop', 'anti'], ['anti', 'prop', 'art'], ['anti', 'art', 'faktor'], ['faktor', 'anti', 'art']));
+    const eur = (x) => (Number.isInteger(x) ? String(x) : x.toFixed(2).replace('.', ','));
+    const E = (num, c, w, e) => N(+num.toFixed(4), c, w, `${e === '€' ? eur(num).replace(',', '{,}') : ft(num)}\\,\\text{${e}}`);
+    let prompt, opts, hints, explain;
+    if (kind === 'prop') { const n1 = ri(2, 6), p = pick(tier(lv, [2, 3], [2, 3, 4], [1.5, 2.5, 4], [1.2, 1.5, 2.5], [0.8, 1.2, 2.5])), n2 = n1 + ri(2, 6), [ding, wort] = pick([['Brötchen', 'kosten'], ['Hefte', 'kosten'], ['Liter Saft', 'kosten'], ['Kugeln Eis', 'kosten']]);
+      prompt = `${n1} ${ding} ${wort} ${eur(n1 * p)} €. Wie viel ${wort} ${n2} ${ding}?`;
+      opts = [E(n2 * p, true, undefined, '€'), E(n1 * p + (n2 - n1), false, 'Jedes weitere Stück kostet so viel wie eines der ersten – nicht 1 €.', '€'), E((n1 * n1 * p) / n2, false, 'Mehr Ware kostet <b>mehr</b>: Das ist proportional, nicht antiproportional.', '€'), E(n2 * n1 * p, false, 'Erst den Preis für ein Stück ausrechnen.', '€')];
+      hints = ['Rechne erst auf 1 zurück.', `Ein Stück kostet ${tex(`${ft(n1 * p)}:${n1}`)} €.`]; explain = `Ein Stück: ${tex(`${ft(n1 * p)}:${n1}=${ft(p)}`)} €. Dann ${tex(`${n2}\\cdot${ft(p)}=${ft(n2 * p)}`)} €.`; if (p === 1) continue; }
+    else if (kind === 'anti') { const n1 = pick([2, 3, 4, 6]), t1 = pick([6, 12, 18, 24]), n2 = pick([2, 3, 4, 6, 8, 9, 12].filter((x) => x !== n1 && (n1 * t1) % x === 0)), [wer, was] = pick([['Maler', 'streichen eine Halle'], ['Pumpen', 'leeren ein Becken'], ['Bagger', 'heben eine Grube aus']]);
+      prompt = `${n1} ${wer} ${was} in ${t1} Stunden. Wie lange brauchen ${n2} ${wer}?`;
+      opts = [E((n1 * t1) / n2, true, undefined, 'h'), E((t1 * n2) / n1, false, `${n2 > n1 ? 'Mehr' : 'Weniger'} ${wer} brauchen ${n2 > n1 ? '<b>weniger</b>' : '<b>mehr</b>'} Zeit – das ist antiproportional.`, 'h'), E(Math.abs(t1 - (n2 - n1)) || 1, false, 'Die Zeit ändert sich nicht um denselben Betrag – das Produkt bleibt gleich.', 'h'), E(n1 * t1, false, `So lange bräuchte ein einziger – jetzt noch durch ${n2} teilen.`, 'h')];
+      hints = ['Wie lange bräuchte einer allein?', `${tex(`${n1}\\cdot${t1}=${n1 * t1}`)} Stunden Arbeit insgesamt.`]; explain = `Gesamtarbeit: ${tex(`${n1}\\cdot${t1}=${n1 * t1}`)} Stunden. Für ${n2}: ${tex(`${n1 * t1}:${n2}=${ft((n1 * t1) / n2)}`)} Stunden.`; }
+    else if (kind === 'art') { const F = pick([['Je mehr Brötchen man kauft, desto mehr bezahlt man.', 'p'], ['Je mehr Helfer mit anpacken, desto kürzer dauert der Umzug.', 'a'], ['Je schneller ein Auto fährt, desto kürzer braucht es für dieselbe Strecke.', 'a'], ['Je länger man mit gleichem Tempo läuft, desto weiter kommt man.', 'p'], ['Je älter ein Kind ist, desto größer ist es.', 'k'], ['Je mehr Personen sich eine Pizza teilen, desto kleiner ist jedes Stück.', 'a'], ['Je mehr Liter man tankt, desto mehr kostet es.', 'p'], ['Je mehr Seiten ein Buch hat, desto spannender ist es.', 'k']]);
+      prompt = `Was für eine Zuordnung ist das? „${F[0]}“`;
+      const T = (t, key, why) => ({ tex: `\\text{${t}}`, correct: F[1] === key, why });
+      opts = [T('proportional', 'p', F[1] === 'a' ? 'Proportional heißt: Wird das eine doppelt so groß, wird das andere auch doppelt so groß. Hier wird es kleiner.' : 'Doppeltes Alter oder doppelte Seitenzahl bedeutet nicht das Doppelte beim anderen Wert.'), T('antiproportional', 'a', F[1] === 'p' ? 'Antiproportional heißt: Wird das eine doppelt so groß, halbiert sich das andere. Hier wachsen beide.' : 'Es gibt hier keine feste Rechenregel zwischen den beiden Größen.'), T('keins von beiden', 'k', 'Doch: Verdoppelt man das eine, lässt sich genau sagen, was mit dem anderen passiert.'), T('beides zugleich', 'x', 'Eine Zuordnung kann nicht gleichzeitig proportional und antiproportional sein.')];
+      hints = ['Was passiert mit dem zweiten Wert, wenn du den ersten verdoppelst?', 'Verdoppelt er sich auch: proportional. Halbiert er sich: antiproportional. Sonst: keins von beiden.']; explain = F[1] === 'p' ? 'Doppelt so viel vom einen bedeutet doppelt so viel vom anderen: proportional.' : F[1] === 'a' ? 'Doppelt so viel vom einen bedeutet halb so viel vom anderen: antiproportional.' : 'Hier gibt es keinen festen Faktor und kein festes Produkt.';
+      return { prompt, options: shuffle(opts), hints, explain, kind }; }
+    else { const p = pick([1.5, 2.5, 4, 6, 12]), x = ri(3, 9); prompt = `Bei einer proportionalen Zuordnung gehört zu x = 2 der Wert y = ${fmt(2 * p)}. Welcher Wert gehört zu x = ${x}?`;
+      opts = [N(x * p, true), N(2 * p + (x - 2), false, 'Proportional heißt: mit demselben Faktor malnehmen, nicht dasselbe addieren.'), N((2 * 2 * p) / x, false, 'Das wäre antiproportional.'), N(x * 2 * p, false, 'Erst den Faktor für x = 1 bestimmen.')];
+      hints = ['Bestimme den Faktor: Wie viel gehört zu x = 1?', `${tex(`${ft(2 * p)}:2=${ft(p)}`)}.`]; explain = `Faktor ${tex(ft(p))}: ${tex(`${x}\\cdot${ft(p)}=${ft(x * p)}`)}.`; if (x === 4 && p === 1) continue; }
+    if (!gut(opts) || opts.some((o) => o.num <= 0)) continue;
+    return { prompt, options: shuffle(opts), hints, explain, kind };
+  }
+}
+
+/** Zinsrechnung: Jahreszinsen, Zinssatz, Kapital, Monats- und Tageszinsen (Klasse 7). */
+export function genZins(lv = 3) {
+  for (;;) {
+    const kind = pick(tier(lv, ['zinsen'], ['zinsen', 'satz'], ['satz', 'kapital', 'monate'], ['kapital', 'monate', 'end'], ['monate', 'end', 'tage']));
+    const K = ri(2, tier(lv, 10, 20, 40, 60, 90)) * 100, p = pick(tier(lv, [1, 2, 5], [2, 3, 4, 5], [1.5, 2.5, 3, 4], [1.5, 2.5, 3.5, 4.5], [1.2, 2.4, 3.6, 4.5])), Z = (K * p) / 100;
+    const G = (num, c, w, e = '€') => N(+num.toFixed(4), c, w, `${ft(num)}\\,${e === '%' ? '\\%' : `\\text{${e}}`}`);
+    let prompt, opts, hints, explain;
+    if (kind === 'zinsen') { prompt = `${gT(K)} € werden ein Jahr lang zu ${fmt(p)} % angelegt. Wie viele Zinsen gibt es?`;
+      opts = [G(Z, true), G(K + Z, false, 'Das ist das Guthaben nach einem Jahr. Gefragt sind nur die Zinsen.'), G(Z * 10, false, 'Prozent heißt „von hundert“: durch 100 teilen.'), G(K / p, false, 'Malnehmen mit dem Prozentsatz, nicht teilen.')];
+      hints = [`${tex('Z=K\\cdot\\dfrac{p}{100}')}.`, `1 % von ${gT(K)} € sind ${fmt(K / 100)} €.`]; explain = `${tex(`${gX(K)}\\cdot\\dfrac{${ft(p)}}{100}=${ft(Z)}`)} €.`; }
+    else if (kind === 'satz') { prompt = `Für ${gT(K)} € gibt es nach einem Jahr ${fmt(Z)} € Zinsen. Wie hoch ist der Zinssatz?`;
+      opts = [G(p, true, undefined, '%'), G(p * 10, false, 'Eine Kommastelle verrutscht: Teile die Zinsen durch 1 % des Kapitals.', '%'), G(K / Z, false, 'Zinsen durch Kapital, nicht umgekehrt.', '%'), G(p + 1, false, `1 % von ${gT(K)} € sind ${fmt(K / 100)} €. Wie oft passt das in ${fmt(Z)} €?`, '%')];
+      hints = [`${tex('p=\\dfrac{Z}{K}\\cdot 100')}.`, `1 % von ${gT(K)} € sind ${fmt(K / 100)} €.`]; explain = `${tex(`\\dfrac{${ft(Z)}}{${gX(K)}}\\cdot 100=${ft(p)}`)} %.`; }
+    else if (kind === 'kapital') { prompt = `Bei einem Zinssatz von ${fmt(p)} % gibt es nach einem Jahr ${fmt(Z)} € Zinsen. Wie groß ist das Kapital?`;
+      opts = [G(K, true), G(Z * p, false, 'Die Zinsen sind nur ein kleiner Teil des Kapitals – es muss viel größer sein.'), G(K / 10, false, 'Rechne erst auf 1 %, dann mal 100.'), G(K + Z, false, 'Das wäre das Guthaben nach einem Jahr.')];
+      hints = [`${fmt(Z)} € sind ${fmt(p)} % des Kapitals.`, 'Erst auf 1 % zurückrechnen, dann mal 100.']; explain = `${tex(`K=\\dfrac{${ft(Z)}\\cdot 100}{${ft(p)}}=${gX(K)}`)} €.`; }
+    else if (kind === 'monate') { const m = pick([3, 4, 6, 9]), Zm = (Z * m) / 12; if (!Number.isInteger(Zm * 100)) continue; prompt = `${gT(K)} € werden ${m} Monate lang zu ${fmt(p)} % pro Jahr angelegt. Wie viele Zinsen gibt es?`;
+      opts = [G(Zm, true), G(Z, false, `Das sind die Zinsen für ein ganzes Jahr – ${m} Monate sind nur ${tex(`\\tfrac{${m}}{12}`)} davon.`), G(Z * m, false, 'Der Zinssatz gilt pro Jahr, nicht pro Monat.'), G(Z / m, false, `Es wird mit ${tex(`\\tfrac{${m}}{12}`)} malgenommen, nicht durch ${m} geteilt.`)];
+      hints = ['Rechne erst die Jahreszinsen aus.', `${m} Monate sind ${tex(`\\tfrac{${m}}{12}`)} eines Jahres.`]; explain = `Jahreszinsen ${fmt(Z)} €, davon ${tex(`\\tfrac{${m}}{12}`)}: ${fmt(Zm)} €.`; if (m * 1 === 12 || Zm === Z / m) continue; }
+    else if (kind === 'end') { prompt = `${gT(K)} € werden zu ${fmt(p)} % angelegt. Wie viel Geld ist nach einem Jahr auf dem Konto?`;
+      opts = [G(K + Z, true), G(Z, false, 'Das sind nur die Zinsen. Sie kommen zum Kapital dazu.'), G(K + p, false, `${fmt(p)} % sind nicht ${fmt(p)} €.`), G(K + Z * 10, false, 'Prozent heißt „von hundert“.')];
+      hints = ['Zinsen ausrechnen und zum Kapital addieren.', `Oder in einem Schritt: mal ${tex(ft(1 + p / 100, 3))}.`]; explain = `${tex(`${gX(K)}+${ft(Z)}=${gX(K + Z)}`)} €.`; }
+    else { const t = pick([30, 60, 90, 120, 180]), Zt = (Z * t) / 360; if (!Number.isInteger(Zt * 100)) continue; prompt = `${gT(K)} € werden ${t} Tage lang zu ${fmt(p)} % pro Jahr angelegt (ein Bankjahr hat 360 Tage). Wie viele Zinsen gibt es?`;
+      opts = [G(Zt, true), G(Z, false, 'Das sind die Zinsen für ein ganzes Jahr.'), G((Z * t) / 100, false, 'Geteilt wird durch 360 Tage, nicht durch 100.'), G(Zt * 2, false, `${t} Tage sind ${tex(`\\tfrac{${t}}{360}`)} eines Jahres.`)];
+      hints = ['Rechne erst die Jahreszinsen aus.', `${t} Tage sind ${tex(`\\tfrac{${t}}{360}`)} eines Bankjahres.`]; explain = `Jahreszinsen ${fmt(Z)} €, davon ${tex(`\\tfrac{${t}}{360}`)}: ${fmt(Zt)} €.`; }
+    if (!gut(opts) || !Number.isInteger(Z * 100) || opts.some((o) => o.num <= 0)) continue;
+    return { prompt, options: shuffle(opts), hints, explain, kind };
+  }
+}
+
+/** Kreis: Umfang, Flächeninhalt, Radius und Durchmesser, Kreisring (Klasse 8). Ergebnisse als Vielfache von π. */
+export function genKreis(lv = 3) {
+  for (;;) {
+    const kind = pick(tier(lv, ['umfang'], ['umfang', 'flaeche'], ['flaeche', 'durchmesser', 'rueck'], ['durchmesser', 'rueck', 'halb'], ['ring', 'halb', 'rueckflaeche']));
+    const r = ri(2, tier(lv, 5, 7, 9, 12, 12)), P = (k, c, w, e = '') => ({ tex: `${k === 1 ? '' : ft(k)}\\pi${e}`, num: k, correct: c, why: w }), Z = (k, c, w) => ({ tex: ft(k), num: k + 0.001, correct: c, why: w });
+    let prompt, opts, hints, explain;
+    if (kind === 'umfang') { prompt = `Ein Kreis hat den Radius ${r} cm. Wie groß ist sein Umfang (in cm)?`;
+      opts = [P(2 * r, true), P(r, false, `Im Umfang steckt der <b>Durchmesser</b>: ${tex('U=2\\pi r')}.`), P(r * r, false, `Das ist der Flächeninhalt ${tex('\\pi r^2')}.`), P(4 * r, false, `${tex('U=2\\pi r')} – der Radius wird nur verdoppelt.`)];
+      hints = [`${tex('U=2\\cdot\\pi\\cdot r')}.`, `${tex(`2\\cdot${r}=${2 * r}`)}.`]; explain = `${tex(`U=2\\cdot\\pi\\cdot${r}=${2 * r}\\pi\\approx${ft(2 * r * Math.PI, 1)}`)} cm.`; if (r === 2) continue; }
+    else if (kind === 'flaeche') { prompt = `Ein Kreis hat den Radius ${r} cm. Wie groß ist sein Flächeninhalt (in cm²)?`;
+      opts = [P(r * r, true), P(2 * r, false, `Das ist der Umfang ${tex('2\\pi r')}.`), P(4 * r * r, false, 'Quadriert wird der Radius, nicht der Durchmesser.'), P(r, false, `Der Radius wird quadriert: ${tex('A=\\pi r^2')}.`)];
+      hints = [`${tex('A=\\pi\\cdot r^2')}.`, `${tex(`${r}^2=${r * r}`)}.`]; explain = `${tex(`A=\\pi\\cdot${r}^2=${r * r}\\pi\\approx${ft(r * r * Math.PI, 1)}`)} cm².`; if (r === 2) continue; }
+    else if (kind === 'durchmesser') { const fl = rand() < 0.5; prompt = `Ein Kreis hat den Durchmesser ${2 * r} cm. Wie groß ist sein ${fl ? 'Flächeninhalt (in cm²)' : 'Umfang (in cm)'}?`;
+      opts = fl ? [P(r * r, true), P(4 * r * r, false, 'In die Formel gehört der Radius – der halbe Durchmesser.'), P(2 * r, false, 'Das ist der Umfang.'), P(2 * r * r, false, `${tex('A=\\pi r^2')} mit dem halben Durchmesser.`)]
+        : [P(2 * r, true), P(4 * r, false, `${tex('U=\\pi\\cdot d')} – der Durchmesser wird nicht noch einmal verdoppelt.`), P(r * r, false, 'Das ist der Flächeninhalt.'), P(r, false, `${tex('U=\\pi\\cdot d')} mit dem ganzen Durchmesser.`)];
+      hints = [`Der Radius ist der halbe Durchmesser: ${r} cm.`, fl ? `${tex('A=\\pi r^2')}.` : `${tex('U=\\pi\\cdot d')}.`]; explain = fl ? `${tex(`r=${r}`)}, also ${tex(`A=${r * r}\\pi`)} cm².` : `${tex(`U=\\pi\\cdot${2 * r}=${2 * r}\\pi`)} cm.`; if (r === 2 || r === 4) continue; }
+    else if (kind === 'rueck') { prompt = `Ein Kreis hat den Umfang ${tex(`${2 * r}\\pi`)} cm. Wie groß ist sein Radius (in cm)?`;
+      opts = [Z(r, true), Z(2 * r, false, 'Das ist der Durchmesser.'), Z(r * r, false, `${tex('U=2\\pi r')} – geteilt wird durch ${tex('2\\pi')}.`), Z(r / 2, false, `Geteilt wird durch 2, nicht durch 4.`)];
+      hints = [`${tex('U=2\\pi r')}.`, `Teile durch ${tex('2\\pi')}.`]; explain = `${tex(`r=\\dfrac{${2 * r}\\pi}{2\\pi}=${r}`)} cm.`; if (r === 2 || r === 4) continue; }
+    else if (kind === 'rueckflaeche') { prompt = `Ein Kreis hat den Flächeninhalt ${tex(`${r * r}\\pi`)} cm². Wie groß ist sein Umfang (in cm)?`;
+      opts = [P(2 * r, true), P(r, false, 'Das ist der Radius mal π – für den Umfang wird er noch verdoppelt.'), P(r * r, false, 'Erst den Radius bestimmen: die Wurzel ziehen.'), P(2 * r * r, false, `Aus ${tex('r^2')} wird erst die Wurzel gezogen.`)];
+      hints = [`Aus ${tex(`r^2=${r * r}`)} folgt der Radius.`, `${tex(`r=${r}`)}, dann ${tex('U=2\\pi r')}.`]; explain = `${tex(`r=\\sqrt{${r * r}}=${r}`)}, also ${tex(`U=${2 * r}\\pi`)} cm.`; if (r === 2) continue; }
+    else if (kind === 'halb') { const u = rand() < 0.5 && r % 2 === 0; prompt = u ? `Ein Viertelkreis hat den Radius ${r} cm. Wie groß ist sein Flächeninhalt (in cm²)?` : `Ein Halbkreis hat den Radius ${2 * Math.ceil(r / 2)} cm. Wie groß ist sein Flächeninhalt (in cm²)?`; const R = u ? r : 2 * Math.ceil(r / 2), t = u ? 4 : 2;
+      opts = [P((R * R) / t, true), P(R * R, false, `Das ist der ganze Kreis – gefragt ist ${u ? 'ein Viertel' : 'die Hälfte'}.`), P((2 * R) / t, false, 'Das gehört zum Umfang.'), P((R * R) / (t * 2), false, `${u ? 'Ein Viertel' : 'Die Hälfte'} heißt: durch ${t} teilen.`)];
+      hints = ['Rechne erst den ganzen Kreis aus.', `Dann durch ${t} teilen.`]; explain = `${tex(`\\dfrac{\\pi\\cdot${R}^2}{${t}}=${ft((R * R) / t)}\\pi`)} cm².`; }
+    else { const ri2 = ri(1, r - 1); prompt = `Ein Kreisring hat den äußeren Radius ${r} cm und den inneren Radius ${ri2} cm. Wie groß ist sein Flächeninhalt (in cm²)?`;
+      opts = [P(r * r - ri2 * ri2, true), P((r - ri2) ** 2, false, 'Erst beide Kreisflächen einzeln ausrechnen, dann abziehen – nicht erst die Radien abziehen.'), P(r * r + ri2 * ri2, false, 'Der innere Kreis wird herausgenommen, also abgezogen.'), P(2 * (r - ri2), false, 'Das gehört zum Umfang.')];
+      hints = ['Großer Kreis minus kleiner Kreis.', `${tex(`\\pi\\cdot${r}^2-\\pi\\cdot${ri2}^2`)}.`]; explain = `${tex(`${r * r}\\pi-${ri2 * ri2}\\pi=${r * r - ri2 * ri2}\\pi`)} cm².`; }
+    if (!gut(opts) || opts.some((o) => o.num <= 0)) continue;
+    return { prompt, options: shuffle(opts), hints, explain, kind };
+  }
+}
+
+/** Parabeln im Alltag: Wurfbahn, Brückenbogen, größter Wert (Klasse 9). */
+export function genParabelSach(lv = 3) {
+  for (;;) {
+    const kind = pick(tier(lv, ['start'], ['start', 'hoehe'], ['hoehe', 'landung', 'zeit'], ['landung', 'zeit', 'wert'], ['wert', 'landung', 'breite']));
+    const d = ri(1, 4), e = pick([4, 9, 16, 25].filter((q) => q > d * d || true)), w = Math.sqrt(e), c = e - d * d;   // h(x) = -(x-d)² + e
+    const term = `-(x-${d})^2+${e}`, M = (num, c2, w2, einheit = 'm') => N(num, c2, w2, `${ft(num)}\\,\\text{${einheit}}`);
+    let prompt, opts, hints, explain;
+    if (kind === 'start') { if (c <= 0) continue; prompt = `Ein Ball fliegt auf der Bahn ${tex(`h(x)=${term}`)} (x: Weite in m, h: Höhe in m). In welcher Höhe wird er abgeworfen (bei x = 0)?`;
+      opts = [M(c, true), M(e, false, 'Das ist die größte Höhe am Scheitel – nicht die Abwurfhöhe.'), M(d, false, 'Das ist die Stelle des Scheitels. Setze x = 0 ein.'), M(e + d * d, false, `${tex(`-(0-${d})^2=-${d * d}`)} – das Quadrat wird abgezogen.`)];
+      hints = ['Setze x = 0 in den Term ein.', `${tex(`-(0-${d})^2+${e}`)}.`]; explain = `${tex(`h(0)=-${d * d}+${e}=${c}`)} m.`; }
+    else if (kind === 'hoehe') { prompt = `Ein Ball fliegt auf der Bahn ${tex(`h(x)=${term}`)} (alles in m). Wie hoch fliegt er höchstens?`;
+      opts = [M(e, true), M(d, false, 'Das ist die Stelle, an der er am höchsten ist – nicht die Höhe.'), M(e + d, false, 'Die größte Höhe ist die Zahl hinter der Klammer.'), M(e - d * d === e ? e + 1 : Math.abs(e - d * d) || e + 2, false, 'Das ist die Höhe beim Abwurf.')];
+      hints = ['Die Parabel ist nach unten geöffnet – der Scheitel ist der höchste Punkt.', `Scheitel ${tex(`S(${d}\\mid ${e})`)}.`]; explain = `Der Scheitel ist ${tex(`S(${d}\\mid ${e})`)}: höchstens ${e} m.`; }
+    else if (kind === 'zeit') { prompt = `Ein Ball fliegt auf der Bahn ${tex(`h(x)=${term}`)} (alles in m). Nach wie vielen Metern Weite ist er am höchsten?`;
+      opts = [M(d, true), M(e, false, 'Das ist die größte Höhe – gefragt ist die Stelle.'), M(d + w, false, 'Dort landet der Ball.'), M(2 * d, false, 'Der Scheitel liegt bei der Zahl in der Klammer.')];
+      hints = ['Gesucht ist die x-Koordinate des Scheitels.', `In der Klammer steht ${tex(`x-${d}`)}.`]; explain = `Scheitel ${tex(`S(${d}\\mid ${e})`)}: nach ${d} m.`; if (d === e || d + w === e) continue; }
+    else if (kind === 'landung') { prompt = `Ein Ball fliegt auf der Bahn ${tex(`h(x)=${term}`)} (alles in m). Nach wie vielen Metern landet er auf dem Boden?`;
+      opts = [M(d + w, true), M(d, false, 'Dort ist er am höchsten. Am Boden ist die Höhe 0.'), M(e, false, 'Das ist die größte Höhe.'), M(d + e, false, `Aus ${tex(`(x-${d})^2=${e}`)} wird die Wurzel gezogen.`)];
+      hints = ['Am Boden ist die Höhe 0.', `${tex(`(x-${d})^2=${e}`)}, also ${tex(`x-${d}=\\pm${w}`)}.`]; explain = `${tex(`x=${d}+${w}=${d + w}`)} m (die andere Lösung ${tex(`${d - w}`)} liegt ${d - w < 0 ? 'hinter dem Abwurf' : 'vor dem Flug'}).`; if (d + w === e || w === d) continue; }
+    else if (kind === 'breite') { prompt = `Ein Brückenbogen hat die Form ${tex(`h(x)=-(x-${d + w})^2+${e}`)} (alles in m). Wie breit ist der Bogen am Boden?`;
+      opts = [M(2 * w, true), M(w, false, 'Das ist nur der Abstand vom Scheitel bis zu einem Fußpunkt.'), M(e, false, 'Das ist die Höhe des Bogens.'), M(2 * (d + w), false, 'Gefragt ist der Abstand der beiden Nullstellen.')];
+      hints = ['Bestimme beide Stellen, an denen die Höhe 0 ist.', `${tex(`(x-${d + w})^2=${e}`)}, also ${tex(`x=${d + w}\\pm${w}`)}.`]; explain = `Nullstellen ${tex(`x=${d}`)} und ${tex(`x=${d + 2 * w}`)}: Der Bogen ist ${2 * w} m breit.`; if (2 * w === e || 2 * (d + w) === e) continue; }
+    else { const a = ri(2, 6) * 10, k = a / 2; prompt = `Mit ${a} m Zaun soll an einer Hauswand ein rechteckiges Beet abgetrennt werden (die Wand ersetzt eine Seite). Der Flächeninhalt ist ${tex(`A(x)=x\\cdot(${a}-2x)`)}. Wie groß kann das Beet höchstens werden (in m²)?`;
+      opts = [M((a * a) / 8, true, undefined, 'm²'), M(a / 4, false, 'Das ist die Seitenlänge x, bei der es am größten wird – nicht die Fläche.', 'm²'), M((a / 3) ** 2 % 1 === 0 ? (a / 3) ** 2 : Math.round((a * a) / 9), false, 'Ein Quadrat ist hier nicht die beste Wahl – die Wand spart eine Seite.', 'm²'), M((a * a) / 4, false, 'Der Scheitel liegt genau in der Mitte zwischen den beiden Nullstellen.', 'm²')];
+      opts.forEach((o) => { o.tex = o.tex.replace('\\text{m²}', '\\text{m}^2'); });
+      hints = [`Die Nullstellen sind ${tex('x=0')} und ${tex(`x=${k}`)}.`, `Der Scheitel liegt in der Mitte: ${tex(`x=${ft(a / 4)}`)}.`]; explain = `${tex(`A(${ft(a / 4)})=${ft(a / 4)}\\cdot${a / 2}=${ft((a * a) / 8)}`)} m².`; }
+    if (!gut(opts) || opts.some((o) => o.num <= 0)) continue;
+    return { prompt, options: shuffle(opts), hints, explain, kind };
+  }
+}
+
+/** Sinus- und Kosinussatz in beliebigen Dreiecken (Klasse 10) – mit Winkeln, deren Werte man kennt. */
+export function genSinussatz(lv = 3) {
+  for (;;) {
+    const kind = pick(tier(lv, ['sin30'], ['sin30', 'cos60'], ['cos60', 'sinrueck', 'cos90'], ['cos120', 'sinrueck', 'welcher'], ['cos120', 'cos60', 'flaeche']));
+    const L = (num, c, w, e = 'cm') => N(+num.toFixed(4), c, w, `${ft(num)}\\,\\text{${e}}`);
+    let prompt, opts, hints, explain;
+    if (kind === 'sin30') { const a = ri(3, 12); prompt = `In einem Dreieck liegt der Seite a = ${a} cm der Winkel α = 30° gegenüber, der Seite c der Winkel γ = 90°. Wie lang ist c? (${tex('\\sin 30^\\circ=0{,}5')})`;
+      opts = [L(2 * a, true), L(a / 2, false, 'Die Seite gegenüber dem größeren Winkel ist die längere.'), L(a, false, 'Zu verschiedenen Winkeln gehören verschieden lange Seiten.'), L(3 * a, false, `${tex('\\sin 90^\\circ=1')} ist doppelt so groß wie ${tex('\\sin 30^\\circ')} – nicht dreimal.`)];
+      hints = [`${tex('\\dfrac{a}{\\sin\\alpha}=\\dfrac{c}{\\sin\\gamma}')}.`, `${tex(`\\dfrac{${a}}{0{,}5}=\\dfrac{c}{1}`)}.`]; explain = `${tex(`c=\\dfrac{${a}\\cdot\\sin 90^\\circ}{\\sin 30^\\circ}=\\dfrac{${a}}{0{,}5}=${2 * a}`)} cm.`; }
+    else if (kind === 'sinrueck') { const a = ri(2, 9), c = 2 * a; prompt = `In einem Dreieck ist a = ${a} cm, c = ${c} cm und γ = 90°. Wie groß ist der Winkel α, der a gegenüberliegt?`;
+      const W = (num, cc, w) => N(num, cc, w, `${num}^\\circ`);
+      opts = [W(30, true), W(60, false, `${tex('\\sin\\alpha=0{,}5')} gehört zu 30°. Bei 60° wäre es der Kosinus.`), W(45, false, `Bei 45° wären beide Katheten gleich lang.`), W(50, false, `Rechne ${tex('\\sin\\alpha')} aus und suche den passenden Winkel.`)];
+      hints = [`${tex('\\dfrac{\\sin\\alpha}{a}=\\dfrac{\\sin\\gamma}{c}')}.`, `${tex(`\\sin\\alpha=\\dfrac{${a}\\cdot 1}{${c}}=0{,}5`)}.`]; explain = `${tex('\\sin\\alpha=0{,}5')}, also ${tex('\\alpha=30^\\circ')}.`; }
+    else if (kind === 'cos60' || kind === 'cos120') { const [a, b, c] = kind === 'cos60' ? pick([[3, 8, 7], [5, 8, 7], [7, 15, 13], [8, 15, 13], [5, 21, 19]]) : pick([[3, 5, 7], [7, 8, 13], [5, 16, 19], [6, 10, 14]]), g = kind === 'cos60' ? 60 : 120, cw = kind === 'cos60' ? '0{,}5' : '-0{,}5', pyth = Math.sqrt(a * a + b * b);
+      prompt = `In einem Dreieck sind a = ${a} cm, b = ${b} cm und der eingeschlossene Winkel γ = ${g}°. Wie lang ist die Seite c? (${tex(`\\cos ${g}^\\circ=${cw}`)})`;
+      const falsch = kind === 'cos60' ? Math.sqrt(a * a + b * b + a * b) : Math.sqrt(a * a + b * b - a * b);
+      opts = [L(c, true), N(+pyth.toFixed(2), false, 'Das wäre der Satz des Pythagoras – der gilt nur bei 90°.', `\\approx ${ft(pyth, 1)}\\,\\text{cm}`), N(+falsch.toFixed(2), false, `Vorzeichen beachten: ${tex(`-2ab\\cdot\\cos ${g}^\\circ`)} ist hier ${kind === 'cos60' ? 'negativ' : 'positiv'}.`, `${Number.isInteger(falsch) ? '' : '\\approx '}${ft(falsch, 1)}\\,\\text{cm}`), L(a + b, false, 'Seitenlängen lassen sich nicht einfach addieren.')];
+      hints = [`${tex('c^2=a^2+b^2-2ab\\cdot\\cos\\gamma')}.`, `${tex(`c^2=${a * a}+${b * b}${kind === 'cos60' ? '-' : '+'}${a * b}`)}.`]; explain = `${tex(`c^2=${a * a}+${b * b}${kind === 'cos60' ? '-' : '+'}${a * b}=${c * c}`)}, also ${tex(`c=${c}`)} cm.`; }
+    else if (kind === 'cos90') { const [a, b, c] = pick([[3, 4, 5], [6, 8, 10], [5, 12, 13], [8, 15, 17]]); prompt = `In einem Dreieck sind a = ${a} cm, b = ${b} cm und γ = 90°. Was liefert der Kosinussatz für c? (${tex('\\cos 90^\\circ=0')})`;
+      opts = [L(c, true), L(a + b, false, 'Seitenlängen lassen sich nicht einfach addieren.'), L(c * c, false, 'Am Ende wird noch die Wurzel gezogen.'), L(Math.abs(b - a) + 1 === c ? c + 2 : Math.abs(b - a) + 1, false, `${tex('c^2=a^2+b^2')}, weil der letzte Teil wegfällt.`)];
+      hints = [`${tex('c^2=a^2+b^2-2ab\\cdot\\cos\\gamma')}.`, 'Mit cos 90° = 0 fällt der letzte Teil weg – übrig bleibt der Satz des Pythagoras.']; explain = `${tex(`c^2=${a * a}+${b * b}=${c * c}`)}, also ${tex(`c=${c}`)} cm. Der Satz des Pythagoras ist ein Sonderfall des Kosinussatzes.`; }
+    else if (kind === 'welcher') { const F = pick([['zwei Seiten und der eingeschlossene Winkel', 'k'], ['alle drei Seiten', 'k'], ['zwei Winkel und eine Seite', 's'], ['zwei Seiten und ein Winkel, der einer davon gegenüberliegt', 's']]);
+      prompt = `Von einem Dreieck (ohne rechten Winkel) sind gegeben: ${F[0]}. Welcher Satz hilft zuerst weiter?`;
+      const T = (t, key, why) => ({ tex: `\\text{${t}}`, correct: F[1] === key, why });
+      opts = [T('Sinussatz', 's', 'Für den Sinussatz braucht man ein Paar aus Seite und gegenüberliegendem Winkel – das fehlt hier.'), T('Kosinussatz', 'k', 'Hier ist ein Paar aus Seite und gegenüberliegendem Winkel bekannt – damit geht der Sinussatz direkt.'), T('Satz des Pythagoras', 'p', 'Der gilt nur im rechtwinkligen Dreieck.'), T('Winkelsumme allein', 'w', 'Die Winkelsumme liefert nur Winkel, keine Seitenlängen.')];
+      hints = ['Der Sinussatz braucht eine Seite und den Winkel gegenüber.', 'Der Kosinussatz braucht zwei Seiten mit eingeschlossenem Winkel oder alle drei Seiten.']; explain = F[1] === 's' ? 'Ein Paar aus Seite und gegenüberliegendem Winkel ist bekannt (oder über die Winkelsumme schnell berechnet): Sinussatz.' : 'Es gibt kein bekanntes Paar aus Seite und gegenüberliegendem Winkel: Kosinussatz.';
+      return { prompt, options: shuffle(opts), hints, explain, kind }; }
+    else { const a = ri(3, 9) * 2, b = ri(3, 9); prompt = `In einem Dreieck sind a = ${a} cm, b = ${b} cm und der eingeschlossene Winkel γ = 30°. Wie groß ist der Flächeninhalt (in cm²)? (${tex('\\sin 30^\\circ=0{,}5')})`;
+      opts = [L((a * b) / 4, true, undefined, 'cm²'), L((a * b) / 2, false, `Es fehlt noch der Faktor ${tex('\\sin\\gamma=0{,}5')}.`, 'cm²'), L(a * b, false, `${tex('A=\\tfrac12\\cdot a\\cdot b\\cdot\\sin\\gamma')}.`, 'cm²'), L((a * b) / 8, false, 'Einmal zu oft halbiert.', 'cm²')];
+      opts.forEach((o) => { o.tex = o.tex.replace('\\text{cm²}', '\\text{cm}^2'); });
+      hints = [`${tex('A=\\tfrac12\\cdot a\\cdot b\\cdot\\sin\\gamma')}.`, `${tex(`\\tfrac12\\cdot${a}\\cdot${b}\\cdot 0{,}5`)}.`]; explain = `${tex(`A=\\tfrac12\\cdot${a}\\cdot${b}\\cdot 0{,}5=${ft((a * b) / 4)}`)} cm².`; }
+    if (!gut(opts) || opts.some((o) => o.num <= 0)) continue;
+    return { prompt, options: shuffle(opts), hints, explain, kind };
+  }
+}
+
 /** Alle Erzeuger dieser Datei – für Tests und Verzeichnisse. */
-export const MITTEL_GENS = { genRunden, genRechenregel, genTeiler, genEinheit, genRechteck, genKuerzen, genBruchVergleich, genDezimal, genBruchDezimal, genNegativ, genTerm, genDreisatz, genLinFunktion, genWurzel, genZinseszins, genQuader, genKoerper, genWinkel, genLGS, genBinom, genStrahlensatz, genLog };
+export const MITTEL_GENS = { genRunden, genRechenregel, genTeiler, genEinheit, genRechteck, genKuerzen, genBruchVergleich, genDezimal, genBruchDezimal, genNegativ, genTerm, genDreisatz, genLinFunktion, genWurzel, genZinseszins, genQuader, genKoerper, genWinkel, genLGS, genBinom, genStrahlensatz, genLog, genVorteil, genBruchMal, genZuordnung, genZins, genKreis, genParabelSach, genSinussatz };
 
 for (const [fn, topic] of [[genRunden, 'Runden'], [genRechenregel, 'Rechenregeln'], [genTeiler, 'Teiler und Vielfache'], [genEinheit, 'Größen umrechnen'], [genRechteck, 'Umfang und Flächeninhalt'],
   [genKuerzen, 'Kürzen und Erweitern'], [genBruchVergleich, 'Brüche vergleichen'], [genDezimal, 'Dezimalzahlen'], [genBruchDezimal, 'Bruch, Dezimalzahl, Prozent'], [genNegativ, 'Negative Zahlen'],
-  [genTerm, 'Terme'], [genDreisatz, 'Dreisatz'], [genLinFunktion, 'Lineare Funktionen'], [genWurzel, 'Wurzeln'], [genZinseszins, 'Zinseszins und Wachstum'], [genQuader, 'Quader und Würfel'], [genKoerper, 'Körper berechnen'], [genWinkel, 'Winkel'], [genLGS, 'Gleichungssysteme'], [genBinom, 'Binomische Formeln'], [genStrahlensatz, 'Strahlensätze'], [genLog, 'Logarithmus']]) fn.topic = topic;
+  [genTerm, 'Terme'], [genDreisatz, 'Dreisatz'], [genLinFunktion, 'Lineare Funktionen'], [genWurzel, 'Wurzeln'], [genZinseszins, 'Zinseszins und Wachstum'], [genQuader, 'Quader und Würfel'], [genKoerper, 'Körper berechnen'], [genWinkel, 'Winkel'], [genLGS, 'Gleichungssysteme'], [genBinom, 'Binomische Formeln'], [genStrahlensatz, 'Strahlensätze'], [genLog, 'Logarithmus'], [genVorteil, 'Geschickt rechnen'], [genBruchMal, 'Brüche malnehmen und teilen'], [genZuordnung, 'Zuordnungen'], [genZins, 'Zinsrechnung'], [genKreis, 'Kreis'], [genParabelSach, 'Parabeln im Alltag'], [genSinussatz, 'Sinus- und Kosinussatz']]) fn.topic = topic;
