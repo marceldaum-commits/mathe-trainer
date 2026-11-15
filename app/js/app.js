@@ -471,17 +471,29 @@ if (window.MTApp) document.getElementById('view').before(updateLeiste());
 
 // Offline-Fähigkeit und automatische Updates.
 // In der Offline-App (Android) sind alle Dateien fest eingepackt – dort braucht es keinen Service Worker.
+// Die Web-App aktualisiert sich von selbst, ohne Knopf (Marcel, 15.11.2026): Eine neue Fassung wird im Hintergrund geladen
+// und übernommen, sobald gerade keine Aufgabe und kein Spiel läuft – mittendrin wird nie neu geladen.
 if (!window.MTApp && 'serviceWorker' in navigator && (location.protocol === 'https:' || ['localhost', '127.0.0.1'].includes(location.hostname))) {
   const hadController = !!navigator.serviceWorker.controller;
+  const mittendrin = () => !!view.querySelector('.stephead') || !$('#sheet').hidden;
+  let wartet = null, ladeNeu = false, reloaded = false;
+  const jetzt = () => {
+    if (mittendrin()) return;
+    if (ladeNeu && !reloaded) { reloaded = true; location.reload(); return; }
+    if (wartet) { const w = wartet; wartet = null; w.postMessage('skip'); }
+  };
   navigator.serviceWorker.register('sw.js').then((reg) => {
-    const offer = (w) => toast('Neue Version verfügbar.', { label: 'Aktualisieren', run: () => w.postMessage('skip') }, { sticky: true });
-    if (reg.waiting && navigator.serviceWorker.controller) offer(reg.waiting);
+    const neu = (w) => { wartet = w; jetzt(); };
+    if (reg.waiting && navigator.serviceWorker.controller) neu(reg.waiting);
     reg.addEventListener('updatefound', () => {
       const w = reg.installing;
-      w?.addEventListener('statechange', () => { if (w.state === 'installed' && navigator.serviceWorker.controller) offer(w); });
+      w?.addEventListener('statechange', () => { if (w.state === 'installed' && navigator.serviceWorker.controller) neu(w); });
     });
     // Nur bei einem Update neu laden – nicht beim allerersten Besuch.
-    let reloaded = false;
-    navigator.serviceWorker.addEventListener('controllerchange', () => { if (hadController && !reloaded) { reloaded = true; location.reload(); } });
+    navigator.serviceWorker.addEventListener('controllerchange', () => { if (hadController) { ladeNeu = true; jetzt(); } });
+    window.addEventListener('hashchange', () => setTimeout(jetzt, 0));
+    // Auch bei lange offener Seite nachsehen: wenn sie wieder in den Vordergrund kommt, höchstens alle 30 Minuten.
+    let zuletzt = Date.now();
+    document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible' && Date.now() - zuletzt > 30 * 60 * 1000) { zuletzt = Date.now(); reg.update().catch(() => {}); } jetzt(); });
   }).catch(() => { /* ohne Service Worker läuft die App trotzdem */ });
 }

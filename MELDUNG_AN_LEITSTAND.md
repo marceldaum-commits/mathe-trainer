@@ -2,6 +2,10 @@
 
 Neueste Meldung oben. Keine Geheimnisse, keine Personendaten (dieses Repo ist öffentlich, siehe Punkt 1).
 
+## 15.11.2026 (60) – 0.30.3: Web-App aktualisiert sich ohne Knopf (Wunsch Marcel)
+
+- Kein „Aktualisieren“-Hinweis mehr: Die neue Fassung wird übernommen, sobald keine Aufgabe läuft. Für den Server ändert sich nichts (wie bisher `sw.js` und `index.html` nicht lange zwischenspeichern).
+
 ## 15.11.2026 (59) – 0.30.1 liegt auf `test`; 0.30.2: Leiste oben entfernt (Wunsch Marcel)
 
 - 0.30.2: Die Leiste „Zur Website“ ganz oben ist entfernt, stattdessen öffnet das Logo oben links die Website. Nur Web-App. Meldung „liegt auf test“ folgt.

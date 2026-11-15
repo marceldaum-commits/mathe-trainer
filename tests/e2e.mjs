@@ -990,6 +990,8 @@ await ctx2.close();
   if (!/6/.test(await kp.textContent('#ar-start .big'))) fail('Klassenarbeit: Karte auf der Startseite fehlt');
   // Oberstufen-Seiten sind in Klasse 5 bis 10 nicht erreichbar (alte Links, Lesezeichen): Umleitung auf „Testen“
   for (const alt of ['aufgabe', 'abi', 'blitz', 'karte', 'einstufung']) { await kp.goto(`${BASE}#/${alt}`); await kp.waitForFunction(() => location.hash === '#/pruefung'); await kp.waitForSelector('a[href="#/kopf"]'); }
+  // Web-App: kein Knopf zum Aktualisieren – sie aktualisiert sich von selbst
+  await kp.goto(`${BASE}#/einstellungen`); await kp.waitForSelector('#st-auto'); if (await kp.locator('#st-update').isVisible()) fail('Web-App: Knopf „Nach Update suchen“ soll nur in der Android-App erscheinen');
   // Pi anziehen: Kappe ist frei (21 Sterne), Krone nicht
   await kp.goto(`${BASE}#/einstellungen`); await kp.waitForSelector('#st-hut');
   if (!(await kp.locator('#st-hut [data-k="krone"]').isDisabled()) || (await kp.locator('#st-hut [data-k="kappe"]').isDisabled())) fail('Pi-Outfit: Freischaltung nach Sternen stimmt nicht');

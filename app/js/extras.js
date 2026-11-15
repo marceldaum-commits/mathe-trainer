@@ -150,8 +150,10 @@ export function settingsView() {
   { const u = updateStand(), app = typeof window.MTApp?.version === 'function' ? String(window.MTApp.version()).slice(0, 12) : '';
     $('#st-info', el).innerHTML = `<dt>Version</dt><dd id="st-version">${esc(VERSION)}</dd><dt>Stand</dt><dd id="st-datum">${esc(STAND)}</dd>`
       + (app ? `<dt>App-Datei</dt><dd>${esc(app)}</dd>` : '')
-      + (u && u.kanal !== 'aus' ? `<dt>Aktualisierung</dt><dd>${u.bereit ? `Version ${esc(u.bereit)} ist geladen` : 'holt neue Inhalte von selbst'}</dd>` : ''); }
+      + (u && u.kanal !== 'aus' ? `<dt>Aktualisierung</dt><dd>${u.bereit ? `Version ${esc(u.bereit)} ist geladen` : 'holt neue Inhalte von selbst'}</dd>` : '')
+      + (window.MTApp ? '' : '<dt>Aktualisierung</dt><dd id="st-auto">automatisch</dd>'); }
   { const ub = $('#st-update', el), un = $('#st-update-note', el);
+    if (!window.MTApp) { ub.hidden = true; un.hidden = true; }   // Web-App: aktualisiert sich von selbst, kein Knopf
     ub.onclick = () => { ub.disabled = true; un.textContent = 'Suche …';
       updateSuchen().then((r) => { ub.disabled = false; un.textContent = r.text; if (r.art === 'neu') window.dispatchEvent(new Event('mt-update')); }); }; }
   { const rb = $('#st-ruhig', el), paintR = () => { rb.setAttribute('aria-checked', store.ruhig); rb.classList.toggle('an', store.ruhig); };
