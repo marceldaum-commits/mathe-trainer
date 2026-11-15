@@ -65,7 +65,7 @@ export function genAsymptote(lv = 3) {
       const L = (M, S, correct, why) => A(lin(M, S), (x) => M * x + S, correct, why);
       opts = [L(m, s, true), L(m, zc[1], false, 'Der zweite Summand entsteht erst durch die Polynomdivision – er ist nicht einfach der Vorfaktor von x im Zähler.'), A(ft(m), () => m, false, 'Der Zählergrad ist um 1 größer als der Nennergrad: Die Asymptote ist schräg, nicht waagerecht.'), L(m, -s || 1, false, 'Vorzeichenfehler bei der Polynomdivision.')];
       if (zc[1] === s) continue;
-      hint2 = `Polynomdivision: ${tex(`(${polyTex(zc)}):(${polyTex(nc)})`)}.`; exp = `${tex(`f(x)=${lin(m, s)}+${dfrac(ft(rest), polyTex(nc))}`)} – der Bruch geht gegen 0, es bleibt ${tex(`y=${lin(m, s)}`)}.`;
+      hint2 = `Polynomdivision: ${tex(`(${polyTex(zc)}):(${polyTex(nc)})`)}.`; exp = `${tex(`f(x)=${lin(m, s)}${rest < 0 ? '-' : '+'}${dfrac(ft(Math.abs(rest)), polyTex(nc))}`)} – der Bruch geht gegen 0, es bleibt ${tex(`y=${lin(m, s)}`)}.`;
     }
     if (!uniq(opts)) continue;
     const f = (x) => polyEval(zc, x) / polyEval(nc, x);

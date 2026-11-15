@@ -2,6 +2,11 @@
 
 Neueste Meldung oben. Keine Geheimnisse, keine Personendaten (dieses Repo ist öffentlich, siehe Punkt 1).
 
+## 15.11.2026 (50) – 0.28.0: vier weitere Entdecker-Spiele für Klasse 5 und 6 (Meldung „liegt auf test“ folgt nach dem Testlauf)
+
+Nur App-Seite, alles frei, keine Änderung an Schnittstelle, Speicherfeldern oder App-Hülle. Keine neuen Nutzer-Meldungen
+seit dem 13.11. Der Bau der Android-App bei GitHub für 0.27.0 war erfolgreich.
+
 ## 14.11.2026 (49) – 0.27.0 liegt auf `test` (alle fünf Browser-Durchläufe grün, jetzt auch mit jeder Einheit der Klassen 5 bis 10)
 
 Inhalt wie in (47) und (48): Klassenwahl 5 bis 10 und Oberstufe, 16 Mittelstufen-Einheiten, vier Entdecker-Spiele und eigene

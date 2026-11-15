@@ -5,6 +5,10 @@ import { quiz, info } from './quiz.js';
 import { strahl, frost } from './games/strahl.js';
 import { streifen } from './games/streifen.js';
 import { kaestchen } from './games/kaestchen.js';
+import { felder } from './games/felder.js';
+import { stellen } from './games/stellen.js';
+import { wuerfel } from './games/wuerfel.js';
+import { ausgleich } from './games/ausgleich.js';
 import { mixOf, genScheitel } from './gen.js';
 import { genBruch, genKlammer, genLinGl, genQuadGl, genPotenz, genSteigung, genHaeufigkeit, genProzent, genKennwerte, genLaplace, genGegen, genPythagoras, genTrig, genFlaeche } from './gen3.js';
 import { genRunden, genRechenregel, genTeiler, genEinheit, genRechteck, genKuerzen, genBruchVergleich, genDezimal, genBruchDezimal, genNegativ, genTerm, genDreisatz, genLinFunktion, genWurzel, genZinseszins, genQuader, genKoerper } from './gen6.js';
@@ -52,6 +56,7 @@ export const MITTEL = [
     meta: { boss: ['Prim-Pirat', 'ggT', [genTeiler]], why: 'Mit dem größten gemeinsamen Teiler kürzt man Brüche, mit dem kleinsten gemeinsamen Vielfachen findet man gemeinsame Nenner. Primzahlen sichern heute jede Bezahlung im Internet.',
       formeln: [['Primzahl', '\\text{genau zwei Teiler: }1\\text{ und sich selbst}'], ['Teilbar durch 3 und 9', '\\text{Quersumme durch 3 bzw. 9 teilbar}']] },
     steps: [
+      { id: 'felder', kind: 'Entdecken', title: 'Plättchen-Felder', run: felder },
       { id: 'begriffe', kind: 'Benennen', title: 'Teiler, Vielfache, Primzahlen', run: info([
         { title: 'Teiler und Vielfache', html: `<p>3 ist ein <b>Teiler</b> von 12, weil 12 : 3 ohne Rest aufgeht. Umgekehrt ist 12 ein <b>Vielfaches</b> von 3.</p><p>Teiler von 12: 1, 2, 3, 4, 6, 12. Vielfache von 3: 3, 6, 9, 12, 15 …</p>` },
         { title: 'Primzahlen', html: `<p>Eine <b>Primzahl</b> hat genau zwei Teiler: 1 und sich selbst. Die ersten sind 2, 3, 5, 7, 11, 13.</p><p class="muted">Die 1 ist keine Primzahl – sie hat nur einen Teiler.</p>` },
@@ -115,6 +120,7 @@ export const MITTEL = [
     meta: { boss: ['Komma-Kobold', '0,1', [genDezimal, genBruchDezimal]], why: 'Preise, Zeiten im Sport, Messwerte: Fast alles, was genau gemessen wird, steht als Kommazahl da. Wer Bruch, Kommazahl und Prozent ineinander umrechnen kann, versteht dieselbe Angabe in jeder Form.',
       formeln: [['Bruch und Dezimalzahl', '\\dfrac14=0{,}25=25\\,\\%'], ['Mal 10, 100, 1000', '\\text{Komma nach rechts}\\qquad :10:\\ \\text{Komma nach links}']] },
     steps: [
+      { id: 'schieber', kind: 'Entdecken', title: 'Stellenwert-Schieber', run: stellen },
       { id: 'komma', kind: 'Benennen', title: 'Zahlen mit Komma', run: info([
         { title: 'Zehntel, Hundertstel, Tausendstel', html: `<p>Rechts vom Komma geht es weiter: In 3,47 steht die 4 für vier Zehntel und die 7 für sieben Hundertstel.</p>${T('3{,}47=3+\\dfrac{4}{10}+\\dfrac{7}{100}')}` },
         { title: 'Addieren und Abziehen', html: `<p>Komma unter Komma schreiben. Fehlt eine Stelle, hilft eine Null: 3,5 = 3,50.</p>${T('3{,}5+0{,}25=3{,}75')}` },
@@ -131,6 +137,7 @@ export const MITTEL = [
     meta: { boss: ['Kisten-Krake', 'cm³', [genQuader]], why: 'Wie viel passt in den Umzugskarton, wie viel Wasser ins Aquarium, wie viel Geschenkpapier braucht das Paket? Das eine ist der Rauminhalt, das andere die Oberfläche.',
       formeln: [['Quader', 'V=a\\cdot b\\cdot c'], ['Oberfläche des Quaders', 'O=2\\cdot(a\\,b+a\\,c+b\\,c)'], ['Würfel', 'V=a^3\\qquad O=6\\,a^2']] },
     steps: [
+      { id: 'bauen', kind: 'Entdecken', title: 'Würfel-Baumeister', run: wuerfel },
       { id: 'raum', kind: 'Benennen', title: 'Rauminhalt und Oberfläche', run: info([
         { title: 'Rauminhalt', html: `${T('V=a\\cdot b\\cdot c')}<p>Länge mal Breite mal Höhe. Gemessen wird in cm³ oder m³ – oder in Litern: 1 Liter ist 1 dm³.</p>` },
         { title: 'Oberfläche', html: `${T('O=2\\cdot(a\\,b+a\\,c+b\\,c)')}<p>Ein Quader hat sechs Flächen, je zwei sind gleich groß. Die Oberfläche ist die Summe aller sechs.</p>` },
@@ -143,6 +150,7 @@ export const MITTEL = [
     meta: { boss: ['Daten-Dachs', 'Ø', [genHaeufigkeit, genKennwerte]], why: 'Notendurchschnitt, Umfragen, Sporttabellen: Mit wenigen Kennwerten lässt sich eine ganze Liste von Zahlen zusammenfassen und vergleichen.',
       formeln: [['Relative Häufigkeit', 'h=\\dfrac{\\text{Anzahl der Treffer}}{\\text{Anzahl der Versuche}}'], ['Mittelwert', '\\bar x=\\dfrac{\\text{Summe aller Werte}}{\\text{Anzahl der Werte}}']] },
     steps: [
+      { id: 'tuerme', kind: 'Entdecken', title: 'Türme ausgleichen', run: ausgleich },
       { id: 'kennwerte', kind: 'Benennen', title: 'Listen zusammenfassen', run: info([
         { title: 'Absolute und relative Häufigkeit', html: `<p>Die <b>absolute</b> Häufigkeit zählt, wie oft etwas vorkommt. Die <b>relative</b> Häufigkeit ist der Anteil: 6 von 24 Kindern sind ${tex('\\tfrac{6}{24}=0{,}25=25\\,\\%')}.</p>` },
         { title: 'Mittelwert und Median', html: `<p><b>Mittelwert:</b> alle Werte addieren und durch ihre Anzahl teilen. <b>Median:</b> der mittlere Wert der sortierten Liste.</p><p class="muted">Ein einzelner Ausreißer verändert den Mittelwert stark, den Median kaum.</p>` },

@@ -37,8 +37,9 @@ Optisch muss es auch an Kinder angepasst sein.“
   ab Klasse 7 die ruhigere Fassung.
 - **Schwierigkeit 1 und 2:** Die App zählt mit (z. B. „Jetzt: 12 Kästchen“). Ab Stufe 3 zählt das Kind selbst.
 
-Vorhandene Spiele: Zahlenstrahl, Thermometer (`games/strahl.js`), Bruch-Streifen (`games/streifen.js`),
-Kästchen-Baumeister (`games/kaestchen.js`). **Jede neue Einheit für Klasse 5 und 6 braucht ein solches Spiel.**
+Vorhandene Spiele (seit 0.28.0 hat jede Einheit der Klassen 5 und 6 eines): Zahlenstrahl, Thermometer (`games/strahl.js`),
+Bruch-Streifen (`streifen.js`), Kästchen-Baumeister (`kaestchen.js`), Plättchen-Felder (`felder.js`),
+Stellenwert-Schieber (`stellen.js`), Würfel-Baumeister (`wuerfel.js`), Türme ausgleichen (`ausgleich.js`). **Jede neue Einheit für Klasse 5 und 6 braucht ein solches Spiel.**
 
 ## Regel: Schwierigkeit ist nicht Klassenstufe
 
@@ -63,8 +64,7 @@ das Thema in der früheren Klasse. **Noch nicht Zeile für Zeile mit den Lehrpl�
 
 1. **Lehrplan-Abgleich** je Klasse für Bayern und Hessen; danach Realschule und Mittelschule (gleiche Themen, teils später).
 2. **Mehr Einheiten** – die Liste „Kommt bald“ je Klasse steht in `MITTEL_BALD` (`units-m.js`).
-3. **Erlebbar:** Spiele für die übrigen Einheiten – Teiler (Rechteck-Felder legen), Dezimalzahlen (Stellenwert-Tafel),
-   Quader (Würfel stapeln), Daten (Säulen ziehen), ab Klasse 7 die Waage für Gleichungen und der Prozent-Streifen.
+3. **Erlebbar ab Klasse 7:** Waage für Gleichungen, Prozent-Streifen, Geraden durch zwei Punkte ziehen, Pythagoras-Quadrate.
 4. **Runden für die Mittelstufe:** Tages-Runde, Blitz, Duell und Abenteuer mit dem Stoff der Klasse.
 5. **Ausführliche Theorie** (Pro) für die Mittelstufen-Einheiten; KI-Aufgaben (Pro + KI), sobald der Server Vorrat dafür hat.
 6. **Texte nach außen:** App-Titel, Beschreibung und Store-Texte sprechen noch von „Oberstufe“.

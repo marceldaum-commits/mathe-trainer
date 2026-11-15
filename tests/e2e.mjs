@@ -235,7 +235,33 @@ async function playKaestchen() {
     await setRange('#kg-b', M.sol[0]); await setRange('#kg-h', M.sol[1]); if (first('kaestchen-bild')) await shot('88-kaestchen');
     await page.click('#kg-go'); await page.waitForSelector('#kg-note .note.ok'); await page.click('#kg-go'); }
 }
-const HANDLERS = [['#zs', () => playStrahl(ZS, 'zs')], ['#fr', () => playStrahl(FRL, 'fr')], ['#sf', playStreifen], ['#kg', playKaestchen], ['#tf', playTafel], ['#mb-c', playMurmelbahn], ['#fg-c', playFlug], ['#tg-c', playTangente], ['#p-f', playPaare], ['#z-d', playZeichnen], ['#fl-c', playFlaeche], ['#lb-c', playLabor], ['#lo-c', playLotse], ['#wk-c', playWerkstatt], ['#rm-c', playRaum], ['#bs', playBoss], ['#i-next', info]];
+const FDL = await game('felder'), SWL = await game('stellen'), WUL = await game('wuerfel'), AUL = await game('ausgleich');
+async function playFelder() {
+  for (const M of FDL) { await page.waitForFunction((n) => document.querySelector('#fd-in').max === String(n) && !document.querySelector('#fd-in').disabled, M.n);
+    if (first('felder-falsch') && M.n % 4 !== 0) { await setRange('#fd-in', 4); await page.click('#fd-go'); await page.waitForSelector('#fd-note .note.tip'); }
+    for (const d of M.sol) { await setRange('#fd-in', d); if (first('felder-bild') && d > 1) await shot('89-felder'); await page.click('#fd-go'); }
+    await page.waitForFunction(() => /Alle gefunden/.test(document.querySelector('#fd-note').textContent)); await page.click('#fd-go'); }
+}
+async function playStellen() {
+  for (const M of SWL) { await page.waitForFunction(() => !document.querySelector('#sw-mal').disabled && !document.querySelector('#sw-note').innerHTML);
+    for (let k = 0; k < Math.abs(M.schritte); k++) await page.click(M.schritte > 0 ? '#sw-mal' : '#sw-durch');
+    if (first('stellen-bild')) await shot('90-stellenwert');
+    await page.click('#sw-go'); await page.waitForSelector('#sw-note .note.ok'); await page.click('#sw-go'); }
+}
+async function playWuerfel() {
+  for (const M of WUL) { await page.waitForFunction((t) => document.querySelector('#wu-t').textContent === t && !document.querySelector('#wu-note').innerHTML, M.text);
+    await setRange('#wu-a', M.sol[0]); await setRange('#wu-b', M.sol[1]); await setRange('#wu-h', M.sol[2]); if (first('wuerfel-bild')) await shot('91-wuerfel');
+    await page.click('#wu-go'); await page.waitForSelector('#wu-note .note.ok'); await page.click('#wu-go'); }
+}
+async function playAusgleich() {
+  for (let r = 0; r < AUL.length; r++) { await page.waitForFunction((n) => document.querySelectorAll('.au-turm').length === n && document.querySelector('#au-go').hidden, AUL[r].werte.length);
+    for (let guard = 0; guard < 80 && !(await page.locator('#au-go').isVisible()); guard++) {
+      const h = await page.evaluate(() => [...document.querySelectorAll('.au-turm')].map((b) => +b.dataset.h));
+      await page.locator('.au-turm').nth(h.indexOf(Math.max(...h))).click(); await page.locator('.au-turm').nth(h.indexOf(Math.min(...h))).click(); }
+    if (first('ausgleich-bild')) await shot('92-tuerme');
+    await page.click('#au-go'); }
+}
+const HANDLERS = [['#fd', playFelder], ['#sw', playStellen], ['#wu', playWuerfel], ['#au', playAusgleich], ['#zs', () => playStrahl(ZS, 'zs')], ['#fr', () => playStrahl(FRL, 'fr')], ['#sf', playStreifen], ['#kg', playKaestchen], ['#tf', playTafel], ['#mb-c', playMurmelbahn], ['#fg-c', playFlug], ['#tg-c', playTangente], ['#p-f', playPaare], ['#z-d', playZeichnen], ['#fl-c', playFlaeche], ['#lb-c', playLabor], ['#lo-c', playLotse], ['#wk-c', playWerkstatt], ['#rm-c', playRaum], ['#bs', playBoss], ['#i-next', info]];
 
 /* ───────────── Start, Menü, Schwierigkeit, Hell/Dunkel ───────────── */
 await page.goto(BASE); await page.waitForSelector('#home'); await shot('01-start');

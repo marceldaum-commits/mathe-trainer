@@ -884,3 +884,23 @@ textarea.field{resize:vertical;min-height:72px;font:inherit;padding:10px 12px}
 .kind-spiel .mission{align-items:center}.kind-spiel .mission p{flex:1}
 .kind-pi{flex:none;width:46px;height:46px;display:block}.kind-pi svg{width:100%;height:100%}
 .strahl-zahl{font-size:calc(12.5px*var(--fs,1))}.strahl-wert{font-size:calc(16px*var(--fs,1))}
+
+/* Weitere Entdecker-Spiele: Plättchen-Felder, Stellenwert-Schieber, Würfel-Baumeister, Türme ausgleichen */
+.fd-regler{grid-template-columns:54px 1fr 34px}.fd-regler label{font-style:normal;font-family:inherit;font-size:calc(14px*var(--fs,1))}
+.fd-liste{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;min-height:36px}
+.fd-chip{min-width:36px;height:36px;display:grid;place-items:center;border-radius:12px;background:var(--soft);border:1.5px dashed var(--line);font-weight:800;color:var(--muted)}
+.fd-chip.an{background:var(--mint-soft);border:1.5px solid var(--mint);color:var(--mint-ink)}
+.sw-tafel{display:grid;grid-template-columns:repeat(8,1fr);gap:4px;width:100%}
+.sw-sp{display:grid;gap:4px;justify-items:center;padding:6px 0;border-radius:12px;background:var(--soft);position:relative}
+.sw-sp small{font-weight:800;color:var(--muted);font-size:calc(12px*var(--fs,1))}
+.sw-sp b{width:100%;height:46px;display:grid;place-items:center;font-size:calc(24px*var(--fs,1));color:var(--head);border-radius:10px;transition:background .2s}
+.sw-sp b.da{background:var(--orange);color:#fff}
+.sw-sp.komma::before{content:",";position:absolute;left:-7px;bottom:6px;font-weight:900;font-size:calc(28px*var(--fs,1));color:var(--head)}
+.sw-zahl{text-align:center;font-weight:900;font-size:calc(30px*var(--fs,1));color:var(--head);font-variant-numeric:tabular-nums;min-height:40px}
+.au-tuerme{display:flex;align-items:flex-end;justify-content:center;gap:10px;min-height:calc(var(--max)*19px + 44px);padding:6px 0}
+.au-turm{display:grid;gap:6px;justify-items:center;align-content:end;min-width:40px;padding:6px 4px;border:2px solid transparent;border-radius:14px;background:none;cursor:pointer}
+.au-turm.hand{border-color:var(--orange);background:var(--orange-soft)}
+.au-stapel{display:flex;flex-direction:column-reverse;gap:3px;min-height:16px}
+.au-stapel i{display:block;width:32px;height:16px;border-radius:5px;background:var(--kind-2,#2f9bff)}
+.au-turm.hand .au-stapel i:last-child{background:var(--orange);transform:translateY(-5px)}
+.au-turm b{font-weight:800;color:var(--head)}
