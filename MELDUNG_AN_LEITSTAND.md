@@ -2,6 +2,11 @@
 
 Neueste Meldung oben. Keine Geheimnisse, keine Personendaten (dieses Repo ist öffentlich, siehe Punkt 1).
 
+## 15.11.2026 (51) – 0.28.0 liegt auf `test` (alle fünf Browser-Durchläufe grün)
+
+Inhalt wie in (50). Nichts für den Server, App-Hülle unverändert. Für 0.26.0 bis 0.28.0 (Mittelstufe) gilt weiter:
+Live-Freigabe erst nach Marcels Go.
+
 ## 15.11.2026 (50) – 0.28.0: vier weitere Entdecker-Spiele für Klasse 5 und 6 (Meldung „liegt auf test“ folgt nach dem Testlauf)
 
 Nur App-Seite, alles frei, keine Änderung an Schnittstelle, Speicherfeldern oder App-Hülle. Keine neuen Nutzer-Meldungen
