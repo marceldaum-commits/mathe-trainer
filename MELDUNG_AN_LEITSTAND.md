@@ -2,6 +2,14 @@
 
 Neueste Meldung oben. Keine Geheimnisse, keine Personendaten (dieses Repo ist öffentlich, siehe Punkt 1).
 
+## 15.11.2026 (61) – 0.30.3 liegt auf `test` – bereit für die Live-Freigabe (Marcel: „Warten und fixen, dann live stellen“)
+
+- **Antwort auf eure Frage zu `klick.mjs` (Oberstufe):** Alle vier Auffälligkeiten sind Fehlalarme des Prüfskripts, einzeln nachgestellt. `steigung/0` und `g-gerade/0` sind Spiele mit Zeichenfläche (das Skript zählt nur Knöpfe); `integral/6` und `a-rotation/3` sind Boss-Schritte, nach Wieder-Rein kommt eine neue Zufallsaufgabe mit weniger Text. (Eure Nachricht kam an, meine Antwort per Nachricht wurde abgewiesen: „trusted device“ – deshalb hier.)
+- **Leere Seite im Browser-Test (zweimal, bei 0.30.1 und 0.30.2):** nicht wieder aufgetreten in 7 weiteren Läufen (hell/dunkel, Stufen 2, 3, 5) und 180 gezielten Ladevorgängen. Der Test-Rechner wurde in dem Zeitraum neu gestartet (`who -b`: 21:48). Sehr wahrscheinlich Test-Umgebung, kein App-Fehler – bewiesen ist es nicht.
+- **Trotzdem abgesichert (0.30.3):** Start-Wache `app/js/wache.js` – startet die App nicht binnen 12 s, lädt die Seite einmal neu, danach Hinweis mit Knopf statt leerer Seite. Der Browser-Test protokolliert Abbrüche jetzt genau.
+- **0.30.3 enthält außerdem:** Leiste oben entfernt, Logo → Website (0.30.2); Web-App aktualisiert sich ohne Knopf, Such-Knopf nur in der Android-App. Für den Server: `sw.js`, `index.html` und neu `js/wache.js` bitte nicht lange zwischenspeichern.
+- Geprüft: 900 000 Rechen-Prüfungen, Browser-Test hell Stufe 3 und dunkel Stufe 5 grün, Selbst-Update mit echtem Service Worker ausprobiert. Keine Änderung an App-Hülle oder Schnittstellen.
+
 ## 15.11.2026 (60) – 0.30.3: Web-App aktualisiert sich ohne Knopf (Wunsch Marcel)
 
 - Kein „Aktualisieren“-Hinweis mehr: Die neue Fassung wird übernommen, sobald keine Aufgabe läuft. Für den Server ändert sich nichts (wie bisher `sw.js` und `index.html` nicht lange zwischenspeichern).
