@@ -923,7 +923,7 @@ await ctx2.close();
 /* ───────────── Android-App: Hinweis, wenn sie sich neue Inhalte geholt hat ───────────── */
 { const ac = await browser.newContext({ ...devices['Pixel 7'], serviceWorkers: 'block' }); const ap = await ac.newPage();
   ap.on('pageerror', (e) => errors.push(`App-Hülle: ${e.message}`));
-  await ap.addInitScript(() => { window.__st = { kanal: 'test', inhalt: '', bereit: '', huelle: false }; window.__widget = []; window.MTApp = { version: () => '0.22.0', widgetStand: (...a) => { window.__widget.push(a); }, updateStand: () => JSON.stringify(window.__st), updateAnwenden: () => { window.__los = true; } }; });
+  await ap.addInitScript(() => { window.__st = { kanal: 'test', inhalt: '', bereit: '', huelle: false }; window.__widget = []; window.MTApp = { version: () => '0.22.0', widgetStand: (...a) => { window.__widget.push(a); }, updateStand: () => JSON.stringify(window.__st), updateAnwenden: () => { window.__los = true; }, updateSuchen: () => { window.__gesucht = (window.__gesucht || 0) + 1; setTimeout(() => window.dispatchEvent(new CustomEvent('mt-update-fertig', { detail: 'ok' })), 50); } }; });
   await ap.goto(BASE); await ap.waitForSelector('#home');
   if (await ap.locator('#upd').isVisible()) fail('Update: Hinweis ohne Neuigkeit sichtbar');
   { const w = await ap.evaluate(() => window.__widget.at(-1)); if (!w || w[0] !== 'os' || typeof w[1] !== 'string' || w[1].length < 3 || !/^#\/u\/[\w-]+\/\d+$/.test(w[2]) || !Number.isInteger(w[3])) fail(`Widget: Stand wird der App-Hülle nicht gemeldet (${JSON.stringify(w)})`); }
@@ -938,6 +938,11 @@ await ctx2.close();
   if (!(await ap.evaluate(() => window.__los === true))) fail('Update: Knopf ruft die App-Hülle nicht');
   await ap.goto(`${BASE}#/einstellungen`); await ap.waitForSelector('#st-info');
   if (!/App-Datei/.test(await ap.textContent('#st-info')) || !/9\.8\.7 ist geladen/.test(await ap.textContent('#st-info'))) fail('Einstellungen (App): App-Datei und Aktualisierung fehlen');
+  await ap.click('#st-update'); await ap.waitForFunction(() => /9\.8\.7 ist geladen/.test(document.querySelector('#st-update-note').textContent));
+  if ((await ap.evaluate(() => window.__gesucht)) !== 1) fail('Update suchen: Knopf ruft die App-Hülle nicht');
+  await ap.evaluate(() => { window.__st.bereit = ''; window.__st.huelle = false; }); await ap.click('#st-update'); await ap.waitForFunction(() => document.querySelector('#st-update-note').textContent === 'Alles aktuell.' && !document.querySelector('#st-update').disabled);
+  if (shots) { await ap.locator('#st-update').scrollIntoViewIfNeeded(); await ap.screenshot({ path: `${shots}/83-update-suchen.png` }); }
+  await ap.evaluate(() => { window.__st.bereit = '9.8.7'; window.__st.huelle = true; window.dispatchEvent(new Event('mt-update')); });
   await ap.goto(`${BASE}#/lernen`); await ap.waitForTimeout(200);
   if (!(await ap.locator('#upd').isVisible())) fail('Update: Hinweis verschwindet beim Seitenwechsel');
   await ac.close();

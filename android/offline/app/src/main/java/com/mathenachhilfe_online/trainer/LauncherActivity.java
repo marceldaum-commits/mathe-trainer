@@ -65,16 +65,24 @@ public class LauncherActivity extends Activity {
         } catch (RuntimeException egal) { geladen = null; inhalt = ""; }
     }
     /** Im Hintergrund bei der Quelle nachsehen; die Web-App erfährt das Ergebnis über das Ereignis mt-update. */
-    private void updateSuche() {
+    private void updateSuche() { updateSuche(false); }
+    private volatile boolean sucht;
+    /** melden: Die Web-App hat von Hand gesucht und bekommt immer eine Antwort (Ereignis mt-update-fertig: ok oder netz). */
+    private void updateSuche(final boolean melden) {
         final String q = quelle();
-        if (q == null) return;
+        if (q == null || sucht) return;
+        sucht = true;
         new Thread(() -> {
+            String ergebnis = "ok";
             try {
                 Update.Ergebnis e = Update.lade(updateOrdner(), q, BuildConfigInfo.version(this), pfad -> getAssets().open("www/" + pfad), Update.NETZ);
                 bereit = e.bereit == null ? "" : e.bereit;
                 huelleNeu = "test".equals(kanal()) && e.huelle > getResources().getInteger(R.integer.mt_huelle);
                 if (!bereit.isEmpty() || huelleNeu) runOnUiThread(() -> { if (web != null) web.evaluateJavascript("window.dispatchEvent(new Event('mt-update'))", null); });
-            } catch (Exception ohneNetz) { /* kein Netz oder Quelle nicht erreichbar: beim nächsten Start wieder */ }
+            } catch (Exception ohneNetz) { ergebnis = "netz"; /* kein Netz oder Quelle nicht erreichbar: beim nächsten Start wieder */ }
+            sucht = false;
+            final String js = "window.dispatchEvent(new CustomEvent('mt-update-fertig',{detail:'" + ergebnis + "'}))";
+            if (melden) runOnUiThread(() -> { if (web != null) web.evaluateJavascript(js, null); });
         }, "mt-update").start();
     }
 
@@ -118,6 +126,8 @@ public class LauncherActivity extends Activity {
         @JavascriptInterface public String updateStand() {
             return "{\"kanal\":\"" + kanal() + "\",\"inhalt\":\"" + inhalt + "\",\"bereit\":\"" + bereit + "\",\"huelle\":" + huelleNeu + "}";
         }
+        /** Von Hand nach neuen Inhalten suchen (Knopf in den Einstellungen). Antwort kommt als Ereignis mt-update-fertig. */
+        @JavascriptInterface public void updateSuchen() { updateSuche(true); }
         /** Geladene Inhalte jetzt übernehmen: Die App startet ihre Seite neu. */
         @JavascriptInterface public void updateAnwenden() {
             runOnUiThread(() -> { updateStarte(); web.clearCache(true); web.loadUrl(BASIS); });

@@ -2,6 +2,12 @@
 
 Neueste Meldung oben. Keine Geheimnisse, keine Personendaten (dieses Repo ist öffentlich, siehe Punkt 1).
 
+## 15.11.2026 (54) – 0.29.1: Knopf „Nach Update suchen“ – App-Hülle geändert (Meldung „liegt auf test“ folgt)
+
+- Einstellungen: Knopf „Nach Update suchen“. Android: neue Brücke `MTApp.updateSuchen()` (lädt wie beim Start von der bekannten Quelle, sonst nichts Neues). Browser: Service Worker `update()`.
+- Hülle Nr. 3 → Test-Geräte brauchen einmal die neue App-Datei. Keine Server-Änderung.
+- Seitentitel/Beschreibung: „Klasse 5 bis Abitur“ statt „Oberstufen-Mathe“ – wird erst mit dem Live-Gang der Mittelstufe sichtbar (Marcels Go).
+
 ## 15.11.2026 (53) – 0.29.0: großes Paket für Klasse 7 bis 10 (Meldung „liegt auf test“ folgt nach dem Testlauf)
 
 - Sieben neue Entdecker-Spiele für Klasse 7 bis 10, fünf neue Aufgaben-Arten, sechs neue Einheiten (Einzelheiten im Baulog `docs/PLAN.md`).

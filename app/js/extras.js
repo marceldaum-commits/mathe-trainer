@@ -6,7 +6,7 @@ import { store, LEVELS, LAENDER, KARTEI_TAGE } from './store.js';
 import { UNITS, AREAS, istOber, jgName } from './units.js';
 import { $, h, esc, ICON, sfx, toast, confetti, drucken } from './ui.js';
 import { CONFIG, VERSION, STAND } from './config.js';
-import { updateStand } from './update.js';
+import { updateStand, updateSuchen } from './update.js';
 import { merkbilderEinsetzen, hatMerkbild } from './merkbild.js';
 import { BADGES, TITLES, SKINS, titleOf, skinOpen, checkBadges } from './badges.js';
 import { tex } from './ui.js';
@@ -70,7 +70,8 @@ export function settingsView() {
       <div id="st-pro-note"></div></section>
     <section class="card stack"><h3>Fortschritt</h3><small class="muted">Alles liegt nur auf diesem Gerät. Es gibt kein Konto.</small>
       <button class="btn ghost" id="st-reset" type="button">Fortschritt zurücksetzen</button></section>
-    <section class="card stack"><h3>Über diese App</h3><dl class="st-info" id="st-info"></dl></section>
+    <section class="card stack"><h3>Über diese App</h3><dl class="st-info" id="st-info"></dl>
+      <button class="btn ghost" id="st-update" type="button">Nach Update suchen</button><small class="muted" id="st-update-note" role="status"></small></section>
   </div>`);
   $('#st-level', el).append(levelCard());
   const sk = $('#st-skin', el);
@@ -143,6 +144,9 @@ export function settingsView() {
     $('#st-info', el).innerHTML = `<dt>Version</dt><dd id="st-version">${esc(VERSION)}</dd><dt>Stand</dt><dd id="st-datum">${esc(STAND)}</dd>`
       + (app ? `<dt>App-Datei</dt><dd>${esc(app)}</dd>` : '')
       + (u && u.kanal !== 'aus' ? `<dt>Aktualisierung</dt><dd>${u.bereit ? `Version ${esc(u.bereit)} ist geladen` : 'holt neue Inhalte von selbst'}</dd>` : ''); }
+  { const ub = $('#st-update', el), un = $('#st-update-note', el);
+    ub.onclick = () => { ub.disabled = true; un.textContent = 'Suche …';
+      updateSuchen().then((r) => { ub.disabled = false; un.textContent = r.text; if (r.art === 'neu') window.dispatchEvent(new Event('mt-update')); }); }; }
   { const rb = $('#st-ruhig', el), paintR = () => { rb.setAttribute('aria-checked', store.ruhig); rb.classList.toggle('an', store.ruhig); };
     rb.onclick = () => { store.ruhig = !store.ruhig; paintR(); sfx('tap'); window.dispatchEvent(new Event('mt-ruhig')); }; paintR(); }
   const tb = $('#st-tipp', el);

@@ -12,6 +12,32 @@ export function updateStand(app = globalThis.window?.MTApp) {
   } catch { return null; }
 }
 
+/**
+ * Von Hand nach einer neuen Version suchen (Knopf in den Einstellungen).
+ * Antwort: { art: 'neu' | 'aktuell' | 'netz' | 'laeuft', text } – in der Android-App über die Hülle, im Browser über den Service Worker.
+ */
+export function updateSuchen(app = globalThis.window?.MTApp, w = globalThis.window, warte = 45000) {
+  if (app) {
+    if (typeof app.updateSuchen !== 'function') return Promise.resolve({ art: 'aktuell', text: 'Diese App-Datei sucht bei jedem Start von selbst nach Neuem.' });
+    if (updateStand(app)?.kanal === 'aus') return Promise.resolve({ art: 'aktuell', text: 'Diese App-Datei lädt keine Inhalte nach.' });
+    return new Promise((fertig) => {
+      let t = null;
+      const ende = (ev) => { clearTimeout(t); w.removeEventListener('mt-update-fertig', ende);
+        const s = updateStand(app);
+        if (s?.bereit) return fertig({ art: 'neu', text: `Version ${s.bereit} ist geladen.` });
+        if (s?.huelle) return fertig({ art: 'neu', text: 'Es gibt eine neue App-Datei – bitte installieren.' });
+        fertig(ev?.detail === 'ok' ? { art: 'aktuell', text: 'Alles aktuell.' } : { art: 'netz', text: 'Keine Verbindung – bitte später noch einmal versuchen.' }); };
+      w.addEventListener('mt-update-fertig', ende); t = setTimeout(() => ende(null), warte);
+      try { app.updateSuchen(); } catch { ende(null); }
+    });
+  }
+  const sw = w?.navigator?.serviceWorker;
+  if (!sw?.getRegistration) return Promise.resolve({ art: 'aktuell', text: 'Lade die Seite neu, um die neueste Version zu holen.' });
+  return sw.getRegistration().then((reg) => (reg ? reg.update().then(() => reg) : null)).then((reg) => (reg && (reg.installing || reg.waiting)
+    ? { art: 'neu', text: 'Neue Version gefunden – sie wird gerade geladen.' } : { art: 'aktuell', text: 'Alles aktuell.' }))
+    .catch(() => ({ art: 'netz', text: 'Keine Verbindung – bitte später noch einmal versuchen.' }));
+}
+
 /** Der Hinweis-Streifen über der Seite. Leer und versteckt, solange es nichts Neues gibt. */
 export function updateLeiste(app = globalThis.window?.MTApp) {
   const el = h('<div class="upd" id="upd" hidden></div>');

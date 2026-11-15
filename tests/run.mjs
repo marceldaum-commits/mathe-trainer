@@ -964,6 +964,23 @@ ok(nextStreak({ n: 3, last: '2026-11-10' }, D('2026-11-12')).n === 1, 'Serie: au
   ok(U.updateStand(app({ kanal: 'store', bereit: '<b>x</b>', huelle: true })).bereit === '' , 'Update: nur echte Versionsnummern');
   ok(U.updateStand(app({ kanal: 'store', bereit: '1.0.0', huelle: true })).huelle === false, 'Update: im Store-Kanal kein Hinweis auf eine App-Datei');
   ok(U.updateStand(app({ kanal: 'irgendwas' })).kanal === 'aus', 'Update: unbekannter Kanal zählt als aus');
+  { // Von Hand suchen
+    const fenster = () => { const l = {}; return { addEventListener: (n, f) => { l[n] = f; }, removeEventListener: (n) => { delete l[n]; }, feuer: (n, detail) => l[n]?.({ detail }), hat: (n) => !!l[n] }; };
+    ok((await U.updateSuchen({ updateStand: () => '{"kanal":"test"}' }, fenster())).art === 'aktuell', 'Update suchen: alte App-Datei ohne Such-Funktion bekommt einen ruhigen Hinweis');
+    ok((await U.updateSuchen({ updateStand: () => '{"kanal":"aus"}', updateSuchen() { throw new Error('darf nicht'); } }, fenster())).art === 'aktuell', 'Update suchen: Kanal aus sucht nicht');
+    const fall = async (st, detail) => { const w = fenster(); const a = { st: { kanal: 'test', inhalt: '', bereit: '', huelle: false }, updateStand() { return JSON.stringify(this.st); }, updateSuchen() { Object.assign(this.st, st); setTimeout(() => w.feuer('mt-update-fertig', detail), 0); } }; const r = await U.updateSuchen(a, w); return { ...r, sauber: !w.hat('mt-update-fertig') }; };
+    const neu = await fall({ bereit: '1.2.3' }, 'ok'), gleich = await fall({}, 'ok'), netz = await fall({}, 'netz'), datei = await fall({ huelle: true }, 'ok');
+    ok(neu.art === 'neu' && neu.text.includes('1.2.3') && neu.sauber, 'Update suchen: neue Version wird gemeldet');
+    ok(gleich.art === 'aktuell' && gleich.text === 'Alles aktuell.', 'Update suchen: nichts Neues');
+    ok(netz.art === 'netz' && netz.sauber, 'Update suchen: ohne Netz gibt es eine klare Auskunft');
+    ok(datei.art === 'neu' && /App-Datei/.test(datei.text), 'Update suchen: Hinweis auf neue App-Datei');
+    const stumm = await U.updateSuchen({ updateStand: () => '{"kanal":"test"}', updateSuchen() {} }, fenster(), 20);
+    ok(stumm.art === 'netz', 'Update suchen: bleibt die Antwort aus, hängt der Knopf nicht');
+    const sw = (reg, kaputt) => ({ navigator: { serviceWorker: { getRegistration: () => (kaputt ? Promise.reject(new Error('x')) : Promise.resolve(reg)) } } });
+    ok((await U.updateSuchen(undefined, sw({ update: () => Promise.resolve(), installing: {} }))).art === 'neu', 'Update suchen (Browser): neue Version gefunden');
+    ok((await U.updateSuchen(undefined, sw({ update: () => Promise.resolve() }))).art === 'aktuell' && (await U.updateSuchen(undefined, sw(null))).art === 'aktuell', 'Update suchen (Browser): aktuell');
+    ok((await U.updateSuchen(undefined, sw({ update: () => Promise.reject(new Error('offline')) }))).art === 'netz' && (await U.updateSuchen(undefined, sw(null, true))).art === 'netz', 'Update suchen (Browser): ohne Netz');
+    ok((await U.updateSuchen(undefined, {})).art === 'aktuell', 'Update suchen (Browser): ohne Service Worker ein Hinweis'); }
   const { readFileSync } = await import('node:fs'); const { createHash } = await import('node:crypto');
   const st = JSON.parse(readFileSync(new URL('../app/stand.json', import.meta.url), 'utf8')), cfg = readFileSync(new URL('../app/js/config.js', import.meta.url), 'utf8');
   ok(st.version === cfg.match(/VERSION = '([^']+)'/)[1], 'stand.json: Version passt zur App');
