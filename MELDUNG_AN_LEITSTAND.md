@@ -2,6 +2,11 @@
 
 Neueste Meldung oben. Keine Geheimnisse, keine Personendaten (dieses Repo ist öffentlich, siehe Punkt 1).
 
+## 15.11.2026 (58) – 0.30.0 liegt auf `test`; 0.30.1 folgt (kleine Korrektur nach Durchklick-Prüfung)
+
+- 0.30.0: alle fünf Browser-Durchläufe grün, auf `test`.
+- 0.30.1: Oberstufen-Seiten leiten in Klasse 5 bis 10 auf „Testen“ um (eine davon stürzte dort ab). Neues Prüfskript `tests/klick.mjs`. Nur Web-App.
+
 ## 15.11.2026 (57) – 0.30.0: großes Paket (Meldung „liegt auf test“ folgt nach dem Testlauf)
 
 - Neu: Zurücksetzen mit Auswahl, Kopfrechen-Arena mit Knobelaufgabe des Tages, Outfits für Pi, Klassenarbeits-Trainer, sieben neue Einheiten für Klasse 5 bis 10 (Einzelheiten im Baulog `docs/PLAN.md`).

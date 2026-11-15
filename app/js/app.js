@@ -189,6 +189,8 @@ function arbeitKarte() {
   const p = arbeitPlan(store.arbeit);
   return linkCard('#/arbeit', p && p.tage >= 0 ? p.tage : ICON.star, `${arbeitWort()}s-Trainer`, !p ? 'Termin und Themen eintragen – die App macht den Plan.' : p.tage < 0 ? 'Geschrieben! Jetzt die nächste planen.' : p.tage === 0 ? 'Heute ist es so weit – viel Erfolg!' : `Noch ${p.tage} ${p.tage === 1 ? 'Tag' : 'Tage'} · ${p.heute.length ? `heute ${p.heute.length} ${p.heute.length === 1 ? 'Schritt' : 'Schritte'}` : 'alles geschafft, jetzt wiederholen'}`);
 }
+/** Seiten, die nur zur Oberstufe gehören (Abi-Inhalte). In Klasse 5 bis 10 führt ihr Aufruf zu „Testen“. */
+export const NUR_OBERSTUFE = ['abi', 'tag', 'duell', 'blitz', 'aufgabe', 'plan', 'abenteuer', 'karte', 'einstufung', 'lehrplan'];
 function testeDichView() {
   return h(`<div class="view stack">
     <div><span class="eyebrow">Testen · ${esc(jgName(store.jahrgang))}</span><h1 style="margin-top:8px">Zeig, was sitzt</h1></div>
@@ -403,6 +405,7 @@ function route() {
   if (bm) { const r = blattView(bm[1]); el = r.el; cleanup = r.cleanup || null; }
   else if (u && m[2] !== undefined && u.steps[+m[2]]) el = stepView(u, +m[2]);
   else if (u) el = unitView(u);
+  else if (x && !istOber() && NUR_OBERSTUFE.includes(x[1])) { location.replace('#/pruefung'); return; }   // alte Links und Lesezeichen: Diese Seiten gibt es nur in der Oberstufe
   else if (x) {
     const after = () => { chips(); setTimeout(badgeCheck, 600); };
     const r = { abi: () => abiView(['A', 'B'].includes(x[2]) ? x[2] : null, after), tag: () => rundeView('tag', undefined, (res) => { after(); meldeTag(res); }), duell: () => rundeView('duell', x[2], after), blitz: () => blitzView(after),

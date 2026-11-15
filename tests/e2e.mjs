@@ -989,6 +989,8 @@ await ctx2.close();
   await kp.click('#ar-mix'); await kp.waitForSelector('#stage .opt, #stage input'); await kp.click('#ar-x'); await kp.waitForSelector('#ar-neu');
   await kp.goto(`${BASE}#/`); await kp.waitForSelector('#ar-start');
   if (!/6/.test(await kp.textContent('#ar-start .big'))) fail('Klassenarbeit: Karte auf der Startseite fehlt');
+  // Oberstufen-Seiten sind in Klasse 5 bis 10 nicht erreichbar (alte Links, Lesezeichen): Umleitung auf „Testen“
+  for (const alt of ['aufgabe', 'abi', 'blitz', 'karte', 'einstufung']) { await kp.goto(`${BASE}#/${alt}`); await kp.waitForFunction(() => location.hash === '#/pruefung'); await kp.waitForSelector('a[href="#/kopf"]'); }
   // Pi anziehen: Kappe ist frei (21 Sterne), Krone nicht
   await kp.goto(`${BASE}#/einstellungen`); await kp.waitForSelector('#st-hut');
   if (!(await kp.locator('#st-hut [data-k="krone"]').isDisabled()) || (await kp.locator('#st-hut [data-k="kappe"]').isDisabled())) fail('Pi-Outfit: Freischaltung nach Sternen stimmt nicht');
