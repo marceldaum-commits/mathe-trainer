@@ -2,6 +2,11 @@
 
 Neueste Meldung oben. Keine Geheimnisse, keine Personendaten (dieses Repo ist öffentlich, siehe Punkt 1).
 
+## 15.11.2026 (55) – 0.29.2: Such-Knopf nennt den Grund – und eine Frage zum Test-Server
+
+- Marcels Handy (App-Datei 0.29.1, Kanal test) meldete um ca. 13:00 beim Knopf „Nach Update suchen“: keine Verbindung, trotz WLAN. Bitte prüfen: Ist `trainer-test…/stand.json` erreichbar (Antwort 200)? Aus diesem Raum ist der Server nicht abrufbar.
+- 0.29.2 zeigt künftig den genauen Grund (kein Netz / zu langsam / Antwort-Nummer / Inhalt). Hülle Nr. 4.
+
 ## 15.11.2026 (54) – 0.29.1: Knopf „Nach Update suchen“ – App-Hülle geändert (Meldung „liegt auf test“ folgt)
 
 - Einstellungen: Knopf „Nach Update suchen“. Android: neue Brücke `MTApp.updateSuchen()` (lädt wie beim Start von der bekannten Quelle, sonst nichts Neues). Browser: Service Worker `update()`.

@@ -26,7 +26,14 @@ export function updateSuchen(app = globalThis.window?.MTApp, w = globalThis.wind
         const s = updateStand(app);
         if (s?.bereit) return fertig({ art: 'neu', text: `Version ${s.bereit} ist geladen.` });
         if (s?.huelle) return fertig({ art: 'neu', text: 'Es gibt eine neue App-Datei – bitte installieren.' });
-        fertig(ev?.detail === 'ok' ? { art: 'aktuell', text: 'Alles aktuell.' } : { art: 'netz', text: 'Keine Verbindung – bitte später noch einmal versuchen.' }); };
+        const d = typeof ev?.detail === 'string' ? ev.detail : '';
+        if (d === 'ok') return fertig({ art: 'aktuell', text: 'Alles aktuell.' });
+        const nr = /^antwort(\d{3})$/.exec(d)?.[1];
+        fertig({ art: 'netz', text: nr ? `Der Server antwortet gerade nicht richtig (Meldung ${nr}) – bitte später noch einmal versuchen.`
+          : d === 'zeit' ? 'Der Server antwortet zu langsam – bitte später noch einmal versuchen.'
+          : d === 'inhalt' ? 'Die neuen Inhalte ließen sich nicht sauber laden – bitte später noch einmal versuchen.'
+          : d === 'netz' ? 'Keine Verbindung zum Server – bitte später noch einmal versuchen.'
+          : 'Keine Antwort von der App – bitte App schließen, neu öffnen und noch einmal versuchen.' }); };
       w.addEventListener('mt-update-fertig', ende); t = setTimeout(() => ende(null), warte);
       try { app.updateSuchen(); } catch { ende(null); }
     });

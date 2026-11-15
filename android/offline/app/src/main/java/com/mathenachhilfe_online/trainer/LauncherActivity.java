@@ -66,11 +66,13 @@ public class LauncherActivity extends Activity {
     }
     /** Im Hintergrund bei der Quelle nachsehen; die Web-App erfährt das Ergebnis über das Ereignis mt-update. */
     private void updateSuche() { updateSuche(false); }
-    private volatile boolean sucht;
+    private volatile boolean sucht, meldeWunsch;
     /** melden: Die Web-App hat von Hand gesucht und bekommt immer eine Antwort (Ereignis mt-update-fertig: ok oder netz). */
     private void updateSuche(final boolean melden) {
         final String q = quelle();
-        if (q == null || sucht) return;
+        if (q == null) return;
+        if (melden) meldeWunsch = true;
+        if (sucht) return;   // läuft schon: Die laufende Suche antwortet gleich mit
         sucht = true;
         new Thread(() -> {
             String ergebnis = "ok";
@@ -79,10 +81,11 @@ public class LauncherActivity extends Activity {
                 bereit = e.bereit == null ? "" : e.bereit;
                 huelleNeu = "test".equals(kanal()) && e.huelle > getResources().getInteger(R.integer.mt_huelle);
                 if (!bereit.isEmpty() || huelleNeu) runOnUiThread(() -> { if (web != null) web.evaluateJavascript("window.dispatchEvent(new Event('mt-update'))", null); });
-            } catch (Exception ohneNetz) { ergebnis = "netz"; /* kein Netz oder Quelle nicht erreichbar: beim nächsten Start wieder */ }
+            } catch (Exception ohneNetz) { ergebnis = Update.grund(ohneNetz); /* kein Netz oder Quelle nicht erreichbar: beim nächsten Start wieder */ }
             sucht = false;
             final String js = "window.dispatchEvent(new CustomEvent('mt-update-fertig',{detail:'" + ergebnis + "'}))";
-            if (melden) runOnUiThread(() -> { if (web != null) web.evaluateJavascript(js, null); });
+            final boolean sagen = meldeWunsch; meldeWunsch = false;
+            if (sagen) runOnUiThread(() -> { if (web != null) web.evaluateJavascript(js, null); });
         }, "mt-update").start();
     }
 

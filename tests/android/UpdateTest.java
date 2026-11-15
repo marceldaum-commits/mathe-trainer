@@ -79,6 +79,7 @@ public final class UpdateTest {
             try { Update.lies("{\"version\":\"9.0.0\",\"dateien\":{\"index.html\":\"" + sha("x") + "\",\"" + boese + "\":\"" + sha("x") + "\"}}"); } catch (IOException erwartet) { geworfen = true; }
             pruefe(geworfen, "Pfad abgelehnt: " + boese);
         }
+        pruefe(Update.grund(new IOException("Antwort 502")).equals("antwort502") && Update.grund(new java.net.UnknownHostException("x")).equals("netz") && Update.grund(new java.net.SocketTimeoutException()).equals("zeit") && Update.grund(new IOException("Prüfsumme falsch: a")).equals("inhalt") && Update.grund(new IOException("stand.json: Version fehlt")).equals("inhalt") && Update.grund(new IOException()).equals("netz") && Update.grund(new RuntimeException("<x>")).equals("inhalt"), "Grund der gescheiterten Suche");
         geworfen = false; try { Update.lies("{\"version\":\"abc\"}"); } catch (IOException erwartet) { geworfen = true; } pruefe(geworfen, "Version muss stimmen");
         geworfen = false; try { Update.lies("{\"version\":\"1.0.0\",\"dateien\":{}}"); } catch (IOException erwartet) { geworfen = true; } pruefe(geworfen, "index.html muss dabei sein");
 

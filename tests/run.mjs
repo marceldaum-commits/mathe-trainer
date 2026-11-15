@@ -972,7 +972,8 @@ ok(nextStreak({ n: 3, last: '2026-11-10' }, D('2026-11-12')).n === 1, 'Serie: au
     const neu = await fall({ bereit: '1.2.3' }, 'ok'), gleich = await fall({}, 'ok'), netz = await fall({}, 'netz'), datei = await fall({ huelle: true }, 'ok');
     ok(neu.art === 'neu' && neu.text.includes('1.2.3') && neu.sauber, 'Update suchen: neue Version wird gemeldet');
     ok(gleich.art === 'aktuell' && gleich.text === 'Alles aktuell.', 'Update suchen: nichts Neues');
-    ok(netz.art === 'netz' && netz.sauber, 'Update suchen: ohne Netz gibt es eine klare Auskunft');
+    ok(netz.art === 'netz' && netz.sauber && /Keine Verbindung zum Server/.test(netz.text), 'Update suchen: ohne Netz gibt es eine klare Auskunft');
+    ok(/Meldung 502/.test((await fall({}, 'antwort502')).text) && /zu langsam/.test((await fall({}, 'zeit')).text) && /nicht sauber/.test((await fall({}, 'inhalt')).text) && !/</.test((await fall({}, '<b>x</b>')).text), 'Update suchen: der Grund wird verständlich genannt, Fremdes nicht übernommen');
     ok(datei.art === 'neu' && /App-Datei/.test(datei.text), 'Update suchen: Hinweis auf neue App-Datei');
     const stumm = await U.updateSuchen({ updateStand: () => '{"kanal":"test"}', updateSuchen() {} }, fenster(), 20);
     ok(stumm.art === 'netz', 'Update suchen: bleibt die Antwort aus, hängt der Knopf nicht');

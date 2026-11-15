@@ -196,6 +196,16 @@ final class Update {
     }
 
     /** Holt über HTTPS, ohne Weiterleitungen zu folgen. */
+    /** Kurzer Grund für die Web-App, warum die Suche scheiterte: netz, zeit, antwort<Zahl>, inhalt. Nur Kleinbuchstaben und Ziffern. */
+    static String grund(Exception e) {
+        String m = e.getMessage() == null ? "" : e.getMessage();
+        if (m.matches("Antwort \\d{3}")) return "antwort" + m.substring(8);
+        if (e instanceof java.net.SocketTimeoutException) return "zeit";
+        if (e instanceof java.net.UnknownHostException || e instanceof java.net.ConnectException || e instanceof javax.net.ssl.SSLException) return "netz";
+        if (e instanceof IOException && (m.startsWith("Prüfsumme") || m.startsWith("Pfad") || m.startsWith("stand.json") || m.startsWith("zu groß") || m.startsWith("Ordner"))) return "inhalt";
+        return e instanceof IOException ? "netz" : "inhalt";
+    }
+
     static final Holer NETZ = adresse -> {
         if (!adresse.startsWith("https://")) throw new IOException("nur https");
         HttpURLConnection c = (HttpURLConnection) new URL(adresse).openConnection();
