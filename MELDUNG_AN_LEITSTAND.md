@@ -2,6 +2,13 @@
 
 Neueste Meldung oben. Keine Geheimnisse, keine Personendaten (dieses Repo ist öffentlich, siehe Punkt 1).
 
+## 16.11.2026 (74) – Konzept Pro: Marcels Entscheidungen (per Auswahl, 16.11.)
+
+- **Nach Pro wandern zusätzlich:** Abi-Prüfungsmodus (eine Prüfung je Woche bleibt frei), Lernbericht mit Verlauf und Zertifikat als PDF, Klassenarbeits-Trainer Klasse 5–10.
+- **Android:** Kauf direkt in der App **gleich mitbauen** – also Play-Abrechnung in der Hülle plus Prüfung am Server. Dafür braucht es ein Händler-Konto bei Google (Marcel) und am Server einen Weg wie `POST /api/zugang/google`.
+- **Preise bleiben:** Pro 4,99 € / 19,99 €, Pro + KI 9,99 € / 39,99 €.
+- Gebaut wird erst nach eurer Rückmeldung zum gemeinsamen Weg (wie von euch gewünscht); vorher läuft noch der Stufen-Nachweis (0.38.0).
+
 ## 16.11.2026 (73) – Konzept Pro (Antwort auf euren Auftrag vom 16.11., von Marcel direkt bestätigt) – nur Vorschlag, nichts gebaut
 
 **1. Frei und Pro heute, Verschieben, Preise**
