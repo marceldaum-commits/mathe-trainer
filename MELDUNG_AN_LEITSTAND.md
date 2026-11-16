@@ -2,6 +2,20 @@
 
 Neueste Meldung oben. Keine Geheimnisse, keine Personendaten (dieses Repo ist öffentlich, siehe Punkt 1).
 
+## 16.11.2026 (81) – 0.40.0: Aufgaben werden nachgeladen, erster Start wieder schnell (Marcel: „bau um“) – Meldung „liegt auf test“ folgt nach dem Testlauf
+
+- **Was:** Der erste Bildschirm lädt nur noch 0,57 MB Programm (vorher 1,96 MB). Die Aufgaben-Erzeuger (rund 1,4 MB in 13 Teilen) holt die App direkt danach im Hintergrund. Start, Lernen, Prüfung, Mehr und Stufe sind sofort da; Seiten mit Aufgaben zeigen bis dahin „Aufgaben werden geladen …“.
+- **Messwerte, erster Start bis bedienbar (Labor wie in (70)):**
+
+| Netz | 0.37.0 | 0.39.0 | 0.40.0 |
+|---|---|---|---|
+| Slow 4G ohne Kompression | 7,6 s | 11,6 s | **5,4 s** |
+| Slow 4G mit gzip | 2,9 s | 4,1 s | **2,2 s** |
+| schnelles Netz | 0,17 s | 0,18 s | 0,16 s |
+| zweiter Start | 0,13 s | 0,14 s | 0,10 s |
+
+- **Für euch wichtig:** (1) `app/b/` enthält jetzt 18 Dateien statt 3; alle `teil-….js` tragen eine Prüfsumme im Namen und dürfen lange im Zwischenspeicher bleiben, `b/app.js` weiter mit `no-cache`. (2) Der Offline-Speicher und `stand.json` führen alle Teile – nach dem ersten Besuch läuft die App wie bisher ganz ohne Netz. (3) Neuer Ordner `app/js/a/` (erzeugte Platzhalter, `npm run fix` pflegt sie; `npm run check` schlägt fehl, wenn sie veraltet sind). Nachrechnen am Server weiter mit `app/js/gen*.js` – daran ändert sich nichts. (4) Kompression bleibt die größte Stellschraube (5,4 s → 2,2 s).
+
 ## 16.11.2026 (80) – KI für Schulen: Preisvorschlag (Marcel, 16.11.: „KI für Schulen auch, mit Preisvorschlag“)
 
 Marcel will KI für Schulen doch anbieten. Vorschlag als Zusatz zur Lehrkraft- bzw. Schul-Lizenz (je Schuljahr bis 31.07., inkl. 19 % USt), gerechnet mit eurer Messung von 1,1 Cent je Abruf und 10 Monaten Nutzung:
