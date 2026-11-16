@@ -2,6 +2,33 @@
 
 Neueste Meldung oben. Keine Geheimnisse, keine Personendaten (dieses Repo ist öffentlich, siehe Punkt 1).
 
+## 16.11.2026 (73) – Konzept Pro (Antwort auf euren Auftrag vom 16.11., von Marcel direkt bestätigt) – nur Vorschlag, nichts gebaut
+
+**1. Frei und Pro heute, Verschieben, Preise**
+- **Frei:** Lernpfad mit allen Einheiten, Spielen, Boss, Abenteuer, Karte; Stufen 1–5; Tages-Runde, Duell, Blitz; Theorie kurz, Merkbilder; Lernkarten; Arbeitsblatt in der App lösen; 3 KI-Proben je Gerät.
+- **Pro (4,99 € / 30 Tage, 19,99 € Abi-Pass):** Drucken/PDF mit Lösungsblatt, Schwächen-Blatt, Probeklausur, Theorie ausführlich.
+- **Pro + KI (9,99 € / 39,99 €):** KI-Erklärung, KI-Tutor, Rechenweg-Prüfer (Foto), KI-Aufgaben, KI-Auswertung.
+- **Vorschlag Verschieben (Marcel entscheidet):** Das Lernen selbst bleibt frei (das ist die Werbung für die Nachhilfe). Nach Pro könnten: Abi-Prüfungsmodus ab der zweiten Prüfung je Woche, Lernbericht mit Verlauf und Zertifikat als PDF, Klassenarbeits-Trainer Klasse 5–10. Nicht verschieben würde ich Stufen, Spiele und Lernkarten.
+- **Preise ähnlicher Apps** (aus Store-Einträgen und Drittseiten am 16.11. gesucht, nicht auf den Anbieter-Seiten geprüft): StudySmarter Premium 9,99 €/Monat bzw. 89,99 €/Jahr · Photomath Plus im deutschen App Store 7,99 € und 49,99 € (vermutlich Monat/Jahr) · sofatutor je nach Laufzeit etwa 7,99–14,95 €/Monat bei langer Bindung. Zu simpleclub und Mathegym habe ich keine belastbaren Zahlen gefunden. **Einordnung:** Unsere Preise liegen am unteren Rand und sind Pässe ohne Abo-Falle; ich würde sie lassen.
+
+**2. Kaufweg direkt in der Web-App**
+- Knopf „Pro holen“ in der App → öffnet `…/kasse/?add-to-cart=<Varianten-ID>&quelle=app` (schlanke Kasse ohne Shop-Rahmen, das Produkt liegt schon im Warenkorb; PayPal/Überweisung wie heute, Widerrufs-Häkchen bleibt).
+- Nach der Zahlung zeigt die Danke-Seite den Code und einen Knopf „Zurück zur App“ → Adresse der App mit `#/zugang/<CODE>`. Die App prüft den Code wie heute über `POST /api/zugang` und schaltet frei. Rechnung und Bestellung laufen unverändert über Woo (Mail an Kunde und Marcel).
+- Bei Überweisung kommt der Code erst nach Zahlungseingang per Mail; der Link in der Mail ist derselbe.
+- Dafür nötig: bei euch die schlanke Kassen-Vorlage und der Rück-Link; bei mir die Route `#/zugang/<CODE>` und der Knopf mit den Varianten. **Android:** Für digitale Inhalte in Play-Store-Apps verlangt Google die Play-Abrechnung. Der Woo-Weg darf dort nicht beworben werden (deshalb fordert die Android-App heute nie zum Kauf auf). In-App-Kauf in Android heißt also: Play-Abrechnung in der Hülle plus Prüfung am Server (wie in Meldung zu `/api/zugang/google` skizziert); Rechnung stellt dann Google, in Woo käme nur ein Nachweis-Eintrag per Server.
+
+**3. Code-Server als gemeinsamer Lizenz-Dienst**
+- Taugt als Vorlage. Den Server betreibt ihr; die Schnittstelle der App ist `POST /api/zugang { code }` → `{ art, bis, ki }` oder 404.
+- Was fehlt für alle Apps: (a) App-Kennung je Code (`app: "mt"`, Vorsilbe im Code wie `MT-…`) und Prüfung, dass der Code zur anfragenden App gehört; (b) Stufe als eigenes Feld statt nur `ki`; (c) Grenze für Geräte je Code über eine zufällige Geräte-Kennung, die die App selbst würfelt (keine Personendaten); (d) Sperren bei Erstattung/Widerruf per Woo-Meldung an den Server; (e) Bremse gegen Durchprobieren (Versuche je Adresse und Stunde), Codes lang und zufällig, am Server nur als Prüfsumme gespeichert.
+- Prüfung ohne Konto: Die App schickt nur Code, App-Kennung und Geräte-Kennung. Name, Mail und Bestellung bleiben in Woo; der App-Server kennt nur Code → Stufe, Laufzeit, Zähler.
+
+**4. KI mit Claude-API**
+- Sinnvoll und schon gebaut: Erklärung nach Fehler, Tutor-Nachfrage, Rechenweg-Prüfer per Foto, neue Aufgaben (am Server nachgerechnet), Auswertung nach dem Blatt. Neu denkbar: Lernplan bis zur Klausur aus den Schwächen.
+- Kosten laut eurer Messung vom 14.11.: im Mittel 1,1 Cent je Erklärung. Beim Tageslimit 10 sind das höchstens rund 3,30 € im Monat je Nutzer; realistisch deutlich weniger. Foto-Prüfer und Aufgaben-Erzeugung sind teurer und brauchen ein eigenes kleineres Limit – bitte messen.
+- Schutz: Limit je Code und Tag am Server, zusätzlich je Gerät; Antwortlänge begrenzt; nur Aufgabe und Rechenweg an die KI, nie Name oder Lernstand; Schlüssel nur am Server.
+
+**Offen für Marcel:** was nach Pro wandert, Android mit Play-Abrechnung ja/nein, Preise lassen oder ändern.
+
 ## 16.11.2026 (72) – 0.33.0 bis 0.37.0 liegen auf `test`
 
 - Zweig `test` = `main` = Version **0.37.0** (enthält 0.33.0 Stufen-Spreizung Analysis, 0.34.0, 0.35.0 Spreizung Stochastik/Geometrie/Klasse 5–10, 0.36.0 Schnellstart, 0.37.0 Bündel).
