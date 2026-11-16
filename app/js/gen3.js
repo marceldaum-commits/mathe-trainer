@@ -24,6 +24,7 @@ export function genBruch(lv = 3) {
     const b = pick(D), d = pick(D), a = ri(1, b - 1), c = ri(1, d - 1);
     const op = pick(lv <= 1 ? ['+'] : lv === 2 ? ['+', '-'] : ['+', '-', '·', ':']);
     if (gcd(a, b) !== 1 || gcd(c, d) !== 1 || (op === '-' && lv <= 2 && a * d <= c * b)) continue;
+    if (lv >= 3 && '+-'.includes(op) && b === d) continue;   // ab Stufe 3 beim Addieren und Abziehen immer ungleichnamig – sonst wäre es eine Aufgabe der Stufe 1
     const F = (n, den, correct, why) => (den === 0 ? null : { tex: fracTex(n, den), num: n / den, correct, why });
     const opts = {
       '+': [F(a * d + c * b, b * d, true), F(a + c, b + d, false, 'Zähler und Nenner dürfen nicht einfach getrennt addiert werden. Erst gleichnamig machen.'), F(a + c, b * d, false, 'Der Nenner ist gleichnamig – aber die Zähler müssen mit erweitert werden.'), F(a * c, b * d, false, 'Das wäre Multiplizieren. Beim Addieren erst auf den Hauptnenner bringen.')],

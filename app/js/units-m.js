@@ -325,7 +325,7 @@ export const MITTEL = [
     ] },
   { id: 'k8-binom', jg: '8', area: 'malgebra', title: 'Binomische Formeln', sub: 'Klammern quadrieren und zurück',
     meta: { boss: ['Klammer-Krake', '( )²', [genBinom, genKlammer]], why: 'Mit den binomischen Formeln rechnest du 31² oder 49 mal 51 im Kopf. Später brauchst du sie für Parabeln, für die pq-Formel und überall, wo Klammern quadriert werden.',
-      formeln: [['Erste', '(a+b)^2=a^2+2ab+b^2'], ['Zweite', '(a-b)^2=a^2-2ab+b^2'], ['Dritte', '(a+b)(a-b)=a^2-b^2']] },
+      formeln: [['Erste binomische Formel', '(a+b)^2=a^2+2ab+b^2'], ['Zweite binomische Formel', '(a-b)^2=a^2-2ab+b^2'], ['Dritte binomische Formel', '(a+b)(a-b)=a^2-b^2']] },
     steps: [
       { id: 'formeln', kind: 'Benennen', title: 'Die drei Formeln', run: info([
         { title: 'Erste und zweite Formel', html: `${T('(a+b)^2=a^2+2ab+b^2')}${T('(a-b)^2=a^2-2ab+b^2')}<p>Ein Quadrat mit der Seite ${tex('a+b')} besteht aus zwei Quadraten und <b>zwei</b> gleichen Rechtecken – daher das ${tex('2ab')}. Der häufigste Fehler: das gemischte Glied vergessen.</p>` },
@@ -340,7 +340,7 @@ export const MITTEL = [
       formeln: [['Umfang', 'U=2\\cdot\\pi\\cdot r=\\pi\\cdot d'], ['Flächeninhalt', 'A=\\pi\\cdot r^2'], ['Kreiszahl', '\\pi\\approx 3{,}14']] },
     steps: [
       { id: 'pi', kind: 'Benennen', title: 'Die Kreiszahl π', run: info([
-        { title: 'Umfang', html: `${T('U=2\\cdot\\pi\\cdot r=\\pi\\cdot d')}<p>Legst du ein Maßband um einen Teller und teilst durch den Durchmesser, kommt immer ungefähr 3,14 heraus – egal wie groß der Teller ist. Diese Zahl heißt ${tex('\\pi')}.</p>` },
+        { title: 'Umfang: einmal abrollen', html: `${T('U=2\\cdot\\pi\\cdot r=\\pi\\cdot d')}<p>Legst du ein Maßband um einen Teller und teilst durch den Durchmesser, kommt immer ungefähr 3,14 heraus – egal wie groß der Teller ist. Diese Zahl heißt ${tex('\\pi')}.</p>` },
         { title: 'Flächeninhalt', html: `${T('A=\\pi\\cdot r^2')}<p>Hier wird der <b>Radius</b> quadriert. Bei doppeltem Radius ist die Fläche viermal so groß – deshalb ist die große Pizza oft das bessere Angebot.</p><p class="muted">Ergebnisse wie ${tex('9\\pi')} sind genau. Mit ${tex('\\pi\\approx 3{,}14')} sind das etwa 28,3.</p>` },
       ]) },
       { id: 'umfang', kind: 'Brücke', title: 'Umfang und Fläche', run: quiz([genKreis, genKreis, genKreis, genKreis]) },

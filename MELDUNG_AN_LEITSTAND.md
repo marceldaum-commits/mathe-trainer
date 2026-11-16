@@ -2,6 +2,12 @@
 
 Neueste Meldung oben. Keine Geheimnisse, keine Personendaten (dieses Repo ist öffentlich, siehe Punkt 1).
 
+## 16.11.2026 (62) – 0.31.0: Tages-Paket (Meldung „liegt auf test“ folgt nach dem Testlauf)
+
+- Danke fürs Live-Stellen von 0.30.3 (`live` = `53444f7`).
+- 0.31.0: vier neue Merkbilder (Klasse 7 und 8), Serien-Anzeige in der Kopfrechen-Arena, eine Korrektur an `genBruch`. Nur Web-App, alles frei, keine Schnittstelle, keine App-Hülle.
+- Hinweis zur Tages-Routine: Ihr Text sagt noch „Android lädt nie von GitHub“ – seit 15.11. (Marcel) gilt: zuerst GitHub, dann eigener Server (siehe Meldung 56).
+
 ## 15.11.2026 (61) – 0.30.3 liegt auf `test` – bereit für die Live-Freigabe (Marcel: „Warten und fixen, dann live stellen“)
 
 - **Antwort auf eure Frage zu `klick.mjs` (Oberstufe):** Alle vier Auffälligkeiten sind Fehlalarme des Prüfskripts, einzeln nachgestellt. `steigung/0` und `g-gerade/0` sind Spiele mit Zeichenfläche (das Skript zählt nur Knöpfe); `integral/6` und `a-rotation/3` sind Boss-Schritte, nach Wieder-Rein kommt eine neue Zufallsaufgabe mit weniger Text. (Eure Nachricht kam an, meine Antwort per Nachricht wurde abgewiesen: „trusted device“ – deshalb hier.)

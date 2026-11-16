@@ -386,6 +386,70 @@ function rotation() {
 }
 
 /** Zu welcher Formel (Name aus units.js) gibt es ein Merkbild? */
+/* ───────────── Klasse 7 und 8 ───────────── */
+
+function winkelsumme() {
+  const mass = (B, H, s) => { const A = [34, H - 62], Bp = [B - 34, H - 62], C = [34 + s * (B - 68), 26];
+    const w = (P, Q, R) => Math.acos(((Q[0] - P[0]) * (R[0] - P[0]) + (Q[1] - P[1]) * (R[1] - P[1])) / (Math.hypot(Q[0] - P[0], Q[1] - P[1]) * Math.hypot(R[0] - P[0], R[1] - P[1])));
+    const al = Math.round((w(A, Bp, C) * 180) / Math.PI), be = Math.round((w(Bp, A, C) * 180) / Math.PI); return { A, Bp, C, al, be, ga: 180 - al - be }; };
+  let gezeigt = null;
+  return buehne({ titel: 'Winkelsumme: Drei Ecken ergeben eine gerade Linie', regler: { label: 'Spitze verschieben', min: 0.12, max: 0.88 }, start: 0.35, dauer: 7000,
+    text: (s) => { const m = gezeigt || mass(320, 190, s); return `${m.al}° + ${m.be}° + ${m.ga}° = 180° – egal, wie das Dreieck aussieht.`; },   // dieselben Zahlen wie im Bild
+    zeichne(g, B, H, s, _t, F) {
+      gezeigt = mass(B, H, s);
+      const { A, Bp, C, al, be, ga } = gezeigt, keil = (P, a0, a1, col, r = 24) => { g.fillStyle = col; g.beginPath(); g.moveTo(P[0], P[1]); g.arc(P[0], P[1], r, a0, a1); g.closePath(); g.fill(); };
+      const rA = Math.atan2(C[1] - A[1], C[0] - A[0]), rB = Math.atan2(C[1] - Bp[1], C[0] - Bp[0]), rC1 = Math.atan2(A[1] - C[1], A[0] - C[0]), rC2 = Math.atan2(Bp[1] - C[1], Bp[0] - C[0]);
+      keil(A, rA, 0, F.blau); keil(Bp, Math.PI, rB, F.gruen); keil(C, rC2, rC1, F.orange);
+      g.strokeStyle = F.tinte; g.lineWidth = 2.5; g.lineJoin = 'round'; g.beginPath(); g.moveTo(A[0], A[1]); g.lineTo(Bp[0], Bp[1]); g.lineTo(C[0], C[1]); g.closePath(); g.stroke();
+      // unten: die drei Ecken aneinandergelegt
+      const M = [B / 2, H - 8], R = 30, a1 = Math.PI + (al * Math.PI) / 180, a2 = a1 + (ga * Math.PI) / 180;
+      keil(M, Math.PI, a1, F.blau, R); keil(M, a1, a2, F.orange, R); keil(M, a2, TAU, F.gruen, R);
+      g.strokeStyle = F.tinte; g.lineWidth = 2; g.beginPath(); g.moveTo(M[0] - R - 14, M[1]); g.lineTo(M[0] + R + 14, M[1]); g.stroke();
+      schrift(g, `${al}°`, A[0] + 30, A[1] - 6, F.blau, 12); schrift(g, `${be}°`, Bp[0] - 58, Bp[1] - 6, F.gruen, 12); schrift(g, `${ga}°`, C[0], C[1] + 44, F.orange, 12, true, true);
+    } });
+}
+function kreiszahl() {
+  return buehne({ titel: 'Kreiszahl π: Ein Rad rollt einmal ab', regler: { label: 'Durchmesser d', min: 1, max: 3 }, start: 2, dauer: 9000,
+    text: (d) => `Eine Umdrehung: Umfang = π · d = 3,14 · ${zahl(d)} ≈ ${zahl(Math.PI * d)} – immer etwas mehr als dreimal der Durchmesser.`,
+    zeichne(g, B, H, d, t, F) {
+      const s = (B - 40) / 9.9, boden = H - 34, r = (d / 2) * s, p = Math.min(1, ((t % 5) / 5) * 1.35), x0 = 20, x = x0 + p * Math.PI * d * s;
+      g.strokeStyle = F.linie; g.lineWidth = 2; g.beginPath(); g.moveTo(8, boden); g.lineTo(B - 8, boden); g.stroke();
+      for (let k = 0; k <= 3; k++) { const mx = x0 + k * d * s; g.strokeStyle = F.leise; g.lineWidth = 1.5; g.beginPath(); g.moveTo(mx, boden); g.lineTo(mx, boden + 9); g.stroke(); schrift(g, k ? `${k} d` : '0', mx, boden + 24, F.leise, 11, true, true); }
+      const ende = x0 + Math.PI * d * s; g.strokeStyle = F.orange; g.lineWidth = 1.5; g.setLineDash([4, 4]); g.beginPath(); g.moveTo(ende, boden - 2 * r - 6); g.lineTo(ende, boden + 9); g.stroke(); g.setLineDash([]);
+      schrift(g, 'π · d', ende, boden - 2 * r - 12, F.orange, 12, true, true);
+      g.strokeStyle = F.orange; g.lineWidth = 5; g.lineCap = 'round'; g.beginPath(); g.moveTo(x0, boden); g.lineTo(x, boden); g.stroke();
+      const cy = boden - r, w = p * TAU + Math.PI / 2;
+      g.fillStyle = F.flaeche; g.strokeStyle = F.blau; g.lineWidth = 3; g.beginPath(); g.arc(x, cy, r, 0, TAU); g.fill(); g.stroke();
+      g.strokeStyle = F.orange; g.lineWidth = 5; g.beginPath(); g.arc(x, cy, r, w, w + (1 - p) * TAU); g.stroke();   // der Teil des Umfangs, der noch nicht abgerollt ist
+      g.strokeStyle = F.tinte; g.lineWidth = 2; g.beginPath(); g.moveTo(x - r * Math.cos(w), cy - r * Math.sin(w)); g.lineTo(x + r * Math.cos(w), cy + r * Math.sin(w)); g.stroke();
+    } });
+}
+function binomBild() {
+  return buehne({ titel: 'Binomische Formel: zwei Quadrate, zwei Rechtecke', regler: { label: 'a (b ist der Rest bis 10)', min: 2, max: 8, step: 0.1 }, start: 6, dauer: 8000,
+    text: (a) => { const x = Math.round(a * 10) / 10, y = Math.round((10 - x) * 10) / 10; return `(a + b)² = a² + 2ab + b²: ${zahl(x * x, 2)} + 2 · ${zahl(x * y, 2)} + ${zahl(y * y, 2)} = 100.`; },
+    zeichne(g, B, H, a, _t, F) {
+      const S = Math.min(H - 30, 156), x0 = B / 2 - S / 2, y0 = 16, k = (a / 10) * S, feld = (x, y, w, hh, col, txt) => { g.fillStyle = col; g.fillRect(x, y, w, hh); g.strokeStyle = F.tinte; g.lineWidth = 1.5; g.strokeRect(x, y, w, hh); if (w > 26 && hh > 18) schrift(g, txt, x + w / 2, y + hh / 2 + 5, F.tinte, 13, true, true); };
+      feld(x0, y0, k, k, 'rgba(47,111,208,.35)', 'a²'); feld(x0 + k, y0 + k, S - k, S - k, 'rgba(47,174,122,.4)', 'b²');
+      feld(x0 + k, y0, S - k, k, 'rgba(255,116,24,.38)', 'ab'); feld(x0, y0 + k, k, S - k, 'rgba(255,116,24,.38)', 'ab');
+      schrift(g, 'a', x0 + k / 2, y0 - 4, F.blau, 12, true, true); schrift(g, 'b', x0 + k + (S - k) / 2, y0 - 4, F.gruen, 12, true, true);
+      schrift(g, 'a', x0 - 12, y0 + k / 2 + 4, F.blau, 12, true, true); schrift(g, 'b', x0 - 12, y0 + k + (S - k) / 2 + 4, F.gruen, 12, true, true);
+    } });
+}
+function antiBild() {
+  const K = 12;
+  return buehne({ titel: 'Antiproportional: Das Produkt bleibt gleich', regler: { label: 'Breite x', min: 1, max: 12, step: 0.1 }, start: 3, dauer: 9000,
+    text: (x) => `x = ${zahl(x)}, y = ${zahl(K / x, 2)}: x · y = ${K}. Doppelte Breite, halbe Höhe – die Fläche bleibt gleich.`,
+    zeichne(g, B, H, x, _t, F) {
+      const X = (a) => 30 + (a / 12.6) * (B - 44), Y = (b) => H - 22 - (b / 12.6) * (H - 34), y = K / x;
+      g.strokeStyle = F.leise; g.lineWidth = 1.3; g.beginPath(); g.moveTo(X(0), Y(0)); g.lineTo(X(12.6), Y(0)); g.moveTo(X(0), Y(0)); g.lineTo(X(0), Y(12.6)); g.stroke();
+      kurve(g, (a) => K / a, X, Y, 0.97, 12.5, F.linie, 2.5);
+      g.fillStyle = F.flaeche; g.fillRect(X(0), Y(y), X(x) - X(0), Y(0) - Y(y)); g.strokeStyle = F.blau; g.lineWidth = 2.5; g.strokeRect(X(0), Y(y), X(x) - X(0), Y(0) - Y(y));
+      g.fillStyle = F.orange; g.beginPath(); g.arc(X(x), Y(y), 6, 0, TAU); g.fill();
+      schrift(g, `x = ${zahl(x)}`, (X(0) + X(x)) / 2, Y(0) + 15, F.blau, 12, true, true); schrift(g, `y = ${zahl(y, 1)}`, X(x) + 9, Y(y) + 4, F.orange, 12);
+      if (X(x) - X(0) > 46 && Y(0) - Y(y) > 22) schrift(g, `${K}`, (X(0) + X(x)) / 2, (Y(0) + Y(y)) / 2 + 5, F.tinte, 14, true, true);
+    } });
+}
+
 export const MERK = {
   Ableitung: tangente, 'Waagerechte Tangente': tangente, 'Vorzeichen der Ableitung': tangente, Kettenregel: kette, Produktregel: produkt, Hauptsatz: flaeche,
   'Bernoulli-Formel': galton, Erwartungswert: galton, 'Bedingte Wahrscheinlichkeit': bedingt, Skalarprodukt: skalar, Senkrecht: skalar, Verbindungsvektor: verbindung,
@@ -393,9 +457,10 @@ export const MERK = {
   Scheitelform: scheitel, Sinusfunktion: sinus, Extrempunkt: extrem, Wendepunkt: wende, Pfadregeln: pfade, 'Sigma-Regeln': glocke, Gerade: gerade,
   Potenzregel: potenz, 'e-Funktion': efunk, 'Fläche zwischen Graphen': zwischen, Betrag: betrag, Gegenereignis: gegen, 'Logistisches Wachstum': logist, 'Stärkstes Wachstum (logistisch)': logist,
   Symmetrie: symm, Wachstum: doppel, Verdopplungszeit: doppel, Rotationsvolumen: rotation, Tangente: tangente,
+  'Winkelsumme im Dreieck': winkelsumme, Kreiszahl: kreiszahl, 'Erste binomische Formel': binomBild, Antiproportional: antiBild,
 };
 /** Stichwörter in Karten-Überschriften → Merkbild (für die Erklär-Karten der Einheiten). */
-const STICHWORT = [[/Kettenregel/i, 'Kettenregel'], [/Produktregel/i, 'Produktregel'], [/Tangente|Steigung an einer Stelle|Ableitung ist/i, 'Ableitung'], [/Hauptsatz|Fläche unter|Integral als/i, 'Hauptsatz'],
+const STICHWORT = [[/Im Dreieck: 180|Winkelsumme im Dreieck/i, 'Winkelsumme im Dreieck'], [/einmal abrollen|Kreiszahl/i, 'Kreiszahl'], [/Erste und zweite Formel|binomische Formel/i, 'Erste binomische Formel'], [/Antiproportional/i, 'Antiproportional'], [/Kettenregel/i, 'Kettenregel'], [/Produktregel/i, 'Produktregel'], [/Tangente|Steigung an einer Stelle|Ableitung ist/i, 'Ableitung'], [/Hauptsatz|Fläche unter|Integral als/i, 'Hauptsatz'],
   [/Bernoulli|Binomial|Nagelbrett/i, 'Bernoulli-Formel'], [/Bedingte/i, 'Bedingte Wahrscheinlichkeit'], [/Skalarprodukt|Senkrecht/i, 'Skalarprodukt'], [/Verbindungsvektor|Spitze minus/i, 'Verbindungsvektor'],
   [/Begrenztes Wachstum/i, 'Begrenztes Wachstum'], [/Pythagoras/i, 'Pythagoras'], [/Scheitel/i, 'Scheitelform'], [/Sinus/i, 'Sinusfunktion'], [/Hoch- und Tief|Extrempunkt|Extremstelle/i, 'Extrempunkt'],
   [/Wendepunkt|Wendestelle|Krümmung/i, 'Wendepunkt'], [/Pfadregel|Baumdiagramm/i, 'Pfadregeln'], [/Sigma/i, 'Sigma-Regeln'], [/Parameterform der Geraden|Gerade im Raum|Stützvektor/i, 'Gerade'],

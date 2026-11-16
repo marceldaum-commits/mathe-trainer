@@ -787,8 +787,9 @@ for (const u of UNITS) {
   ok(T.length === 3 && T.every(([g, ts]) => g && ts.length >= 8 && new Set(ts).size === ts.length) && T.flatMap(([, ts]) => ts).includes('Kettenregel') && KA.VERSUCHE >= 2, 'KI-Aufgaben: Themen aus allen drei Gebieten, ohne Doppelte'); }
 
 // 14e5) Merkbilder: jedes gehört zu einer echten Formel
-{ const Mb = await import('../app/js/merkbild.js'); const namen = new Set(UNITS.flatMap((u) => (u.formeln || []).map(([n]) => n)));
-  ok(Object.keys(Mb.MERK).length >= 12 && Object.keys(Mb.MERK).every((n) => namen.has(n) && typeof Mb.MERK[n] === 'function'), `Merkbilder: alle gehören zu einer Formel der App (${Object.keys(Mb.MERK).filter((n) => !namen.has(n)).join(', ') || 'ok'})`);
+{ const Mb = await import('../app/js/merkbild.js'); const namen = new Set((await import('../app/js/units.js')).ALLE_UNITS.flatMap((u) => (u.formeln || []).map(([n]) => n)));   // alle Stufen, auch Klasse 5 bis 10
+  ok(['Winkelsumme im Dreieck', 'Kreiszahl', 'Erste binomische Formel', 'Antiproportional'].every((n) => Mb.hatMerkbild(n)) && Mb.merkZuTitel('Im Dreieck: 180°') === 'Winkelsumme im Dreieck' && Mb.merkZuTitel('Umfang: einmal abrollen') === 'Kreiszahl' && Mb.merkZuTitel('Erste und zweite Formel') === 'Erste binomische Formel' && Mb.merkZuTitel('Antiproportional: je mehr, desto weniger') === 'Antiproportional' && Mb.merkZuTitel('Umfang') === '', 'Merkbilder Klasse 7 und 8: an den richtigen Erklär-Karten, nicht am Rechteck-Umfang');
+  ok(Object.keys(Mb.MERK).length >= 30 && Object.keys(Mb.MERK).every((n) => namen.has(n) && typeof Mb.MERK[n] === 'function'), `Merkbilder: alle gehören zu einer Formel der App (${Object.keys(Mb.MERK).filter((n) => !namen.has(n)).join(', ') || 'ok'})`);
   ok(Mb.hatMerkbild('Kettenregel') && !Mb.hatMerkbild('toString') && !Mb.hatMerkbild('gibt es nicht') && Mb.merkbild('gibt es nicht') === null, 'Merkbilder: unbekannte Namen liefern nichts'); }
 
 // 14f) Lernkarten

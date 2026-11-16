@@ -962,3 +962,6 @@ button.card.unit{text-align:left;width:100%;font:inherit;color:inherit;cursor:po
 .bm-z.beide{fill:var(--orange)}
 .bm-regler .slider{grid-template-columns:70px 1fr 44px}
 .bm-regler .slider label{font-style:normal;font-family:inherit;font-size:calc(15px*var(--fs,1));text-align:left}
+
+.kopf-serie-zeile{display:flex;justify-content:center;min-height:26px}
+.kopf-serie-zeile .kombo.heiss{background:var(--orange);color:#fff}

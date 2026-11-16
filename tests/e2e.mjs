@@ -990,6 +990,7 @@ await ctx2.close();
   if ((await kp.evaluate(() => JSON.parse(localStorage.getItem('mt.v1')).xp)) !== 105) fail('Knobelaufgabe: Punkte nach zweitem Versuch stimmen nicht');
   // Eine Runde: zwei richtige, eine falsche, dann läuft die Zeit ab
   await kp.click(`.kopf-art[data-a="${LEVEL % 2 ? 'mal' : 'minus'}"]`); await kp.waitForSelector('#kopf-q');
+  if (await kp.locator('#kopf-serie').isVisible()) fail('Kopfrechnen: Serie darf erst ab drei richtigen in Folge erscheinen');
   for (let k = 0; k < 2; k++) { const sol = await kp.getAttribute('#kopf-q', 'data-sol'), alt = await kp.textContent('#kopf-q'); await tippe('#kopf-tasten', sol); await kp.waitForFunction((t) => document.querySelector('#kopf-q')?.textContent !== t || !!document.querySelector('#kopf-end'), alt); if (await kp.locator('#kopf-end').count()) break; }
   if (await kp.locator('#kopf-q').count()) { const sol = +(await kp.getAttribute('#kopf-q', 'data-sol')); await tippe('#kopf-tasten', String(Math.abs(sol) + 1).padStart(String(Math.abs(sol)).length, '1')); if (shots) await kp.screenshot({ path: `${shots}/85-kopfrechnen-runde.png` }); }
   await kp.waitForSelector('#kopf-end', { timeout: 15000 });

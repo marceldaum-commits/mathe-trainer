@@ -1,5 +1,5 @@
 // Kopfrechen-Arena: 60 Sekunden, Zahlen eintippen, so viele wie möglich. Dazu jeden Tag eine Knobelaufgabe.
-import { h, $, esc, ICON, sfx, buzz, confetti } from './ui.js';
+import { h, $, esc, ICON, sfx, buzz, confetti, funken } from './ui.js';
 import { store, dayKey } from './store.js';
 import { ri, pick } from './math.js';
 import { streu, pi } from './figuren.js';
@@ -126,11 +126,12 @@ export function kopfView(onEnd) {
   function play(art) {
     ein?.weg();
     const name = KOPF_ARTEN.find((a) => a[0] === art)?.[1] || 'Kopfrechnen', t0 = performance.now(), st = stufe(), dauer = (window.__mtTest && window.__mtKopfSek) || KOPF_SEKUNDEN;   // im automatischen Browser-Test kürzer
-    let right = 0, total = 0, q = null, lock = false, letzte = '';
+    let right = 0, total = 0, q = null, lock = false, letzte = '', serie = 0, beste = 0;
+    const zeigeSerie = () => { const s = $('#kopf-serie', el); if (!s) return; s.hidden = store.ruhig || serie < 3; s.textContent = `${serie} in Folge`; s.classList.toggle('heiss', serie >= 10); };   // ruhiger Modus: keine Serie
     over = false;
     el.innerHTML = `<div class="stephead"><button class="x" id="kopf-x" type="button" aria-label="Abbrechen">${ICON.close}</button><b>${esc(name)}</b></div>
       <div class="examhead"><b id="kopf-score">0</b><div class="prog"><i id="kopf-bar" style="width:100%"></i></div><b class="timer" id="kopf-t">1:00</b></div>
-      <div class="kopf-frage" id="kopf-q"></div><output class="kopf-zahl" id="kopf-zahl" aria-live="polite">?</output>${tastatur('kopf-tasten')}`;
+      <div class="kopf-frage" id="kopf-q"></div><div class="kopf-serie-zeile"><span class="kombo" id="kopf-serie" hidden></span></div><output class="kopf-zahl" id="kopf-zahl" aria-live="polite">?</output>${tastatur('kopf-tasten')}`;
     const zahl = $('#kopf-zahl', el);
     const neu = () => { do q = kopfAufgabe(art, st); while (q.text === letzte); letzte = q.text; $('#kopf-q', el).textContent = `${q.text} =`; if (window.__mtTest) $('#kopf-q', el).dataset.sol = q.sol; zahl.textContent = '?'; zahl.className = 'kopf-zahl'; ein.set(''); lock = false; };
     const end = () => {
@@ -140,7 +141,7 @@ export function kopfView(onEnd) {
       sfx('win'); if (right >= 10) confetti(rec ? 60 : 30);
       el.innerHTML = `<a class="back" href="#/kopf">${ICON.left} Arena</a>
         <section class="board" style="text-align:center"><div class="board-top"><span>${esc(name.toUpperCase())}</span><b>● ${rec && alt ? 'NEUER REKORD' : 'ERGEBNIS'}</b></div>
-          <div class="npbig" id="kopf-end">${right}</div><h2>richtige in 60 Sekunden</h2><p>${total - right ? `${total - right} daneben · ` : 'Kein einziger Fehler · '}${rec ? 'Das ist dein bestes Ergebnis.' : `Dein Rekord: ${Math.max(alt, right)}`}</p></section>
+          <div class="npbig" id="kopf-end">${right}</div><h2>richtige in 60 Sekunden</h2><p>${total - right ? `${total - right} daneben · ` : 'Kein einziger Fehler · '}${beste >= 3 && !store.ruhig ? `längste Serie ${beste} · ` : ''}${rec ? 'Das ist dein bestes Ergebnis.' : `Dein Rekord: ${Math.max(alt, right)}`}</p></section>
         <button class="btn block" id="kopf-again" type="button">Noch einmal</button><a class="btn ghost block" href="#/kopf">Andere Disziplin</a>`;
       $('#kopf-again', el).onclick = () => play(art); onEnd?.(); window.scrollTo(0, 0);
     };
@@ -148,9 +149,9 @@ export function kopfView(onEnd) {
       if (lock || over) return;
       zahl.textContent = v || '?';
       const soll = String(q.sol);
-      if (v === soll) { lock = true; right++; total++; $('#kopf-score', el).textContent = right; zahl.classList.add('ok'); sfx('ok'); setTimeout(() => { if (!over) neu(); }, 140); }
+      if (v === soll) { lock = true; right++; total++; serie++; beste = Math.max(beste, serie); zeigeSerie(); if (serie % 5 === 0 && !store.ruhig) funken(zahl); $('#kopf-score', el).textContent = right; zahl.classList.add('ok'); sfx('ok'); setTimeout(() => { if (!over) neu(); }, 140); }
       else if (v.replace('-', '').length >= soll.replace('-', '').length && !(soll.startsWith('-') && !v.startsWith('-') && v.length === soll.length - 1)) {
-        lock = true; total++; zahl.classList.add('bad'); zahl.textContent = `${v} ✗  ${q.sol}`; sfx('bad'); buzz(); setTimeout(() => { if (!over) neu(); }, 900); }
+        lock = true; total++; serie = 0; zeigeSerie(); zahl.classList.add('bad'); zahl.textContent = `${v} ✗  ${q.sol}`; sfx('bad'); buzz(); setTimeout(() => { if (!over) neu(); }, 900); }
     });
     $('#kopf-x', el).onclick = () => { over = true; clearInterval(timer); intro(); };
     const tick = () => { const left = dauer - (performance.now() - t0) / 1000, tm = $('#kopf-t', el); if (!tm) return;
