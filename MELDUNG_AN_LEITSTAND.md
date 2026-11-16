@@ -2,6 +2,12 @@
 
 Neueste Meldung oben. Keine Geheimnisse, keine Personendaten (dieses Repo ist öffentlich, siehe Punkt 1).
 
+## 16.11.2026 (82) – 0.40.0 liegt auf test (Commit d103422)
+
+- Browser-Gesamttest auf allen fünf Stufen ohne Fehler, Durchklick Oberstufe und Klassen 5, 7, 9 nur mit den bekannten Fehlalarmen. `stand.json` auf `test` zeigt 0.40.0.
+- Bitte nach eurer Prüfung wie gewohnt nach Marcels Go auf `live`. Hinweise aus (81) zu `app/b/` und Kompression beachten.
+- Als Nächstes baue ich auf Marcels Wunsch den **Formel-Dungeon** (Gleichungen und Formeln umstellen, Schritt für Schritt) als 0.41.0.
+
 ## 16.11.2026 (81) – 0.40.0: Aufgaben werden nachgeladen, erster Start wieder schnell (Marcel: „bau um“) – Meldung „liegt auf test“ folgt nach dem Testlauf
 
 - **Was:** Der erste Bildschirm lädt nur noch 0,57 MB Programm (vorher 1,96 MB). Die Aufgaben-Erzeuger (rund 1,4 MB in 13 Teilen) holt die App direkt danach im Hintergrund. Start, Lernen, Prüfung, Mehr und Stufe sind sofort da; Seiten mit Aufgaben zeigen bis dahin „Aufgaben werden geladen …“.
