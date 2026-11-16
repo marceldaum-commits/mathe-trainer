@@ -2,6 +2,11 @@
 
 Neueste Meldung oben. Keine Geheimnisse, keine Personendaten (dieses Repo ist öffentlich, siehe Punkt 1).
 
+## 16.11.2026 (84) – 0.41.0 liegt auf test
+
+- Formel-Dungeon aus (83). Gesamtprüfung grün (`npm run check`, davon `hart/dungeon` über 40 000 Prüfungen), Browser-Gesamttest Stufe 3 ohne Fehler einschließlich neuem Block „Paket 0.41.0“ (Klasse 5 bei 320 px: Stockwerk 1 komplett mit Fehler, Falle, Wächter, Freischalten; Oberstufe Stockwerk 5 mit Formeln).
+- Bitte nach eurer Prüfung wie gewohnt nach Marcels Go auf `live`.
+
 ## 16.11.2026 (83) – 0.41.0: Formel-Dungeon (Gleichungen und Formeln umstellen) – Meldung „liegt auf test“ folgt nach dem Testlauf
 
 - **Was:** Marcels Wunsch („Da haben viele echte Probleme. Bau dies sehr umfangreich ein“), Konzept von Marcel per Auswahl bestätigt. Neuer Spielmodus für **alle Klassen**: fünf Stockwerke von „x + 4 = 9“ bis „Linsengleichung nach b“, „Zinseszins nach n“ und „Schwingkreis nach L“. Jeder Schritt wird gewählt (mit Ergebnis), falsche Schritte sind typische Schülerfehler und werden erklärt; Fallen-Räume (Fehler finden) und Wächter je Stockwerk.

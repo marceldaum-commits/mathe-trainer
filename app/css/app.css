@@ -982,7 +982,7 @@ button.card.unit{text-align:left;width:100%;font:inherit;color:inherit;cursor:po
 .dg-frage{font-weight:800;color:var(--head);font-size:calc(14.5px*var(--fs,1))}
 .dg-opt{display:grid;grid-template-columns:auto minmax(0,1fr);gap:12px;text-align:left}
 .dg-opt .dg-op{min-width:62px}
-.dg-opt.wrong{opacity:.75}
+.view .dg-opt.wrong{border-color:var(--red);background:var(--red-soft);opacity:1}
 .dg-falle .dg-zeile{grid-template-columns:auto minmax(0,1fr);width:100%;font:inherit;color:inherit;text-align:left;background:none;border:0;border-radius:12px;padding:6px 8px;cursor:pointer}
 .dg-falle .dg-zeile+.dg-zeile{border-top:1px dashed var(--line);border-radius:0}
 .dg-falle .dg-zeile .dg-op{min-width:62px;color:var(--muted)}
