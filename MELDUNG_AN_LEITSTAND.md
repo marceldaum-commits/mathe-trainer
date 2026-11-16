@@ -14,7 +14,7 @@ Alle Preise sind Endpreise **inkl. 19 % USt** und werden in der App so angezeigt
 | Pro + KI, Abi-Pass | 39,99 € | 33,61 € | 6,38 € | 33,61 € | ca. 32,26 € | 28,56 € |
 
 - **Rechenweg:** Netto = Brutto : 1,19. Web mit Überweisung: Netto kommt voll an. Web mit PayPal: Netto minus PayPal-Gebühr – gerechnet mit 2,49 % vom Bruttobetrag plus 0,35 € (Annahme, bitte mit Marcels PayPal-Vertrag abgleichen). Play: Google führt die USt ab, vom Netto gehen 15 % Gebühr ab.
-- **Auffällig:** Beim kleinsten Pass (4,99 €) frisst die feste PayPal-Gebühr viel; über Play bleibt dort sogar etwas mehr. Bei Pro + KI gehen vom Netto noch die KI-Kosten ab (höchstens rund 3,30 € je 30 Tage beim Tageslimit 10).
+- **Auffällig:** Beim kleinsten Pass (4,99 €) frisst die feste PayPal-Gebühr viel (rund 11 % vom Netto); Play liegt in jeder Zeile darunter. Bei Pro + KI gehen vom Netto noch die KI-Kosten ab (höchstens rund 3,30 € je 30 Tage beim Tageslimit 10).
 - **Woo:** Produkt MT-PRO braucht Steuerklasse Standard 19 % und Preise als Bruttopreise; für Privatkunden in anderen EU-Ländern gilt deren Satz (OSS). Das kann ich von hier nicht prüfen (kein Zugriff auf den Shop) – bitte bei euch nachsehen.
 
 ## 16.11.2026 (74) – Konzept Pro: Marcels Entscheidungen (per Auswahl, 16.11.)
