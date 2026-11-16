@@ -1,6 +1,13 @@
 // Einstellungen, Eltern-Bericht und Fehler-Kartei.
 import * as G from './gen.js';
 import * as H from './gen2.js';
+import * as G3 from './gen3.js';
+import * as G4 from './gen4.js';
+import * as G5 from './gen5.js';
+import * as G6 from './gen6.js';
+import * as G7 from './gen7.js';
+import * as G8 from './gen8.js';
+import * as G9 from './gen9.js';
 import { quiz } from './quiz.js';
 import { store, LEVELS, LAENDER, KARTEI_TAGE } from './store.js';
 import { UNITS, AREAS, istOber, jgName } from './units.js';
@@ -15,7 +22,7 @@ import { api, serverOn, nameOk, codeOk, codeNorm, premiumBereit, ZUGANG_ART } fr
 import { pushOn, pushCan, pushAn, pushAus, pushStand, pushGesperrt, zeitOk, installiert, SPERR_HILFE, SPERR_SCHRITTE, SPERR_SCHRITTE_APP, nativ } from './erinnern.js';
 import { WOCHEN_ZIEL, WOCHEN_BONUS } from './store.js';
 
-const GEN = { ...G, ...H };
+const GEN = { ...G, ...H, ...G3, ...G4, ...G5, ...G6, ...G7, ...G8, ...G9 };   // alle Erzeuger: Die Fehler-Kartei kann jede Aufgaben-Art wiederholen, auch Klasse 5 bis 10
 
 const LEVEL_NOTES = ['Kleine Zahlen, großzügige Bewertung, alle Tipps.', 'Einfache Zahlen, alle Tipps.', 'Wie im Unterricht.', 'Größere Zahlen, mehr Regeln gemischt, weniger Hinweise.', 'Prüfungsniveau und darüber – ohne Tipps.'];
 /** Schwierigkeits-Wahl (1–5) als Karte. */

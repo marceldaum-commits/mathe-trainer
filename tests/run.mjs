@@ -307,7 +307,7 @@ for (const [name, fn] of Object.entries({ ...G, ...H, ...K, ...K4 })) {
   const test = UNITS.find((u) => u.id === 's-test');
   ok(unitExtra(test, GK) && !unitExtra(test, 'BY') && landList(test.bossGens, GK).length === test.bossGens.length, 'Lehrplan: Hypothesentests im Grundkurs als Zusatz markiert, bleiben spielbar');
   const extra = UNITS.flatMap((u) => u.steps.filter((s) => stepExtra(s, GK)).map((s) => `${u.id}/${s.id}`));
-  ok(extra.join() === 'expln/ln,s-verteilung/sigma,g-ebene/kreuz,g-kugel/kugel,a-wachstum/logistisch,g-ebene2/normal,a-numerik/newton,s-test2/stetig,g-abstand2/hesse,g-abstand2/schief' && UNITS.every((u) => !unitExtra(u, 'BY') && u.steps.every((s) => !stepExtra(s, 'BY'))), `Lehrplan: markierte Schritte (${extra.join()})`);
+  ok(extra.join() === 'integral/lnint,kurve/lnkurve,expln/ln,s-verteilung/sigma,g-ebene/kreuz,g-kugel/kugel,a-wachstum/logistisch,g-ebene2/normal,a-numerik/newton,s-test2/stetig,g-abstand2/hesse,g-abstand2/schief' && UNITS.every((u) => !unitExtra(u, 'BY') && u.steps.every((s) => !stepExtra(s, 'BY'))), `Lehrplan: markierte Schritte (${extra.join()})`);
   ok(UNITS.filter((u) => unitExtra(u, GK)).map((u) => u.id).join() === 's-test,a-gebrochen,a-rotation,g-kugel' && UNITS.filter((u) => unitExtra(u, 'HE-LK')).map((u) => u.id).join() === 'a-gebrochen', 'Lehrplan: Zusatz-Einheiten je Kurs');
 }
 
@@ -822,6 +822,27 @@ for (const u of UNITS) {
     const v = E8.parseInput(spec.sh.plain); ok(v !== null && E8.isRight(v, spec.num, spec.sh.plain), `${name} (Stufe ${lv}): getippte Lösung ${spec.sh.plain} wird anerkannt`);
     for (const o of q.options) { if (o.correct) continue; const so = E8.shapeOf(o.tex); if (!so) continue; const w = E8.parseInput(so.plain); ok(!E8.isRight(w, spec.num, spec.sh.plain), `${name} (Stufe ${lv}): getippter Ablenker ${so.plain} wird nicht anerkannt (richtig ${spec.sh.plain})`); } }
   ok(tippbar.size >= 8, `Pakete 0.32 und 0.33: zum Eintippen geeignet (${[...tippbar].join(', ')})`);
+}
+
+// 14e4c) Paket 0.34: e-Funktion und ln in Integral und Kurvendiskussion – und: Die Stufen müssen ordentlich ansteigen
+{ const { GENS9 } = await import('../app/js/gen9.js'), E9 = await import('../app/js/eingabe.js');
+  for (const [name, fn] of Object.entries(GENS9)) { ok(typeof fn.topic === 'string' && fn.topic.length > 3, `${name}: Themen-Name`);
+    const arten = LV.map((lv) => { const a = new Set(); for (let i = 0; i < REP; i++) { const q = fn(lv); basics(name, q, lv); a.add(q.kind); ok(q.options.length === 4 && q.options.every((o) => !/\d\.\d/.test(o.tex)), `${name} (Stufe ${lv}): vier Antworten, Komma statt Punkt`);
+        const spec = E9.inputSpec(q); if (spec) { const v = E9.parseInput(spec.sh.plain); ok(v !== null && E9.isRight(v, spec.num, spec.sh.plain), `${name} (Stufe ${lv}): getippte Lösung wird anerkannt`); } } return a; });
+    ok(arten.every((a) => a.size >= 1 && !a.has(undefined)), `${name}: jede Stufe hat benannte Aufgaben-Arten`);
+    ok([...arten[0]].every((k) => !arten[4].has(k)) && [...arten[1]].every((k) => !arten[4].has(k)) && [...arten[0]].every((k) => !arten[3].has(k)), `${name}: Stufe 1 und 2 teilen keine Aufgaben-Art mit Stufe 5 – die Stufen steigen wirklich an`);
+    ok(arten[4].size >= 4 && new Set(arten.flatMap((a) => [...a])).size >= 10, `${name}: mindestens zehn Aufgaben-Arten, auf Stufe 5 mindestens vier eigene`); }
+  { // Leiter: Stufe 1 und 2 nur einfach, Stufe 5 nur steil, dazwischen gemischt; Name und Thema bleiben die des einfachen Erzeugers
+    const { leiter } = await import('../app/js/gen9.js'), ein = (lv) => ({ prompt: 'e', kind: 'einfach', lv }), st = (lv) => ({ prompt: 's', kind: 'steil', lv }); ein.topic = 'Thema'; Object.defineProperty(ein, 'name', { value: 'genEinfach' }); Object.defineProperty(st, 'name', { value: 'genSteil' });
+    const L = leiter(ein, st), anteil = (lv) => Array.from({ length: 600 }, () => L(lv)).filter((q) => q.kind === 'steil').length / 600;
+    ok(L.name === 'genEinfach' && L.topic === 'Thema' && anteil(1) === 0 && anteil(2) === 0 && anteil(5) === 1 && anteil(3) > 0.2 && anteil(3) < 0.46 && anteil(4) > 0.55 && anteil(4) < 0.78, 'Leiter: Anteil schwerer Aufgaben steigt mit der Stufe (0 %, 0 %, ein Drittel, zwei Drittel, 100 %)');
+    ok(L(5).von === 'genSteil' && L(5).gen === 'genEinfach' && L(1).von === 'genEinfach' && L(5).topic === 'Thema', 'Leiter: Thema und Name bleiben, „von“ nennt den wirklichen Erzeuger');
+    const Un9 = await import('../app/js/units.js'); for (const id of ['regeln', 'extrema', 'integral', 'kurve']) { const u = Un9.ALLE_UNITS.find((x) => x.id === id); ok(u.bossGens.some((g) => typeof g.steil === 'function'), `Einheit ${id}: Boss und gemischtes Üben nutzen die steile Leiter`); } }
+  // Stichproben unabhängig nachgerechnet (Zahlenwerte durch numerisches Integrieren bzw. Ableiten)
+  const simpson = (f, a, b, n = 2000) => { let s = f(a) + f(b); for (let i = 1; i < n; i++) s += f(a + ((b - a) * i) / n) * (i % 2 ? 4 : 2); return (s * (b - a)) / (3 * n); };
+  ok(close(simpson((x) => x * Math.exp(x), 0, 1), 1) && close(simpson(Math.log, 1, Math.E), 1) && close(simpson((x) => x * Math.log(x), 1, Math.E), (Math.E ** 2 + 1) / 4) && close(simpson((x) => Math.log(x) / x, 1, Math.E ** 2), 2) && close(simpson((x) => Math.exp(x) / (Math.exp(x) + 1), 0, Math.log(3)), Math.log(2)) && close(simpson((x) => Math.exp(x) - Math.exp(-x), 0, Math.log(2)), 0.5) && close(simpson((x) => x * Math.exp(-2 * x), 0, 40, 20000), 0.25), 'Paket 0.34: feste Integralwerte (partiell, ln, f′/f, zwischen, uneigentlich) numerisch bestätigt');
+  const abl = (f, x) => (f(x + 1e-5) - f(x - 1e-5)) / 2e-5, abl2 = (f, x) => (f(x + 1e-3) - 2 * f(x) + f(x - 1e-3)) / 1e-6, null0 = (v) => Math.abs(v) < 1e-3;
+  ok(null0(abl((x) => x * x * Math.exp(-x), 2)) && null0(abl2((x) => x * x * Math.exp(-x), 2 + Math.SQRT2)) && null0(abl((x) => (x * x - 3) * Math.exp(x), -3)) && null0(abl((x) => (x * x - 3) * Math.exp(x), 1)) && null0(abl((x) => Math.exp(x) / x, 1)) && null0(abl((x) => Math.log(x) / x, Math.E)) && null0(abl2((x) => Math.log(x) / x, Math.E ** 1.5)) && null0(abl((x) => x * x * Math.log(x), Math.E ** -0.5)) && null0(abl((x) => x * Math.log(x) ** 2, Math.E ** -2)) && null0(abl2((x) => Math.log(x * x + 1), 1)) && null0(abl2((x) => Math.log(x) ** 2, Math.E)), 'Paket 0.34: feste Extrem- und Wendestellen numerisch bestätigt');
 }
 
 // 14e5) Merkbilder: jedes gehört zu einer echten Formel

@@ -2,6 +2,11 @@
 
 Neueste Meldung oben. Keine Geheimnisse, keine Personendaten (dieses Repo ist öffentlich, siehe Punkt 1).
 
+## 16.11.2026 (68) – 0.34.0: e-Funktion und ln in Integral und Kurvendiskussion, Stufen steigen deutlich an (Wunsch Marcel) – Meldung „liegt auf test“ folgt
+
+- Neue Datei `app/js/gen9.js` (sieben Aufgaben-Arten, `leiter()`); vier neue Schritte in den vorhandenen Einheiten `integral` und `kurve` – wer diese Einheiten schon abgeschlossen hatte, sieht dort wieder offene Schritte. Auf Stufe 4 und 5 kommen in vier Analysis-Einheiten jetzt deutlich schwerere Aufgaben. Keine Schnittstelle, keine App-Hülle.
+- Tages-Runde, Duell, Abi-Modus und Blitz-Runde sind unverändert (ihre Aufgaben-Listen wurden nicht angefasst) – das serverseitige Nachrechnen ist davon nicht betroffen.
+
 ## 16.11.2026 (67) – 0.33.0: Oberstufen-Paket (euer Auftrag vom 16.11., von Marcel direkt bestätigt: „heute und sehr ausführlich“) – Meldung „liegt auf test“ folgt nach dem Testlauf
 
 - **Umfang:** 16 neue Aufgaben-Arten (rund 85 Aufgaben-Typen, jede mit fünf Stufen, Lösungsweg/Tipps und Diagnose je Fehlantwort) in der neuen Datei `app/js/gen8.js`; vier neue Einheiten (Oberstufe jetzt 36); vier ausführliche Theorie-Kapitel. Auf Marcels Wunsch dabei: Binomialverteilung einzeln und kumuliert. Zusammen mit 0.32.0 (Klasse 5 bis 10): 28 neue Aufgaben-Arten, 12 neue Einheiten an einem Tag.

@@ -25,6 +25,9 @@ import {
 } from './gen4.js';
 import { genBegrenzt, genBegrenztRate, genLogistisch, genWachstumArt, genSpurpunkt, genNormalenform, genParamPunkt } from './gen5.js';
 import { genUmkehr, genWurzelAbl, genIntegralfunktion, genNewton, genOrtskurve, genHesse, genSchnittgerade, genWindschief, genSpiegelung, genBewegung, genZweiseitig, genHistogramm, genRueckwaerts, genStetig, genMengen, genBinomVerteilung } from './gen8.js';
+import { genIntegralE, genIntegralLn, genKurveE, genKurveLn, genAbleitenSteil, genIntegrierenSteil, genKurveSteil, leiter } from './gen9.js';
+/* Steile Leitern (Marcel, 16.11.2026: „Stufe 1 bis 5 muss ordentlich ansteigen“): ab Stufe 3 zunehmend, auf Stufe 5 nur noch die schweren Aufgaben. */
+const AB = (g) => leiter(g, genAbleitenSteil), IN = (g) => leiter(g, genIntegrierenSteil), KU = (g) => leiter(g, genKurveSteil);
 import {
   genWendestelle, genMonotonie, genSymmetrie, genGrenzwert, genTangente, genSteckbrief, genSchar, genExtremwert, genLn, genWachstum, genFlaecheZwischen,
   genVierfelder, genBedingt, genKumuliert, genSigma, genHypothese, genNormal, genKombinatorik,
@@ -107,14 +110,14 @@ const OBER = [
   {
     id: 'regeln', area: 'analysis', title: 'Ableitungsregeln', sub: 'In Prüfungs-Schreibweise sicher ableiten',
     steps: [
-      { id: 'potenz', kind: 'Brücke', title: 'Potenzregel mit Lücken', run: quiz([genPotenzLuecke, genPotenzLuecke, genPotenzLuecke, genPolynom]) },
+      { id: 'potenz', kind: 'Brücke', title: 'Potenzregel mit Lücken', run: quiz([genPotenzLuecke, genPotenzLuecke, AB(genPolynom), AB(genPolynom)]) },
       { id: 'regel', kind: 'Benennen', title: 'Die Regeln auf einen Blick', run: info([
         { eyebrow: 'Merken', title: 'Potenz- und Summenregel', html: `${T("(x^n)'=n\\,x^{n-1}")}<p>Summen werden Summand für Summand abgeleitet, Zahlen ohne ${tex('x')} fallen weg.</p>${T("(3x^4-2x+5)'=12x^3-2")}` },
         { eyebrow: 'Merken', title: 'Kettenregel', html: `${T("\\bigl(u(v(x))\\bigr)'=u'(v(x))\\cdot v'(x)")}<p>Äußere Ableitung mal innere Ableitung.</p>${T("\\bigl((2x+1)^3\\bigr)'=3(2x+1)^2\\cdot 2")}` },
         { eyebrow: 'Merken', title: 'e-Funktion', html: `${T("(e^x)'=e^x\\qquad (e^{kx})'=k\\,e^{kx}")}<p class="muted">Der Faktor ${tex('k')} ist die innere Ableitung.</p>` },
       ]) },
-      { id: 'kette', kind: 'Brücke', title: 'Kettenregel und e-Funktion', run: quiz([genKette, genKette, genExp, genExp]) },
-      { id: 'produkt', kind: 'Brücke', title: 'Produktregel', run: quiz([genProdukt, genProdukt, genProdukt]) },
+      { id: 'kette', kind: 'Brücke', title: 'Kettenregel und e-Funktion', run: quiz([AB(genKette), AB(genKette), AB(genExp), AB(genExp)]) },
+      { id: 'produkt', kind: 'Brücke', title: 'Produktregel', run: quiz([AB(genProdukt), AB(genProdukt), AB(genProdukt), AB(genProdukt)]) },
       { id: 'mix', kind: 'Festigen', title: 'Gemischte Runde', run: quiz([genMix, genMix, genMix, genMix, genMix]) },
     ],
   },
@@ -126,8 +129,8 @@ const OBER = [
         { title: 'Hoch oder tief?', html: `<p>Die zweite Ableitung entscheidet:</p>${T("f''(x_0)<0\\ \\Rightarrow\\ \\text{Hochpunkt}\\qquad f''(x_0)>0\\ \\Rightarrow\\ \\text{Tiefpunkt}")}<p class="muted">Merkhilfe: negativ wie ein trauriger Mund (Hügel), positiv wie ein lachender Mund (Tal).</p>` },
         { title: 'Der Punkt selbst', html: `<p>Die Stelle ${tex('x_0')} in ${tex('f')} einsetzen – nicht in ${tex("f'")}. So bekommst du die y-Koordinate:</p>${T('E\\bigl(x_0\\mid f(x_0)\\bigr)')}` },
       ]) },
-      { id: 'stellen', kind: 'Brücke', title: 'Extremstellen finden', run: quiz([genExtremstellen, genExtremstellen, genExtremstellen]) },
-      { id: 'art', kind: 'Brücke', title: 'Hochpunkt oder Tiefpunkt?', run: quiz([genHochTief, genHochTief, genHochTief]) },
+      { id: 'stellen', kind: 'Brücke', title: 'Extremstellen finden', run: quiz([KU(genExtremstellen), KU(genExtremstellen), KU(genExtremstellen)]) },
+      { id: 'art', kind: 'Brücke', title: 'Hochpunkt oder Tiefpunkt?', run: quiz([KU(genHochTief), KU(genHochTief), KU(genHochTief)]) },
       { id: 'mix', kind: 'Festigen', title: 'Gemischte Runde', run: quiz([genExtremaMix, genExtremaMix, genExtremaMix, genExtremaMix]) },
     ],
   },
@@ -139,11 +142,14 @@ const OBER = [
         { title: 'Unendlich viele Streifen', html: `<p>Je schmaler die Streifen, desto näher rücken Unter- und Obersumme zusammen. Ihr gemeinsamer Grenzwert ist das Integral:</p>${T('\\int_a^b f(x)\\,dx')}` },
         { title: 'Der Hauptsatz', html: `${T('\\int_a^b f(x)\\,dx=F(b)-F(a)')}<p>${tex('F')} ist eine Stammfunktion von ${tex('f')}, also ${tex("F'=f")}. Statt Streifen zu zählen, leitest du „rückwärts" ab.</p>` },
         { eyebrow: 'Merken', title: 'Aufleiten', html: `${T('\\int x^n\\,dx=\\tfrac{1}{n+1}\\,x^{n+1}+C')}<p>Exponent um 1 erhöhen, durch den neuen Exponenten teilen. Probe: Ableiten muss wieder ${tex('f')} ergeben.</p>` },
+        { title: 'e-Funktion und ln integrieren', html: `${T('\\displaystyle\\int e^{kx}\\,dx=\\dfrac1k\\,e^{kx}\\qquad\\int\\dfrac1x\\,dx=\\ln|x|')}<p>Die e-Funktion bleibt beim Aufleiten erhalten – geteilt wird durch die innere Ableitung. Bei ${tex('\\tfrac1x')} versagt die Potenzregel, hier entsteht der Logarithmus. Steht im Zähler die Ableitung des Nenners, gilt ${tex("\\int\\tfrac{f'(x)}{f(x)}\\,dx=\\ln|f(x)|")}.</p><p class="muted">Produkte wie ${tex('x\\cdot e^x')} brauchen partielle Integration: ${tex("\\int u\\,v'=u\\,v-\\int u'\\,v")}.</p>` },
       ]) },
-      { id: 'stamm', kind: 'Brücke', title: 'Stammfunktionen', run: quiz([genStammfunktion, genStammfunktion, genStammfunktion]) },
-      { id: 'bestimmt', kind: 'Brücke', title: 'Integrale berechnen', run: quiz([genIntegral, genIntegral, genIntegral]) },
+      { id: 'stamm', kind: 'Brücke', title: 'Stammfunktionen', run: quiz([IN(genStammfunktion), IN(genStammfunktion), IN(genStammfunktion)]) },
+      { id: 'bestimmt', kind: 'Brücke', title: 'Integrale berechnen', run: quiz([IN(genIntegral), IN(genIntegral), IN(genIntegral)]) },
       { id: 'zwischen', kind: 'Brücke', title: 'Fläche zwischen zwei Graphen', run: quiz([genFlaecheZwischen, genFlaecheZwischen, genFlaecheZwischen]) },
-      { id: 'mix', kind: 'Festigen', title: 'Gemischte Runde', run: quiz([genIntegralMix, genIntegralMix, genIntegralMix, genIntegralMix]) },
+      { id: 'efkt', kind: 'Brücke', title: 'Integrale mit e-Funktion', run: quiz([genIntegralE, genIntegralE, genIntegralE, genIntegralE]) },
+      { id: 'lnint', kind: 'Brücke', nicht: ['HE-GK'], title: 'Integrale mit ln', run: quiz([genIntegralLn, genIntegralLn, genIntegralLn, genIntegralLn]) },
+      { id: 'mix', kind: 'Festigen', title: 'Gemischte Runde', run: quiz([genIntegralMix, genIntegralE, genIntegralMix, genIntegralE, genIntegralMix]) },
     ],
   },
   {
@@ -203,10 +209,13 @@ const OBER = [
         { title: 'Wendepunkte', html: `${T("f''(x_0)=0\\quad\\text{und}\\quad f'''(x_0)\\neq 0")}<p>Am Wendepunkt wechselt der Graph die Krümmung – von einer Links- in eine Rechtskurve oder umgekehrt. Dort ist er am steilsten.</p>` },
         { title: 'Monotonie und Symmetrie', html: `<p>${tex("f'(x)>0")}: steigend, ${tex("f'(x)<0")}: fallend.</p><p>Nur gerade Exponenten: achsensymmetrisch zur y-Achse. Nur ungerade: punktsymmetrisch zum Ursprung.</p>${T('f(-x)=f(x)\\qquad f(-x)=-f(x)')}` },
         { title: 'Verhalten im Unendlichen', html: `<p>Bei Brüchen aus Polynomen entscheidet der höchste Exponent:</p><p>Nenner höher: Grenzwert 0. Gleich hoch: Verhältnis der Leitkoeffizienten. Zähler höher: unendlich.</p>` },
+        { title: 'e-Funktion und ln untersuchen', html: `${T("f(x)=(x-2)\\,e^x\\ \\Rightarrow\\ f'(x)=(x-1)\\,e^x")}<p>Bei Produkten mit ${tex('e^x')} klammert man nach der Produktregel ${tex('e^x')} aus – es wird nie null, entscheidend ist die Klammer. Für ${tex('x\\to\\infty')} gewinnt die e-Funktion gegen jede Potenz, der Logarithmus verliert gegen jede.</p><p class="muted">Bei ln-Funktionen zuerst den Definitionsbereich klären: Im Logarithmus muss etwas Positives stehen.</p>` },
       ]) },
-      { id: 'wende', kind: 'Brücke', title: 'Wendepunkte und Monotonie', run: quiz([genWendestelle, genWendestelle, genMonotonie, genMonotonie]) },
+      { id: 'wende', kind: 'Brücke', title: 'Wendepunkte und Monotonie', run: quiz([KU(genWendestelle), KU(genWendestelle), KU(genMonotonie), KU(genMonotonie)]) },
       { id: 'sym', kind: 'Brücke', title: 'Symmetrie und Grenzwerte', run: quiz([genSymmetrie, genSymmetrie, genGrenzwert, genGrenzwert]) },
-      { id: 'mix', kind: 'Festigen', title: 'Kurvendiskussion am Stück', run: quiz(Array(6).fill(mixLand([genSymmetrie, genGrenzwert, genExtremstellen, genHochTief, genWendestelle, genMonotonie]))) },
+      { id: 'efkt', kind: 'Brücke', title: 'Kurvendiskussion mit e-Funktion', run: quiz([genKurveE, genKurveE, genKurveE, genKurveE]) },
+      { id: 'lnkurve', kind: 'Brücke', nicht: ['HE-GK'], title: 'Kurvendiskussion mit ln', run: quiz([genKurveLn, genKurveLn, genKurveLn, genKurveLn]) },
+      { id: 'mix', kind: 'Festigen', title: 'Kurvendiskussion am Stück', run: quiz(Array(6).fill(mixLand([genSymmetrie, genGrenzwert, genExtremstellen, genHochTief, genWendestelle, genMonotonie, genKurveE]))) },
     ],
   },
   {
@@ -563,13 +572,13 @@ const META = {
     formeln: [['Ableitung', "f'(x_0)=\\text{Steigung der Tangente bei }x_0"], ['Waagerechte Tangente', "f'(x_0)=0"]] },
   zeichnen: { boss: ['Skizzen-Schatten', "f′", [genMonotonie, genHochTief, genPolynom]], why: 'Ärzte lesen aus einer Fieberkurve, ob es besser oder schlechter wird – das ist grafisches Ableiten.',
     formeln: [['Vorzeichen der Ableitung', "f'(x)>0:\\ \\text{steigend}\\qquad f'(x)<0:\\ \\text{fallend}"]] },
-  regeln: { boss: ['Regel-Rex', 'd/dx', [genPolynom, genKette, genExp, genProdukt]], why: 'KI-Modelle lernen, indem ein Computer Millionen Ableitungen mit der Kettenregel berechnet. Ohne Ableitungsregeln gäbe es keine Bild- oder Spracherkennung.',
+  regeln: { boss: ['Regel-Rex', 'd/dx', [AB(genPolynom), AB(genKette), AB(genExp), AB(genProdukt)]], why: 'KI-Modelle lernen, indem ein Computer Millionen Ableitungen mit der Kettenregel berechnet. Ohne Ableitungsregeln gäbe es keine Bild- oder Spracherkennung.',
     formeln: [['Potenzregel', "(x^n)'=n\\,x^{n-1}"], ['Kettenregel', "\\bigl(u(v(x))\\bigr)'=u'(v(x))\\cdot v'(x)"], ['Produktregel', "(u\\cdot v)'=u'v+uv'"], ['e-Funktion', "(e^{kx})'=k\\,e^{kx}"]] },
-  extrema: { boss: ['Extrem-Drache', 'H|T', [genExtremstellen, genHochTief]], why: 'Firmen suchen den Preis mit dem höchsten Gewinn, Ingenieure die Form mit dem geringsten Luftwiderstand. Beides sind Extrempunkte.',
+  extrema: { boss: ['Extrem-Drache', 'H|T', [KU(genExtremstellen), KU(genHochTief)]], why: 'Firmen suchen den Preis mit dem höchsten Gewinn, Ingenieure die Form mit dem geringsten Luftwiderstand. Beides sind Extrempunkte.',
     formeln: [['Extrempunkt', "f'(x_0)=0\\qquad f''(x_0)<0:\\text{ Hochpunkt}\\qquad f''(x_0)>0:\\text{ Tiefpunkt}"]] },
-  integral: { boss: ['Integral-Riese', '∫', [genStammfunktion, genIntegral, genFlaecheZwischen]], why: 'Aus der Geschwindigkeit eines Autos wird per Integral der gefahrene Weg, aus dem Stromverbrauch pro Stunde die Stromrechnung.',
+  integral: { boss: ['Integral-Riese', '∫', [IN(genStammfunktion), IN(genIntegral), genFlaecheZwischen, genIntegralE]], why: 'Aus der Geschwindigkeit eines Autos wird per Integral der gefahrene Weg, aus dem Stromverbrauch pro Stunde die Stromrechnung.',
     formeln: [['Hauptsatz', '\\int_a^b f(x)\\,dx=F(b)-F(a)'], ['Aufleiten', '\\int x^n\\,dx=\\tfrac{1}{n+1}x^{n+1}+C'], ['Fläche zwischen Graphen', 'A=\\int_{x_1}^{x_2}\\bigl(g(x)-f(x)\\bigr)dx']] },
-  kurve: { boss: ['Kurven-Krake', '∿', [genWendestelle, genMonotonie, genSymmetrie, genGrenzwert]], why: 'Bei einer Epidemie ist der Wendepunkt der Moment, ab dem die Zahlen langsamer steigen.',
+  kurve: { boss: ['Kurven-Krake', '∿', [KU(genWendestelle), KU(genMonotonie), genSymmetrie, genGrenzwert, genKurveE]], why: 'Bei einer Epidemie ist der Wendepunkt der Moment, ab dem die Zahlen langsamer steigen.',
     formeln: [['Wendepunkt', "f''(x_0)=0,\\quad f'''(x_0)\\neq 0"], ['Symmetrie', 'f(-x)=f(x):\\text{ Achse}\\qquad f(-x)=-f(x):\\text{ Punkt}']] },
   extremwert: { boss: ['Optimus Maximus', 'max', [genExtremwert]], why: 'Getränkedosen haben fast genau die Form, die bei festem Inhalt am wenigsten Blech braucht.',
     formeln: [['Extremwertaufgabe', "\\begin{array}{l}\\text{Zielfunktion aufstellen}\\ \\to\\ \\text{ableiten}\\\\\\to\\ \\text{null setzen}\\ \\to\\ \\text{Rand prüfen}\\end{array}"]] },
