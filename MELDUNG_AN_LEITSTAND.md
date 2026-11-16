@@ -2,6 +2,11 @@
 
 Neueste Meldung oben. Keine Geheimnisse, keine Personendaten (dieses Repo ist öffentlich, siehe Punkt 1).
 
+## 16.11.2026 (63) – 0.31.0 liegt auf `test` (alle fünf Browser-Durchläufe grün)
+
+- Inhalt siehe (62). Im Testlauf fiel eine zufallsabhängige Stelle im Abenteuer-Test auf (seit 0.15 im Test, kein App-Fehler) – behoben.
+- App-Datei 0.31.0 im Drive-Ordner; die Hülle ist unverändert (Nr. 5), niemand muss neu installieren.
+
 ## 16.11.2026 (62) – 0.31.0: Tages-Paket (Meldung „liegt auf test“ folgt nach dem Testlauf)
 
 - Danke fürs Live-Stellen von 0.30.3 (`live` = `53444f7`).
