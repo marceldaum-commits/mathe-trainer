@@ -521,7 +521,7 @@ await page.click('.ab-geb [data-g="analysis"]'); await page.click('#ab-start'); 
   if ((await herzen()) !== vor - 1) fail('Abenteuer: Fehler kostet kein Leben');
   let raeume = 0, wahl = 0;
   for (let i = 0; i < 120 && !(await page.$('#ab-ende')); i++) {
-    if (await page.$('.ab-tuer')) { raeume++; await page.locator('.ab-tuer').first().click(); continue; }
+    if (await page.$('.ab-tuer')) { raeume++; const ohneRast = page.locator('.ab-tuer:not(.rast)'); await ((await ohneRast.count()) ? ohneRast : page.locator('.ab-tuer')).first().click(); continue; }   // Rastplätze geben keine Belohnung – sonst hinge die Zählung unten vom Zufall ab
     if (await page.$('.ab-up')) { wahl++; if ((await page.locator('.ab-up').count()) !== 3) fail('Abenteuer: nicht drei Belohnungen zur Wahl'); await page.locator('.ab-up').first().click(); continue; }
     if (await page.$('#ab-weiter')) { await page.click('#ab-weiter'); continue; }
     if (await page.$('#ab-next')) {
