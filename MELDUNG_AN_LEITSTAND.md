@@ -2,6 +2,23 @@
 
 Neueste Meldung oben. Keine Geheimnisse, keine Personendaten (dieses Repo ist öffentlich, siehe Punkt 1).
 
+## 16.11.2026 (70) – 0.36.0: Schnellstart (euer Auftrag vom 16.11., von Marcel direkt bestätigt) – Meldung „liegt auf test“ folgt nach dem Testlauf
+
+- **Gebaut:** (1) Ladebild in App-Farbe mit Logo und Ladebalken direkt in `index.html` (inline-CSS, eingebettetes SVG, hell/dunkel) – sichtbar ab dem ersten Byte, kein weißer Bildschirm mehr. (2) Balken zeigt den echten Fortschritt (geladene Programm-Dateien). (3) `modulepreload` für 72 Module, KaTeX vorgeladen und nicht mehr blockierend, CSS/Start-Skripte hinter dem Ladebild, Theorie (rund 150 kB) erst bei Bedarf. Service-Worker-Cache für den zweiten Start unverändert.
+- **Messwerte vorher → nachher** (Labor: Chromium, 390 px, Mittel aus 3; „Slow 4G“ = 1,6 Mbit/s, 150 ms; „bedienbar“ = Startseite steht):
+
+| | erstes Bild | bedienbar |
+|---|---|---|
+| Slow 4G, erster Start, ohne Kompression | 1,54 s → 0,30 s | 10,9 s → 9,7 s |
+| Slow 4G, erster Start, mit gzip | 0,85 s → 0,29 s | 4,8 s → 4,4 s |
+| Slow 4G, zweiter Start | 0,06 s → 0,07 s | 0,26–0,35 s → 0,20–0,21 s |
+| schnelles Netz, erster Start | 0,06–0,08 s → 0,04–0,10 s | 0,43–0,48 s → 0,22–0,26 s |
+| schnelles Netz, zweiter Start | 0,06 s → 0,06–0,07 s | 0,31–0,36 s → 0,17 s |
+
+  „Erstes Bild“ war vorher nur die Kopfzeile über weißer Fläche; jetzt ist es das Ladebild.
+- **Bitte an euch (größter Hebel, liegt am Server):** prüfen, ob `trainer…` JS/CSS/HTML **komprimiert** ausliefert (gzip oder Brotli). Ohne Kompression braucht der erste Start bei Slow 4G rund 10 s, mit gzip rund 4,5 s. Außerdem: `index.html` ist jetzt 14 kB (Logo eingebettet) und sollte wie bisher `no-cache` bleiben.
+- **Sicherheits-Regel der Seite (CSP) unverändert** – kein eingebettetes Skript, nur eingebettetes CSS (war schon erlaubt). Android-Hülle unverändert.
+
 ## 16.11.2026 (69) – 0.35.0: Stufen steigen jetzt auch in Stochastik, Geometrie und Klasse 5 bis 10 an (Wunsch Marcel) – Meldung „liegt auf test“ folgt
 
 - Neue Datei `app/js/gen10.js` (schwere Aufgaben für Stufe 4 und 5 zu 20 älteren Themen, `haerter()`); eingehängt in alle Einheiten von `units.js` und `units-m.js`. Keine neuen Einheiten oder Schritte, keine Schnittstelle, keine App-Hülle geändert.

@@ -1150,5 +1150,20 @@ ok(nextStreak({ n: 3, last: '2026-11-10' }, D('2026-11-12')).n === 1, 'Serie: au
   ok(U10.landOk(haerter((await import('../app/js/gen2.js')).genKreuz ?? (() => 0)), 'HE-GK') === false || !(await import('../app/js/gen2.js')).genKreuz, 'Länder-Filter erkennt auch verschärfte Erzeuger');
 }
 
+// 14e4e) Paket 0.36: Schnellstart – Ladebild ab dem ersten Byte, Ladebalken, Vorladen, Theorie erst später
+{ const { readFileSync } = await import('fs'); const html = readFileSync(new URL('../app/index.html', import.meta.url), 'utf8'), kopf = html.split('</head>')[0], rumpf = html.split('<body>')[1];
+  ok(/<style>[\s\S]*#lade\{[^}]*position:fixed[^}]*inset:0[\s\S]*<\/style>/.test(kopf), 'Schnellstart: Das Ladebild ist direkt in der Seite gestaltet (kein Warten auf eine CSS-Datei)');
+  ok(!/<link rel="stylesheet"|<script/.test(kopf), 'Schnellstart: Im Kopf der Seite blockiert weder eine CSS-Datei noch ein Skript das erste Bild');
+  ok(rumpf.trimStart().startsWith('<div id="lade"') && rumpf.indexOf('id="lade-balken"') < rumpf.indexOf('<script'), 'Schnellstart: Ladebild mit Balken steht vor dem ersten Skript');
+  ok(/<svg class="lade-logo"[^>]*>\s*<path fill="#ffffff"/.test(rumpf) && !/lade-logo[^>]*src=/.test(rumpf), 'Schnellstart: Logo im Ladebild ist eingebettet und schwarz-weiß');
+  ok(!/<script(?![^>]*\bsrc=)[^>]*>/.test(html), 'Schnellstart: kein eingebettetes Skript (die Sicherheits-Regel der Seite verbietet es)');
+  ok(kopf.includes('prefers-color-scheme:dark') && kopf.includes(':root[data-look="dunkel"] #lade') && kopf.includes('<noscript><style>#lade{display:none}'), 'Schnellstart: Ladebild hell und dunkel; ohne JavaScript verdeckt es nichts');
+  const vor = [...kopf.matchAll(/<link rel="modulepreload" href="([^"]+)">/g)].map((m) => m[1]);
+  ok(vor.length >= 60 && vor.includes('js/units.js') && vor.includes('js/gen10.js') && !vor.some((f) => /theorie/.test(f)), `Schnellstart: ${vor.length} Module werden gleichzeitig vorgeladen, die Theorie nicht`);
+  const app = readFileSync(new URL('../app/js/app.js', import.meta.url), 'utf8'), wa = readFileSync(new URL('../app/js/wache.js', import.meta.url), 'utf8');
+  ok(!/^import[^\n]*theorie\.js/m.test(app) && (app.match(/import\('\.\/theorie\.js'\)/g) || []).length >= 2, 'Schnellstart: Die Theorie wird erst beim Öffnen (und in einer ruhigen Minute) geladen');
+  ok(wa.includes('ladebildWeg()') && wa.includes("performance.mark('mt-bereit')") && wa.indexOf('ladebildWeg();\n    if (!v') > 0, 'Schnellstart: Das Ladebild verschwindet beim Start – und auch, wenn die Start-Wache ihren Hinweis zeigt');
+}
+
 console.log(fails ? `${fails} verschiedene Fehler bei ${n} Prüfungen` : `tests: alle ${n} Prüfungen bestanden`);
 process.exit(fails ? 1 : 0);

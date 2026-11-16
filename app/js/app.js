@@ -6,7 +6,6 @@ import { abenteuerView } from './abenteuer.js';
 import { blattView } from './blatt.js';
 import { proView } from './pro.js';
 import { kiAufgabeView } from './kiaufgabe.js';
-import { theorieView } from './theorie.js';
 import { kartenView, faellig } from './karten.js';
 import { karteView } from './karte.js';
 import { pi, figurFor } from './figuren.js';
@@ -391,6 +390,14 @@ function uebenView(area, nurGrund) {
   return el;
 }
 
+/** Theorie wird erst beim Öffnen geladen (schnellerer Start). Solange steht ein kurzer Hinweis da. */
+function theorieSpaeter(teil) {
+  const el = h('<div class="view stack" id="theorie-laedt"><section class="card"><p>Die Theorie wird geladen …</p></section></div>'), hier = location.hash;
+  import('./theorie.js').then((m) => { if (el.isConnected && location.hash === hier) { const r = m.theorieView(teil); el.replaceWith(r.el); cleanup = r.cleanup || null; formelnEinpassen(); } })
+    .catch(() => { if (el.isConnected) el.innerHTML = '<section class="card stack"><h2>Die Theorie konnte nicht geladen werden</h2><p>Prüfe kurz die Internet-Verbindung und versuche es noch einmal.</p><a class="btn block" href="#/lernen">Zurück</a></section>'; });
+  return { el };
+}
+
 function route() {
   cleanup?.(); cleanup = null;
   $('#sheet').hidden = true;
@@ -410,7 +417,7 @@ function route() {
     const after = () => { chips(); setTimeout(badgeCheck, 600); };
     const r = { abi: () => abiView(['A', 'B'].includes(x[2]) ? x[2] : null, after), tag: () => rundeView('tag', undefined, (res) => { after(); meldeTag(res); }), duell: () => rundeView('duell', x[2], after), blitz: () => blitzView(after),
       bericht: berichtView, einstellungen: settingsView, wiederholen: karteiView, erfolge: erfolgeView, formeln: formelnView, klasse: klasseView, lehrplan: lehrplanView,
-      einstufung: () => (x[2] === 'ergebnis' ? einstufungErgebnis() : einstufungView()), aufgabe: () => verbundView(x[2]), plan: planView, zertifikat: () => zertifikatView(x[2]), abenteuer: () => abenteuerView(after), karte: karteView, theorie: () => theorieView(x[2]), karten: kartenView, kiaufgabe: kiAufgabeView, pro: proView, kopf: () => kopfView(after), arbeit: () => arbeitView(after) }[x[1]]();
+      einstufung: () => (x[2] === 'ergebnis' ? einstufungErgebnis() : einstufungView()), aufgabe: () => verbundView(x[2]), plan: planView, zertifikat: () => zertifikatView(x[2]), abenteuer: () => abenteuerView(after), karte: karteView, theorie: () => theorieSpaeter(x[2]), karten: kartenView, kiaufgabe: kiAufgabeView, pro: proView, kopf: () => kopfView(after), arbeit: () => arbeitView(after) }[x[1]]();
     el = r.el; cleanup = r.cleanup || null;
   } else if (hash === '#/stufe') el = stufeView();
   else if (hash === '#/lernen') el = lernenView();
@@ -459,7 +466,9 @@ window.addEventListener('hashchange', route);
 window.addEventListener('beforeinstallprompt', (ev) => { ev.preventDefault(); installEvent = ev; window.__mtInstall = ev; if (['#/mehr', '', '#/'].includes(location.hash)) route(); });
 window.addEventListener('appinstalled', () => { installEvent = null; window.__mtInstall = null; toast('Installiert. Der Mathe-Trainer liegt jetzt bei deinen Apps.'); });
 route();
-window.__mtGestartet?.();   // Start-Wache (wache.js): Die App läuft
+window.__mtGestartet?.();
+// Die Theorie-Kapitel (rund 150 kB) braucht der erste Bildschirm nicht: Sie werden erst danach in Ruhe geholt.
+(window.requestIdleCallback || ((f) => setTimeout(f, 2500)))(() => { import('./theorie.js').catch(() => {}); });   // Start-Wache (wache.js): Die App läuft
 // Zu breite Formeln einpassen – nach jedem Umbau der Seite und wenn sich die Breite ändert.
 { let dran = false; const los = () => { if (dran) return; dran = true; requestAnimationFrame(() => { dran = false; formelnEinpassen(); }); };
   new MutationObserver(los).observe(document.body, { childList: true, subtree: true });

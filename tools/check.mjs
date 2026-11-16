@@ -53,6 +53,15 @@ if (huelle.sha !== huelleSha) {
   else errors.push('android/ hat sich geändert, android/huelle.json passt nicht mehr → npm run fix');
 }
 const standPath = join(APP, 'stand.json');
+// Vorlade-Liste in index.html: alle Module, die js/app.js fest einbindet (nicht die erst später nachgeladenen).
+{ const gesehen = new Set(), weiter = ['js/app.js'];
+  while (weiter.length) { const f = weiter.pop(); if (gesehen.has(f)) continue; gesehen.add(f);
+    for (const m of readFileSync(join(APP, f), 'utf8').matchAll(/^(?:import|export)\b[^'"\n]*?(?:from\s*)?['"](\.[^'"]+)['"]/gm)) weiter.push(join(f, '..', m[1]).replace(/\\/g, '/')); }
+  const liste = [...gesehen].filter((f) => f !== 'js/app.js').sort().map((f) => `<link rel="modulepreload" href="${f}">`).join('\n');
+  const p = join(APP, 'index.html'), alt = readFileSync(p, 'utf8'), neu = alt.replace(/<!-- VORLADEN -->[\s\S]*?<!-- \/VORLADEN -->/, `<!-- VORLADEN -->\n${liste}\n<!-- /VORLADEN -->`);
+  if (!alt.includes('<!-- VORLADEN -->')) errors.push('index.html: Marke <!-- VORLADEN --> fehlt');
+  else if (neu !== alt) { if (fix) { writeFileSync(p, neu); console.log(`index.html: Vorlade-Liste aktualisiert (${gesehen.size - 1} Module)`); } else errors.push('Vorlade-Liste in index.html ist veraltet → npm run fix'); }
+}
 const dateien = {};
 for (const f of walk(APP).filter((f) => f !== 'stand.json' && !f.startsWith('img/shots/')).sort()) dateien[f] = sha(readFileSync(join(APP, f)));
 const wantStand = `${JSON.stringify({ version, huelle: huelle.nr, dateien }, null, 1)}\n`;
