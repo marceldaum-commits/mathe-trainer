@@ -126,22 +126,33 @@ export function genScheitel(lv = 3) {
 
 /** Lücken-Aufgabe: Potenzregel für einen einzelnen Term (ab „schwer" auch negative Exponenten). */
 export function genPotenzLuecke(lv = 3) {
-  const a = pick(tier(lv, [1, 2, 3], [2, 3, 4, 5], [2, 3, 4, 5, 6, -2, -3, -4], [3, 5, 6, -2, -4, 0.5], [-3, -5, 6, 0.5, 1.5]));
-  const n = lv >= 4 && rand() < 0.5 ? -ri(1, 3) : ri(2, tier(lv, 3, 4, 5, 6, 7));
-  const coefs = shuffle([...new Set([a * n, a, n, a * (n - 1)])]);
+  // Fünf Stufen an derselben Aufgaben-Form: 1 reine Potenz · 2 mit Vorfaktor · 3 auch negative Vorfaktoren, höherer Grad ·
+  // 4 Bruch mit Potenz im Nenner (erst umschreiben) · 5 Bruch-Vorfaktor und Potenz im Nenner.
+  const L = Math.min(5, Math.max(1, lv | 0 || 3));
+  const a = L === 1 ? 1 : pick(tier(L, [1], [2, 3, 4, 5], [2, 3, 4, 5, 6, -2, -3, -4], [2, 3, 5, 6, -2, -4], [0.5, 1.5, 2.5, 0.25, 0.75, -0.5, -1.5, -2.5]));
+  const n = L >= 4 ? -ri(L === 4 ? 1 : 2, L === 4 ? 3 : 5) : ri(L === 3 ? 3 : 2, tier(L, 4, 4, 6, 6, 7));
+  const coefs = shuffle([...new Set([a * n, a, n, a * (n - 1), ...(n < 0 ? [-a * n] : [])])]);
   const exps = shuffle([...new Set([n - 1, n, n + 1])]);
   const A = a === 1 ? '' : a === -1 ? '-' : ft(a);
+  const [z, nn] = { 0.5: [1, 2], 1.5: [3, 2], 2.5: [5, 2], 0.25: [1, 4], 0.75: [3, 4] }[Math.abs(a)] || [Math.abs(a), 1];
+  const bruch = `${a < 0 ? '-' : ''}\\dfrac{${z}}{${nn === 1 ? '' : nn}${-n === 1 ? 'x' : `x^{${-n}}`}}`;
+  const formula = `f(x)=${n < 0 ? bruch : `${A}x^{${n}}`}`;
+  const hints = L === 1 ? ['Potenzregel: Der Exponent kommt als Faktor nach vorn und wird dann um 1 kleiner.']
+    : L <= 3 ? ['Potenzregel: Der Exponent kommt als Faktor nach vorn.', `Vorfaktor: ${tex(`${ft(a)}\\cdot ${par(n)}`)}. Danach wird der Exponent um 1 kleiner.`, ...(L === 3 ? [`Rechne mit Vorzeichen: ${tex(`${ft(a)}\\cdot ${par(n)}=${ft(a * n)}`)}; neuer Exponent ${tex(`${n}-1=${n - 1}`)}.`] : [])]
+      : [`Erst umschreiben: Eine Potenz im Nenner ist eine Potenz mit negativem Exponenten. ${tex(`${formula}=${A}x^{${n}}`)}${nn > 1 ? ` (denn ${tex(`\\tfrac{${z}}{${nn}}=${ft(Math.abs(a))}`)})` : ''}.`, 'Potenzregel: Der Exponent kommt als Faktor nach vorn – mit seinem Minuszeichen.', `Vorfaktor: ${tex(`${ft(a)}\\cdot ${par(n)}=${ft(a * n)}`)}.`, `Der Exponent wird um 1 kleiner: ${tex(`${n}-1=${n - 1}`)} – bei negativen Exponenten wächst also der Betrag.`, ...(L === 5 ? [`Kontrolle als Bruch: ${tex(`f'(x)=${ft(a * n)}\\,x^{${n - 1}}=${a * n < 0 ? '-' : ''}\\dfrac{${ft(Math.abs(a * n))}}{x^{${1 - n}}}`)}.`] : [])];
   return {
     type: 'gap',
     prompt: 'Leite ab. Wähle Vorfaktor und Exponent.',
-    formula: `f(x)=${A}x^{${n}}`,
+    formula,
     slots: [
       { label: 'Vorfaktor', choices: coefs, correct: a * n },
       { label: 'Exponent', choices: exps, correct: n - 1 },
     ],
     show: (c, e) => `f'(x)=${c === null ? '\\square' : ft(c)}\\,x^{${e === null ? '\\square' : e}}`,
-    hints: ['Potenzregel: Der Exponent kommt als Faktor nach vorn.', `Vorfaktor: ${tex(`${ft(a)}\\cdot ${par(n)}`)}. Danach wird der Exponent um 1 kleiner.`],
-    explain: `Potenzregel: ${tex("(x^n)'=n\\,x^{n-1}")}, also ${tex(`f'(x)=${ft(a)}\\cdot ${par(n)}\\,x^{${n}-1}=${ft(a * n)}x^{${n - 1}}`)}.`,
+    hints,
+    explain: L === 1 ? `${tex(`f'(x)=${n}x^{${n - 1}}`)}.`
+      : n < 0 ? `Umschreiben: ${tex(`f(x)=${A}x^{${n}}`)}. Potenzregel: ${tex(`f'(x)=${ft(a)}\\cdot ${par(n)}\\,x^{${n}-1}=${ft(a * n)}x^{${n - 1}}`)}.`
+        : `Potenzregel: ${tex("(x^n)'=n\\,x^{n-1}")}, also ${tex(`f'(x)=${ft(a)}\\cdot ${par(n)}\\,x^{${n}-1}=${ft(a * n)}x^{${n - 1}}`)}.`,
     f: (x) => a * x ** n, val: (x) => a * n * x ** (n - 1),
   };
 }

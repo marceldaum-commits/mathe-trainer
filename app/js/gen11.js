@@ -1,0 +1,213 @@
+// Aufgaben-Erzeuger, Teil 11: Punkte, Vierecke und Geraden im Raum (Paket 0.39).
+// Fünf Aufgaben-Arten, jede mit fünf eigenen Stufen: Lage von Punkten zu Koordinatenebenen und Achsen, Spiegeln an Ebenen und Achsen,
+// Parallelogramm und Raute aus vier Punkten, dieselbe Gerade in zwei Schreibweisen, drei Punkte auf einer Geraden.
+// Eigene Aufgaben mit eigenen Zahlen; der Lösungsweg nennt jeden Rechenschritt.
+import { ri, pick, shuffle, ft } from './math.js';
+import { tex } from './ui.js';
+import { uniq } from './gen.js';
+
+const EB = ['x_2x_3', 'x_1x_3', 'x_1x_2'];   // Koordinatenebene, in der die i-te Koordinate 0 ist
+const AX = ['x_1', 'x_2', 'x_3'];
+const T = (t, correct, why) => ({ tex: t, correct, why });
+const K = (v) => `(${v.map((c) => (typeof c === 'string' ? c : ft(c))).join('\\mid ')})`;
+const P = (n, v) => `${n}${K(v)}`;
+const V = (v) => `\\begin{pmatrix}${v.map((c) => (typeof c === 'string' ? c : ft(c))).join('\\\\')}\\end{pmatrix}`;
+const zeilen = (...z) => `\\begin{array}{l}${z.join('\\\\[6pt]')}\\end{array}`;
+const add = (a, b) => a.map((c, i) => c + b[i]), sub = (a, b) => a.map((c, i) => c - b[i]), mal = (k, a) => a.map((c) => k * c);
+const gleich = (a, b) => a.every((c, i) => Math.abs(c - b[i]) < 1e-9);
+const dot = (a, b) => a.reduce((s, c, i) => s + c * b[i], 0);
+const nz = (n) => pick([-1, 1]) * ri(1, n);
+const kl = (x) => (x < 0 ? `(${ft(x)})` : ft(x));
+const pm = (x) => (x < 0 ? `-${ft(-x)}` : `+${ft(x)}`);
+const wurzel = (r) => (Number.isInteger(Math.sqrt(r)) ? `${Math.sqrt(r)}` : `\\sqrt{${r}}`);
+const vek = (n) => `\\overrightarrow{${n}}`;
+const parallel = (a, b) => { const c = [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]]; return c.every((x) => Math.abs(x) < 1e-9); };
+const A = (prompt, formula, opts, hints, explain, kind, daten) => (opts.length === 4 && uniq(opts) && opts.filter((o) => o.correct).length === 1 && opts.every((o) => o.correct || o.why) ? { prompt, formula, options: shuffle(opts), hints, explain, kind, daten } : null);
+const stufe = (lv) => Math.min(5, Math.max(1, lv | 0 || 3));
+const bau = (formen) => (lv = 3) => { const liste = formen[stufe(lv) - 1]; for (;;) { const q = pick(liste)(); if (q) return q; } };
+
+/* ───── 1. Punkte im Raum: Koordinatenebenen und Achsen ───── */
+const kp1 = () => { const i = ri(0, 2), p = [nz(6), nz(6), nz(6)]; p[i] = 0;
+  const opts = [0, 1, 2].map((j) => T(`\\text{in der }${EB[j]}\\text{-Ebene}`, j === i, `In der ${tex(EB[j])}-Ebene ist ${tex(`${AX[j]}=0`)} – hier ist aber ${tex(`${AX[j]}=${p[j]}`)}.`));
+  opts.push(T('\\text{in keiner Koordinatenebene}', false, `Eine Koordinate ist 0 – der Punkt liegt in einer Koordinatenebene.`));
+  return A(`In welcher Koordinatenebene liegt der Punkt ${tex(P('P', p))}?`, undefined, opts, ['Welche Koordinate ist 0? Die Ebene heißt nach den beiden anderen Koordinaten.'], `Wegen ${tex(`${AX[i]}=0`)} liegt ${tex('P')} in der ${tex(EB[i])}-Ebene.`, 'ebene', { p, i }); };
+const kp2 = () => { const k = ri(0, 2), [i, j] = [0, 1, 2].filter((x) => x !== k), c = nz(7), r = [0, 0, 0]; r[k] = c;
+  const e = [nz(6), nz(6), nz(6)]; e[i] = 0; e[k] = c; const f = [0, 0, 0]; f[i] = c; const g = [nz(6), nz(6), nz(6)]; g[k] = c;
+  return A(`Welcher Punkt liegt auf der ${tex(AX[k])}-Achse?`, undefined, [T(K(r), true), T(K(e), false, `Hier ist nur ${tex(`${AX[i]}=0`)}. Der Punkt liegt in der ${tex(EB[i])}-Ebene, aber nicht auf der Achse.`), T(K(f), false, `Dieser Punkt liegt auf der ${tex(AX[i])}-Achse.`), T(K(g), false, `Auf der ${tex(AX[k])}-Achse müssen die beiden anderen Koordinaten 0 sein.`)],
+    [`Auf der ${tex(AX[k])}-Achse darf nur ${tex(AX[k])} von 0 verschieden sein.`, `Gesucht ist also ein Punkt mit ${tex(`${AX[i]}=0`)} und ${tex(`${AX[j]}=0`)}.`, `Prüfe beide Bedingungen bei jeder Antwort: Nur ${tex(K(r))} erfüllt ${tex(`${AX[i]}=0`)} und ${tex(`${AX[j]}=0`)} zugleich.`], `Bei ${tex(K(r))} gilt ${tex(`${AX[i]}=0`)} und ${tex(`${AX[j]}=0`)} – der Punkt liegt auf der ${tex(AX[k])}-Achse.`, 'achse', { k, r }); };
+const kp3 = () => { const k = ri(0, 2), [i, j] = shuffle([0, 1, 2].filter((x) => x !== k)), c = nz(7), r = [0, 0, 0]; r[k] = c;
+  const e = [nz(6), nz(6), nz(6)]; e[i] = 0; const f = [nz(6), nz(6), nz(6)]; f[j] = 0; const g = [0, 0, 0]; g[j] = nz(7);
+  return A(`Welcher Punkt liegt in der ${tex(EB[i])}-Ebene und zugleich in der ${tex(EB[j])}-Ebene?`, undefined, [T(K(r), true), T(K(e), false, `Hier ist nur ${tex(`${AX[i]}=0`)}: Der Punkt liegt in der ${tex(EB[i])}-Ebene, aber nicht in der ${tex(EB[j])}-Ebene.`), T(K(f), false, `Hier ist nur ${tex(`${AX[j]}=0`)}: Der Punkt liegt in der ${tex(EB[j])}-Ebene, aber nicht in der ${tex(EB[i])}-Ebene.`), T(K(g), false, `Hier ist ${tex(`${AX[j]}=${g[j]}`)} und nicht 0 – der Punkt liegt nicht in der ${tex(EB[j])}-Ebene.`)],
+    [`${tex(EB[i])}-Ebene heißt: ${tex(`${AX[i]}=0`)}.`, `${tex(EB[j])}-Ebene heißt: ${tex(`${AX[j]}=0`)}.`, `Beides zugleich: Nur ${tex(AX[k])} darf von 0 verschieden sein – der Punkt liegt auf der ${tex(AX[k])}-Achse, der Schnittgeraden der beiden Ebenen.`],
+    `Aus ${tex(`${AX[i]}=0`)} und ${tex(`${AX[j]}=0`)} folgt: Der Punkt liegt auf der ${tex(AX[k])}-Achse, zum Beispiel ${tex(K(r))}.`, 'zweiebenen', { i, j, r }); };
+const abst2 = (p, k) => p.reduce((s, c, i) => (i === k ? s : s + c * c), 0);   // Quadrat des Abstands von der k-ten Achse
+const kp4 = () => { const k = ri(0, 2), [i, j] = shuffle([0, 1, 2].filter((x) => x !== k)), a = ri(2, 7), c = nz(7), b = ri(1, 7), d = ri(1, 7);
+  if (Math.abs(c) === a || b === d || b === a || d === a) return null;
+  const r = [0, 0, 0]; r[i] = a * pick([-1, 1]); r[j] = -r[i] * pick([1, 1, -1]); r[k] = c;
+  const e = [0, 0, 0]; e[i] = b; e[k] = -b; e[j] = d; const f = [0, 0, 0]; f[j] = b; f[k] = b; f[i] = d; const g = [0, 0, 0]; g[i] = b; g[j] = d; g[k] = a;
+  if ([e, f, g].some((x) => abst2(x, i) === abst2(x, j))) return null;
+  const warum = (x) => `Abstände: ${tex(`\\sqrt{${abst2(x, i)}}`)} von der ${tex(AX[i])}-Achse, ${tex(`\\sqrt{${abst2(x, j)}}`)} von der ${tex(AX[j])}-Achse – verschieden.`;
+  return A(`Welcher Punkt ist von der ${tex(AX[i])}-Achse und von der ${tex(AX[j])}-Achse gleich weit entfernt?`, undefined, [T(K(r), true), T(K(e), false, warum(e)), T(K(f), false, warum(f)), T(K(g), false, warum(g))],
+    [`Abstand von der ${tex(AX[i])}-Achse (Satz des Pythagoras mit den beiden anderen Koordinaten): ${tex(`\\sqrt{${AX[j]}^2+${AX[k]}^2}`)}.`, `Abstand von der ${tex(AX[j])}-Achse: ${tex(`\\sqrt{${AX[i]}^2+${AX[k]}^2}`)}.`, `Gleichsetzen und quadrieren: ${tex(`${AX[j]}^2=${AX[i]}^2`)} – diese beiden Koordinaten müssen bis auf das Vorzeichen gleich sein.`, `Prüfen bei ${tex(K(r))}: ${tex(`\\sqrt{${r[j] * r[j]}+${c * c}}=\\sqrt{${abst2(r, i)}}`)} und ${tex(`\\sqrt{${r[i] * r[i]}+${c * c}}=\\sqrt{${abst2(r, j)}}`)}.`],
+    `Gleich weit von beiden Achsen heißt ${tex(`${AX[i]}^2=${AX[j]}^2`)}. Bei ${tex(K(r))} sind beide Abstände ${tex(`\\sqrt{${abst2(r, i)}}`)}.`, 'gleichweit', { i, j, r }); };
+const kp5a = () => { const k = ri(0, 2), [i, j] = shuffle([0, 1, 2].filter((x) => x !== k)), b = ri(2, 8), d = ri(b + 1, 13), e = nz(6), r = d * d - b * b, s = d * d + b * b;
+  if (d - b < 1 || wurzel(r) === `${d - b}`) return null;
+  const p = [0, 0, 0]; p[i] = 't'; p[j] = b * pick([-1, 1]); p[k] = e;
+  return A(`Der Punkt ${tex(P('P', p))} soll von der ${tex(AX[k])}-Achse den Abstand ${d} haben. Bestimme alle passenden Werte von ${tex('t')}.`, undefined,
+    [T(`t=\\pm ${wurzel(r)}`, true), T(`t=${wurzel(r)}`, false, `Auch der negative Wert passt: Beim Quadrieren fällt das Vorzeichen weg.`), T(`t=\\pm ${wurzel(s)}`, false, `${tex(`${b * b}`)} wird von ${tex(`${d * d}`)} abgezogen, nicht addiert.`), T(`t=\\pm ${d - b}`, false, `Aus einer Differenz darf die Wurzel nicht gliedweise gezogen werden: ${tex(`\\sqrt{${d * d}-${b * b}}\\neq ${d}-${b}`)}.`)],
+    [`Abstand von der ${tex(AX[k])}-Achse (Satz des Pythagoras mit den beiden anderen Koordinaten): ${tex(`\\sqrt{${AX[i]}^2+${AX[j]}^2}`)}. Die Koordinate ${tex(`${AX[k]}=${e}`)} spielt keine Rolle.`, `Einsetzen: ${tex(`\\sqrt{t^2+${b * b}}=${d}`)}.`, `Quadrieren: ${tex(`t^2+${b * b}=${d * d}`)}, also ${tex(`t^2=${d * d}-${b * b}=${r}`)}.`, `Wurzel ziehen – beide Vorzeichen: ${tex(`t=\\pm ${wurzel(r)}`)}.`],
+    `${tex(`\\sqrt{t^2+${b * b}}=${d}`)} führt auf ${tex(`t^2=${d * d}-${b * b}=${r}`)}, also ${tex(`t=\\pm ${wurzel(r)}`)}${Number.isInteger(Math.sqrt(r)) ? '' : ` ${tex(`\\approx\\pm ${ft(Math.sqrt(r))}`)}`}.`, 'achsabstand', { k, i, b, d, r }); };
+const kp5b = () => { const m = pick([2, 3]), k0 = pick([1, 2, 3, -1, -2]), n = -(m + 1) * k0, t1 = (m === 2 ? 3 : 2) * k0, t2 = k0, c = nz(6);
+  const zwei = `${m}t${pm(n)}`, lo = Math.min(t1, t2), hi = Math.max(t1, t2);
+  return A(`Für welche Werte von ${tex('t')} ist der Punkt ${tex(P('P', ['t', zwei, c]))} von der ${tex('x_1')}-Achse und von der ${tex('x_2')}-Achse gleich weit entfernt?`, undefined,
+    [T(`t=${lo}\\ \\text{oder}\\ t=${hi}`, true), T(`t=${t1}`, false, `Es gibt einen zweiten Fall: Die Koordinaten können sich auch im Vorzeichen unterscheiden.`), T(`t=${t2}`, false, `Es gibt einen zweiten Fall: Die Koordinaten können auch genau gleich sein.`), T(`t=${Math.min(-t1, -t2)}\\ \\text{oder}\\ t=${Math.max(-t1, -t2)}`, false, `Vorzeichenfehler beim Auflösen: Setze zur Probe ein.`)],
+    [`Abstand von der ${tex('x_1')}-Achse: ${tex('\\sqrt{x_2^2+x_3^2}')}, von der ${tex('x_2')}-Achse: ${tex('\\sqrt{x_1^2+x_3^2}')} (Satz des Pythagoras).`, `Gleichsetzen und quadrieren: ${tex('x_1^2=x_2^2')}, also ${tex(`t^2=(${zwei})^2`)}.`, `Fall 1: ${tex(`t=${zwei}`)} ergibt ${tex(`t=${t1}`)}.`, `Fall 2: ${tex(`t=-(${zwei})`)} ergibt ${tex(`${m + 1}t=${-n}`)}, also ${tex(`t=${t2}`)}.`, `Probe: ${tex(K([t1, m * t1 + n, c]))} und ${tex(K([t2, m * t2 + n, c]))} – die ersten beiden Koordinaten stimmen jeweils bis auf das Vorzeichen überein.`],
+    `Aus ${tex('x_1^2=x_2^2')} folgt ${tex(`t=${zwei}`)} oder ${tex(`t=-(${zwei})`)}, also ${tex(`t=${t1}`)} oder ${tex(`t=${t2}`)}.`, 'gleichweitt', { m, n, t1, t2, c }); };
+export const genKoordPunkt = bau([[kp1], [kp2], [kp3], [kp4], [kp5a, kp5b]]);
+
+/* ───── 2. Spiegeln an Koordinatenebenen und Achsen ───── */
+const spE = (p, i) => p.map((c, x) => (x === i ? -c : c));   // Spiegelung an der Ebene x_i = 0
+const spA = (p, k) => p.map((c, x) => (x === k ? c : -c));   // Spiegelung an der x_k-Achse
+const punkt = (n = 7) => { const p = [nz(n), nz(n), nz(n)]; return p; };
+const ks1 = () => { const i = ri(0, 2), j = (i + ri(1, 2)) % 3, p = punkt(), r = spE(p, i);
+  return A(`Der Punkt ${tex(P('P', p))} wird an der ${tex(EB[i])}-Ebene gespiegelt. Wo liegt der Bildpunkt?`, undefined, [T(K(r), true), T(K(spE(p, j)), false, `Das ist die Spiegelung an der ${tex(EB[j])}-Ebene.`), T(K(mal(-1, p)), false, 'Das ist die Punktspiegelung am Ursprung – hier wechselt nur eine Koordinate das Vorzeichen.'), T(K(spA(p, i)), false, `Das ist die Spiegelung an der ${tex(AX[i])}-Achse.`)],
+    [`Bei der Spiegelung an der ${tex(EB[i])}-Ebene wechselt nur ${tex(AX[i])} das Vorzeichen.`, `${tex(`${AX[i]}=${p[i]}`)} wird zu ${tex(`${AX[i]}=${-p[i]}`)}.`], `Nur ${tex(AX[i])} wechselt das Vorzeichen: ${tex(P("P'", r))}.`, 'ebene', { p, i, r }); };
+const ks2 = () => { const k = ri(0, 2), j = (k + ri(1, 2)) % 3, p = punkt(), r = spA(p, k);
+  return A(`Der Punkt ${tex(P('P', p))} wird an der ${tex(AX[k])}-Achse gespiegelt. Wo liegt der Bildpunkt?`, undefined, [T(K(r), true), T(K(spE(p, k)), false, `Das ist die Spiegelung an der ${tex(EB[k])}-Ebene. An der Achse bleibt gerade ${tex(AX[k])} unverändert.`), T(K(mal(-1, p)), false, `Das ist die Punktspiegelung am Ursprung – ${tex(AX[k])} bleibt hier unverändert.`), T(K(spE(p, j)), false, `Beide anderen Koordinaten wechseln das Vorzeichen, nicht nur ${tex(AX[j])}.`)],
+    [`Bei der Spiegelung an der ${tex(AX[k])}-Achse bleibt ${tex(AX[k])} unverändert.`, 'Die beiden anderen Koordinaten wechseln das Vorzeichen.', `${tex(K(p))} wird zu ${tex(K(r))}.`], `${tex(AX[k])} bleibt, die beiden anderen Koordinaten wechseln das Vorzeichen: ${tex(P("P'", r))}.`, 'achse', { p, k, r }); };
+const ks3 = () => { const [i, j, k] = shuffle([0, 1, 2]), p = punkt(), z = spE(p, i), r = spE(z, j);
+  return A(`Der Punkt ${tex(P('P', p))} wird zuerst an der ${tex(EB[i])}-Ebene und dann an der ${tex(EB[j])}-Ebene gespiegelt. Wo liegt der Bildpunkt?`, undefined, [T(K(r), true), T(K(z), false, 'Das ist erst der Zwischenpunkt nach der ersten Spiegelung.'), T(K(spE(p, j)), false, 'Hier fehlt die erste Spiegelung.'), T(K(mal(-1, p)), false, `${tex(AX[k])} wechselt bei keiner der beiden Spiegelungen das Vorzeichen.`)],
+    [`Erste Spiegelung (${tex(EB[i])}-Ebene): Nur ${tex(AX[i])} wechselt das Vorzeichen. Zwischenpunkt ${tex(K(z))}.`, `Zweite Spiegelung (${tex(EB[j])}-Ebene): Nur ${tex(AX[j])} wechselt das Vorzeichen. Bildpunkt ${tex(K(r))}.`, `Zusammen ist das die Spiegelung an der ${tex(AX[k])}-Achse: ${tex(AX[k])} bleibt, die beiden anderen Koordinaten wechseln das Vorzeichen.`],
+    `${tex(K(p))} → ${tex(K(z))} → ${tex(K(r))}. Beide Spiegelungen zusammen wirken wie die Spiegelung an der ${tex(AX[k])}-Achse.`, 'zweiebenen', { p, i, j, r }); };
+const ks4a = () => { const i = ri(0, 2), k = ri(0, 2), p = [nz(17) / 2, nz(17) / 2, nz(17) / 2], z = spE(p, i), r = spA(z, k);
+  const falsch = [[z, 'Das ist erst der Zwischenpunkt nach der ersten Spiegelung.'], [spA(p, k), 'Hier fehlt die erste Spiegelung an der Ebene.'], [spE(spE(p, i), (i + 1) % 3), 'Bei der Spiegelung an einer Achse wechseln zwei Koordinaten das Vorzeichen.'], [mal(-1, p), 'Verfolge jede Koordinate einzeln: Wie oft wechselt sie das Vorzeichen?'], [p, 'Zwei Vorzeichenwechsel heben sich nur bei derselben Koordinate auf.']].filter(([v]) => !gleich(v, r));
+  const drei = []; for (const [v, w] of falsch) if (drei.length < 3 && !drei.some(([x]) => gleich(x, v))) drei.push([v, w]);
+  if (drei.length < 3) return null;
+  return A(`Der Punkt ${tex(P('P', p))} wird zuerst an der ${tex(EB[i])}-Ebene und dann an der ${tex(AX[k])}-Achse gespiegelt. Wo liegt der Bildpunkt?`, undefined, [T(K(r), true), ...drei.map(([v, w]) => T(K(v), false, w))],
+    [`Spiegelung an der ${tex(EB[i])}-Ebene: Nur ${tex(AX[i])} wechselt das Vorzeichen. Zwischenpunkt ${tex(K(z))}.`, `Spiegelung an der ${tex(AX[k])}-Achse: ${tex(AX[k])} bleibt, die beiden anderen Koordinaten wechseln das Vorzeichen.`, `Aus ${tex(K(z))} wird ${tex(K(r))}.`, `Kontrolle je Koordinate: Zwei Vorzeichenwechsel heben sich auf, einer bleibt.`],
+    `${tex(K(p))} → ${tex(K(z))} (Ebene) → ${tex(K(r))} (Achse).`, 'ebeneachse', { p, i, k, r }); };
+const ks4b = () => { const i = ri(0, 2), c = nz(6), p = punkt(8), a = c - p[i], r = p.slice(); r[i] = 2 * c - p[i];
+  if (a === 0) return null;
+  const mit = (x) => { const v = p.slice(); v[i] = x; return v; };
+  return A(`Der Punkt ${tex(P('P', p))} wird an der Ebene ${tex(`E\\colon\\ ${AX[i]}=${c}`)} gespiegelt (sie liegt parallel zur ${tex(EB[i])}-Ebene). Wo liegt der Bildpunkt?`, undefined,
+    [T(K(r), true), T(K(mit(-p[i])), false, `Das wäre die Spiegelung an der ${tex(EB[i])}-Ebene (${tex(`${AX[i]}=0`)}). Hier liegt die Spiegelebene bei ${tex(`${AX[i]}=${c}`)}.`), T(K(mit(c - p[i])), false, `${tex(`${c}-${kl(p[i])}=${a}`)} ist der Abstand zur Ebene – er wird von der Ebene aus weitergezählt.`), T(K(mit(2 * c + p[i])), false, `Der doppelte Ebenenwert minus die alte Koordinate: ${tex(`2\\cdot ${kl(c)}-${kl(p[i])}`)}.`)],
+    [`Nur ${tex(AX[i])} ändert sich; die beiden anderen Koordinaten bleiben.`, `Weg von ${tex('P')} bis zur Ebene: ${tex(`${c}-${kl(p[i])}=${a}`)}.`, `Von der Ebene aus denselben Weg weiter: ${tex(`${c}+${kl(a)}=${r[i]}`)}.`, `Kurz: ${tex(`${AX[i]}'=2\\cdot ${kl(c)}-${kl(p[i])}=${r[i]}`)}.`],
+    `Die Ebene liegt in der Mitte zwischen ${tex('P')} und ${tex("P'")}: ${tex(`${AX[i]}'=2\\cdot ${kl(c)}-${kl(p[i])}=${r[i]}`)}, also ${tex(P("P'", r))}.`, 'parallel', { p, i, c, r }); };
+const ks5a = () => { const [i, k] = shuffle([0, 1, 2]), c = nz(5), p = [nz(13) / 2, nz(13) / 2, nz(13) / 2], z = p.slice(); z[i] = 2 * c - p[i]; const b = spA(z, k);
+  const vor = spA(b, k), falsch1 = (() => { const v = b.slice(); v[i] = 2 * c - b[i]; return spA(v, k); })(), falsch3 = spE(vor, i);
+  return A(`Ein Punkt ${tex('P')} wird zuerst an der Ebene ${tex(`${AX[i]}=${c}`)} und dann an der ${tex(AX[k])}-Achse gespiegelt. Der Bildpunkt ist ${tex(P("P'", b))}. Bestimme ${tex('P')}.`, undefined,
+    [T(K(p), true), T(K(falsch1), false, 'Rückwärts wird die Reihenfolge umgedreht: erst die Achsenspiegelung zurücknehmen, dann die Ebenenspiegelung.'), T(K(vor), false, 'Das ist erst der Zwischenpunkt – die Spiegelung an der Ebene muss noch zurückgenommen werden.'), T(K(falsch3), false, `Die Ebene liegt bei ${tex(`${AX[i]}=${c}`)}, nicht bei ${tex(`${AX[i]}=0`)}.`)],
+    ['Rückwärts rechnen: Jede Spiegelung macht sich selbst rückgängig – aber in umgekehrter Reihenfolge.', `Zuerst die Spiegelung an der ${tex(AX[k])}-Achse zurück: ${tex(AX[k])} bleibt, die anderen Koordinaten wechseln das Vorzeichen. Zwischenpunkt ${tex(P('Z', vor))}.`, `Dann die Spiegelung an ${tex(`${AX[i]}=${c}`)} zurück: ${tex(`${AX[i]}=2\\cdot ${kl(c)}-${kl(vor[i])}=${ft(p[i])}`)}.`, `Ergebnis ${tex(P('P', p))}. Probe vorwärts: ${tex(K(p))} → ${tex(K(z))} → ${tex(K(b))}.`],
+    `Rückwärts: ${tex(K(b))} → ${tex(K(vor))} (Achse) → ${tex(K(p))} (Ebene, ${tex(`${AX[i]}=2\\cdot ${kl(c)}-${kl(vor[i])}`)}).`, 'rueck', { i, k, c, b, p }); };
+const ks5b = () => { const [i, j] = shuffle([0, 1, 2]), p = punkt(9), c2 = ri(-9, 9), c = c2 / 2, b = p.slice(); b[i] = c2 - p[i]; b[j] = -p[j];
+  if (c2 === 0 || b[i] === p[i] || b[i] === -p[i]) return null;
+  return A(`Der Punkt ${tex(P('P', p))} wird zuerst an einer Ebene ${tex(`${AX[i]}=c`)} und dann an der ${tex(EB[j])}-Ebene gespiegelt. Der Bildpunkt ist ${tex(P("P'", b))}. Bestimme ${tex('c')}.`, undefined,
+    [T(`c=${ft(c)}`, true), T(`c=${ft((b[i] - p[i]) / 2)}`, false, 'Die Ebene liegt in der Mitte der beiden Werte: addieren und halbieren, nicht abziehen.'), T(`c=${ft(c2)}`, false, 'Die Summe muss noch halbiert werden – die Ebene liegt in der Mitte.'), T(`c=${ft(b[i] - p[i])}`, false, 'Das ist der Abstand der beiden Punkte in dieser Richtung, nicht die Lage der Ebene.')],
+    [`Die Spiegelung an der ${tex(EB[j])}-Ebene ändert nur ${tex(AX[j])}: ${tex(`${p[j]}`)} wird zu ${tex(`${b[j]}`)}. Das passt.`, `Die Spiegelung an ${tex(`${AX[i]}=c`)} ändert nur ${tex(AX[i])}: aus ${tex(`${p[i]}`)} wird ${tex(`${b[i]}`)}.`, `Die Spiegelebene liegt genau in der Mitte: ${tex(`c=\\dfrac{${p[i]}+${kl(b[i])}}{2}`)}.`, `${tex(`c=\\dfrac{${c2}}{2}=${ft(c)}`)}. Probe: ${tex(`2\\cdot ${kl(c)}-${kl(p[i])}=${b[i]}`)}.`],
+    `${tex(AX[i])} springt von ${tex(`${p[i]}`)} auf ${tex(`${b[i]}`)}; die Ebene liegt in der Mitte: ${tex(`c=\\dfrac{${p[i]}+${kl(b[i])}}{2}=${ft(c)}`)}.`, 'welche', { p, i, j, b, c }); };
+export const genKoordSpiegel = bau([[ks1], [ks2], [ks3], [ks4a, ks4b], [ks5a, ks5b]]);
+
+/* ───── 3. Parallelogramm und Raute ───── */
+const pg1 = (dim) => () => { const Ap = Array.from({ length: dim }, () => (dim === 2 ? ri(0, 5) : ri(-5, 5))), u = Array.from({ length: dim }, () => (dim === 2 ? ri(1, 5) : nz(5))), v = Array.from({ length: dim }, () => nz(4));
+  if (dim === 2 ? u[0] * v[1] === u[1] * v[0] : parallel(u, v)) return null;
+  const B = add(Ap, u), C = add(B, v), D = add(Ap, v);
+  return A(`${tex('ABCD')} soll ein Parallelogramm sein. Bestimme den Punkt ${tex('D')}.`, dim === 2 ? `${P('A', Ap)},\\quad ${P('B', B)},\\quad ${P('C', C)}` : zeilen(`${P('A', Ap)},\\quad ${P('B', B)}`, P('C', C)),
+    [T(K(D), true), T(K(sub(add(Ap, B), C)), false, `Hier wurde ${tex(vek('CB'))} statt ${tex(vek('BC'))} angehängt – die Richtung ist umgekehrt.`), T(K(sub(add(B, C), Ap)), false, `Das ergibt ein Parallelogramm ${tex('ABDC')}. Verlangt ist die Reihenfolge ${tex('ABCD')}.`), T(K(v), false, `${tex(vek('BC'))} ist ein Vektor – er muss noch an ${tex('A')} angehängt werden.`)],
+    [`Im Parallelogramm ${tex('ABCD')} gilt ${tex(`${vek('AD')}=${vek('BC')}`)}.`, `${tex(`${vek('BC')}=C-B=${V(v)}`)}.`, `Anhängen an ${tex('A')}: ${tex(`D=A+${vek('BC')}`)}.`], `${tex(`${vek('BC')}=${V(v)}`)}, also ${tex(P('D', D))}.`, dim === 2 ? 'vierter2' : 'vierter3', { A: Ap, B, C, D }); };
+const pg3 = () => { const Ap = punkt(5), u = punkt(5), v = punkt(4); if (parallel(u, v)) return null;
+  const ok = ri(0, 1) === 1, i = ri(0, 2), B = add(Ap, u), C = add(B, v), D = add(Ap, v); if (!ok) D[i] += pick([-1, 1]);
+  const dc = sub(C, D);
+  const o = [T(`\\text{ja: }${vek('AB')}=${vek('DC')}`, ok, `Rechne nach: ${tex(`${vek('DC')}=${V(dc)}`)} stimmt nicht mit ${tex(`${vek('AB')}=${V(u)}`)} überein.`), T(`\\text{nein: }${vek('AB')}\\neq ${vek('DC')}`, !ok, `Rechne nach: ${tex(`${vek('AB')}=${vek('DC')}=${V(u)}`)}.`), T(`\\text{ja: }${vek('AB')}=${vek('CD')}`, false, `${tex(vek('CD'))} zeigt entgegengesetzt zu ${tex(vek('DC'))} – verglichen wird mit ${tex(vek('DC'))}.`), T(`\\text{nein: }${vek('AB')}=${vek('DC')}\\text{, aber }${vek('AD')}\\neq ${vek('BC')}`, false, `Aus ${tex(`${vek('AB')}=${vek('DC')}`)} folgt immer auch ${tex(`${vek('AD')}=${vek('BC')}`)}.`)];
+  return A(`Ist das Viereck ${tex('ABCD')} ein Parallelogramm?`, zeilen(`${P('A', Ap)},\\quad ${P('B', B)}`, `${P('C', C)},\\quad ${P('D', D)}`), o,
+    [`${tex('ABCD')} ist genau dann ein Parallelogramm, wenn ${tex(`${vek('AB')}=${vek('DC')}`)} gilt (gegenüberliegende Seiten gleich lang und parallel).`, `${tex(`${vek('AB')}=B-A=${V(u)}`)}.`, `${tex(`${vek('DC')}=C-D=${V(dc)}`)}.`, ok ? 'Beide Vektoren sind gleich – es ist ein Parallelogramm.' : `Die Vektoren unterscheiden sich in der ${i + 1}. Koordinate – es ist kein Parallelogramm.`],
+    `${tex(`${vek('AB')}=${V(u)}`)} und ${tex(`${vek('DC')}=${V(dc)}`)}: ${ok ? 'gleich, also ein Parallelogramm' : 'verschieden, also kein Parallelogramm'}.`, 'nachweis', { A: Ap, B, C, D, ok }); };
+const q2 = (v) => dot(v, v);
+const pg4 = () => { const Ap = punkt(4), u = [nz(5), nz(5), nz(5)], raute = ri(0, 1) === 1;
+  let v; if (raute) { v = pick([[u[1], u[2], u[0]], [u[2], u[0], u[1]], [-u[0], u[1], u[2]], [u[0], -u[1], u[2]], [u[1], -u[0], u[2]]]); } else v = [nz(5), nz(5), nz(5)];
+  if (parallel(u, v) || (!raute && q2(u) === q2(v)) || gleich(u, v)) return null;
+  const B = add(Ap, u), D = add(Ap, v), C = add(B, v), k1 = q2(u), k2 = q2(v), s1 = u.reduce((s, c) => s + Math.abs(c), 0), s2 = v.reduce((s, c) => s + Math.abs(c), 0);
+  const quad = (w) => w.map((c) => `${kl(c)}^2`).join('+');
+  const o = raute
+    ? [T(`\\text{ja: }|AB|=|AD|=${wurzel(k1)}`, true), T(`\\text{nein: }|AB|=${wurzel(k1)},\\ |AD|=${wurzel(k1 + ri(1, 3))}`, false, `Rechne nach: ${tex(`|AD|=\\sqrt{${quad(v)}}=${wurzel(k2)}`)}.`), T(`\\text{ja: }${vek('AB')}=${vek('AD')}`, false, 'Die beiden Vektoren sind verschieden – gleich sind nur ihre Längen.'), T(`\\text{nein: }${vek('AB')}\\neq ${vek('AD')}`, false, 'Für die Raute werden die Längen verglichen, nicht die Vektoren selbst.')]
+    : [T(`\\text{nein: }|AB|=${wurzel(k1)},\\ |AD|=${wurzel(k2)}`, true), T(`\\text{ja: }|AB|=|AD|=${wurzel(k1)}`, false, `Rechne nach: ${tex(`|AD|=\\sqrt{${quad(v)}}=${wurzel(k2)}`)}.`), T(`\\text{ja: }${vek('AB')}=${vek('DC')}`, false, 'Das zeigt nur, dass es ein Parallelogramm ist. Für die Raute müssen benachbarte Seiten gleich lang sein.'), T(`\\text{nein: }|AB|=${s1},\\ |AD|=${s2}`, false, 'Die Länge ist die Wurzel aus der Summe der Quadrate, nicht die Summe der Beträge.')];
+  return A(`Das Parallelogramm ${tex('ABCD')} ist gegeben. Ist es eine Raute?`, zeilen(`${P('A', Ap)},\\quad ${P('B', B)}`, `${P('C', C)},\\quad ${P('D', D)}`), o,
+    [`Eine Raute ist ein Parallelogramm mit vier gleich langen Seiten. Es genügt, zwei benachbarte Seiten zu vergleichen: ${tex('|AB|')} und ${tex('|AD|')}.`, `${tex(`${vek('AB')}=${V(u)}`)}, also ${tex(`|AB|=\\sqrt{${quad(u)}}=${wurzel(k1)}`)} (Satz des Pythagoras im Raum).`, `${tex(`${vek('AD')}=${V(v)}`)}, also ${tex(`|AD|=\\sqrt{${quad(v)}}=${wurzel(k2)}`)}.`, raute ? 'Beide Seiten sind gleich lang – das Parallelogramm ist eine Raute.' : 'Die Seiten sind verschieden lang – keine Raute.'],
+    `${tex(`|AB|=${wurzel(k1)}`)} und ${tex(`|AD|=${wurzel(k2)}`)}: ${raute ? 'gleich lang, also eine Raute' : 'verschieden lang, also keine Raute'}.`, 'raute', { A: Ap, B, C, D, raute }); };
+const pg5a = () => { const Ap = punkt(6), B = punkt(6), M = [nz(11) / 2, nz(11) / 2, nz(11) / 2], bm = sub(M, B), D = add(M, bm), C = sub(mal(2, M), Ap), bd = sub(D, B), k = q2(bd), sum = bd.reduce((x, c) => x + Math.abs(c), 0);
+  if (parallel(sub(B, Ap), sub(M, Ap)) || wurzel(k) === `${sum}`) return null;
+  const quad = bd.map((c) => `${kl(c)}^2`).join('+');
+  return A(`Vom Parallelogramm ${tex('ABCD')} kennt man die Ecken ${tex('A')} und ${tex('B')} sowie den Schnittpunkt ${tex('M')} der Diagonalen. Bestimme die Ecke ${tex('D')} und die Länge der Diagonale ${tex('BD')}.`, zeilen(`${P('A', Ap)},\\quad ${P('B', B)}`, P('M', M)),
+    [T(`D${K(D)},\\ |BD|=${wurzel(k)}`, true), T(`D${K(C)},\\ |BD|=${wurzel(k)}`, false, `Das ist die Ecke ${tex('C')} (gespiegelt wurde ${tex('A')}). ${tex('D')} liegt ${tex('B')} gegenüber.`), T(`D${K(D)},\\ |BD|=${sum}`, false, 'Die Länge ist die Wurzel aus der Summe der Quadrate, nicht die Summe der Beträge.'), T(`D${K(sub(mal(2, B), M))},\\ |BD|=${wurzel(k)}`, false, `Hier wurde ${tex('M')} an ${tex('B')} gespiegelt – ${tex('M')} ist aber die Mitte von ${tex('BD')}.`)],
+    [`Die Diagonalen eines Parallelogramms halbieren einander: ${tex('M')} ist der Mittelpunkt von ${tex('AC')} und von ${tex('BD')}.`, `Von ${tex('B')} zur Mitte: ${tex(`${vek('BM')}=M-B=${V(bm)}`)}.`, `Denselben Vektor an ${tex('M')} anhängen: ${tex(`D=M+${vek('BM')}`)}, also ${tex(P('D', D))}.`, `Diagonale: ${tex(`${vek('BD')}=2\\cdot ${vek('BM')}=${V(bd)}`)}, Länge ${tex(`|BD|=\\sqrt{${quad}}=${wurzel(k)}`)} (Satz des Pythagoras im Raum).`, `Probe mit ${tex(`C=M+${vek('AM')}`)}, also ${tex(P('C', C))}: ${tex(`${vek('AB')}=${V(sub(B, Ap))}`)} und ${tex(`${vek('DC')}=${V(sub(C, D))}`)} sind gleich.`],
+    `${tex('M')} ist die Mitte von ${tex('BD')}: ${tex('D=2\\cdot M-B')}, also ${tex(P('D', D))}. ${tex(`|BD|=\\sqrt{${quad}}=${wurzel(k)}`)}${Number.isInteger(Math.sqrt(k)) ? '' : ` ${tex(`\\approx ${ft(Math.sqrt(k))}`)}`}.`, 'diagonal', { A: Ap, B, M, D, k }); };
+const pg5b = () => { const Ap = punkt(5), art = pick(['rechteck', 'raute', 'quadrat', 'keines']); let u, v;
+  if (art === 'quadrat') { const [a, b] = pick([[3, 4], [4, 3], [1, 2], [2, 3], [2, 1], [1, 3]]), sa = pick([-1, 1]), sb = pick([-1, 1]), lage = ri(0, 2); const e = (x, y, z) => { const w = [x, y, z]; return [w[lage], w[(lage + 1) % 3], w[(lage + 2) % 3]]; }; u = e(sa * a, sb * b, 0); v = a * a + b * b === 25 && ri(0, 1) ? e(0, 0, 5 * pick([-1, 1])) : e(-sb * b, sa * a, 0); }
+  else if (art === 'rechteck') { u = [nz(4), nz(4), nz(4)]; const f = pick([2, -2, 3]); v = pick([[u[1] * f, -u[0] * f, 0], [0, u[2] * f, -u[1] * f], [u[2] * f, 0, -u[0] * f]]); }
+  else if (art === 'raute') { u = [nz(5), nz(5), nz(5)]; v = pick([[u[1], u[2], u[0]], [u[2], u[0], u[1]], [-u[0], u[1], u[2]], [u[0], -u[1], u[2]], [u[1], -u[0], u[2]]]); }
+  else { u = [nz(4), nz(4), nz(4)]; v = [nz(4), nz(4), nz(4)]; }
+  const s = dot(u, v), k1 = q2(u), k2 = q2(v), ist = s === 0 ? (k1 === k2 ? 'quadrat' : 'rechteck') : k1 === k2 ? 'raute' : 'keines';
+  if (parallel(u, v) || ist !== art) return null;
+  const B = add(Ap, u), D = add(Ap, v), sp = u.map((c, i) => `${kl(c)}\\cdot ${kl(v[i])}`).join('+'), quad = (w) => w.map((c) => `${kl(c)}^2`).join('+');
+  const warum = `Rechne beides nach: ${tex(`${vek('AB')}\\cdot ${vek('AD')}=${s}`)}, ${tex(`|AB|=${wurzel(k1)}`)}, ${tex(`|AD|=${wurzel(k2)}`)}.`;
+  const NAME = { rechteck: 'Rechteck, aber keine Raute', raute: 'Raute, aber kein Rechteck', quadrat: 'Quadrat', keines: 'weder Rechteck noch Raute' };
+  return A(`Vom Parallelogramm ${tex('ABCD')} kennt man ${tex('A')}, ${tex('B')} und ${tex('D')}. Welche besondere Form hat es?`, zeilen(`${P('A', Ap)},\\quad ${P('B', B)}`, P('D', D)),
+    Object.keys(NAME).map((n) => T(`\\text{${NAME[n]}}`, n === art, warum)),
+    [`Zwei Prüfungen an den Seiten bei ${tex('A')}: rechter Winkel (Rechteck) und gleiche Länge (Raute). Beides zusammen: Quadrat.`, `${tex(`${vek('AB')}=B-A=${V(u)}`)} und ${tex(`${vek('AD')}=D-A=${V(v)}`)}.`, `Rechter Winkel? Skalarprodukt: ${tex(`${vek('AB')}\\cdot ${vek('AD')}=${sp}=${s}`)} – ${s === 0 ? 'senkrecht' : 'nicht senkrecht'}.`, `Gleich lang? ${tex(`|AB|=\\sqrt{${quad(u)}}=${wurzel(k1)}`)} und ${tex(`|AD|=\\sqrt{${quad(v)}}=${wurzel(k2)}`)} – ${k1 === k2 ? 'gleich lang' : 'verschieden lang'}.`, `Also: ${NAME[art]}.`],
+    `Skalarprodukt ${tex(`${s}`)} (${s === 0 ? 'rechter Winkel' : 'kein rechter Winkel'}), Seitenlängen ${tex(wurzel(k1))} und ${tex(wurzel(k2))} (${k1 === k2 ? 'gleich' : 'verschieden'}): ${NAME[art]}.`, 'form', { A: Ap, B, D, art }); };
+export const genParallelogramm = bau([[pg1(2)], [pg1(3)], [pg3], [pg4], [pg5a, pg5b]]);
+
+/* ───── 4. Dieselbe Gerade in zwei Schreibweisen ───── */
+const gerade = (n, p, u, par = 't') => `${n}\\colon\\ \\vec x=${V(p)}+${par}\\cdot ${V(u)}`;
+const aufG = (q, p, u) => parallel(sub(q, p), u);
+const lin = () => { for (;;) { const p = punkt(5), u = [nz(4), nz(4), nz(4)]; if (!parallel(p, u) && new Set(u.map(Math.abs)).size > 1) return { p, u }; } };
+const gg1 = () => { const { p, u } = lin(), k = pick([2, 3, -1, -2]), i = ri(0, 2), f = spE(u, i);
+  return A(`Welcher Vektor ist ebenfalls ein Richtungsvektor der Geraden ${tex('g')}?`, gerade('g', p, u), [T(V(mal(k, u)), true), T(V(p), false, 'Das ist der Stützvektor. Er sagt, wo die Gerade liegt – nicht, wohin sie läuft.'), T(V(f), false, 'Hier hat nur eine Koordinate das Vorzeichen gewechselt – das ist kein Vielfaches.'), T(V(add(u, [1, 1, 1])), false, 'Addieren ändert die Richtung. Nur Vielfache zeigen in dieselbe (oder genau entgegengesetzte) Richtung.')],
+    ['Jedes Vielfache des Richtungsvektors (außer dem Nullvektor) beschreibt dieselbe Richtung.', `${tex(`${k}\\cdot ${V(u)}=${V(mal(k, u))}`)}.`], `${tex(`${V(mal(k, u))}=${k}\\cdot ${V(u)}`)} ist ein Vielfaches des Richtungsvektors.`, 'richtung', { p, u, k }); };
+const gg2 = () => { const { p, u } = lin(), k = pick([2, -1, 3]), q = add(p, mal(k, u)), i = ri(0, 2), e = q.slice(); e[i] += 1; const d = mal(2, p);
+  if (aufG(d, p, u) || aufG(u, p, u) || aufG(e, p, u)) return null;
+  return A(`Welcher Punkt eignet sich ebenfalls als Stützpunkt der Geraden ${tex('g')}?`, gerade('g', p, u), [T(K(q), true), T(K(d), false, 'Den Stützvektor zu verdoppeln führt von der Geraden weg. Gesucht ist ein Punkt der Geraden.'), T(K(u), false, 'Das sind die Koordinaten des Richtungsvektors – kein Punkt der Geraden.'), T(K(e), false, `Punktprobe: Mit ${tex(`t=${k}`)} stimmen zwei Zeilen, die ${i + 1}. Zeile aber nicht.`)],
+    ['Als Stützpunkt eignet sich jeder Punkt der Geraden.', `Setze einen Wert für ${tex('t')} ein, zum Beispiel ${tex(`t=${k}`)}: ${tex(`${V(p)}+${kl(k)}\\cdot ${V(u)}`)}.`, `Das ergibt den Punkt ${tex(K(q))}.`], `Für ${tex(`t=${k}`)} liefert die Gleichung den Punkt ${tex(K(q))} – er liegt auf ${tex('g')}.`, 'stuetz', { p, u, q }); };
+const gg3 = () => { const { p, u } = lin(), k = pick([1, 2, -1]), m = pick([-1, 2, -2, 3]), q = add(p, mal(k, u)), i = ri(0, 2), e = q.slice(); e[i] += pick([-1, 1]); const f = spE(u, (i + 1) % 3);
+  if (aufG(e, p, u) || parallel(f, u)) return null;
+  const g = (a, b) => `\\vec x=${V(a)}+s\\cdot ${V(b)}`;
+  return A(`Welche Gleichung beschreibt dieselbe Gerade wie ${tex('g')}?`, gerade('g', p, u), [T(g(q, mal(m, u)), true), T(g(q, f), false, 'Der Stützpunkt liegt auf g, aber der Richtungsvektor ist kein Vielfaches – die Gerade läuft in eine andere Richtung.'), T(g(e, mal(m, u)), false, 'Die Richtung passt, aber der Stützpunkt liegt nicht auf g: Die Gerade ist nur parallel.'), T(g(u, p), false, 'Hier sind Stütz- und Richtungsvektor vertauscht.')],
+    ['Dieselbe Gerade heißt: Die Richtungsvektoren sind Vielfache voneinander und der neue Stützpunkt liegt auf g.', `Richtung prüfen: ${tex(`${V(mal(m, u))}=${m}\\cdot ${V(u)}`)}.`, `Punktprobe für ${tex(K(q))}: ${tex(`${V(p)}+t\\cdot ${V(u)}=${V(q)}`)} stimmt in allen drei Zeilen für ${tex(`t=${k}`)}.`],
+    `Richtungsvektor ${tex(`${m}\\cdot ${V(u)}`)} und Stützpunkt ${tex(K(q))} (für ${tex(`t=${k}`)}) – dieselbe Gerade.`, 'gleichung', { p, u, q, m }); };
+const gg4 = () => { const base = lin(), p = base.p, u = mal(2, base.u), k = pick([1, 2, -1, -2]), m = pick([-2, 1.5, -0.5, 2.5, -1.5]), ident = ri(0, 1) === 1, r = ri(0, 2), j = (r + ri(1, 2)) % 3;
+  const q = add(p, mal(k, u)); if (!ident) q[j] += pick([-1, 1, 2]);
+  const t = (q[r] - p[r]) / u[r], zeile = (i) => `${tex(`${p[i]}+${kl(t)}\\cdot ${kl(u[i])}=${ft(p[i] + t * u[i])}`)}${Math.abs(p[i] + t * u[i] - q[i]) < 1e-9 ? ' – passt' : ` – verlangt ist aber ${tex(`${q[i]}`)}`}`;
+  const rest = [0, 1, 2].filter((i) => i !== r);
+  return A(`Wie liegen die Geraden ${tex('g')} und ${tex('h')} zueinander?`, zeilen(gerade('g', p, u), gerade('h', q, mal(m, u), 's')), [T('\\text{identisch}', ident, `Die Punktprobe scheitert in der ${j + 1}. Zeile – der Stützpunkt von h liegt nicht auf g.`), T('\\text{echt parallel}', !ident, 'Die Punktprobe gelingt in allen drei Zeilen – die Geraden haben alle Punkte gemeinsam.'), T('\\text{sie schneiden sich in einem Punkt}', false, 'Die Richtungsvektoren sind Vielfache voneinander – dann gibt es keinen einzelnen Schnittpunkt.'), T('\\text{windschief}', false, 'Windschief können nur Geraden sein, deren Richtungsvektoren keine Vielfachen sind.')],
+    [`Richtungen vergleichen: ${tex(`${V(mal(m, u))}=${ft(m)}\\cdot ${V(u)}`)} – die Geraden sind parallel oder identisch.`, `Punktprobe mit dem Stützpunkt von ${tex('h')} in ${tex('g')}. Zeile ${r + 1}: ${tex(`${p[r]}+t\\cdot ${kl(u[r])}=${q[r]}`)}, also ${tex(`t=${ft(t)}`)}.`, `Zeile ${rest[0] + 1}: ${zeile(rest[0])}.`, `Zeile ${rest[1] + 1}: ${zeile(rest[1])}.`, ident ? 'Alle drei Zeilen stimmen: Der Stützpunkt von h liegt auf g – die Geraden sind identisch.' : 'Eine Zeile stimmt nicht: Der Stützpunkt von h liegt nicht auf g – die Geraden sind echt parallel.'],
+    `Die Richtungsvektoren sind Vielfache (${tex(`${ft(m)}`)}-fach). Die Punktprobe mit ${tex(`t=${ft(t)}`)} ${ident ? 'gelingt: identisch' : 'scheitert: echt parallel'}.`, 'identisch', { p, u, q, m, ident }); };
+const gg5 = () => { const base = lin(), p = base.p, u = mal(2, base.u), k = pick([2, -1, 3, -2]), m = pick([-2, 1.5, -1.5, 2.5, 0.5, 3]), q = add(p, mal(k, u)), a = q[2], b = m * u[1];
+  const o = [[a, b, true], [a, u[1], false, `Der ganze Richtungsvektor wird mit demselben Faktor ${tex(`${ft(m)}`)} vervielfacht – auch die zweite Zeile.`], [p[2] - k * u[2], b, false, `Vorzeichen des Parameters: ${tex(`t=${k}`)}, also ${tex(`a=${p[2]}+${kl(k)}\\cdot ${kl(u[2])}`)}.`], [p[2], u[1], false, 'Stützpunkt und Richtungsvektor von h dürfen sich von denen von g unterscheiden – es genügen ein Vielfaches und ein Punkt der Geraden.']];
+  return A(`Für welche Werte von ${tex('a')} und ${tex('b')} beschreiben ${tex('g')} und ${tex('h')} dieselbe Gerade?`, zeilen(gerade('g', p, u), gerade('h', [q[0], q[1], 'a'], [ft(m * u[0]), 'b', ft(m * u[2])], 's')), o.map(([x, y, c, w]) => T(`a=${ft(x)},\\ b=${ft(y)}`, c, w)),
+    [`Die Richtungsvektoren müssen Vielfache sein. Zeile 1: ${tex(`${ft(m * u[0])}=k\\cdot ${kl(u[0])}`)}, also ${tex(`k=${ft(m)}`)}.`, `Zeile 2 mit demselben Faktor: ${tex(`b=${ft(m)}\\cdot ${kl(u[1])}=${ft(b)}`)}. Zeile 3 passt: ${tex(`${ft(m)}\\cdot ${kl(u[2])}=${ft(m * u[2])}`)}.`, `Punktprobe für den Stützpunkt von ${tex('h')}. Zeile 1: ${tex(`${p[0]}+t\\cdot ${kl(u[0])}=${q[0]}`)}, also ${tex(`t=${k}`)}.`, `Zeile 2 prüfen: ${tex(`${p[1]}+${kl(k)}\\cdot ${kl(u[1])}=${q[1]}`)} – passt.`, `Zeile 3 liefert ${tex(`a=${p[2]}+${kl(k)}\\cdot ${kl(u[2])}=${a}`)}.`],
+    `Vielfaches: ${tex(`k=${ft(m)}`)}, also ${tex(`b=${ft(b)}`)}. Punktprobe: ${tex(`t=${k}`)}, also ${tex(`a=${a}`)}.`, 'parameter', { p, u, q, m, a, b }); };
+export const genGeradeGleich = bau([[gg1], [gg2], [gg3], [gg4], [gg5]]);
+
+/* ───── 5. Drei Punkte auf einer Geraden? ───── */
+const ko = (dim, ks, halb) => () => { const Ap = Array.from({ length: dim }, () => (dim === 2 ? ri(0, 4) : ri(-4, 4))), w = Array.from({ length: dim }, () => (dim === 2 ? ri(1, 3) : nz(3))), u = halb ? mal(2, w) : w, k = pick(ks), ja = ri(0, 2) > 0, i = ri(0, dim - 1);
+  const B = add(Ap, u), C = add(Ap, mal(k, u)); if (!ja) C[i] += pick([-1, 1]);
+  const ac = sub(C, Ap), k2 = ja ? (k === -1 ? 2 : -k) : (ac[i] / u[i] === k || !Number.isInteger((2 * ac[i]) / u[i]) ? -k : ac[i] / u[i]);
+  if (k2 === k || k2 === 1 || k === 1) return null;
+  const verh = ac.map((c, x) => `${tex(`${kl(c)}:${kl(u[x])}=${ft(c / u[x])}`)}`).join(', ');
+  const o = [T(`\\text{ja: }${vek('AC')}=${ft(k)}\\cdot ${vek('AB')}`, ja, `In der ${i + 1}. Zeile stimmt der Faktor nicht: ${tex(`${kl(ac[i])}:${kl(u[i])}=${ft(ac[i] / u[i])}`)}.`), T(`\\text{ja: }${vek('AC')}=${ft(k2)}\\cdot ${vek('AB')}`, false, `Der Faktor muss in jeder Zeile derselbe sein – rechne alle Zeilen nach.`), T(`\\text{nein: }${vek('AC')}\\text{ ist kein Vielfaches von }${vek('AB')}`, !ja, `Rechne nach: In jeder Zeile ergibt sich der Faktor ${tex(`${ft(k)}`)}.`), T(`\\text{ja: }${vek('AC')}=${vek('AB')}`, false, `Dann wäre ${tex('C=B')}. Die Vektoren müssen nicht gleich sein – nur Vielfache.`)];
+  return A(`Liegen die Punkte ${tex('A')}, ${tex('B')} und ${tex('C')} auf einer Geraden?`, dim === 2 ? `${P('A', Ap)},\\quad ${P('B', B)},\\quad ${P('C', C)}` : zeilen(`${P('A', Ap)},\\quad ${P('B', B)}`, P('C', C)), o,
+    [`Drei Punkte liegen auf einer Geraden, wenn ${tex(vek('AC'))} ein Vielfaches von ${tex(vek('AB'))} ist.`, `${tex(`${vek('AB')}=${V(u)}`)} und ${tex(`${vek('AC')}=${V(ac)}`)}.`, ...(dim === 3 || halb ? [`Zeilenweise teilen: ${verh}.`] : []), ja ? `In jeder Zeile derselbe Faktor ${tex(`${ft(k)}`)} – die Punkte liegen auf einer Geraden.` : 'Die Faktoren sind nicht in allen Zeilen gleich – die Punkte liegen nicht auf einer Geraden.'],
+    ja ? `${tex(`${vek('AC')}=${V(ac)}=${ft(k)}\\cdot ${V(u)}`)}: Die Punkte liegen auf einer Geraden.` : `${tex(`${vek('AB')}=${V(u)}`)}, ${tex(`${vek('AC')}=${V(ac)}`)}: kein gemeinsamer Faktor, also nicht auf einer Geraden.`, `prüfen${dim}${halb ? 'h' : ''}`, { A: Ap, B, C, ja }); };
+const ko4 = () => { const Ap = [ri(-4, 4), ri(-4, 4), ri(-4, 4)], u = mal(2, [nz(3), nz(3), nz(3)]), k = pick([2, 3, -1, -2, 1.5, -0.5, 2.5]), B = add(Ap, u), C = add(Ap, mal(k, u)), c = C[2];
+  const o = [[c, true], [Ap[2] + (k + 1) * u[2], false, `Gerechnet wird von ${tex('A')} aus: ${tex(`c=${Ap[2]}+${kl(k)}\\cdot ${kl(u[2])}`)}.`], [k * u[2], false, `Das ist erst die dritte Koordinate von ${tex(vek('AC'))} – die Koordinate von ${tex('A')} kommt noch dazu.`], [Ap[2] - k * u[2], false, `Der Faktor ist ${tex(`${ft(k)}`)}, nicht ${tex(`${ft(-k)}`)}.`]];
+  return A(`Bestimme ${tex('c')} so, dass die Punkte ${tex('A')}, ${tex('B')} und ${tex('C')} auf einer Geraden liegen.`, zeilen(`${P('A', Ap)},\\quad ${P('B', B)}`, P('C', [C[0], C[1], 'c'])), o.map(([x, r, w]) => T(`c=${ft(x)}`, r, w)),
+    [`${tex(vek('AC'))} muss ein Vielfaches von ${tex(vek('AB'))} sein: ${tex(`${vek('AB')}=${V(u)}`)}, ${tex(`${vek('AC')}=${V([C[0] - Ap[0], C[1] - Ap[1], `c${pm(-Ap[2])}`])}`)}.`, `Zeile 1 liefert den Faktor: ${tex(`${kl(C[0] - Ap[0])}:${kl(u[0])}=${ft(k)}`)}.`, `Zeile 2 bestätigt ihn: ${tex(`${ft(k)}\\cdot ${kl(u[1])}=${ft(C[1] - Ap[1])}`)}.`, `Zeile 3: ${tex(`c${pm(-Ap[2])}=${ft(k)}\\cdot ${kl(u[2])}=${ft(k * u[2])}`)}, also ${tex(`c=${ft(c)}`)}.`],
+    `Faktor ${tex(`${ft(k)}`)} aus den ersten beiden Zeilen; dritte Zeile: ${tex(`c=${Ap[2]}+${kl(k)}\\cdot ${kl(u[2])}=${ft(c)}`)}.`, 'fehlt', { A: Ap, B, C, c }); };
+const ko5 = () => { const Ap = [ri(-4, 4), ri(-4, 4), ri(-4, 4)], u = mal(2, [nz(3), nz(3), nz(3)]), k = pick([2.5, -1.5, 1.5, -0.5, 3.5, -2.5]), B = add(Ap, u), C = add(Ap, mal(k, u)), a = C[1], b = C[2];
+  const o = [[a, b, true], [a, Ap[2] - k * u[2], false, `Derselbe Faktor ${tex(`${ft(k)}`)} gilt auch in der dritten Zeile – mit demselben Vorzeichen.`], [k * u[1], k * u[2], false, `Das sind die Koordinaten von ${tex(vek('AC'))}. Die Koordinaten von ${tex('A')} kommen noch dazu.`], [Ap[1] + (k + 1) * u[1], Ap[2] + (k + 1) * u[2], false, `Gerechnet wird von ${tex('A')} aus, nicht von ${tex('B')} aus.`]];
+  return A(`Bestimme ${tex('a')} und ${tex('b')} so, dass ${tex('A')}, ${tex('B')} und ${tex('C')} auf einer Geraden liegen. In welchem Verhältnis stehen dann ${tex(vek('AC'))} und ${tex(vek('AB'))}?`, zeilen(`${P('A', Ap)},\\quad ${P('B', B)}`, P('C', [C[0], 'a', 'b'])), o.map(([x, y, r, w]) => T(`a=${ft(x)},\\ b=${ft(y)}`, r, w)),
+    [`${tex(vek('AC'))} muss ein Vielfaches von ${tex(vek('AB'))} sein: ${tex(`${vek('AB')}=${V(u)}`)}, ${tex(`${vek('AC')}=${V([C[0] - Ap[0], `a${pm(-Ap[1])}`, `b${pm(-Ap[2])}`])}`)}.`, `Zeile 1 liefert den Faktor: ${tex(`k=${kl(C[0] - Ap[0])}:${kl(u[0])}=${ft(k)}`)}.`, `Zeile 2: ${tex(`a${pm(-Ap[1])}=${ft(k)}\\cdot ${kl(u[1])}=${ft(k * u[1])}`)}, also ${tex(`a=${ft(a)}`)}.`, `Zeile 3: ${tex(`b${pm(-Ap[2])}=${ft(k)}\\cdot ${kl(u[2])}=${ft(k * u[2])}`)}, also ${tex(`b=${ft(b)}`)}.`, `Probe: ${tex(`${vek('AC')}=${V(sub(C, Ap))}=${ft(k)}\\cdot ${V(u)}`)}${k < 0 ? ` – ${tex('C')} liegt von ${tex('A')} aus auf der anderen Seite als ${tex('B')}` : ` – ${tex('C')} liegt hinter ${tex('B')}`}.`],
+    `Faktor ${tex(`k=${ft(k)}`)} aus Zeile 1; damit ${tex(`a=${Ap[1]}+${kl(k)}\\cdot ${kl(u[1])}=${ft(a)}`)} und ${tex(`b=${Ap[2]}+${kl(k)}\\cdot ${kl(u[2])}=${ft(b)}`)}.`, 'zweifehlen', { A: Ap, B, C, a, b, k }); };
+export const genKollinear = bau([[ko(2, [2, 3], false)], [ko(3, [2, 3, -1, -2], false)], [ko(3, [1.5, -0.5, 2.5, 0.5, -1.5], true)], [ko4], [ko5]]);
+
+for (const [fn, name, topic] of [[genKoordPunkt, 'genKoordPunkt', 'Punkte im Raum'], [genKoordSpiegel, 'genKoordSpiegel', 'Spiegelungen'], [genParallelogramm, 'genParallelogramm', 'Vierecke im Raum'], [genGeradeGleich, 'genGeradeGleich', 'Geraden: gleiche Darstellung'], [genKollinear, 'genKollinear', 'Punkte auf einer Geraden']]) { Object.defineProperty(fn, 'name', { value: name }); fn.topic = topic; }
+export const GENS11 = { genKoordPunkt, genKoordSpiegel, genParallelogramm, genGeradeGleich, genKollinear };

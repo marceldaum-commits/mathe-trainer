@@ -39,6 +39,7 @@ import {
   genErwartung, genBinomial, genBaum, genStochastikMix, genVektorAB, genBetrag, genSkalar, genGeometrieMix,
 } from './gen.js';
 import { haerter as H } from './gen10.js';
+import { genKoordPunkt, genKoordSpiegel, genParallelogramm, genGeradeGleich, genKollinear } from './gen11.js';
 
 const T = (s) => `<div class="big">${tex(s, true)}</div>`;
 
@@ -189,6 +190,8 @@ const OBER = [
       ]) },
       { id: 'ab', kind: 'Brücke', title: 'Verbindungsvektoren', run: quiz([H(genVektorAB), H(genVektorAB), H(genVektorAB)]) },
       { id: 'betrag', kind: 'Brücke', title: 'Länge eines Vektors', run: quiz([H(genBetrag), H(genBetrag), H(genBetrag)]) },
+      { id: 'punkte', kind: 'Brücke', title: 'Punkte im Raum und Spiegeln', run: quiz([genKoordPunkt, genKoordPunkt, genKoordSpiegel, genKoordSpiegel]) },
+      { id: 'viereck', kind: 'Brücke', title: 'Parallelogramm und Raute', run: quiz([genParallelogramm, genParallelogramm, genParallelogramm]) },
     ],
   },
   {
@@ -310,6 +313,7 @@ const OBER = [
       ]) },
       { id: 'punkt', kind: 'Brücke', title: 'Punktprobe', run: quiz([H(genGeradePunkt), H(genGeradePunkt), H(genGeradePunkt)]) },
       { id: 'lage', kind: 'Brücke', title: 'Lage zweier Geraden', run: quiz([genLage, genLage, genLage, genLage]) },
+      { id: 'gleich', kind: 'Brücke', title: 'Dieselbe Gerade – drei Punkte auf einer Geraden', run: quiz([genGeradeGleich, genGeradeGleich, genKollinear, genKollinear]) },
     ],
   },
   {
@@ -599,11 +603,11 @@ const META = {
     formeln: [['Ablehnungsbereich (rechtsseitig)', '\\text{kleinstes }k\\text{ mit }P(X\\ge k)\\le\\alpha']] },
   's-kombi': { boss: ['Zähl-Zyklop', 'n!', [H(genKombinatorik)]], why: 'Passwörter, Lotto, Turnierpläne: Kombinatorik sagt, wie viele Möglichkeiten es gibt – und wie sicher ein Passwort ist.',
     formeln: [['Zählmodelle', 'n^k\\qquad \\dfrac{n!}{(n-k)!}\\qquad \\binom{n}{k}\\qquad n!']] },
-  'g-vektor': { boss: ['Vektor-Wächter', '→', [H(genVektorAB), H(genBetrag)]], why: 'Navigationsgeräte, Computerspiele und Roboterarme berechnen jede Bewegung mit Vektoren.',
+  'g-vektor': { boss: ['Vektor-Wächter', '→', [H(genVektorAB), H(genBetrag), genParallelogramm, genKoordSpiegel]], why: 'Navigationsgeräte, Computerspiele und Roboterarme berechnen jede Bewegung mit Vektoren.',
     formeln: [['Verbindungsvektor', '\\overrightarrow{AB}=B-A'], ['Betrag', '|\\vec v|=\\sqrt{v_1^2+v_2^2+v_3^2}']] },
   'g-skalar': { boss: ['Skalar-Sphinx', '·', [H(genSkalar)]], why: 'Solarzellen liefern am meisten, wenn die Sonne senkrecht auftrifft. Wie viel Licht ankommt, berechnet man mit dem Skalarprodukt.',
     formeln: [['Skalarprodukt', '\\vec u\\cdot\\vec v=u_1v_1+u_2v_2+u_3v_3'], ['Senkrecht', '\\vec u\\cdot\\vec v=0\\iff\\vec u\\perp\\vec v']] },
-  'g-gerade': { boss: ['Linien-Lord', 'g', [H(genGeradePunkt), genLage]], why: 'Zwei Flugrouten können sich auf der Karte kreuzen und trotzdem aneinander vorbeiführen – in verschiedenen Höhen. Das ist „windschief".',
+  'g-gerade': { boss: ['Linien-Lord', 'g', [H(genGeradePunkt), genLage, genGeradeGleich, genKollinear]], why: 'Zwei Flugrouten können sich auf der Karte kreuzen und trotzdem aneinander vorbeiführen – in verschiedenen Höhen. Das ist „windschief".',
     formeln: [['Gerade', 'g\\colon\\ \\vec x=\\vec p+t\\cdot\\vec u']] },
   'g-ebene': { boss: ['Ebenen-Eminenz', 'E', [H(genEbene), H(genSchnittpunkt), H(genKreuz)]], why: 'In 3D-Grafik besteht alles aus ebenen Flächen. Ob ein Lichtstrahl eine Fläche trifft, ist genau die Aufgabe „Gerade schneidet Ebene".',
     formeln: [['Koordinatenform', 'E\\colon\\ n_1x_1+n_2x_2+n_3x_3=d'], ['Kreuzprodukt', '\\vec u\\times\\vec v=\\begin{pmatrix}u_2v_3-u_3v_2\\\\u_3v_1-u_1v_3\\\\u_1v_2-u_2v_1\\end{pmatrix}']] },

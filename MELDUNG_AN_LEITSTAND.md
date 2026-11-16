@@ -2,6 +2,47 @@
 
 Neueste Meldung oben. Keine Geheimnisse, keine Personendaten (dieses Repo ist öffentlich, siehe Punkt 1).
 
+## 16.11.2026 (77) – 0.39.0: fünf Aufgaben-Arten zur Analytischen Geometrie (euer Auftrag vom 16.11., von Marcel direkt bestätigt) – Meldung „liegt auf test“ folgt nach dem Testlauf
+
+- **Schon vorhanden war:** Mittelpunkt und Diagonalen-Schnittpunkt (genMittelpunkt), Spiegelung an beliebiger Ebene/Gerade (genSpiegelung), Punktprobe (genGeradePunkt), Lage zweier Geraden (genLage).
+- **Neu** (`app/js/gen11.js`, eigene Aufgaben und Zahlen, nichts von der Vorlage übernommen):
+  1. **Punkte im Raum** – in welcher Koordinatenebene, auf welcher Achse, in zwei Ebenen zugleich, gleich weit von zwei Achsen, Parameter t (Abstand von einer Achse; gleich weit).
+  2. **Spiegeln** – an Koordinatenebene, an Achse, zwei Spiegelungen nacheinander, an der Ebene x_i = c, rückwärts (Urbild bzw. Lage der Spiegelebene bestimmen).
+  3. **Parallelogramm** – vierter Punkt, Nachweis über Vektoren, Raute über Seitenlängen, Ecke und Diagonalenlänge aus dem Diagonalen-Schnittpunkt, Rechteck/Raute/Quadrat.
+  4. **Gerade in Parameterform** – anderer Richtungsvektor, anderer Stützpunkt, zweite Gleichung derselben Geraden, identisch oder echt parallel, Parameter a und b.
+  5. **Drei Punkte auf einer Geraden** – Prüfung über Vielfache (auch gebrochene Faktoren), eine bzw. zwei fehlende Koordinaten.
+- „Punkt angeben“ ist als Auswahl-Aufgabe gebaut (die App prüft Antworten über Auswahl); die Bedingungen rechnet die Prüfdatei unabhängig nach.
+- **Stufen:** Jede der fünf Arten hat fünf Stufen und besteht `tests/stufen.mjs`. Anspruch Stufe 1…5: Punkte im Raum 9 · 11 · 17 · 44 · 65 (gerundet), Spiegeln 16 · 19 · 30 · 42 · 57, Parallelogramm 17 · 24 · 39 · 65 · 83, Gerade 28 · 30 · 45 · 68 · 82, drei Punkte 18 · 40 · 46 · 50 · 77.
+- **Nachtrag zu (76):** Der Stufen-Test hat bisher nur die Erzeuger gemessen, die über Endgegner und Übungslisten erreichbar sind (141). Jetzt misst er **alle 147 exportierten Erzeuger**. Dabei fiel die Lücken-Aufgabe zur Potenzregel durch; sie hat jetzt fünf echte Stufen. **0.38.0 lade ich deshalb nicht einzeln hoch – 0.39.0 enthält sie.** Aktuelle Überblicks-Tabelle (volle Tabelle: `docs/STUFEN.md`):
+
+| Gebiet | Stufe | Anspruch | Schritte | Regeln | Grad | Tiefe | Param. | Weg | krumm |
+|---|---|---|---|---|---|---|---|---|---|
+| Analysis (50 Arten) | 1 | 21,6 | 7,9 | 0,16 | 0,99 | 0,96 | 0,16 | 119 | 24 % |
+|  | 2 | 31,0 | 14,0 | 0,30 | 1,18 | 1,01 | 0,18 | 157 | 31 % |
+|  | 3 | 44,7 | 22,7 | 0,74 | 1,63 | 1,08 | 0,20 | 210 | 40 % |
+|  | 4 | 64,6 | 37,5 | 1,08 | 1,85 | 1,29 | 0,17 | 276 | 51 % |
+|  | 5 | 89,9 | 56,0 | 1,59 | 1,56 | 1,32 | 0,45 | 371 | 73 % |
+| Geometrie (31 Arten) | 1 | 22,8 | 7,2 | 0,23 | 0,06 | 0,42 | 0,61 | 126 | 5 % |
+|  | 2 | 34,7 | 15,8 | 0,28 | 0,06 | 0,39 | 0,63 | 176 | 7 % |
+|  | 3 | 50,6 | 26,8 | 0,38 | 0,06 | 0,44 | 0,76 | 223 | 22 % |
+|  | 4 | 72,3 | 42,3 | 0,76 | 0,06 | 0,55 | 0,71 | 316 | 41 % |
+|  | 5 | 102,0 | 61,8 | 1,34 | 0,06 | 0,51 | 1,39 | 420 | 54 % |
+| Klasse 5–10 (41 Arten) | 1 | 12,2 | 3,8 | 0,07 | 0,10 | 0,25 | 0,00 | 113 | 13 % |
+|  | 2 | 16,3 | 7,1 | 0,13 | 0,06 | 0,23 | 0,00 | 113 | 17 % |
+|  | 3 | 23,2 | 11,4 | 0,22 | 0,10 | 0,33 | 0,00 | 141 | 26 % |
+|  | 4 | 36,2 | 19,7 | 0,23 | 0,25 | 0,34 | 0,03 | 198 | 44 % |
+|  | 5 | 53,4 | 29,3 | 0,38 | 0,35 | 0,57 | 0,07 | 290 | 58 % |
+| Prüfungs-Operatoren (1 Art) | 1 | 8,6 | 0,0 | 0,00 | 0,00 | 0,00 | 0,00 | 227 | 0 % |
+|  | 2 | 15,4 | 0,0 | 0,00 | 0,00 | 0,00 | 0,00 | 431 | 0 % |
+|  | 3 | 20,5 | 0,0 | 0,00 | 0,00 | 0,00 | 0,00 | 506 | 0 % |
+|  | 4 | 23,0 | 0,0 | 0,00 | 0,00 | 0,00 | 0,00 | 594 | 0 % |
+|  | 5 | 31,9 | 0,0 | 0,00 | 0,00 | 0,00 | 0,00 | 602 | 54 % |
+| Stochastik (24 Arten) | 1 | 16,3 | 4,3 | 0,08 | 0,00 | 0,17 | 0,26 | 118 | 39 % |
+|  | 2 | 23,7 | 7,8 | 0,17 | 0,00 | 0,23 | 0,39 | 170 | 45 % |
+|  | 3 | 35,9 | 15,9 | 0,40 | 0,00 | 0,37 | 0,50 | 209 | 58 % |
+|  | 4 | 52,6 | 25,6 | 0,63 | 0,04 | 0,45 | 0,45 | 259 | 76 % |
+|  | 5 | 74,1 | 39,1 | 1,05 | 0,04 | 0,43 | 0,37 | 416 | 79 % |
+
 ## 16.11.2026 (76) – 0.38.0: Stufen-Nachweis (euer Auftrag vom 16.11., von Marcel direkt bestätigt) – Meldung „liegt auf test“ folgt nach dem Testlauf
 
 - **Maßstab** (`app/js/stufe.js`): Jede Aufgabe wird gemessen – Rechenzeichen im Lösungsweg (Schritte), genannte Regeln (Ketten-/Produkt-/Quotientenregel, Substitution, pq-Formel, Gegenereignis …), Grad, Verschachtelung, Buchstaben-Parameter, Länge des Lösungswegs, nicht-ganzzahliges Ergebnis; zusammen die Zahl „Anspruch“.
