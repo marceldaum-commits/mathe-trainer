@@ -2,7 +2,7 @@
 // Jede Teilaufgabe ist eine gewöhnliche Auswahl-Aufgabe (Ablenker = typische Fehler). Rechen-Felder für tests/run.mjs.
 import { ri, pick, shuffle, ft, polyTex, polyEval, polyDeriv } from './math.js';
 import { tex } from './ui.js';
-import { tier, par, vecTex, uniq, uniqNum, same, binom } from './gen.js';
+import { tier, par, vecTex, uniq, uniqNum, same, binom } from './a/gen.js';
 
 const P = (x, y) => `(${ft(x)}\\mid ${ft(y)})`;
 const fin = (parts) => parts.map((q, i) => ({ ...q, prompt: `<b>${'abcdef'[i]})</b> ${q.prompt}`, options: shuffle(q.options) }));

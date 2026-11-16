@@ -7,6 +7,7 @@
 import { ri, pick, shuffle, ft } from './math.js';
 import { tex } from './ui.js';
 import { tier, uniq, uniqNum } from './gen.js';
+import { leiter } from './faul.js';
 
 const N = (num, correct, why, t) => ({ tex: t ?? ft(num, 3), num, correct, why });
 const T = (t, correct, why) => ({ tex: t, correct, why });
@@ -375,10 +376,6 @@ export function genKurveSteil(lv = 3) {
  * Stufe 1 und 2: nur der einfache · Stufe 3: jede dritte Aufgabe steil · Stufe 4: zwei von drei · Stufe 5: immer steil.
  * Name und Thema bleiben die des einfachen Erzeugers (für Statistik, Länder-Filter, Schwächen-Blatt und Fehler-Kartei); q.von nennt, wer die Aufgabe wirklich gebaut hat.
  */
-export function leiter(basis, steil) {
-  const fn = (lv = 3) => { const s = lv >= 5 || (lv === 4 && ri(1, 3) <= 2) || (lv === 3 && ri(1, 3) === 1); const g = s ? steil : basis, qq = g(lv); qq.gen = basis.name; qq.topic = basis.topic; qq.von = g.name; return qq; };
-  Object.defineProperty(fn, 'name', { value: basis.name }); fn.topic = basis.topic; fn.basis = basis; fn.steil = steil;
-  return fn;
-}
+export { leiter };
 for (const [fn, topic] of [[genAbleitenSteil, 'Ableitungsregeln'], [genIntegrierenSteil, 'Integrale'], [genKurveSteil, 'Kurvendiskussion']]) fn.topic = topic;
 Object.assign(GENS9, { genAbleitenSteil, genIntegrierenSteil, genKurveSteil });

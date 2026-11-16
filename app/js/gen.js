@@ -5,6 +5,7 @@
 // Felder wie `val`, `num`, `xs`, `vec` sind die Antworten in Rechenform – für die Selbstprüfung in tests/.
 import { ri, pick, shuffle, rand, ft, fmt, polyTex, polyEval, polyDeriv, vertexTex } from './math.js';
 import { tex } from './ui.js';
+import { mixOf } from './faul.js';
 
 const uniq = (opts) => new Set(opts.map((o) => o.tex)).size === opts.length;
 const uniqNum = (opts) => opts.every((a, i) => opts.every((b, j) => i === j || Math.abs(a.num - b.num) > 1e-6));
@@ -1091,9 +1092,7 @@ const TOPICS = [[genScheitel, 'Scheitelform'], [genPotenzLuecke, 'Potenzregel'],
 for (const [fn, topic] of TOPICS) fn.topic = topic;
 
 /** Wählt je nach Stufe einen Erzeuger und merkt sich, welcher es war. */
-export function mixOf(lists) {
-  return (lv = 3) => { const fn = pick(lists[Math.min(lists.length, Math.max(1, lv)) - 1]); const q = fn(lv); q.gen = fn.name; q.topic = fn.topic; return q; };
-}
+export { mixOf };
 
 /* ───────────── Gemischte Runden ───────────── */
 

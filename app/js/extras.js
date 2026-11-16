@@ -1,13 +1,13 @@
 // Einstellungen, Eltern-Bericht und Fehler-Kartei.
-import * as G from './gen.js';
-import * as H from './gen2.js';
-import * as G3 from './gen3.js';
-import * as G4 from './gen4.js';
-import * as G5 from './gen5.js';
-import * as G6 from './gen6.js';
-import * as G7 from './gen7.js';
-import * as G8 from './gen8.js';
-import * as G9 from './gen9.js';
+import * as G from './a/gen.js';
+import * as H from './a/gen2.js';
+import * as G3 from './a/gen3.js';
+import * as G4 from './a/gen4.js';
+import * as G5 from './a/gen5.js';
+import * as G6 from './a/gen6.js';
+import * as G7 from './a/gen7.js';
+import * as G8 from './a/gen8.js';
+import * as G9 from './a/gen9.js';
 import { quiz } from './quiz.js';
 import { store, LEVELS, LAENDER, KARTEI_TAGE } from './store.js';
 import { UNITS, AREAS, istOber, jgName } from './units.js';

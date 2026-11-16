@@ -1,7 +1,7 @@
 // Runden auf Zeit: Abi-Modus (mit Punkte-Prognose), Tages-Runde (für alle gleich) und Duell per Link.
-import * as G from './gen.js';
-import * as H from './gen2.js';
-import * as K from './gen3.js';
+import * as G from './a/gen.js';
+import * as H from './a/gen2.js';
+import * as K from './a/gen3.js';
 import { seedRandom, shuffle, fmt } from './math.js';
 import { store, LEVELS, LAENDER, dayKey } from './store.js';
 import { $, h, tex, esc, ICON, sfx, confetti, toast } from './ui.js';

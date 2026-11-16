@@ -1,6 +1,7 @@
 // Prüft (oder aktualisiert mit --fix) die Dateiliste des Service Workers und die Versionsnummern.
 import { readdirSync, readFileSync, writeFileSync, statSync, rmSync, mkdirSync, existsSync } from 'node:fs';
 import { buendeln } from './buendeln.mjs';
+import { zwillingePflegen } from './zwilling.mjs';
 import { join, relative } from 'node:path';
 import { createHash } from 'node:crypto';
 
@@ -8,6 +9,8 @@ const APP = new URL('../app/', import.meta.url).pathname;
 const fix = process.argv.includes('--fix');
 const errors0 = [];
 // Bündel (app/b/): aus dem Quelltext in app/js/ erzeugt. --fix schreibt es neu, sonst wird geprüft, ob es zum Quelltext passt.
+// Platzhalter der Aufgaben-Dateien (app/js/a/): müssen zu den Erzeugern passen, bevor gebündelt wird.
+{ const ab = await zwillingePflegen(fix); if (ab.length) { console.error(`check: Platzhalter veraltet (${ab.join(', ')}) – bitte "npm run fix"`); process.exit(1); } }
 const B = await buendeln();
 { const dir = join(APP, 'b'), ist = existsSync(dir) ? readdirSync(dir).sort() : [], soll = Object.keys(B.dateien).map((f) => f.slice(2)).sort();
   const passt = JSON.stringify(ist) === JSON.stringify(soll) && soll.every((f) => readFileSync(join(dir, f), 'utf8') === B.dateien[`b/${f}`]);

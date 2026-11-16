@@ -979,6 +979,22 @@ await ctx2.close();
   await wp.waitForTimeout(2500); if (await wp.locator('#wache').count()) fail('Start-Wache: Hinweis erscheint, obwohl die App läuft');
   await wc.close();
 }
+// Paket 0.40.0: Aufgaben werden im Hintergrund nachgeladen – der Start wartet nicht darauf, Aufgaben-Seiten zeigen solange eine Warte-Karte
+{ const lc = await browser.newContext({ ...devices['Pixel 7'], serviceWorkers: 'block' }); const lp = await lc.newPage();
+  lp.on('pageerror', (e) => errors.push(`Nachladen: ${e}`));
+  const html = await (await lc.request.get(BASE)).text(), fest = new Set([...html.matchAll(/b\/(teil-[A-Z0-9]+\.js)/g)].map((m) => m[1]));
+  if (!fest.size) fail('Nachladen: keine fest eingebundenen Teile in der Startseite gefunden');
+  let art = 'abbruch', spaet = 0; await lc.route('**/b/teil-*.js', (r) => { if (fest.has(r.request().url().split('/').pop())) return r.continue(); spaet++; return art === 'abbruch' ? r.abort() : r.continue(); });
+  await lp.goto(BASE); await lp.waitForSelector('#home');
+  if (!(await lp.evaluate(() => window.__mtBereit === true))) fail('Nachladen: Start meldet sich nicht bereit, obwohl nur die Aufgaben fehlen');
+  if (!spaet) fail('Nachladen: Die Aufgaben-Teile werden nach dem Start nicht von selbst geholt');
+  for (const h of ['#/lernen', '#/pruefung', '#/mehr']) { await lp.evaluate((x) => { location.hash = x; }, h); await lp.waitForTimeout(250); if (await lp.locator('#auf-lade').count()) fail(`Nachladen: ${h} wartet unnötig auf die Aufgaben`); }
+  await lp.evaluate(() => { location.hash = '#/tag'; }); await lp.waitForSelector('#auf-neu', { timeout: 15000 });
+  if (shots) await lp.screenshot({ path: `${shots}/89-aufgaben-laden.png` });
+  art = 'frei'; await lp.click('#auf-neu'); await lp.waitForSelector('.opt, .gap, #q-in', { timeout: 20000 });
+  if (await lp.locator('#auf-lade').count()) fail('Nachladen: Warte-Karte bleibt stehen, obwohl die Aufgaben da sind');
+  await lc.close();
+}
 // Paket 0.30.0: Kopfrechen-Arena, Knobelaufgabe, Klassenarbeits-Trainer, Pi-Outfit, Zurücksetzen mit Auswahl
 { const kc = await browser.newContext({ ...devices['Pixel 7'], serviceWorkers: 'block' }); const kp = await kc.newPage();
   kp.on('pageerror', (e) => errors.push(`Paket 30: ${e}`)); kp.on('dialog', (d) => d.accept());

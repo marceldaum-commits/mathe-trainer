@@ -5,6 +5,7 @@ import { writeFileSync, readFileSync } from 'node:fs';
 globalThis.window = { katex: { renderToString: (s) => `<span class="katex"><annotation encoding="application/x-tex">${String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;')}</annotation></span>` } };
 const { seedRandom } = await import('../app/js/math.js');
 const U = await import('../app/js/units.js');
+await (await import('../app/js/faul.js')).ladeAufgaben();
 const { kennzahlen, stelle } = await import('../app/js/stufe.js');
 
 const N = +(process.env.N || 300), ROH = process.argv.includes('--roh');

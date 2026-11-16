@@ -17,6 +17,7 @@ const { solved } = GAMES.labor, LB = all(GAMES.labor);
 const { goal, endPoint } = GAMES.lotse, LO = all(GAMES.lotse);
 const { nextStreak, store } = await import('../app/js/store.js');
 const { UNITS, AREAS, practiceGens, landOk, landList, stepExtra, unitExtra } = await import('../app/js/units.js');
+await (await import('../app/js/faul.js')).ladeAufgaben();   // die Einheiten arbeiten mit Platzhaltern – hier die echten Erzeuger dazuladen
 
 let fails = 0, n = 0;
 const seen = new Set();
@@ -296,9 +297,10 @@ for (const [name, fn] of Object.entries({ ...G, ...H, ...K, ...K4 })) {
 }
 
 // 6e) Lehrplan-Filter (docs/LEHRPLAN.md): Hessen-Grundkurs ohne Hypothesentest, Normalverteilung, ln-Ableitung, Kreuzprodukt
-{ const GK = 'HE-GK', raus = [H.genLn, H.genSigma, H.genNormal, H.genKreuz, H.genHypothese];
+{ const HA = await import('../app/js/a/gen2.js'), KA4 = await import('../app/js/a/gen4.js');   // der Filter arbeitet auf den Platzhaltern der App
+  const GK = 'HE-GK', raus = [HA.genLn, HA.genSigma, HA.genNormal, HA.genKreuz, HA.genHypothese];
   ok(raus.every((f) => !landOk(f, GK) && landOk(f, 'BY') && landOk(f, 'HE-LK') && landOk(f, '')), 'Lehrplan: fünf Aufgaben-Arten gelten nur im Grundkurs nicht');
-  ok([K4.genPolstelle, K4.genAsymptote, K4.genQuotient, K4.genKugel].every((f) => !landOk(f, 'HE-LK') && !landOk(f, GK) && landOk(f, 'BY')) && [K4.genRotation, K4.genUneigentlich, K4.genAbstandPG, K4.genEbenenLage].every((f) => landOk(f, 'HE-LK') && !landOk(f, GK)) && [K4.genTrigAbl, K4.genTrigInt, K4.genUnabhaengig, K4.genVarianz, K4.genHyper].every((f) => landOk(f, GK)), 'Lehrplan: neue Themen je Land richtig zugeordnet');
+  ok([KA4.genPolstelle, KA4.genAsymptote, KA4.genQuotient, KA4.genKugel].every((f) => !landOk(f, 'HE-LK') && !landOk(f, GK) && landOk(f, 'BY')) && [KA4.genRotation, KA4.genUneigentlich, KA4.genAbstandPG, KA4.genEbenenLage].every((f) => landOk(f, 'HE-LK') && !landOk(f, GK)) && [KA4.genTrigAbl, KA4.genTrigInt, KA4.genUnabhaengig, KA4.genVarianz, KA4.genHyper].every((f) => landOk(f, GK)), 'Lehrplan: neue Themen je Land richtig zugeordnet');
   ok(landOk(H.genKumuliert, GK) && landOk(H.genWachstum, GK) && landOk(H.genEbene, GK) && landOk(H.genVierfelder, GK), 'Lehrplan: der übrige Stoff gilt auch im Grundkurs');
   for (const a of ['analysis', 'stochastik', 'geometrie']) ok(practiceGens(a, false, GK).every((f) => landOk(f, GK)) && practiceGens(a, false, GK).length >= 8 && practiceGens(a, false, 'BY').length > practiceGens(a, false, GK).length, `Lehrplan: freies Üben ${a} ohne Grundkurs-fremden Stoff`);
   const ex = await import('../app/js/exam.js');
@@ -1117,7 +1119,8 @@ ok(nextStreak({ n: 3, last: '2026-11-10' }, D('2026-11-12')).n === 1, 'Serie: au
 }
 
 // 14e4d) Paket 0.35: schwere Aufgaben für Stufe 4 und 5 in Grundlagen, Stochastik und Geometrie (gen10.js)
-{ const { schwer, THEMEN10, HART, haerter } = await import('../app/js/gen10.js'), E10 = await import('../app/js/eingabe.js'), U10 = await import('../app/js/units.js');
+{ const A10 = await import('../app/js/a/gen10.js');   // die App benutzt die Platzhalter – ihre Hüllen sind die eingehängten
+  const { schwer, THEMEN10, HART, haerter } = await import('../app/js/gen10.js'), E10 = await import('../app/js/eingabe.js'), U10 = await import('../app/js/units.js');
   const richtig = (q) => q.options.find((o) => o.correct), nah = (a, b) => Math.abs(a - b) < 1e-9, zahlen = (t) => (String(t).replace(/<[^>]+>/g, '').match(/\d+/g) || []).map(Number);
   ok(THEMEN10.length >= 20, `Paket 0.35: schwere Aufgaben zu ${THEMEN10.length} Themen`);
   for (const th of THEMEN10) { const arten = [4, 5].map((lv) => { const a = new Set(); for (let i = 0; i < 300; i++) { const q = schwer(th)(lv); basics(`schwer_${th}`, q, lv); a.add(q.kind);
@@ -1146,9 +1149,9 @@ ok(nextStreak({ n: 3, last: '2026-11-10' }, D('2026-11-12')).n === 1, 'Serie: au
   // Einhängen: Jeder ältere Erzeuger aus der Liste wird über die Leiter verschärft – Stufe 1 und 2 bleiben wie bisher, Stufe 5 kommt nur noch aus gen10
   const eingehaengt = new Set(U10.ALLE_UNITS.flatMap((u) => u.bossGens || []).filter((g) => g.steil).map((g) => g.name));
   ok(Object.keys(HART).filter((k) => eingehaengt.has(k)).length >= 18, `Paket 0.35: schwere Aufgaben hängen in den Endgegnern (${[...eingehaengt].filter((k) => HART[k]).length} Erzeuger)`);
-  for (const u of U10.ALLE_UNITS) for (const g of u.bossGens || []) if (HART[g.name]) { ok(g.steil === HART[g.name] && haerter(g.basis) === g, `${u.id}: ${g.name} ist über die Leiter eingehängt (immer dieselbe Hülle)`);
+  for (const u of U10.ALLE_UNITS) for (const g of u.bossGens || []) if (HART[g.name]) { ok(g.steil.name === HART[g.name].name && A10.haerter(g.basis) === g, `${u.id}: ${g.name} ist über die Leiter eingehängt (immer dieselbe Hülle)`);
     for (let i = 0; i < 40; i++) { const q1 = g(1), q5 = g(5); ok(q1.von === g.name && q1.gen === g.name, `${g.name}: Stufe 1 bleibt die bisherige Aufgabe`); ok(q5.von.startsWith('schwer_') && q5.gen === g.name && q5.topic === g.topic, `${g.name}: Stufe 5 kommt aus den schweren Aufgaben, Name und Thema bleiben`); } }
-  ok(U10.landOk(haerter((await import('../app/js/gen2.js')).genKreuz ?? (() => 0)), 'HE-GK') === false || !(await import('../app/js/gen2.js')).genKreuz, 'Länder-Filter erkennt auch verschärfte Erzeuger');
+  ok(U10.landOk(A10.haerter((await import('../app/js/a/gen2.js')).genKreuz), 'HE-GK') === false, 'Länder-Filter erkennt auch verschärfte Erzeuger');
 }
 
 // 14e4e) Paket 0.36: Schnellstart – Ladebild ab dem ersten Byte, Ladebalken, Vorladen, Theorie erst später

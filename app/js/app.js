@@ -10,7 +10,8 @@ import { kartenView, faellig } from './karten.js';
 import { karteView } from './karte.js';
 import { pi, figurFor } from './figuren.js';
 import { einstufungView, einstufungErgebnis, verbundView, planView, planNow, zertifikatView, areaDone } from './plus.js';
-import { mixOf } from './gen.js';
+import { mixOf } from './a/gen.js';
+import { ladeAufgaben, aufgabenDa, NichtGeladen } from './faul.js';
 import { store, LEVELS } from './store.js';
 import { CONFIG, VERSION, STAND } from './config.js';
 import { $, h, esc, ICON, starsHtml, toast, sfx, sound, confetti, look, formelnEinpassen } from './ui.js';
@@ -398,7 +399,25 @@ function theorieSpaeter(teil) {
   return { el };
 }
 
+/** Seiten ohne Aufgaben: Sie erscheinen sofort, auch wenn die Aufgaben-Erzeuger noch im Hintergrund laden. */
+const OHNE_AUFGABEN = ['', '#/', '#/lernen', '#/pruefung', '#/mehr', '#/stufe'];
+/** Alle anderen Seiten warten kurz, bis die Aufgaben da sind (beim ersten Start; danach liegen sie im Offline-Speicher). */
+function warteAufAufgaben(hash) {
+  cleanup?.(); cleanup = null;
+  const el = h(`<div class="view stack"><section class="card stack" id="auf-lade" role="status"><h3>Aufgaben werden geladen …</h3><p class="muted">Einen Moment – beim ersten Start dauert das kurz.</p></section></div>`);
+  view.replaceChildren(el); chips(); nav();
+  ladeAufgaben().then(() => { if (location.hash === hash) route(); }, () => {
+    if (!el.isConnected) return;
+    el.querySelector('#auf-lade').innerHTML = '<h3>Die Aufgaben konnten nicht geladen werden</h3><p class="muted">Prüfe deine Verbindung und versuche es noch einmal.</p><button class="btn" id="auf-neu" type="button">Noch einmal versuchen</button>';
+    el.querySelector('#auf-neu').addEventListener('click', route);
+  });
+}
 function route() {
+  const hash = location.hash;
+  if (!aufgabenDa() && !OHNE_AUFGABEN.includes(hash)) { warteAufAufgaben(hash); return; }
+  try { routeBau(); } catch (e) { if (e instanceof NichtGeladen) warteAufAufgaben(hash); else throw e; }
+}
+function routeBau() {
   cleanup?.(); cleanup = null;
   $('#sheet').hidden = true;
   const hash = location.hash;
@@ -467,6 +486,7 @@ window.addEventListener('beforeinstallprompt', (ev) => { ev.preventDefault(); in
 window.addEventListener('appinstalled', () => { installEvent = null; window.__mtInstall = null; toast('Installiert. Der Mathe-Trainer liegt jetzt bei deinen Apps.'); });
 route();
 window.__mtGestartet?.();
+ladeAufgaben().catch(() => {});   // Aufgaben-Erzeuger (rund 1,5 MB) gleich nach dem ersten Bild im Hintergrund holen
 // Die Theorie-Kapitel (rund 150 kB) braucht der erste Bildschirm nicht: Sie werden erst danach in Ruhe geholt.
 (window.requestIdleCallback || ((f) => setTimeout(f, 2500)))(() => { import('./theorie.js').catch(() => {}); });   // Start-Wache (wache.js): Die App läuft
 // Zu breite Formeln einpassen – nach jedem Umbau der Seite und wenn sich die Breite ändert.

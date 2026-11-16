@@ -5,8 +5,8 @@ import { CONFIG } from './config.js';
 import { $, h, esc, tex, ICON, starsHtml, sfx, confetti, drucken } from './ui.js';
 import { quiz } from './quiz.js';
 import { VERBUND } from './verbund.js';
-import { genPolynom, genExtremstellen, genBaum, genErwartung, genVektorAB, genSkalar } from './gen.js';
-import { genLinGl, genKlammer, genProzent, genLaplace, genPythagoras, genVektorRechnen } from './gen3.js';
+import { genPolynom, genExtremstellen, genBaum, genErwartung, genVektorAB, genSkalar } from './a/gen.js';
+import { genLinGl, genKlammer, genProzent, genLaplace, genPythagoras, genVektorRechnen } from './a/gen3.js';
 
 const LERN = () => AREAS.filter((a) => a.id !== 'pruefung');
 const again = () => window.dispatchEvent(new HashChangeEvent('hashchange'));

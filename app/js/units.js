@@ -14,32 +14,32 @@ import { flug } from './games/flug.js';
 import { werkstatt } from './games/werkstatt.js';
 import { raum } from './games/raum.js';
 import { tafel } from './games/tafel.js';
-import { mixOf } from './gen.js';
+import { mixOf } from './a/gen.js';
 import { MITTEL, MITTEL_AREAS, MITTEL_BALD } from './units-m.js';
 import {
   genBruch, genKlammer, genLinGl, genQuadGl, genPotenz, genSteigung, genHaeufigkeit, genProzent, genKennwerte, genLaplace, genGegen,
   genPythagoras, genTrig, genFlaeche, genMittelpunkt, genVektorRechnen,
-} from './gen3.js';
+} from './a/gen3.js';
 import {
   genPolstelle, genAsymptote, genQuotient, genTrigAbl, genTrigInt, genRotation, genUneigentlich, genUnabhaengig, genVarianz, genHyper, genKugel, genAbstandPG, genEbenenLage,
-} from './gen4.js';
-import { genBegrenzt, genBegrenztRate, genLogistisch, genWachstumArt, genSpurpunkt, genNormalenform, genParamPunkt } from './gen5.js';
-import { genUmkehr, genWurzelAbl, genIntegralfunktion, genNewton, genOrtskurve, genHesse, genSchnittgerade, genWindschief, genSpiegelung, genBewegung, genZweiseitig, genHistogramm, genRueckwaerts, genStetig, genMengen, genBinomVerteilung } from './gen8.js';
-import { genIntegralE, genIntegralLn, genKurveE, genKurveLn, genAbleitenSteil, genIntegrierenSteil, genKurveSteil, leiter } from './gen9.js';
+} from './a/gen4.js';
+import { genBegrenzt, genBegrenztRate, genLogistisch, genWachstumArt, genSpurpunkt, genNormalenform, genParamPunkt } from './a/gen5.js';
+import { genUmkehr, genWurzelAbl, genIntegralfunktion, genNewton, genOrtskurve, genHesse, genSchnittgerade, genWindschief, genSpiegelung, genBewegung, genZweiseitig, genHistogramm, genRueckwaerts, genStetig, genMengen, genBinomVerteilung } from './a/gen8.js';
+import { genIntegralE, genIntegralLn, genKurveE, genKurveLn, genAbleitenSteil, genIntegrierenSteil, genKurveSteil, leiter } from './a/gen9.js';
 /* Steile Leitern (Marcel, 16.11.2026: „Stufe 1 bis 5 muss ordentlich ansteigen“): ab Stufe 3 zunehmend, auf Stufe 5 nur noch die schweren Aufgaben. */
 const AB = (g) => leiter(g, genAbleitenSteil), IN = (g) => leiter(g, genIntegrierenSteil), KU = (g) => leiter(g, genKurveSteil);
 import {
   genWendestelle, genMonotonie, genSymmetrie, genGrenzwert, genTangente, genSteckbrief, genSchar, genExtremwert, genLn, genWachstum, genFlaecheZwischen,
   genVierfelder, genBedingt, genKumuliert, genSigma, genHypothese, genNormal, genKombinatorik,
   genGeradePunkt, genEbene, genLage, genSchnittpunkt, genAbstand, genWinkel, genKreuz, genOperator,
-} from './gen2.js';
+} from './a/gen2.js';
 import {
   genScheitel, genPotenzLuecke, genPolynom, genKette, genExp, genProdukt, genMix,
   genExtremstellen, genHochTief, genExtremaMix, genStammfunktion, genIntegral, genIntegralMix,
   genErwartung, genBinomial, genBaum, genStochastikMix, genVektorAB, genBetrag, genSkalar, genGeometrieMix,
-} from './gen.js';
-import { haerter as H } from './gen10.js';
-import { genKoordPunkt, genKoordSpiegel, genParallelogramm, genGeradeGleich, genKollinear } from './gen11.js';
+} from './a/gen.js';
+import { haerter as H } from './a/gen10.js';
+import { genKoordPunkt, genKoordSpiegel, genParallelogramm, genGeradeGleich, genKollinear } from './a/gen11.js';
 
 const T = (s) => `<div class="big">${tex(s, true)}</div>`;
 

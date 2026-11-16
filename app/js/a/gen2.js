@@ -1,0 +1,28 @@
+// Erzeugt von tools/zwilling.mjs – nicht von Hand ändern. Leichte Platzhalter für app/js/gen2.js (siehe app/js/faul.js).
+import { S } from '../faul.js';
+export const genAbstand = S('gen2', 'genAbstand', "genAbstand", "Abstände");
+export const genBedingt = S('gen2', 'genBedingt', "genBedingt", "Bedingte Wahrscheinlichkeit");
+export const genEbene = S('gen2', 'genEbene', "genEbene", "Ebenen: Punktprobe");
+export const genExtremwert = S('gen2', 'genExtremwert', "genExtremwert", "Extremwertaufgaben");
+export const genFlaecheZwischen = S('gen2', 'genFlaecheZwischen', "genFlaecheZwischen", "Fläche zwischen Graphen");
+export const genGeradePunkt = S('gen2', 'genGeradePunkt', "genGeradePunkt", "Geraden: Punktprobe");
+export const genGrenzwert = S('gen2', 'genGrenzwert', "genGrenzwert", "Grenzwerte");
+export const genHypothese = S('gen2', 'genHypothese', "genHypothese", "Hypothesentests");
+export const genKombinatorik = S('gen2', 'genKombinatorik', "genKombinatorik", "Kombinatorik");
+export const genKreuz = S('gen2', 'genKreuz', "genKreuz", "Kreuzprodukt");
+export const genKumuliert = S('gen2', 'genKumuliert', "genKumuliert", "Kumulierte Binomialverteilung");
+export const genLage = S('gen2', 'genLage', "genLage", "Lage von Geraden");
+export const genLn = S('gen2', 'genLn', "genLn", "ln-Funktion ableiten");
+export const genMonotonie = S('gen2', 'genMonotonie', "genMonotonie", "Monotonie");
+export const genNormal = S('gen2', 'genNormal', "genNormal", "Normalverteilung");
+export const genOperator = S('gen2', 'genOperator', "genOperator", "Operatoren");
+export const genSchar = S('gen2', 'genSchar', "genSchar", "Funktionenscharen");
+export const genSchnittpunkt = S('gen2', 'genSchnittpunkt', "genSchnittpunkt", "Schnitt Gerade–Ebene");
+export const genSigma = S('gen2', 'genSigma', "genSigma", "Sigma-Regeln");
+export const genSteckbrief = S('gen2', 'genSteckbrief', "genSteckbrief", "Steckbriefaufgaben");
+export const genSymmetrie = S('gen2', 'genSymmetrie', "genSymmetrie", "Symmetrie");
+export const genTangente = S('gen2', 'genTangente', "genTangente", "Tangentengleichung");
+export const genVierfelder = S('gen2', 'genVierfelder', "genVierfelder", "Vierfeldertafel");
+export const genWachstum = S('gen2', 'genWachstum', "genWachstum", "Wachstum");
+export const genWendestelle = S('gen2', 'genWendestelle', "genWendestelle", "Wendepunkte");
+export const genWinkel = S('gen2', 'genWinkel', "genWinkel", "Winkel");
