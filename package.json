@@ -4,7 +4,10 @@
   "type": "module",
   "scripts": {
     "check": "node tools/check.mjs && node tests/run.mjs",
-    "fix": "node tools/check.mjs --fix",
+    "fix": "node tools/check.mjs --fix && node tools/check.mjs --fix",
     "start": "python3 -m http.server 8123 --directory app"
+  },
+  "devDependencies": {
+    "esbuild": "0.28.2"
   }
 }

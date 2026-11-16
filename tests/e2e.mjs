@@ -970,7 +970,7 @@ await ctx2.close();
 // Start-Wache: Lädt das Programm nicht, gibt es einen Neu-Lade-Versuch und danach einen Hinweis mit Knopf – nie eine leere Seite
 { const wc = await browser.newContext({ ...devices['Pixel 7'], serviceWorkers: 'block' }); const wp = await wc.newPage();
   await wc.addInitScript(() => { window.__mtWacheMs = 1500; });
-  let abrufe = 0, sperre = true; await wc.route('**/js/app.js', (r) => { abrufe++; return sperre ? r.abort() : r.continue(); });
+  let abrufe = 0, sperre = true; await wc.route('**/b/app.js', (r) => { abrufe++; return sperre ? r.abort() : r.continue(); });
   await wp.goto(BASE); await wp.waitForSelector('#wache-neu', { timeout: 15000 });
   if (abrufe < 2) fail('Start-Wache: kein eigener Neu-Lade-Versuch vor dem Hinweis');
   if (shots) await wp.screenshot({ path: `${shots}/88-start-wache.png` });

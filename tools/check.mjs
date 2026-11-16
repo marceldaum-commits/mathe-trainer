@@ -1,10 +1,19 @@
 // Prüft (oder aktualisiert mit --fix) die Dateiliste des Service Workers und die Versionsnummern.
-import { readdirSync, readFileSync, writeFileSync, statSync } from 'node:fs';
+import { readdirSync, readFileSync, writeFileSync, statSync, rmSync, mkdirSync, existsSync } from 'node:fs';
+import { buendeln } from './buendeln.mjs';
 import { join, relative } from 'node:path';
 import { createHash } from 'node:crypto';
 
 const APP = new URL('../app/', import.meta.url).pathname;
 const fix = process.argv.includes('--fix');
+const errors0 = [];
+// Bündel (app/b/): aus dem Quelltext in app/js/ erzeugt. --fix schreibt es neu, sonst wird geprüft, ob es zum Quelltext passt.
+const B = await buendeln();
+{ const dir = join(APP, 'b'), ist = existsSync(dir) ? readdirSync(dir).sort() : [], soll = Object.keys(B.dateien).map((f) => f.slice(2)).sort();
+  const passt = JSON.stringify(ist) === JSON.stringify(soll) && soll.every((f) => readFileSync(join(dir, f), 'utf8') === B.dateien[`b/${f}`]);
+  if (!passt) { if (fix) { rmSync(dir, { recursive: true, force: true }); mkdirSync(dir); for (const f of soll) writeFileSync(join(dir, f), B.dateien[`b/${f}`]); console.log(`Bündel aktualisiert: ${soll.length} Dateien, ${Math.round(soll.reduce((n, f) => n + B.dateien[`b/${f}`].length, 0) / 1024)} kB`); }
+    else errors0.push('Das Bündel app/b/ passt nicht zum Quelltext in app/js/ → npm run fix'); } }
+const GEBUENDELT = new Set(B.quellen);   // diese Quell-Dateien stecken im Bündel: nicht in den Offline-Speicher, nicht in die Update-Liste
 
 function walk(dir) {
   return readdirSync(dir).flatMap((n) => {
@@ -14,7 +23,7 @@ function walk(dir) {
 }
 const files = walk(APP).filter((f) => f !== 'sw.js' && f !== 'stand.json' && !/LICENSE/.test(f)).sort();
 // Bilder für den Installations-Dialog (img/shots) braucht die App offline nicht.
-const assets = ['./', ...files.filter((f) => f !== 'index.html' && !f.startsWith('img/shots/'))];
+const assets = ['./', ...files.filter((f) => f !== 'index.html' && !f.startsWith('img/shots/') && !GEBUENDELT.has(f))];
 
 const swPath = join(APP, 'sw.js');
 let sw = readFileSync(swPath, 'utf8');
@@ -22,7 +31,7 @@ const version = readFileSync(join(APP, 'js/config.js'), 'utf8').match(/VERSION =
 const want = `const ASSETS = ${JSON.stringify(assets, null, 2)};`;
 const wantCache = `const CACHE = 'mt-${version}';`;
 
-const errors = [];
+const errors = [...errors0];
 // Datum der Version: Wird die VERSION erhöht (sw.js trägt noch die alte), setzt --fix das heutige Datum (deutsche Zeit).
 const cfgPath = join(APP, 'js/config.js');
 let cfg = readFileSync(cfgPath, 'utf8');
@@ -53,17 +62,15 @@ if (huelle.sha !== huelleSha) {
   else errors.push('android/ hat sich geändert, android/huelle.json passt nicht mehr → npm run fix');
 }
 const standPath = join(APP, 'stand.json');
-// Vorlade-Liste in index.html: alle Module, die js/app.js fest einbindet (nicht die erst später nachgeladenen).
-{ const gesehen = new Set(), weiter = ['js/app.js'];
-  while (weiter.length) { const f = weiter.pop(); if (gesehen.has(f)) continue; gesehen.add(f);
-    for (const m of readFileSync(join(APP, f), 'utf8').matchAll(/^(?:import|export)\b[^'"\n]*?(?:from\s*)?['"](\.[^'"]+)['"]/gm)) weiter.push(join(f, '..', m[1]).replace(/\\/g, '/')); }
-  const liste = [...gesehen].filter((f) => f !== 'js/app.js').sort().map((f) => `<link rel="modulepreload" href="${f}">`).join('\n');
+// Vorlade-Liste in index.html: die Teile des Bündels, die b/app.js fest einbindet (nicht die erst später nachgeladenen).
+{ const liste = B.fest.map((f) => `<link rel="modulepreload" href="${f}">`).join('\n');
   const p = join(APP, 'index.html'), alt = readFileSync(p, 'utf8'), neu = alt.replace(/<!-- VORLADEN -->[\s\S]*?<!-- \/VORLADEN -->/, `<!-- VORLADEN -->\n${liste}\n<!-- /VORLADEN -->`);
   if (!alt.includes('<!-- VORLADEN -->')) errors.push('index.html: Marke <!-- VORLADEN --> fehlt');
-  else if (neu !== alt) { if (fix) { writeFileSync(p, neu); console.log(`index.html: Vorlade-Liste aktualisiert (${gesehen.size - 1} Module)`); } else errors.push('Vorlade-Liste in index.html ist veraltet → npm run fix'); }
+  else if (neu !== alt) { if (fix) { writeFileSync(p, neu); console.log(`index.html: Vorlade-Liste aktualisiert (${B.fest.length} Teile)`); } else errors.push('Vorlade-Liste in index.html ist veraltet → npm run fix'); }
+  if (!/<script type="module" src="b\/app\.js"><\/script>/.test(alt)) errors.push('index.html muss das Bündel b/app.js laden');
 }
 const dateien = {};
-for (const f of walk(APP).filter((f) => f !== 'stand.json' && !f.startsWith('img/shots/')).sort()) dateien[f] = sha(readFileSync(join(APP, f)));
+for (const f of walk(APP).filter((f) => f !== 'stand.json' && !f.startsWith('img/shots/') && !GEBUENDELT.has(f)).sort()) dateien[f] = sha(readFileSync(join(APP, f)));
 const wantStand = `${JSON.stringify({ version, huelle: huelle.nr, dateien }, null, 1)}\n`;
 let istStand = ''; try { istStand = readFileSync(standPath, 'utf8'); } catch { /* fehlt noch */ }
 if (istStand !== wantStand) { if (fix) { writeFileSync(standPath, wantStand); console.log('stand.json aktualisiert'); } else errors.push('app/stand.json ist veraltet → npm run fix'); }

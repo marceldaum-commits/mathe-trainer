@@ -1108,7 +1108,8 @@ ok(nextStreak({ n: 3, last: '2026-11-10' }, D('2026-11-12')).n === 1, 'Serie: au
   const st = JSON.parse(readFileSync(new URL('../app/stand.json', import.meta.url), 'utf8')), cfg = readFileSync(new URL('../app/js/config.js', import.meta.url), 'utf8');
   ok(st.version === cfg.match(/VERSION = '([^']+)'/)[1], 'stand.json: Version passt zur App');
   ok(st.huelle >= 1 && st.huelle === JSON.parse(readFileSync(new URL('../android/huelle.json', import.meta.url), 'utf8')).nr, 'stand.json: Nummer der App-Hülle passt');
-  ok(st.dateien['index.html'] && st.dateien['sw.js'] && st.dateien['js/app.js'] && !st.dateien['stand.json'], 'stand.json: wichtige Dateien dabei, sich selbst nicht');
+  ok(st.dateien['index.html'] && st.dateien['sw.js'] && st.dateien['b/app.js'] && st.dateien['js/wache.js'] && !st.dateien['stand.json'], 'stand.json: wichtige Dateien dabei, sich selbst nicht');
+  ok(!st.dateien['js/app.js'] && !st.dateien['js/units.js'] && !st.dateien['js/games/boss.js'], 'stand.json: gebündelte Quell-Dateien werden nicht einzeln ausgeliefert');
   for (const [f, sha] of Object.entries(st.dateien)) {
     ok(/^[A-Za-z0-9_][A-Za-z0-9_.-]*(\/[A-Za-z0-9_][A-Za-z0-9_.-]*)*$/.test(f) && !f.includes('..'), `stand.json: Dateiname für die App lesbar (${f})`);
     ok(createHash('sha256').update(readFileSync(new URL(`../app/${f}`, import.meta.url))).digest('hex') === sha, `stand.json: Prüfsumme stimmt (${f})`);
@@ -1159,7 +1160,13 @@ ok(nextStreak({ n: 3, last: '2026-11-10' }, D('2026-11-12')).n === 1, 'Serie: au
   ok(!/<script(?![^>]*\bsrc=)[^>]*>/.test(html), 'Schnellstart: kein eingebettetes Skript (die Sicherheits-Regel der Seite verbietet es)');
   ok(kopf.includes('prefers-color-scheme:dark') && kopf.includes(':root[data-look="dunkel"] #lade') && kopf.includes('<noscript><style>#lade{display:none}'), 'Schnellstart: Ladebild hell und dunkel; ohne JavaScript verdeckt es nichts');
   const vor = [...kopf.matchAll(/<link rel="modulepreload" href="([^"]+)">/g)].map((m) => m[1]);
-  ok(vor.length >= 60 && vor.includes('js/units.js') && vor.includes('js/gen10.js') && !vor.some((f) => /theorie/.test(f)), `Schnellstart: ${vor.length} Module werden gleichzeitig vorgeladen, die Theorie nicht`);
+  const bdir = new URL('../app/b/', import.meta.url), teile = (await import('fs')).readdirSync(bdir), text = Object.fromEntries(teile.map((f) => [f, readFileSync(new URL(f, bdir), 'utf8')]));
+  ok(html.includes('<script type="module" src="b/app.js"></script>') && teile.includes('app.js') && teile.length >= 3, `Bündel: Die Seite lädt b/app.js (${teile.length} Teile)`);
+  const spaet = teile.filter((f) => /Ganzrationale Funktionen|Genauer hingeschaut/.test(text[f]) && f !== 'app.js');
+  ok(vor.length >= 1 && vor.every((f) => /^b\/teil-/.test(f)) && spaet.length === 1 && !vor.includes(`b/${spaet[0]}`), 'Schnellstart: Der Hauptteil des Bündels wird vorgeladen, der Theorie-Teil nicht');
+  const alles = Object.values(text).join('\n');
+  ok(['genBruch', 'genIntegralE', 'genBinomVerteilung', 'schwer_bruch', 'genAbleitenSteil'].every((n) => alles.includes(`"${n}"`) || alles.includes(`\`schwer_`)), 'Bündel: Die Namen der Aufgaben-Erzeuger bleiben erhalten (Lernstand und Fehler-Kartei hängen daran)');
+  ok(alles.length < 1.25e6 && !/\n {4,}\/\/ /.test(alles.slice(0, 20000)), `Bündel: verkleinert (${Math.round(alles.length / 1024)} kB)`);
   const app = readFileSync(new URL('../app/js/app.js', import.meta.url), 'utf8'), wa = readFileSync(new URL('../app/js/wache.js', import.meta.url), 'utf8');
   ok(!/^import[^\n]*theorie\.js/m.test(app) && (app.match(/import\('\.\/theorie\.js'\)/g) || []).length >= 2, 'Schnellstart: Die Theorie wird erst beim Öffnen (und in einer ruhigen Minute) geladen');
   ok(wa.includes('ladebildWeg()') && wa.includes("performance.mark('mt-bereit')") && wa.indexOf('ladebildWeg();\n    if (!v') > 0, 'Schnellstart: Das Ladebild verschwindet beim Start – und auch, wenn die Start-Wache ihren Hinweis zeigt');

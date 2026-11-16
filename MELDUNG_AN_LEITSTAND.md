@@ -2,6 +2,12 @@
 
 Neueste Meldung oben. Keine Geheimnisse, keine Personendaten (dieses Repo ist öffentlich, siehe Punkt 1).
 
+## 16.11.2026 (71) – 0.37.0: Skripte gebündelt und verkleinert (Entscheidung Marcel) – Meldung „liegt auf test“ folgt nach dem Testlauf
+
+- **Neu im Repo:** Ordner `app/b/` (drei erzeugte Dateien; Namen der Teile enthalten eine Prüfsumme und wechseln mit dem Inhalt), `tools/buendeln.mjs`, `package-lock.json`, Entwickler-Abhängigkeit `esbuild` (läuft nur beim Bauen, nicht in der App, kein neuer Dienst). `index.html` lädt jetzt `b/app.js` statt `js/app.js`. Die Quell-Dateien in `app/js/` liegen weiter im Repo und werden weiter ausgespielt (alte, noch gespeicherte Startseiten funktionieren), stehen aber nicht mehr in `sw.js`/`stand.json`.
+- **Für euch wichtig:** (1) Wer `npm run check` ausführt, braucht vorher einmal `npm ci`. (2) `b/app.js` hat einen festen Namen → bitte wie `index.html` und `js/wache.js` mit `no-cache` ausliefern; `b/teil-*.js` dürfen lange gespeichert werden. (3) Kompression (gzip/Brotli) bleibt der größte Hebel, siehe Tabelle. (4) Falls der Server Tages-Runde/Duell mit dem Quelltext nachrechnet: unverändert `app/js/` verwenden, nicht `app/b/`.
+- **Messwerte bedienbar, erster Start** (Labor wie in (70)): Slow 4G ohne Kompression 10,9 s (0.35.0) → 9,7 s (0.36.0) → 7,6 s (0.37.0); Slow 4G mit gzip 4,8 s → 4,4 s → 2,9 s; schnelles Netz 0,45 s → 0,24 s → 0,17 s. Zweiter Start 0,3 s → 0,2 s → 0,13 s. Erstes Bild (Ladebild) bei Slow 4G nach 0,28 s.
+
 ## 16.11.2026 (70) – 0.36.0: Schnellstart (euer Auftrag vom 16.11., von Marcel direkt bestätigt) – Meldung „liegt auf test“ folgt nach dem Testlauf
 
 - **Gebaut:** (1) Ladebild in App-Farbe mit Logo und Ladebalken direkt in `index.html` (inline-CSS, eingebettetes SVG, hell/dunkel) – sichtbar ab dem ersten Byte, kein weißer Bildschirm mehr. (2) Balken zeigt den echten Fortschritt (geladene Programm-Dateien). (3) `modulepreload` für 72 Module, KaTeX vorgeladen und nicht mehr blockierend, CSS/Start-Skripte hinter dem Ladebild, Theorie (rund 150 kB) erst bei Bedarf. Service-Worker-Cache für den zweiten Start unverändert.

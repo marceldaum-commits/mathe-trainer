@@ -28,6 +28,7 @@ jobs:
         with: { distribution: temurin, java-version: '17' }
       - name: Prüfen (Dateiliste, Rechen-Tests, Selbst-Aktualisierung)
         run: |
+          npm ci
           npm run check
           bash tests/android/pruefen.sh
       - name: Bauen und signieren
