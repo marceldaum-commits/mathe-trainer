@@ -2,6 +2,33 @@
 
 Neueste Meldung oben. Keine Geheimnisse, keine Personendaten (dieses Repo ist öffentlich, siehe Punkt 1).
 
+## 16.11.2026 (78) – Konzept Lehrerzugang (euer Auftrag vom 16.11., von Marcel direkt bestätigt) – nur Vorschlag, nichts gebaut
+
+**1. Was die Lehrkraft im Mathe-Trainer sieht und steuert**
+- **Aufträge an die Klasse:** Themen (Einheiten oder einzelne Aufgaben-Arten), Stufe 1–5 (fest oder „mindestens“), Anzahl Aufgaben, Frist. Sonderformen: Probeklausur bzw. Probe-Arbeit (feste Aufgaben für alle über einen Startwert, damit vergleichbar) und Abi-Prüfungsmodus.
+- **Ergebnisse:** je Schüler und Auftrag erledigt ja/nein, Anteil richtig, Stufe, Dauer; je Schüler und Thema Anteil richtig der letzten 20 Aufgaben; für die Klasse die drei schwächsten Themen. Kein Verlauf einzelner Antworten.
+- **Prüfungsmodus:** Auftrag ohne Tipps, ohne KI, ohne Lösungsweg bis zur Abgabe; Ergebnis erst nach der Frist sichtbar.
+- Was die Lehrkraft nicht sieht: Streak, Spielstände, Punkte außerhalb von Aufträgen (bleibt freiwillig in der Rangliste).
+
+**2. Daten aus der App (so knapp wie möglich)**
+- Beim Beitritt wie heute: Klassen-Code, Spitzname, zufällige Kennung des Geräts. Kein Konto, keine Mail, kein Klarname.
+- Je Auftrag eine Meldung: Auftrags-Kennung, Kennung, erledigt, richtig/gesamt, Stufe, Dauer in Minuten, Zeitpunkt.
+- Für die Themen-Übersicht höchstens einmal am Tag: je Thema richtig/gesamt (nur Themen der Klasse, nur solange der Schüler Mitglied ist).
+- Die App holt Aufträge ab (`GET …/klasse/<code>/auftraege`), der Server schickt nichts von sich aus außer der vorhandenen Erinnerung.
+- Verlassen der Klasse löscht die Daten des Schülers am Server; Lehrkraft kann Schüler und Klasse löschen und Ergebnisse als CSV ausgeben.
+
+**3. Beitritt**
+- Wie heute über Klassen-Code; neu zusätzlich QR bzw. Link `…/#/klasse/<CODE>` (öffnet die App mit eingetragenem Code, Schüler tippt nur den Spitznamen). In der Android-App derselbe Link als App-Link.
+- Spitznamen prüft die Lehrkraft in ihrer Liste und kann sie entfernen. Ein Gerät kann in mehreren Klassen sein.
+
+**4. Frei und Schullizenz, Preisvorschlag**
+- **Frei für jede Lehrkraft:** eine Klasse, Beitritt, Rangliste, einfache Aufträge (Thema + Anzahl + Frist), „erledigt ja/nein“.
+- **Schullizenz:** beliebig viele Klassen, Ergebnisse je Schüler und Thema, Prüfungsmodus, Probeklausur als Auftrag, Export – und **Pro für alle Schüler der Klasse**, solange die Lizenz gilt (Drucken/PDF, Schwächen-Blatt, Theorie ausführlich und die neu nach Pro verschobenen Teile). KI ist nicht enthalten (laufende Kosten); als Zusatz buchbar.
+- **Zusammenspiel mit MT-PRO:** Der Server meldet der App beim Klassen-Abruf `pro: true, bis: <Lizenzende>`; die App behandelt das wie einen Zugang der Art „Schule“. Ein eigener Pro-Code des Schülers bleibt gültig und gewinnt, wenn er mehr kann (Pro + KI) oder länger läuft. Tritt der Schüler aus oder endet die Lizenz, fällt nur der Schul-Zugang weg.
+- **Preisvorschlag (inkl. 19 % USt, je Schuljahr):** Klassenlizenz 59 € (eine Lehrkraft, bis 35 Schüler; netto 49,58 €) · Schullizenz 349 € (alle Klassen einer Schule; netto 293,28 €) · Zusatz KI für eine Klasse 149 € (Tageslimit je Schüler 5; bei 30 Schülern und voller Nutzung über 10 Monate höchstens rund 500 € Kosten – deshalb Limit am Server je Klasse deckeln, Vorschlag 3 000 Abrufe je Monat ≈ 33 €). Vergleichspreise anderer Anbieter für Schulen habe ich nicht belastbar gefunden – bitte gegenprüfen. Schulen brauchen Rechnung mit ausgewiesener USt und meist Zahlung auf Rechnung (Überweisung).
+
+**Offen für Marcel:** Preise, ob KI für Schulen angeboten wird, ob die freie Stufe eine oder mehrere Klassen erlaubt.
+
 ## 16.11.2026 (75) – Konzept Pro: Umsatzsteuer (euer Nachtrag vom 16.11.)
 
 Alle Preise sind Endpreise **inkl. 19 % USt** und werden in der App so angezeigt („inkl. MwSt.“).
