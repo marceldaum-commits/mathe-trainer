@@ -194,6 +194,11 @@ Noch offen: Drucken/Teilen, Prüfung auf einem echten Handy.
 
 ## Selbst-Aktualisierung (ab 0.22.0; Marcel, 14.11.2026: „beides zusammen“)
 
+> **Gilt seit 16.11.2026 (Marcel: „Wenn die App in den Store kommt, lädt der Store von dort. Web-App von GitHub“) – geht älteren Texten vor, auch dem der Tages-Routine:**
+> - **Store-App:** bekommt Neues **nur über den Play Store**. Die Store-Fassung wird mit **`MT_KANAL=aus`** gebaut – sie lädt keine Inhalte nach und zeigt keinen Such-Knopf mit Wirkung. Jede neue Version heißt: neue Datei in den Store. (Der Kanal `store` im Code bleibt ungenutzt.)
+> - **Test-App (Datei aus dem Drive-Ordner, Marcels Handy):** lädt wie bisher zuerst von GitHub (Zweig `test`), sonst vom eigenen Server.
+> - **Web-App:** kommt aus GitHub (der Server spielt die Zweige `test` und `live` aus) und aktualisiert sich im Browser von selbst, ohne Knopf.
+
 Die App besteht aus der **Hülle** (Android-Teil: Fenster, Widget, Erinnerung) und den **Inhalten** (die Web-App im Ordner `app/`).
 
 - **Inhalte holt sich die App selbst.** Bei jedem Start mit Internet liest sie `stand.json` vom eigenen Server (Version, Nummer der
@@ -201,7 +206,7 @@ Die App besteht aus der **Hülle** (Android-Teil: Fenster, Widget, Erinnerung) u
   nächsten Start – oder sofort über den Knopf „Jetzt nutzen“. Geht etwas schief, bleibt alles beim Alten; die eingepackte
   Fassung ist immer die Rückfallebene. Ohne Internet passiert nichts. Kein Rückschritt auf ältere Versionen.
 - **Kanal** (beim Bauen über `MT_KANAL`): `test` lädt von der Test-Seite (Marcels Handy, Standard), `store` lädt nur von der
-  Live-Seite (also nur Freigegebenes), `aus` lädt nie. Quelle ist seit 0.29.3 **zuerst GitHub** (`raw.githubusercontent.com`, Zweig `test` bzw. `live`, Ordner `app/`), als Ersatz der eigene Server (Marcel, 15.11.2026: „der Updateserver soll der Git sein“ – ersetzt die Regel vom 14.11.). Das geht ohne Anmeldung nur, solange das Repo **öffentlich** ist; soll es privat werden, vorher auf ein zweites, öffentliches Auslieferungs-Repo umstellen. Kein Schlüssel in der App. Für die Datenschutz-Angaben: Die App ruft dabei GitHub auf (IP-Adresse wird dort sichtbar). **Für den Play Store immer `MT_KANAL=store` bauen.**
+  Live-Seite (also nur Freigegebenes), `aus` lädt nie. Quelle ist seit 0.29.3 **zuerst GitHub** (`raw.githubusercontent.com`, Zweig `test` bzw. `live`, Ordner `app/`), als Ersatz der eigene Server (Marcel, 15.11.2026: „der Updateserver soll der Git sein“ – ersetzt die Regel vom 14.11.). Das geht ohne Anmeldung nur, solange das Repo **öffentlich** ist; soll es privat werden, vorher auf ein zweites, öffentliches Auslieferungs-Repo umstellen. Kein Schlüssel in der App. Für die Datenschutz-Angaben: Die App ruft dabei GitHub auf (IP-Adresse wird dort sichtbar). **(Überholt, siehe Kasten oben: für den Play Store `MT_KANAL=aus`.)** ~~Für den Play Store immer `MT_KANAL=store` bauen.**
 - **Neue Hülle:** `android/huelle.json` zählt die Fassungen der Hülle; `npm run fix` erhöht die Nummer von selbst, sobald sich
   etwas unter `android/` ändert. Erwartet der Test-Stand eine neuere Hülle, zeigt die App (nur Kanal `test`) den Hinweis „Neue
   App-Datei verfügbar“. Die Datei liegt wie bisher im Drive-Ordner „Mathe-Trainer“ (kein öffentlicher Download). Im Store-Kanal

@@ -2,6 +2,11 @@
 
 Neueste Meldung oben. Keine Geheimnisse, keine Personendaten (dieses Repo ist öffentlich, siehe Punkt 1).
 
+## 16.11.2026 (64) – Entscheidung Marcel: Store-App nur über den Store, Web-App aus GitHub
+
+- Marcel, 16.11.: „Wenn die App in den Store kommt, lädt der Store von dort. Web-App von GitHub.“
+- Folge: Die Store-Fassung wird mit `MT_KANAL=aus` gebaut (kein Nachladen von Inhalten). Euer Hinweis „Store-Kanal lädt jetzt aus live“ betrifft damit keine ausgelieferte App. Die Test-App lädt weiter von GitHub (`test`). Für die Web-App ändert sich nichts. Nur Doku (`docs/PLAYSTORE.md`), kein Code.
+
 ## 16.11.2026 (63) – 0.31.0 liegt auf `test` (alle fünf Browser-Durchläufe grün)
 
 - Inhalt siehe (62). Im Testlauf fiel eine zufallsabhängige Stelle im Abenteuer-Test auf (seit 0.15 im Test, kein App-Fehler) – behoben.
