@@ -1326,7 +1326,7 @@ export function genBedingt(lv = 3) {
     const baum = [`Pfadregel: ${tex(`P(K\\cap +)=${ft(p, 3)}\\cdot${ft(se, 3)}=${ft(TP, 5)}`)}.`, `Pfadregel: ${tex(`P(\\overline{K}\\cap +)=${ft(1 - p, 3)}\\cdot${ft(fp, 3)}=${ft(FP, 5)}`)}.`, `Beide Pfade zusammen: ${tex(`P(+)=${ft(TP, 5)}+${ft(FP, 5)}=${ft(pos, 5)}`)}.`];
     return { prompt: lv <= 3 ? `${fmt(p * 100)} % einer Bevölkerung haben eine bestimmte Krankheit. Ein Test erkennt ${fmt(se * 100)} % der Kranken; bei Gesunden schlägt er fälschlich in ${fmt(fp * 100)} % der Fälle an. Eine Person wird positiv getestet. Mit welcher Wahrscheinlichkeit ist sie krank?`
       : `Bei einer Reihenuntersuchung sind ${fmt(p * 100)} % der Teilnehmenden erkrankt. Der Test hat eine Sensitivität von ${fmt(se * 100)} % (Kranke werden erkannt) und eine Spezifität von ${fmt(spez * 100)} % (Gesunde werden als gesund erkannt). Eine Person wird positiv getestet. Mit welcher Wahrscheinlichkeit ist sie wirklich krank?`,
-      formula: lv <= 3 ? undefined : `P(K)=${ft(p, 3)},\\quad P_K(+)=${ft(se, 3)},\\quad P_{\\overline{K}}(-)=${ft(spez, 3)}`,
+      formula: lv <= 3 ? undefined : b2zeilen(`P(K)=${ft(p, 3)},\\quad P_K(+)=${ft(se, 3)}`, `P_{\\overline{K}}(-)=${ft(spez, 3)}`),
       options: shuffle(opts),
       hints: [lv <= 3 ? 'Zeichne ein Baumdiagramm: erste Stufe krank oder gesund, zweite Stufe Test positiv oder negativ.' : `Gegenereignis: Falsch positiv sind ${tex(`P_{\\overline{K}}(+)=1-${ft(spez, 3)}=${ft(fp, 3)}`)} der Gesunden.`, ...baum, `Satz von Bayes: ${tex('P_+(K)=\\dfrac{P(K\\cap +)}{P(+)}')}.`],
       explain: `${lv <= 3 ? '' : `Gegenereignis: ${tex(`P_{\\overline{K}}(+)=1-${ft(spez, 3)}=${ft(fp, 3)}`)}. `}${baum.join(' ')} Satz von Bayes: ${tex(`P_+(K)=\\dfrac{${ft(TP, 5)}}{${ft(pos, 5)}}\\approx${b2pct(r)}`)}. Weil die Krankheit selten ist, sind viele positive Ergebnisse falsch positiv.`, TP, FP };
@@ -1393,7 +1393,7 @@ function kumuliertZahl(lv) {
     if (!b2versch(opts, 0.001)) return null;
     const wort = inkl ? `mindestens ${a} und höchstens ${b}` : `mehr als ${a}, aber weniger als ${b}`;
     return { prompt: `${intro(n, fmt(p))} Mit welcher Wahrscheinlichkeit ${verb} <b>${wort}</b> ${objekt}?`,
-      formula: `\\def\\arraystretch{1.3}\\begin{array}{l}${P(a - 1)}\\approx${b2vier(Fr(a - 1))},\\quad ${P(a)}\\approx${b2vier(Fr(a))}\\\\${P(b - 1)}\\approx${b2vier(Fr(b - 1))},\\quad ${P(b)}\\approx${b2vier(Fr(b))}\\end{array}`, options: shuffle(opts),
+      formula: `\\def\\arraystretch{1.3}\\begin{array}{l}${P(a - 1)}\\approx${b2vier(Fr(a - 1))}\\\\${P(a)}\\approx${b2vier(Fr(a))}\\\\${P(b - 1)}\\approx${b2vier(Fr(b - 1))}\\\\${P(b)}\\approx${b2vier(Fr(b))}\\end{array}`, options: shuffle(opts),
       hints: [`${tex('X')}: Anzahl ${anzahl}, binomialverteilt mit ${tex(`n=${n}`)} und ${tex(`p=${ft(p)}`)}.`, `Bereich als Ungleichung: ${tex(`${lo}\\le X\\le ${hi}`)}.`, `${tex(`P(${lo}\\le X\\le ${hi})=${P(hi)}-${P(lo - 1)}`)}: alles bis ${hi}, minus alles bis ${lo - 1}.`, `Tabellenwerte einsetzen: ${tex(`${b2vier(Fr(hi))}-${b2vier(Fr(lo - 1))}`)}.`],
       explain: `„${wort[0].toUpperCase()}${wort.slice(1)}" bedeutet ${tex(`${lo}\\le X\\le ${hi}`)}. ${tex(`P(${lo}\\le X\\le ${hi})=${P(hi)}-${P(lo - 1)}\\approx${b2vier(Fr(hi))}-${b2vier(Fr(lo - 1))}=${b2vier(Fr(hi) - Fr(lo - 1))}`)}.`, n, p, lo, hi, kind: 'zahl' };
   }
@@ -1407,7 +1407,7 @@ function kumuliertZahl(lv) {
     O(hi + 1, lo - 1, false, `${hi + 1} liegt schon über ${tex(`\\mu+${ft(c)}\\sigma\\approx${ft(V)}`)}.`)];
   if (!b2versch(opts, 0.001)) return null;
   return { prompt: `${intro(n, fmt(p))} Mit welcher Wahrscheinlichkeit weicht die Anzahl ${anzahl} um <b>höchstens ${fmt(c)} Standardabweichungen</b> vom Erwartungswert ab?`,
-    formula: `\\def\\arraystretch{1.3}\\begin{array}{l}${P(lo - 2)}\\approx${b2vier(Fr(lo - 2))},\\quad ${P(lo - 1)}\\approx${b2vier(Fr(lo - 1))}\\\\${P(lo)}\\approx${b2vier(Fr(lo))},\\quad ${P(hi)}\\approx${b2vier(Fr(hi))}\\\\${P(hi + 1)}\\approx${b2vier(Fr(hi + 1))}\\end{array}`, options: shuffle(opts),
+    formula: `\\def\\arraystretch{1.3}\\begin{array}{l}${P(lo - 2)}\\approx${b2vier(Fr(lo - 2))}\\\\${P(lo - 1)}\\approx${b2vier(Fr(lo - 1))}\\\\${P(lo)}\\approx${b2vier(Fr(lo))}\\\\${P(hi)}\\approx${b2vier(Fr(hi))}\\\\${P(hi + 1)}\\approx${b2vier(Fr(hi + 1))}\\end{array}`, options: shuffle(opts),
     hints: [`Erwartungswert: ${tex(`\\mu=n\\cdot p=${n}\\cdot${ft(p)}=${ft(mu)}`)}.`, `Standardabweichung: ${tex(`\\sigma=\\sqrt{n\\cdot p\\cdot(1-p)}=\\sqrt{${ft(s2, 3)}}\\approx${ft(sg)}`)}.`,
       `Grenzen: ${tex(`\\mu-${ft(c)}\\sigma\\approx${ft(U)}`)} und ${tex(`\\mu+${ft(c)}\\sigma\\approx${ft(V)}`)}.`, `Nur ganze Trefferzahlen zählen – nach innen runden: ${tex(`${lo}\\le X\\le ${hi}`)}.`, `${tex(`P(${lo}\\le X\\le ${hi})=${P(hi)}-${P(lo - 1)}`)}.`],
     explain: `${tex(`\\mu=${n}\\cdot${ft(p)}=${ft(mu)}`)}, ${tex(`\\sigma=\\sqrt{${n}\\cdot${ft(p)}\\cdot${ft(1 - p)}}=\\sqrt{${ft(s2, 3)}}\\approx${ft(sg)}`)}. Der Bereich ${tex(`[${ft(mu)}-${ft(c)}\\cdot${ft(sg)};\\ ${ft(mu)}+${ft(c)}\\cdot${ft(sg)}]\\approx[${ft(U)};\\ ${ft(V)}]`)} enthält die Trefferzahlen ${lo} bis ${hi}. ${tex(`P(${lo}\\le X\\le ${hi})=${P(hi)}-${P(lo - 1)}\\approx${b2vier(Fr(hi))}-${b2vier(Fr(lo - 1))}=${b2vier(Fr(hi) - Fr(lo - 1))}`)}.`, n, p, lo, hi, kind: 'sigma' };
@@ -1932,7 +1932,7 @@ export function genAbstand(lv = 3) {
       const num = Math.abs(dot(n, P) - d);
       const opts = [mk(num / L, true), mk(num, false, `Es fehlt das Teilen durch die Länge des Normalenvektors ${tex(`|\\vec n|=${L}`)}.`), mk(Math.abs(dot(n, P) + d) / L, false, `Vorzeichen: Im Zähler steht ${tex('|\\vec n\\cdot\\vec p-d|')}.`), mk(num / (L * L), false, `Geteilt wird durch ${tex('|\\vec n|')}, nicht durch ${tex('|\\vec n|^2')}.`)];
       if (!uniqNum(opts) || !uniq(opts) || !b2fern(opts)) continue;
-      return { prompt: `Wie groß ist der Abstand des Punktes ${tex('P')} von der Ebene ${tex('E')}?`, formula: `E:\\ ${planeTex(n, d)},\\quad ${pt('P', P)}`, options: shuffle(opts),
+      return { prompt: `Wie groß ist der Abstand des Punktes ${tex('P')} von der Ebene ${tex('E')}?`, formula: b2zeilen(`E:\\ ${planeTex(n, d)}`, pt('P', P)), options: shuffle(opts),
         hints: [`Hesse-Formel: ${tex('d(P;E)=\\dfrac{|n_1p_1+n_2p_2+n_3p_3-d|}{|\\vec n|}')}.`, `${tex(`|\\vec n|=\\sqrt{${b2quadrate(n)}}=${L}`)}.`, `Zähler: ${tex(`|${b2skalar(n, P)}-${par(d)}|=${ft(num)}`)}.`],
         explain: `Hesse-Formel: ${tex(`d(P;E)=\\dfrac{|${ft(dot(n, P))}-${par(d)}|}{${L}}=\\dfrac{${ft(num)}}{${L}}=${ft(num / L)}`)}.`, kind: 'ebene', n, d, P };
     }

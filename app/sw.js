@@ -4,8 +4,8 @@ const CACHE = 'mt-0.38.0';
 const ASSETS = [
   "./",
   "b/app.js",
-  "b/teil-GPVFC3BF.js",
-  "b/teil-VN4UGZE4.js",
+  "b/teil-DQT45DWX.js",
+  "b/teil-QXCVAS4Z.js",
   "css/app.css",
   "fonts/inter-latin-wght-normal.woff2",
   "img/apple-touch-icon.png",

@@ -782,7 +782,7 @@ export function genMittelpunkt(lv = 3) {
       else if (art === 'raum') { A = zufall(3, 6); B = A.map((c) => c + pick([-7, -5, -4, -3, -1, 2, 3, 4, 5, 6])); if (B.every((c, i) => (c + A[i]) % 2 === 0)) continue; }
       else { A = zufall(3, 8).map((c) => c + pick([0, 0.5])); B = A.map((c) => rd(c + pick([-7.5, -5, -3.5, -2, 1.5, 2.5, 4, 5.5, 7]))); if (A.every((c) => Number.isInteger(c))) continue; }
       const M = mitte(A, B); roh = { A, B };
-      prompt = `Bestimme den Mittelpunkt der Strecke ${tex('AB')}.`; formula = `${pt('A', A)},\\quad ${pt('B', B)}`;
+      prompt = `Bestimme den Mittelpunkt der Strecke ${tex('AB')}.`; formula = A.length > 2 ? zeilen(pt('A', A), pt('B', B)) : `${pt('A', A)},\\quad ${pt('B', B)}`;
       opts = [O(M, true), O(B.map((c, i) => c - A[i]), false, 'Das ist der Verbindungsvektor von A nach B, kein Punkt in der Mitte.'), O(B.map((c, i) => (c - A[i]) / 2), false, 'Das ist der halbe Verbindungsvektor. Er muss noch an A angehängt werden – oder direkt: Koordinaten addieren und halbieren.'), O(A.map((c, i) => c + B[i]), false, 'Die Summe muss noch halbiert werden.')];
       if (art === 'eben') { hints = [`Erste Koordinate – die Mitte zwischen ${A[0]} und ${B[0]}: ${tex(`(${A[0]}+${B[0]}):2=${M[0]}`)}.`, `Zweite Koordinate genauso: ${tex(`(${A[1]}+${B[1]}):2=${M[1]}`)}.`]; explain = `${tex(pt('M', M))}.`; }
       else { hints = [`Jede Koordinate des Mittelpunkts ist der Mittelwert der beiden Punkte: ${tex('M=\\tfrac12\\,(A+B)')}.`, ...A.map((c, i) => `${i + 1}. Koordinate: ${tex(`(${ft(c)}+${par(B[i])}):2=${ft(rd(c + B[i]))}:2=${ft(M[i])}`)}.`)]; explain = `${tex(pt('M', M))}: je Koordinate addieren und durch 2 teilen.`; }
