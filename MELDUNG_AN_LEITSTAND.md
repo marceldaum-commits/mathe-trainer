@@ -2,6 +2,10 @@
 
 Neueste Meldung oben. Keine Geheimnisse, keine Personendaten (dieses Repo ist öffentlich, siehe Punkt 1).
 
+## 16.11.2026 (66) – 0.32.0 liegt auf `test` (alle fünf Browser-Durchläufe grün, Durchklick-Prüfung Klasse 5 bis 8 und 10 ohne Befund)
+
+- Inhalt siehe (65). Morgen (17.11.) ist auf Marcels Wunsch die Oberstufe dran.
+
 ## 16.11.2026 (65) – 0.32.0: zwölf neue Aufgaben-Arten, acht neue Einheiten für Klasse 5 bis 10 (Meldung „liegt auf test“ folgt nach dem Testlauf)
 
 - Neue Datei `app/js/gen7.js` (wird wie die anderen Erzeuger auch vom Server zum Nachrechnen gebraucht, falls ihr die Liste dort pflegt), zwei neue Spiele. Nur Web-App, alles frei, keine Schnittstelle, keine App-Hülle.
