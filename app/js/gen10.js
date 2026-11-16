@@ -634,7 +634,7 @@ export function schwer(thema) {
 export const THEMEN10 = Object.keys(K);
 /** Welcher schwere Erzeuger zu welchem älteren Erzeuger gehört (Schlüssel: Name des einfachen Erzeugers). */
 export const HART = { genBruch: schwer('bruch'), genKlammer: schwer('klammer'), genLinGl: schwer('lingl'), genQuadGl: schwer('quadgl'), genPotenz: schwer('potenz'), genProzent: schwer('prozent'), genPythagoras: schwer('pythagoras'), genKennwerte: schwer('kennwerte'),
-  genLaplace: schwer('laplace'), genGegen: schwer('laplace'), genSteigung: schwer('steigung'), genBaum: schwer('baum'), genBinomial: schwer('binomial'), genBedingt: schwer('bedingt'), genVierfelder: schwer('bedingt'), genErwartung: schwer('erwartung'), genKombinatorik: schwer('kombinatorik'),
+  genLaplace: schwer('laplace'), genGegen: schwer('laplace'), genSteigung: schwer('steigung'), genBaum: schwer('baum'), genBinomial: schwer('binomial'), genVierfelder: schwer('bedingt'), genErwartung: schwer('erwartung'), genKombinatorik: schwer('kombinatorik'),
   genBetrag: schwer('betrag'), genVektorAB: schwer('betrag'), genSkalar: schwer('skalar'), genGeradePunkt: schwer('gerade'), genEbene: schwer('ebene'), genSchnittpunkt: schwer('ebene'), genKreuz: schwer('kreuz') };
 const MERK = new Map();
 /** Hängt an einen älteren Erzeuger die schweren Aufgaben für Stufe 4 und 5 an (immer dieselbe Hülle für denselben Erzeuger). */

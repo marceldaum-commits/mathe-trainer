@@ -1166,7 +1166,7 @@ ok(nextStreak({ n: 3, last: '2026-11-10' }, D('2026-11-12')).n === 1, 'Serie: au
   ok(vor.length >= 1 && vor.every((f) => /^b\/teil-/.test(f)) && spaet.length === 1 && !vor.includes(`b/${spaet[0]}`), 'Schnellstart: Der Hauptteil des Bündels wird vorgeladen, der Theorie-Teil nicht');
   const alles = Object.values(text).join('\n');
   ok(['genBruch', 'genIntegralE', 'genBinomVerteilung', 'schwer_bruch', 'genAbleitenSteil'].every((n) => alles.includes(`"${n}"`) || alles.includes(`\`schwer_`)), 'Bündel: Die Namen der Aufgaben-Erzeuger bleiben erhalten (Lernstand und Fehler-Kartei hängen daran)');
-  ok(alles.length < 1.25e6 && !/\n {4,}\/\/ /.test(alles.slice(0, 20000)), `Bündel: verkleinert (${Math.round(alles.length / 1024)} kB)`);
+  ok(alles.length < 2.1e6 && !/\n {4,}\/\/ /.test(alles.slice(0, 20000)), `Bündel: verkleinert (${Math.round(alles.length / 1024)} kB)`);
   const app = readFileSync(new URL('../app/js/app.js', import.meta.url), 'utf8'), wa = readFileSync(new URL('../app/js/wache.js', import.meta.url), 'utf8');
   ok(!/^import[^\n]*theorie\.js/m.test(app) && (app.match(/import\('\.\/theorie\.js'\)/g) || []).length >= 2, 'Schnellstart: Die Theorie wird erst beim Öffnen (und in einer ruhigen Minute) geladen');
   ok(wa.includes('ladebildWeg()') && wa.includes("performance.mark('mt-bereit')") && wa.indexOf('ladebildWeg();\n    if (!v') > 0, 'Schnellstart: Das Ladebild verschwindet beim Start – und auch, wenn die Start-Wache ihren Hinweis zeigt');

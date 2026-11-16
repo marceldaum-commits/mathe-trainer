@@ -3,7 +3,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "check": "node tools/check.mjs && node tests/run.mjs",
+    "check": "node tools/check.mjs && node tests/run.mjs && node tests/stufen.mjs && node tests/hart.mjs",
     "fix": "node tools/check.mjs --fix && node tools/check.mjs --fix",
     "start": "python3 -m http.server 8123 --directory app"
   },

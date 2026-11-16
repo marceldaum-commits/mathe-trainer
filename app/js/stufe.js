@@ -24,7 +24,7 @@ export function zerlegen(html) {
 }
 
 const sauber = (t) => String(t ?? '').replace(/\{,\}/g, ',').replace(/\\(begin|end)\{[a-z*]+\}(\{[^}]*\})?/g, ' ').replace(/\\(text|mathrm|operatorname|textbf|mathbf)\{[^}]*\}/g, ' ').replace(/\\(left|right|big|Big|bigl|bigr|Bigl|Bigr|displaystyle|quad|qquad|,|;|!| )/g, ' ').replace(/\\\\(\[[^\]]*\])?/g, ' ');
-const ZEICHEN = /\\(cdot|times|div|d?frac|tfrac|sqrt|int|sum|prod|binom|sin|cos|tan|ln|log|exp|lim|vec|overline|pm|mp)\b|[+\-:=^'<>]|\\(le|ge|leq|geq|neq|approx|Rightarrow|Leftrightarrow|to)\b/g;
+const ZEICHEN = /\\(cdot|times|div|d?frac|tfrac|sqrt|int|sum|prod|binom|sin|cos|tan|ln|log|exp|lim|vec|overline|pm|mp|le|ge|leq|geq|neq|approx|Rightarrow|Leftrightarrow|to)(?![a-zA-Z])|[+\-:=^'<>]/g;
 /** Zahl der Rechenzeichen in einem Formel-Quelltext (Plus, Mal, Bruch, Potenz, Wurzel, Integral, Funktionen, Gleichheitszeichen …). */
 export const zeichen = (t) => (sauber(t).match(ZEICHEN) || []).length;
 /** Größte Verschachtelung: wie tief Klammern, Brüche, Hochzahlen und Wurzeln ineinander stecken. */

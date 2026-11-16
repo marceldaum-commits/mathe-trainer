@@ -11,11 +11,15 @@ const N = +(process.env.N || 300), ROH = process.argv.includes('--roh');
 const arten = new Map(), gesehen = new Set();
 const gehe = (v, gebiet, d = 0) => {
   if (!v || d > 6 || gesehen.has(v)) return;
-  if (typeof v === 'function') { if ((v.topic || /^(gen|schwer)/.test(v.name)) && !arten.has(v.name)) arten.set(v.name, { fn: v, gebiet }); return; }
+  if (typeof v === 'function') { if (v.topic || /^(gen|schwer)/.test(v.name)) { gesehen.add(v); (roh.get(v.name) || roh.set(v.name, []).get(v.name)).push({ fn: v, gebiet }); } return; }
   if (typeof v === 'object') { gesehen.add(v); for (const w of Object.values(v)) gehe(w, gebiet, d + 1); }
 };
+const roh = new Map();
 for (const u of U.ALLE_UNITS) gehe(u, u.jg ? `Klasse 5–10` : ({ analysis: 'Analysis', stochastik: 'Stochastik', geometrie: 'Geometrie' }[u.area] || u.area));
-
+// Erzeuger, die nur in gemischten Runden vorkommen, zählen auch mit.
+for (const [datei, liste] of [['gen9.js', 'GENS9'], ['gen8.js', 'GENS8']]) { const M = await import(`../app/js/${datei}`); for (const fn of Object.values(M[liste] || {})) if (!roh.has(fn.name) && !/Steil$/.test(fn.name)) roh.set(fn.name, [{ fn, gebiet: 'Analysis' }]); }
+// Gleicher Name in zwei Fassungen (eingehängt und einfach): beide messen.
+for (const [name, fass] of roh) { const eingehaengt = fass.some((f) => f.fn.basis); for (const f of fass) arten.set(fass.length < 2 ? name : eingehaengt ? `${name}${f.fn.basis ? '' : ' (einfach)'}` : `${name} (${f.gebiet})`, f); }
 const FELDER = ['anspruch', 'schritte', 'regeln', 'grad', 'tiefe', 'parameter', 'weg', 'krumm'];
 const zeilen = [], fehler = [];
 for (const [name, { fn, gebiet }] of [...arten].sort((a, b) => a[1].gebiet.localeCompare(b[1].gebiet) || a[0].localeCompare(b[0]))) {
