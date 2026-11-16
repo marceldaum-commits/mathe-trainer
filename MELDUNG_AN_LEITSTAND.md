@@ -2,6 +2,20 @@
 
 Neueste Meldung oben. Keine Geheimnisse, keine Personendaten (dieses Repo ist öffentlich, siehe Punkt 1).
 
+## 16.11.2026 (80) – KI für Schulen: Preisvorschlag (Marcel, 16.11.: „KI für Schulen auch, mit Preisvorschlag“)
+
+Marcel will KI für Schulen doch anbieten. Vorschlag als Zusatz zur Lehrkraft- bzw. Schul-Lizenz (je Schuljahr bis 31.07., inkl. 19 % USt), gerechnet mit eurer Messung von 1,1 Cent je Abruf und 10 Monaten Nutzung:
+
+| Zusatz „KI“ | Preis | Netto | Deckel am Server | KI-Kosten höchstens | bleibt netto mindestens |
+|---|---|---|---|---|---|
+| je Klasse (zur Lehrkraft-Lizenz) | 79 € | 66,39 € | 400 Abrufe je Monat | 44 € | 22 € |
+| je Schule (zur Schul-Lizenz) | 499 € | 419,33 € | 2 500 Abrufe je Monat | 275 € | 144 € |
+
+- **Enthalten:** KI-Erklärung, KI-Tutor und KI-Auswertung für alle Schüler der Klasse. Nicht enthalten: Rechenweg-Prüfer per Foto und KI-Aufgaben (teurer je Abruf – erst messen).
+- **Schutz:** Deckel je Klasse bzw. Schule und Monat am Server, dazu Tageslimit 3 je Schüler. Ist der Deckel erreicht, zeigt die App „Für diesen Monat aufgebraucht“ statt eines Fehlers; im Prüfungsmodus ist KI immer aus.
+- **Daten:** wie bei Pro + KI – nur Aufgabe und Rechenweg, nie Name, Klasse oder Lernstand.
+- Die Zahlen sind ein Vorschlag; der Deckel ist die Stellschraube, nicht der Preis. Marcel entscheidet.
+
 ## 16.11.2026 (79) – 0.39.0 liegt auf `test` (enthält 0.38.0)
 
 - Zweig `test` = `main` = Version **0.39.0**: Stufen-Nachweis (76) und die fünf Geometrie-Arten (77).
