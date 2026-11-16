@@ -858,7 +858,7 @@ ok(nextStreak({ n: 3, last: '2026-11-10' }, D('2026-11-12')).n === 1, 'Serie: au
   window.katex.renderToString = alt; }
 
 // Mittelstufe (Klasse 5 bis 10): Aufgaben-Erzeuger, Einheiten je Jahrgang, Umschalten der Stufe
-{ const { MITTEL_GENS } = await import('../app/js/gen6.js'); const Un = await import('../app/js/units.js');
+{ const { MITTEL_GENS: M6 } = await import('../app/js/gen6.js'), { GENS7 } = await import('../app/js/gen7.js'), MITTEL_GENS = { ...M6, ...GENS7 }; const Un = await import('../app/js/units.js');   // gen7.js: Paket 0.32
   const alt = window.katex.renderToString; window.katex.renderToString = (s) => `«${String(s).replace(/[«»]/g, '')}»`;
   const rechne = (f) => { const js = f.replace(/\{,\}/g, '.').replace(/\\cdot/g, '*').replace(/:/g, '/').replace(/\^2/g, '**2'); if (!/^[-+*/().\d\s]+$/.test(js.replace(/\*\*/g, '*'))) return null; try { return Function(`return (${js.replace(/(^|[^\d)])-(\d+(?:\.\d+)?)\*\*2/g, '$1-($2**2)')})`)(); } catch { return null; } };
   for (const [name, fn] of Object.entries(MITTEL_GENS)) { ok(typeof fn.topic === 'string' && fn.topic.length > 3, `${name}: Themen-Name`);
@@ -931,6 +931,24 @@ ok(nextStreak({ n: 3, last: '2026-11-10' }, D('2026-11-12')).n === 1, 'Serie: au
             ok(g.length === M.zahlen.length && new Set(g.map((x) => x.i)).size === g.length && g.every((x) => M.zahlen[x.i] === x.v) && g.every((x, k) => k === 0 || x.v + g[k - 1].v !== M.ziel || M.paare.length < 3), `Zahlen-Paare: gemischt, Partner liegen nicht nebeneinander (Ziel ${M.ziel})`); }
           for (const M of Bm.levelsFor(lv)) { const [z, n] = Bm.produkt(M);
             ok(M.a < M.b && M.c < M.d && M.a >= 1 && M.c >= 1 && M.b <= 6 && M.d <= 6 && Bm.richtig(M, M.a, M.c) && !Bm.richtig(M, M.a, M.c + 1) && Math.abs(z / n - (M.a / M.b) * (M.c / M.d)) < 1e-12, `Bruch-Felder: ${M.c}/${M.d} von ${M.a}/${M.b}`); } } }
+      { // Paket 0.32: nachgerechnet, was sich nachrechnen lässt, und die zwei neuen Spiele
+        const wert = (f) => Function(`return (${f.replace(/\\,/g, '').replace(/\{,\}/g, '.').replace(/\\cdot/g, '*').replace(/:/g, '/')})`)();
+        for (const lv of [1, 2, 3, 4, 5]) for (let i = 0; i < 300; i++) {
+          { const q = GENS7.genSchriftlich(lv), r = q.options.find((o) => o.correct).num; if (Math.abs(wert(q.formula) - r) > 1e-9) { ok(false, `genSchriftlich: ${q.formula} = ${r}`); break; } }
+          { const q = GENS7.genRational(lv), r = q.options.find((o) => o.correct).num; if (q.kind !== 'potenz' && Math.abs(wert(q.formula) - r) > 1e-9) { ok(false, `genRational: ${q.formula} = ${r}`); break; } }
+          { const q = GENS7.genGleichungKlammer(lv), x = q.options.find((o) => o.correct).num, [li, re] = q.formula.split('='), ein = (t) => Function('x', `return (${t.replace(/\\dfrac\{x\}\{(\d+)\}/g, '(x/$1)').replace(/(\d)\(/g, '$1*(').replace(/(\d)x/g, '$1*x')})`)(x);
+            if (Math.abs(ein(li) - ein(re)) > 1e-9) { ok(false, `genGleichungKlammer: ${q.formula} mit x = ${x}`); break; } }
+          { const q = GENS7.genWinkelArt(lv); if (q.options.some((o) => o.num < 0 || (q.kind !== 'art' && q.kind !== 'voll' && o.num > 720))) { ok(false, `genWinkelArt: unmögliche Winkel (${q.prompt})`); break; } }
+        }
+        ok(true, 'Paket 0.32: schriftliches Rechnen, rationale Zahlen und Gleichungen durch Einsetzen nachgerechnet');
+        const Sk = await import('../app/js/games/gitter.js'), Wz = await import('../app/js/games/zeiger.js');
+        for (const [name, lf] of [['gitter', Sk.levelsFor], ['zeiger', Wz.levelsFor]]) ok(new Set([1, 2, 3, 4, 5].map((lv) => JSON.stringify(lf(lv)))).size === 5 && [1, 2, 3, 4, 5].every((lv) => lf(lv).length >= 3), `${name}: fünf verschiedene Level-Sätze mit je mindestens drei Aufgaben`);
+        for (const lv of [1, 2, 3, 4, 5]) {
+          for (const M of Sk.levelsFor(lv)) ok(M.max - M.min <= 10 && M.punkte.length >= 2 && M.punkte.every(([x, y]) => x >= M.min && x <= M.max && y >= M.min && y <= M.max) && new Set(M.punkte.map(String)).size === M.punkte.length && (lv >= 4) === (M.min < 0), `Schatzkarte: Punkte liegen auf der Karte (Stufe ${lv})`);
+          for (const M of Wz.levelsFor(lv)) { const z = (M.text.match(/\d+/g) || []).map(Number);
+            ok(M.ziel % 5 === 0 && M.ziel > 0 && M.ziel <= (lv >= 4 ? 360 : 180), `Winkel-Zeiger: einstellbar (${M.text})`);
+            if (/^Stell (\d+|einen \w+ Winkel von \d+)° ein/.test(M.text) || /: \d+°\.$/.test(M.text)) ok(z.includes(M.ziel), `Winkel-Zeiger: Text nennt das Ziel (${M.text})`); } }
+        ok(Wz.art(45) === 'spitz' && Wz.art(90) === 'recht' && Wz.art(135) === 'stumpf' && Wz.art(180) === 'gestreckt' && Wz.art(270) === 'überstumpf', 'Winkel-Zeiger: Winkelarten'); }
       for (const u of Un.ALLE_UNITS.filter((x) => ['7', '8', '9', '10'].includes(x.jg))) ok(new Set(u.steps.map((s) => s.id)).size === u.steps.length && u.steps.some((s) => s.kind === 'Festigen'), `${u.id}: Schritte eindeutig, mit Festigen`);
       for (const jg of ['7', '8', '9', '10']) { const us = Un.ALLE_UNITS.filter((x) => x.jg === jg); ok(us.length >= 3 && us.filter((u) => u.steps.some((s) => s.kind === 'Entdecken')).length >= 2, `Klasse ${jg}: mindestens drei Einheiten, zwei davon mit Spiel`); } }
     for (const u of Un.ALLE_UNITS.filter((x) => ['5', '6'].includes(x.jg))) ok(u.steps[0].kind === 'Entdecken' || u.steps.some((s) => s.kind === 'Entdecken'), `${u.id}: Einheiten der Klassen 5 und 6 haben ein Spiel zum Entdecken`);

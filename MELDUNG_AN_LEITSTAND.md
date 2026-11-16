@@ -2,6 +2,10 @@
 
 Neueste Meldung oben. Keine Geheimnisse, keine Personendaten (dieses Repo ist öffentlich, siehe Punkt 1).
 
+## 16.11.2026 (65) – 0.32.0: zwölf neue Aufgaben-Arten, acht neue Einheiten für Klasse 5 bis 10 (Meldung „liegt auf test“ folgt nach dem Testlauf)
+
+- Neue Datei `app/js/gen7.js` (wird wie die anderen Erzeuger auch vom Server zum Nachrechnen gebraucht, falls ihr die Liste dort pflegt), zwei neue Spiele. Nur Web-App, alles frei, keine Schnittstelle, keine App-Hülle.
+
 ## 16.11.2026 (64) – Entscheidung Marcel: Store-App nur über den Store, Web-App aus GitHub
 
 - Marcel, 16.11.: „Wenn die App in den Store kommt, lädt der Store von dort. Web-App von GitHub.“

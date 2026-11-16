@@ -965,3 +965,11 @@ button.card.unit{text-align:left;width:100%;font:inherit;color:inherit;cursor:po
 
 .kopf-serie-zeile{display:flex;justify-content:center;min-height:26px}
 .kopf-serie-zeile .kombo.heiss{background:var(--orange);color:#fff}
+
+/* Spiele: Schatzkarte, Winkel-Zeiger */
+.sk-linie{stroke:var(--line);stroke-width:1}
+.sk-achse{stroke:var(--head);stroke-width:2}
+.sk-punkt{fill:transparent;cursor:pointer}
+.sk-punkt:hover,.sk-punkt:focus{fill:color-mix(in srgb,var(--orange) 25%,transparent)}
+.sk-schatz{fill:var(--orange);stroke:#fff;stroke-width:2.5}
+.wz-keil{fill:color-mix(in srgb,var(--orange) 28%,transparent);stroke:var(--orange);stroke-width:1.5}

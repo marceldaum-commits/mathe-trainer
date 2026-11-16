@@ -252,6 +252,13 @@ async function playZahlenpaare() {
     for (let p = 0; p < M.paare.length; p++) { await page.click(`.zp-karte[data-i="${2 * p}"]`); await page.click(`.zp-karte[data-i="${2 * p + 1}"]`); if (first('zp-bild')) await shot('92-zahlenpaare'); }
     await page.waitForSelector('#zp-go:not([hidden])'); await page.click('#zp-go'); }
 }
+const SKL = await game('gitter'), WZL = await game('zeiger');
+async function playGitter() {
+  for (let i = 0; i < SKL.length; i++) { const M = SKL[i]; await page.waitForFunction(([t, n]) => document.querySelector('#sk-n').textContent === t && document.querySelectorAll('.sk-schatz').length === 0 && document.querySelector('#sk-go').hidden && /von/.test(document.querySelector('#sk-s').textContent) && document.querySelectorAll('.sk-punkt').length === n, [`${i + 1}/${SKL.length}`, (M.max - M.min + 1) ** 2]);
+    if (first('sk-falsch')) { const [x, y] = M.punkte[0]; await page.locator(`.sk-punkt[data-x="${y}"][data-y="${x}"]`).click({ force: true }); await page.waitForSelector('#sk-note .note.tip'); }
+    for (const [x, y] of M.punkte) { await page.locator(`.sk-punkt[data-x="${x}"][data-y="${y}"]`).click({ force: true }); if (first('sk-bild')) await shot('91-schatzkarte'); }
+    await page.waitForSelector('#sk-go:not([hidden])'); await page.click('#sk-go'); }
+}
 async function playWaage() {
   for (let i = 0; i < WGL.length; i++) { const M = WGL[i]; await stufe('wg', i, WGL.length);
     if (first('waage-falsch') && M.b > 0) { await page.click('#wg-t2'); await page.waitForSelector('#wg-note .note.tip'); }
@@ -299,7 +306,7 @@ async function playAusgleich() {
     if (first('ausgleich-bild')) await shot('92-tuerme');
     await page.click('#au-go'); }
 }
-const HANDLERS = [['#zp', playZahlenpaare], ['#bm', () => playEinsteller('bm', BML, (M) => [['#bm-a', M.a], ['#bm-c', M.c]], '92-bruchfelder')], ['#wg', playWaage], ['#pz', () => playEinsteller('pz', PZL, (M) => [['#pz-in', M.ziel]], '94-prozent')], ['#gz', () => playEinsteller('gz', GZL, (M) => [['#gz-m', M.m], ['#gz-b', M.b]], '95-geraden')], ['#gr', playRad], ['#pq', () => playEinsteller('pq', PQL, (M) => [['#pq-a', M.sol[0]], ['#pq-b', M.sol[1]]], '97-pythagoras')], ['#zw', () => playEinsteller('zw', ZWL, (M) => [['#zw-in', M.sol]], '98-wachstum')], ['#ek', () => playEinsteller('ek', EKL, (M) => [['#ek-in', M.ziel]], '99-einheitskreis')], ['#fd', playFelder], ['#sw', playStellen], ['#wu', playWuerfel], ['#au', playAusgleich], ['#zs', () => playStrahl(ZS, 'zs')], ['#fr', () => playStrahl(FRL, 'fr')], ['#sf', playStreifen], ['#kg', playKaestchen], ['#tf', playTafel], ['#mb-c', playMurmelbahn], ['#fg-c', playFlug], ['#tg-c', playTangente], ['#p-f', playPaare], ['#z-d', playZeichnen], ['#fl-c', playFlaeche], ['#lb-c', playLabor], ['#lo-c', playLotse], ['#wk-c', playWerkstatt], ['#rm-c', playRaum], ['#bs', playBoss], ['#i-next', info]];
+const HANDLERS = [['#sk', playGitter], ['#wz', () => playEinsteller('wz', WZL, (M) => [['#wz-in', M.ziel]], '91-winkelzeiger')], ['#zp', playZahlenpaare], ['#bm', () => playEinsteller('bm', BML, (M) => [['#bm-a', M.a], ['#bm-c', M.c]], '92-bruchfelder')], ['#wg', playWaage], ['#pz', () => playEinsteller('pz', PZL, (M) => [['#pz-in', M.ziel]], '94-prozent')], ['#gz', () => playEinsteller('gz', GZL, (M) => [['#gz-m', M.m], ['#gz-b', M.b]], '95-geraden')], ['#gr', playRad], ['#pq', () => playEinsteller('pq', PQL, (M) => [['#pq-a', M.sol[0]], ['#pq-b', M.sol[1]]], '97-pythagoras')], ['#zw', () => playEinsteller('zw', ZWL, (M) => [['#zw-in', M.sol]], '98-wachstum')], ['#ek', () => playEinsteller('ek', EKL, (M) => [['#ek-in', M.ziel]], '99-einheitskreis')], ['#fd', playFelder], ['#sw', playStellen], ['#wu', playWuerfel], ['#au', playAusgleich], ['#zs', () => playStrahl(ZS, 'zs')], ['#fr', () => playStrahl(FRL, 'fr')], ['#sf', playStreifen], ['#kg', playKaestchen], ['#tf', playTafel], ['#mb-c', playMurmelbahn], ['#fg-c', playFlug], ['#tg-c', playTangente], ['#p-f', playPaare], ['#z-d', playZeichnen], ['#fl-c', playFlaeche], ['#lb-c', playLabor], ['#lo-c', playLotse], ['#wk-c', playWerkstatt], ['#rm-c', playRaum], ['#bs', playBoss], ['#i-next', info]];
 
 /* ───────────── Start, Menü, Schwierigkeit, Hell/Dunkel ───────────── */
 await page.goto(BASE); await page.waitForSelector('#home'); await shot('01-start');

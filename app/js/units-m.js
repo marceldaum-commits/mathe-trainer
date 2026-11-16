@@ -12,6 +12,9 @@ import { ausgleich } from './games/ausgleich.js';
 import { waage } from './games/waage.js';
 import { zahlenpaare } from './games/zahlenpaare.js';
 import { bruchmal } from './games/bruchmal.js';
+import { gitter } from './games/gitter.js';
+import { zeiger } from './games/zeiger.js';
+import { genSchriftlich, genKoordinaten, genDiagramm, genProzentStart, genWinkelArt, genZufallStart, genRational, genGleichungKlammer, genVieleck, genPrisma, genExpFunktion, genSinusFkt } from './gen7.js';
 import { prozent } from './games/prozent.js';
 import { geraden } from './games/geraden.js';
 import { gluecksrad } from './games/gluecksrad.js';
@@ -36,12 +39,12 @@ export const MITTEL_AREAS = [
 ];
 /** Was je Klasse als Nächstes kommt (für die Karte „Kommt bald“). */
 export const MITTEL_BALD = {
-  5: ['Schriftlich rechnen', 'Winkel messen', 'Diagramme lesen', 'Koordinatensystem'],
-  6: ['Winkel im Dreieck', 'Prozent: erste Schritte', 'Zufallsversuche'],
-  7: ['Gleichungen mit Klammern', 'Dreiecke konstruieren', 'Achsen- und Punktspiegelung'],
-  8: ['Baumdiagramme', 'Flächen von Dreieck und Trapez', 'Prismen'],
-  9: ['Mehrstufige Zufallsversuche', 'Kreis und Zylinder', 'Wurzelgleichungen'],
-  10: ['Kugel und Kegel im Sachzusammenhang', 'Sinusfunktion', 'Exponentialfunktionen'],
+  5: ['Körper und Netze', 'Römische Zahlen', 'Zeit und Geld im Alltag'],
+  6: ['Symmetrie und Spiegeln', 'Flächen zusammengesetzter Figuren', 'Dreisatz im Alltag'],
+  7: ['Dreiecke konstruieren', 'Achsen- und Punktspiegelung', 'Terme aufstellen'],
+  8: ['Baumdiagramme', 'Lineare Ungleichungen', 'Bruchterme'],
+  9: ['Mehrstufige Zufallsversuche', 'Kreis und Zylinder im Sachzusammenhang', 'Wurzelgleichungen'],
+  10: ['Kugel und Kegel im Sachzusammenhang', 'Wachstum vergleichen', 'Trigonometrie am Einheitskreis'],
 };
 
 export const MITTEL = [
@@ -110,7 +113,7 @@ export const MITTEL = [
 
   /* ───────────── Klasse 6 ───────────── */
   { id: 'k5-rechnen', jg: '5', area: 'mzahl', title: 'Geschickt rechnen', sub: 'Rechenvorteile und Überschlag',
-    meta: { boss: ['Trick-Tiger', '+·', [genVorteil, genRechenregel]], why: 'Wer geschickt rechnet, ist im Kopf schneller als andere mit dem Taschenrechner. Und mit einem Überschlag merkst du sofort, wenn an der Kasse oder in der Klassenarbeit ein Ergebnis nicht stimmen kann.',
+    meta: { boss: ['Trick-Tiger', '+·', [genVorteil, genRechenregel, genSchriftlich]], why: 'Wer geschickt rechnet, ist im Kopf schneller als andere mit dem Taschenrechner. Und mit einem Überschlag merkst du sofort, wenn an der Kasse oder in der Klassenarbeit ein Ergebnis nicht stimmen kann.',
       formeln: [['Tauschen', 'a+b=b+a\\qquad a\\cdot b=b\\cdot a'], ['Verteilen', 'a\\cdot(b+c)=a\\cdot b+a\\cdot c'], ['Überschlag', '\\text{erst runden, dann rechnen}']] },
     steps: [
       { id: 'paare', kind: 'Entdecken', title: 'Zahlen-Paare', run: zahlenpaare },
@@ -123,7 +126,24 @@ export const MITTEL = [
         { title: 'Erst runden, dann rechnen', html: `<p>Beim Überschlag rundest du die Zahlen so, dass du im Kopf rechnen kannst.</p>${T('389+212\\approx 400+200=600')}<p class="muted">Das genaue Ergebnis ist 601 – der Überschlag liegt ganz nah dran und zeigt, ob eine Rechnung stimmen kann.</p>` },
       ]) },
       { id: 'ueben', kind: 'Brücke', title: 'Tricks und Überschlag', run: quiz([genVorteil, genRechenregel, genVorteil, genVorteil]) },
-      { id: 'mix', kind: 'Festigen', title: 'Rechnen gemischt', run: mix(genVorteil, genRechenregel) },
+      { id: 'schriftlich', kind: 'Brücke', title: 'Schriftlich rechnen', run: quiz([genSchriftlich, genSchriftlich, genSchriftlich, genSchriftlich]) },
+      { id: 'mix', kind: 'Festigen', title: 'Rechnen gemischt', run: mix(genVorteil, genRechenregel, genSchriftlich) },
+    ] },
+  { id: 'k5-daten', jg: '5', area: 'mdaten', title: 'Koordinaten und Diagramme', sub: 'Punkte finden, Umfragen auswerten',
+    meta: { boss: ['Karten-Krabbe', '(x|y)', [genKoordinaten, genDiagramm]], why: 'Stadtpläne, Schiffe versenken, jedes Computerspiel: Überall werden Orte mit zwei Zahlen beschrieben. Und Diagramme zeigen auf einen Blick, was in langen Zahlenlisten steckt – in den Nachrichten genauso wie bei der Klassensprecherwahl.',
+      formeln: [['Punkt', 'P(x\\mid y):\\ \\text{erst zur Seite, dann nach oben}'], ['Anteil', '\\text{Teil}:\\text{Ganzes}']] },
+    steps: [
+      { id: 'schatz', kind: 'Entdecken', title: 'Schatzkarte', run: gitter },
+      { id: 'punkte', kind: 'Benennen', title: 'Das Koordinatensystem', run: info([
+        { title: 'Zwei Zahlen für einen Ort', html: `${T('P(3\\mid 2)')}<p>Die erste Zahl ist der <b>x-Wert</b>: so weit geht es vom Nullpunkt zur Seite. Die zweite ist der <b>y-Wert</b>: so weit geht es nach oben.</p><p class="muted">Merkhilfe: erst durch die Tür, dann die Treppe hoch.</p>` },
+        { title: 'Verschieben', html: `<p>Nach rechts oder links ändert sich nur der x-Wert, nach oben oder unten nur der y-Wert. Von ${tex('(2\\mid 5)')} drei nach rechts und zwei nach unten: ${tex('(5\\mid 3)')}.</p>` },
+      ]) },
+      { id: 'finden', kind: 'Brücke', title: 'Punkte und Wege', run: quiz([genKoordinaten, genKoordinaten, genKoordinaten, genKoordinaten]) },
+      { id: 'diagramm', kind: 'Benennen', title: 'Diagramme lesen', run: info([
+        { title: 'Jede Säule ist eine Zahl', html: `<p>In einem Säulendiagramm zeigt die Höhe jeder Säule, wie oft etwas vorkommt. Alle Säulen zusammen ergeben die Zahl der Befragten.</p><p>„Wie viele mehr?“ fragt nach dem <b>Unterschied</b>, „wie viele zusammen?“ nach der <b>Summe</b>.</p>` },
+      ]) },
+      { id: 'lesen', kind: 'Brücke', title: 'Umfragen auswerten', run: quiz([genDiagramm, genDiagramm, genDiagramm, genDiagramm]) },
+      { id: 'mix', kind: 'Festigen', title: 'Karten und Diagramme', run: mix(genKoordinaten, genDiagramm) },
     ] },
   { id: 'k6-bruch', jg: '6', area: 'mzahl', title: 'Brüche', sub: 'Kürzen, erweitern, vergleichen, rechnen',
     meta: { boss: ['Bruch-Bändiger', '¾', [genKuerzen, genBruchVergleich, genBruch]], why: 'Eine halbe Pizza, ein Viertelliter Milch, drei Achtel einer Strecke: Brüche beschreiben Anteile. Ohne sie gäbe es weder Rezepte noch Prozentrechnung.',
@@ -204,6 +224,43 @@ export const MITTEL = [
     ] },
 
   /* ───────────── Klasse 7 ───────────── */
+  { id: 'k6-prozent', jg: '6', area: 'mzahl', title: 'Prozent: erste Schritte', sub: 'Brüche, Hundertstel, Anteile',
+    meta: { boss: ['Hundert-Hummel', '%', [genProzentStart, genBruchDezimal]], why: 'Akku bei 25 %, 50 % Rabatt, 10 % Trinkgeld: Prozente sind Brüche mit dem Nenner 100 – und begegnen dir jeden Tag. Wer die wichtigsten auswendig kann, rechnet im Laden schneller als die Kasse.',
+      formeln: [['Bedeutung', '1\\,\\%=\\dfrac{1}{100}'], ['Wichtige Anteile', '50\\,\\%=\\tfrac12\\qquad 25\\,\\%=\\tfrac14\\qquad 10\\,\\%=\\tfrac1{10}']] },
+    steps: [
+      { id: 'streifen', kind: 'Entdecken', title: 'Prozent-Streifen', run: prozent },
+      { id: 'hundert', kind: 'Benennen', title: 'Von hundert', run: info([
+        { title: 'Prozent heißt Hundertstel', html: `${T('1\\,\\%=\\dfrac{1}{100}')}<p>Stell dir ein Feld aus 100 Kästchen vor. Sind 37 gefärbt, dann sind das 37 % – und 63 % sind noch frei.</p>` },
+        { title: 'Die wichtigsten Anteile', html: `${T('50\\,\\%=\\tfrac12\\qquad 25\\,\\%=\\tfrac14\\qquad 10\\,\\%=\\tfrac1{10}')}<p>25 % von 80 ist ein Viertel von 80, also 20. Für 75 % nimmst du das Viertel dreimal.</p>` },
+      ]) },
+      { id: 'anteile', kind: 'Brücke', title: 'Bruch und Prozent', run: quiz([genProzentStart, genProzentStart, genProzentStart, genProzentStart]) },
+      { id: 'komma', kind: 'Brücke', title: 'Prozent, Bruch, Komma', run: quiz([genBruchDezimal, genProzentStart, genBruchDezimal, genProzentStart]) },
+      { id: 'mix', kind: 'Festigen', title: 'Prozent gemischt', run: mix(genProzentStart, genBruchDezimal) },
+    ] },
+  { id: 'k6-winkel', jg: '6', area: 'mgeo', title: 'Winkel', sub: 'Winkelarten, Drehungen, Uhrzeiger',
+    meta: { boss: ['Zeiger-Ziege', '∡', [genWinkelArt]], why: 'Skateboard-Tricks heißen 180 und 360, Fußballer schießen „in den Winkel“, und jede Uhr zeigt mit ihren Zeigern einen Winkel. Wer Winkel schätzen und benennen kann, findet sich in der Geometrie überall zurecht.',
+      formeln: [['Winkelarten', '\\text{spitz}<90^\\circ<\\text{stumpf}<180^\\circ<\\text{überstumpf}'], ['Ganze Drehung', '360^\\circ']] },
+    steps: [
+      { id: 'zeiger', kind: 'Entdecken', title: 'Winkel-Zeiger', run: zeiger },
+      { id: 'arten', kind: 'Benennen', title: 'Winkelarten', run: info([
+        { title: 'Fünf Namen', html: `<p><b>Spitz:</b> kleiner als 90°. <b>Recht:</b> genau 90°. <b>Stumpf:</b> zwischen 90° und 180°. <b>Gestreckt:</b> genau 180°. <b>Überstumpf:</b> größer als 180°.</p><p class="muted">Ein rechter Winkel sieht aus wie die Ecke eines Blattes Papier.</p>` },
+        { title: 'Drehungen', html: `${T('\\text{ganze Drehung}=360^\\circ')}<p>Eine halbe Drehung sind 180°, eine Vierteldrehung 90°. Auf der Uhr liegen zwischen zwei Zahlen ${tex('360^\\circ:12=30^\\circ')}.</p>` },
+      ]) },
+      { id: 'benennen', kind: 'Brücke', title: 'Winkel erkennen', run: quiz([genWinkelArt, genWinkelArt, genWinkelArt, genWinkelArt]) },
+      { id: 'mix', kind: 'Festigen', title: 'Winkel gemischt', run: mix(genWinkelArt) },
+    ] },
+  { id: 'k6-zufall', jg: '6', area: 'mdaten', title: 'Zufall', sub: 'Wahrscheinlichkeit und relative Häufigkeit',
+    meta: { boss: ['Würfel-Wicht', '⚅', [genZufallStart]], why: 'Lohnt sich das Los? Wie oft fällt die Sechs? Wer Chancen einschätzen kann, fällt nicht auf jedes Gewinnspiel herein – und versteht, warum man beim Würfeln manchmal einfach Pech hat.',
+      formeln: [['Wahrscheinlichkeit', 'P=\\dfrac{\\text{günstige}}{\\text{mögliche}}'], ['Relative Häufigkeit', '\\dfrac{\\text{Treffer}}{\\text{Versuche}}']] },
+    steps: [
+      { id: 'rad', kind: 'Entdecken', title: 'Glücksrad', run: gluecksrad },
+      { id: 'chance', kind: 'Benennen', title: 'Chancen als Bruch', run: info([
+        { title: 'Günstige durch mögliche', html: `${T('P=\\dfrac{\\text{günstige}}{\\text{mögliche}}')}<p>Im Beutel liegen 3 rote und 5 blaue Kugeln. Die Chance auf Rot ist ${tex('\\tfrac38')}: 3 günstige von 8 möglichen.</p><p class="muted">Unmöglich hat die Wahrscheinlichkeit 0, sicher die Wahrscheinlichkeit 1.</p>` },
+        { title: 'Ausprobieren: relative Häufigkeit', html: `<p>Bei einem Reißnagel kennt niemand die Chancen. Dann hilft Ausprobieren: Landet er bei 50 Würfen 20-mal auf dem Kopf, ist die relative Häufigkeit ${tex('\\tfrac{20}{50}=40\\,\\%')}.</p>` },
+      ]) },
+      { id: 'rechnen', kind: 'Brücke', title: 'Chancen berechnen', run: quiz([genZufallStart, genZufallStart, genZufallStart, genZufallStart]) },
+      { id: 'mix', kind: 'Festigen', title: 'Zufall gemischt', run: mix(genZufallStart) },
+    ] },
   { id: 'k7-terme', jg: '7', area: 'malgebra', title: 'Terme und Gleichungen', sub: 'Zusammenfassen, Klammern, lineare Gleichungen',
     meta: { boss: ['Term-Troll', 'x', [genTerm, genKlammer, genLinGl]], why: 'Mit Variablen lässt sich ein Rechenweg aufschreiben, bevor man die Zahlen kennt – so funktionieren Formeln, Tabellenkalkulation und jedes Computerprogramm. Gleichungen beantworten die Frage: Für welche Zahl stimmt das?',
       formeln: [['Zusammenfassen', '3x+5x=8x'], ['Ausmultiplizieren', 'a\\cdot(b+c)=a\\,b+a\\,c'], ['Gleichung lösen', '3x+4=19\\ \\Rightarrow\\ 3x=15\\ \\Rightarrow\\ x=5']] },
@@ -282,6 +339,31 @@ export const MITTEL = [
       { id: 'dreieck', kind: 'Brücke', title: 'Fehlende Winkel', run: quiz([genWinkel, genWinkel, genWinkel, genWinkel]) },
       { id: 'mix', kind: 'Festigen', title: 'Winkel gemischt', run: mix(genWinkel) },
     ] },
+  { id: 'k7-rational', jg: '7', area: 'mzahl', title: 'Rationale Zahlen', sub: 'Rechnen mit negativen Brüchen und Kommazahlen',
+    meta: { boss: ['Minus-Marder', '±', [genRational, genNegativ]], why: 'Kontostand im Minus, Temperaturen unter null, Höhenangaben unter dem Meeresspiegel: Sobald Zahlen negativ werden, brauchst du sichere Vorzeichenregeln – auch für jede Gleichung, die später kommt.',
+      formeln: [['Mal und Geteilt', '(-)\\cdot(-)=(+)\\qquad(+)\\cdot(-)=(-)'], ['Minus Minus', 'a-(-b)=a+b']] },
+    steps: [
+      { id: 'regeln', kind: 'Benennen', title: 'Vorzeichenregeln', run: info([
+        { title: 'Addieren und Abziehen', html: `${T('-4{,}5+2=-2{,}5\\qquad -3-(-5)=-3+5=2')}<p>Stell dir die Zahlengerade vor: Plus geht nach rechts, Minus nach links. Minus eine negative Zahl dreht die Richtung um – es wird Plus.</p>` },
+        { title: 'Malnehmen und Teilen', html: `${T('(-)\\cdot(-)=(+)\\qquad(+)\\cdot(-)=(-)')}<p>Gleiche Vorzeichen ergeben Plus, verschiedene ergeben Minus. Beim Teilen gilt genau dasselbe.</p><p class="muted">Achtung: ${tex('(-3)^2=9')}, aber ${tex('-3^2=-9')}.</p>` },
+      ]) },
+      { id: 'strich', kind: 'Brücke', title: 'Rechnen mit Vorzeichen', run: quiz([genRational, genRational, genRational, genRational]) },
+      { id: 'punkt', kind: 'Brücke', title: 'Negative Zahlen sicher', run: quiz([genNegativ, genRational, genNegativ, genRational]) },
+      { id: 'mix', kind: 'Festigen', title: 'Rationale Zahlen gemischt', run: mix(genRational, genNegativ) },
+    ] },
+  { id: 'k7-gleichungen', jg: '7', area: 'malgebra', title: 'Gleichungen mit Klammern', sub: 'x auf beiden Seiten, Klammern auflösen',
+    meta: { boss: ['Klammer-Kauz', '( )', [genGleichungKlammer, genLinGl]], why: 'Zwei Handytarife vergleichen, ein Alter ausrechnen, einen Preis mit Rabatt zurückrechnen: Echte Fragen führen fast immer zu Gleichungen, in denen x mehrmals vorkommt oder in einer Klammer steckt.',
+      formeln: [['Klammer auflösen', 'a(x+b)=ax+ab'], ['Minus vor der Klammer', '-(x-b)=-x+b']] },
+    steps: [
+      { id: 'weg', kind: 'Benennen', title: 'Der Weg zur Lösung', run: info([
+        { title: 'Erst aufräumen, dann lösen', html: `${T('3(x+2)=18\\ \\Rightarrow\\ 3x+6=18\\ \\Rightarrow\\ x=4')}<p>Löse zuerst die Klammern auf und fasse zusammen. Danach geht es wie gewohnt: Zahlen auf die eine Seite, x auf die andere.</p>` },
+        { title: 'x auf beiden Seiten', html: `${T('5x+3=2x+15\\ \\Rightarrow\\ 3x=12\\ \\Rightarrow\\ x=4')}<p>Zieh auf beiden Seiten so viele x ab, dass sie auf einer Seite verschwinden. Am Ende immer die Probe machen.</p>` },
+        { title: 'Minus vor der Klammer', html: `${T('-(x-4)=-x+4')}<p>Ein Minus vor der Klammer dreht <b>jedes</b> Vorzeichen in der Klammer um. Das ist der häufigste Fehler bei Gleichungen.</p>` },
+      ]) },
+      { id: 'klammern', kind: 'Brücke', title: 'Gleichungen lösen', run: quiz([genGleichungKlammer, genGleichungKlammer, genGleichungKlammer, genGleichungKlammer]) },
+      { id: 'einfach', kind: 'Brücke', title: 'Sicher umformen', run: quiz([genLinGl, genGleichungKlammer, genLinGl, genGleichungKlammer]) },
+      { id: 'mix', kind: 'Festigen', title: 'Gleichungen gemischt', run: mix(genGleichungKlammer, genLinGl) },
+    ] },
   { id: 'k8-linear', jg: '8', area: 'malgebra', title: 'Lineare Funktionen', sub: 'Steigung, Achsenabschnitt, Nullstelle',
     meta: { boss: ['Geraden-Greif', 'm', [genLinFunktion, genSteigung]], why: 'Ein Handytarif mit Grundgebühr, eine Taxifahrt, ein gleichmäßig voll laufendes Becken: Alles, was gleichmäßig wächst oder fällt, ist eine lineare Funktion.',
       formeln: [['Gerade', 'f(x)=m\\,x+b'], ['Steigung', 'm=\\dfrac{y_2-y_1}{x_2-x_1}'], ['Nullstelle', 'm\\,x+b=0\\ \\Rightarrow\\ x=-\\dfrac bm']] },
@@ -350,6 +432,22 @@ export const MITTEL = [
       ]) },
       { id: 'rueck', kind: 'Brücke', title: 'Kreisteile', run: quiz([genKreis, genKreis, genKreis, genKreis]) },
       { id: 'mix', kind: 'Festigen', title: 'Kreis gemischt', run: mix(genKreis) },
+    ] },
+  { id: 'k8-flaechen', jg: '8', area: 'mgeo', title: 'Flächen und Prismen', sub: 'Dreieck, Trapez, Prisma, Zylinder',
+    meta: { boss: ['Trapez-Tapir', '▱', [genVieleck, genPrisma]], why: 'Wie viel Farbe braucht die Giebelwand? Wie viel Wasser passt in die Regentonne? Mit wenigen Formeln für Flächen und Körper beantwortest du solche Fragen – beim Renovieren, Verpacken und Bauen.',
+      formeln: [['Dreieck', 'A=\\tfrac12\\cdot g\\cdot h'], ['Trapez', 'A=\\tfrac12\\cdot(a+c)\\cdot h'], ['Prisma', 'V=G\\cdot h'], ['Zylinder', 'V=\\pi\\cdot r^2\\cdot h']] },
+    steps: [
+      { id: 'flaechen', kind: 'Benennen', title: 'Dreieck, Parallelogramm, Trapez', run: info([
+        { title: 'Alles kommt vom Rechteck', html: `${T('A_{\\text{Parallelogramm}}=g\\cdot h\\qquad A_{\\text{Dreieck}}=\\tfrac12\\cdot g\\cdot h')}<p>Ein Parallelogramm lässt sich zu einem Rechteck umlegen. Ein Dreieck ist genau die Hälfte eines Parallelogramms. Wichtig ist immer die <b>Höhe</b>, nicht die schräge Seite.</p>` },
+        { title: 'Trapez', html: `${T('A=\\tfrac12\\cdot(a+c)\\cdot h')}<p>Nimm den Mittelwert der beiden parallelen Seiten mal die Höhe.</p>` },
+      ]) },
+      { id: 'ebene', kind: 'Brücke', title: 'Flächen berechnen', run: quiz([genVieleck, genVieleck, genVieleck, genVieleck]) },
+      { id: 'koerper', kind: 'Benennen', title: 'Prisma und Zylinder', run: info([
+        { title: 'Grundfläche mal Höhe', html: `${T('V=G\\cdot h')}<p>Bei jedem Prisma und beim Zylinder wird die Grundfläche Schicht für Schicht gestapelt. Beim Zylinder ist die Grundfläche ein Kreis: ${tex('V=\\pi r^2h')}.</p>` },
+        { title: 'Mantel des Zylinders', html: `${T('M=2\\pi r\\cdot h')}<p>Wickelst du das Etikett einer Dose ab, entsteht ein Rechteck: so breit wie der Umfang, so hoch wie die Dose.</p>` },
+      ]) },
+      { id: 'raum', kind: 'Brücke', title: 'Körper berechnen', run: quiz([genPrisma, genPrisma, genPrisma, genPrisma]) },
+      { id: 'mix', kind: 'Festigen', title: 'Flächen und Körper', run: mix(genVieleck, genPrisma) },
     ] },
   { id: 'k9-quadrat', jg: '9', area: 'malgebra', title: 'Wurzeln und quadratische Gleichungen', sub: 'Wurzeln, Parabeln, pq-Formel',
     meta: { boss: ['Parabel-Panther', 'x²', [genWurzel, genQuadGl, genScheitel]], why: 'Wurfbahnen, Bremswege und Brückenbögen sind Parabeln. Mit quadratischen Gleichungen findest du heraus, wann ein Ball landet oder wie breit ein Tor sein muss.',
@@ -491,5 +589,21 @@ export const MITTEL = [
       ]) },
       { id: 'kosueben', kind: 'Brücke', title: 'Mit dem Kosinussatz rechnen', run: quiz([genSinussatz, genSinussatz, genSinussatz, genSinussatz]) },
       { id: 'mix', kind: 'Festigen', title: 'Dreiecke gemischt', run: mix(genSinussatz, genTrig) },
+    ] },
+  { id: 'k10-funktionen', jg: '10', area: 'malgebra', title: 'Exponential- und Sinusfunktion', sub: 'Wachstum mit Faktor, Schwingungen',
+    meta: { boss: ['Wellen-Wolf', '∿', [genExpFunktion, genSinusFkt]], why: 'Bakterien, Zinsen und Internet-Hypes wachsen exponentiell – erst unauffällig, dann rasend. Töne, Wechselstrom, Ebbe und Flut schwingen wie eine Sinuskurve. Beide Funktionen brauchst du in der Oberstufe ständig.',
+      formeln: [['Exponentialfunktion', 'f(x)=a\\cdot b^x'], ['Sinusfunktion', 'f(x)=a\\cdot\\sin(b\\,x)+d'], ['Periode', 'p=\\dfrac{2\\pi}{b}']] },
+    steps: [
+      { id: 'exp', kind: 'Benennen', title: 'Exponentialfunktionen', run: info([
+        { title: 'Startwert und Faktor', html: `${T('f(x)=a\\cdot b^x')}<p>${tex('a')} ist der Startwert (für ${tex('x=0')}), ${tex('b')} der Wachstumsfaktor: In jedem Schritt wird mit ${tex('b')} malgenommen. Ist ${tex('b')} größer als 1, wächst die Funktion, sonst fällt sie.</p>` },
+        { title: 'Linear oder exponentiell?', html: `<p><b>Linear:</b> In jedem Schritt kommt derselbe <b>Betrag</b> dazu (5, 8, 11, 14).</p><p><b>Exponentiell:</b> In jedem Schritt wird mit demselben <b>Faktor</b> malgenommen (5, 10, 20, 40). „Plus 20 %“ bedeutet Faktor 1,2.</p>` },
+      ]) },
+      { id: 'expueben', kind: 'Brücke', title: 'Wachstum mit Faktor', run: quiz([genExpFunktion, genExpFunktion, genExpFunktion, genExpFunktion]) },
+      { id: 'sinus', kind: 'Benennen', title: 'Die Sinusfunktion', run: info([
+        { title: 'Amplitude und Mittellinie', html: `${T('f(x)=a\\cdot\\sin(b\\,x)+d')}<p>${tex('a')} ist die <b>Amplitude</b>: so weit schlägt die Kurve nach oben und unten aus. ${tex('d')} verschiebt die Mittellinie.</p>` },
+        { title: 'Periode', html: `${T('p=\\dfrac{2\\pi}{b}')}<p>Nach einer Periode wiederholt sich alles. Ein größeres ${tex('b')} staucht die Kurve: ${tex('\\sin(2x)')} schwingt doppelt so schnell.</p>` },
+      ]) },
+      { id: 'sinueben', kind: 'Brücke', title: 'Schwingungen lesen', run: quiz([genSinusFkt, genSinusFkt, genSinusFkt, genSinusFkt]) },
+      { id: 'mix', kind: 'Festigen', title: 'Funktionen gemischt', run: mix(genExpFunktion, genSinusFkt) },
     ] },
 ];
