@@ -409,7 +409,7 @@ function warteAufAufgaben(hash) {
   ladeAufgaben().then(() => { if (location.hash === hash) route(); }, () => {
     if (!el.isConnected) return;
     el.querySelector('#auf-lade').innerHTML = '<h3>Die Aufgaben konnten nicht geladen werden</h3><p class="muted">Prüfe deine Verbindung und versuche es noch einmal.</p><button class="btn" id="auf-neu" type="button">Noch einmal versuchen</button>';
-    el.querySelector('#auf-neu').addEventListener('click', route);
+    el.querySelector('#auf-neu').addEventListener('click', () => location.reload());   // der Browser merkt sich ein gescheitertes Nachladen – nur ein Neuladen der Seite holt die Teile wirklich neu
   });
 }
 function route() {

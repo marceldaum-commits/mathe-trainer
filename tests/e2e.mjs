@@ -991,7 +991,7 @@ await ctx2.close();
   for (const h of ['#/lernen', '#/pruefung', '#/mehr']) { await lp.evaluate((x) => { location.hash = x; }, h); await lp.waitForTimeout(250); if (await lp.locator('#auf-lade').count()) fail(`Nachladen: ${h} wartet unnötig auf die Aufgaben`); }
   await lp.evaluate(() => { location.hash = '#/tag'; }); await lp.waitForSelector('#auf-neu', { timeout: 15000 });
   if (shots) await lp.screenshot({ path: `${shots}/89-aufgaben-laden.png` });
-  art = 'frei'; await lp.click('#auf-neu'); await lp.waitForSelector('.opt, .gap, #q-in', { timeout: 20000 });
+  art = 'frei'; await lp.click('#auf-neu'); await lp.waitForFunction(() => !document.querySelector('#auf-lade') && /Tages-Runde/.test(document.querySelector('#view')?.textContent || ''), null, { timeout: 20000 });
   if (await lp.locator('#auf-lade').count()) fail('Nachladen: Warte-Karte bleibt stehen, obwohl die Aufgaben da sind');
   await lc.close();
 }
