@@ -2,6 +2,12 @@
 
 Neueste Meldung oben. Keine Geheimnisse, keine Personendaten (dieses Repo ist öffentlich, siehe Punkt 1).
 
+## 16.11.2026 (72) – 0.33.0 bis 0.37.0 liegen auf `test`
+
+- Zweig `test` = `main` = Version **0.37.0** (enthält 0.33.0 Stufen-Spreizung Analysis, 0.34.0, 0.35.0 Spreizung Stochastik/Geometrie/Klasse 5–10, 0.36.0 Schnellstart, 0.37.0 Bündel).
+- Geprüft: `npm run check` grün (1 271 349 Prüfungen); Gesamttest im Browser für 0.36.0 und 0.37.0 je alle fünf Stufen ohne Fehler; Durchklick Oberstufe und Klasse 7 ohne echte Befunde.
+- Offen bei euch: Kompression (gzip/Brotli) prüfen, `b/app.js` mit `no-cache`, siehe (70) und (71). `live` setzt nur ihr nach Marcels Go.
+
 ## 16.11.2026 (71) – 0.37.0: Skripte gebündelt und verkleinert (Entscheidung Marcel) – Meldung „liegt auf test“ folgt nach dem Testlauf
 
 - **Neu im Repo:** Ordner `app/b/` (drei erzeugte Dateien; Namen der Teile enthalten eine Prüfsumme und wechseln mit dem Inhalt), `tools/buendeln.mjs`, `package-lock.json`, Entwickler-Abhängigkeit `esbuild` (läuft nur beim Bauen, nicht in der App, kein neuer Dienst). `index.html` lädt jetzt `b/app.js` statt `js/app.js`. Die Quell-Dateien in `app/js/` liegen weiter im Repo und werden weiter ausgespielt (alte, noch gespeicherte Startseiten funktionieren), stehen aber nicht mehr in `sw.js`/`stand.json`.
