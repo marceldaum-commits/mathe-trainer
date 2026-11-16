@@ -97,7 +97,7 @@ public final class UpdateTest {
         pruefe(geworfen && Update.starte(basis, "0.21.0") == null, "ohne Netz bleibt alles beim Alten");
 
         // 9. die echte stand.json der Web-App lässt sich lesen
-        if (a.length > 0) { Update.Stand s = Update.lies(lies(new File(a[0]))); pruefe(s.dateien.size() > 50 && s.dateien.containsKey("js/app.js") && s.huelle >= 1, "echte stand.json: " + s.dateien.size() + " Dateien"); }
+        if (a.length > 0) { Update.Stand s = Update.lies(lies(new File(a[0]))); pruefe(s.dateien.size() > 20 && s.dateien.containsKey("index.html") && s.dateien.containsKey("b/app.js") && s.huelle >= 1, "echte stand.json: " + s.dateien.size() + " Dateien"); }
         Update.weg(basis);
         System.out.println("UpdateTest: " + n + " Prüfungen bestanden");
     }
