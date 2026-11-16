@@ -12,7 +12,7 @@ Neueste Meldung oben. Keine Geheimnisse, keine Personendaten (dieses Repo ist ö
   4. **Gerade in Parameterform** – anderer Richtungsvektor, anderer Stützpunkt, zweite Gleichung derselben Geraden, identisch oder echt parallel, Parameter a und b.
   5. **Drei Punkte auf einer Geraden** – Prüfung über Vielfache (auch gebrochene Faktoren), eine bzw. zwei fehlende Koordinaten.
 - „Punkt angeben“ ist als Auswahl-Aufgabe gebaut (die App prüft Antworten über Auswahl); die Bedingungen rechnet die Prüfdatei unabhängig nach.
-- **Stufen:** Jede der fünf Arten hat fünf Stufen und besteht `tests/stufen.mjs`. Anspruch Stufe 1…5: Punkte im Raum 9 · 11 · 17 · 44 · 65 (gerundet), Spiegeln 16 · 19 · 30 · 42 · 57, Parallelogramm 17 · 24 · 39 · 65 · 83, Gerade 28 · 30 · 45 · 68 · 82, drei Punkte 18 · 40 · 46 · 50 · 77.
+- **Stufen:** Jede der fünf Arten hat fünf Stufen und besteht `tests/stufen.mjs`. Anspruch Stufe 1…5: Punkte im Raum 10 · 16 · 17 · 44 · 65 (gerundet), Spiegeln 16 · 19 · 30 · 42 · 57, Parallelogramm 17 · 24 · 39 · 65 · 83, Gerade 28 · 30 · 45 · 68 · 82, drei Punkte 18 · 40 · 46 · 50 · 77.
 - **Nachtrag zu (76):** Der Stufen-Test hat bisher nur die Erzeuger gemessen, die über Endgegner und Übungslisten erreichbar sind (141). Jetzt misst er **alle 147 exportierten Erzeuger**. Dabei fiel die Lücken-Aufgabe zur Potenzregel durch; sie hat jetzt fünf echte Stufen. **0.38.0 lade ich deshalb nicht einzeln hoch – 0.39.0 enthält sie.** Aktuelle Überblicks-Tabelle (volle Tabelle: `docs/STUFEN.md`):
 
 | Gebiet | Stufe | Anspruch | Schritte | Regeln | Grad | Tiefe | Param. | Weg | krumm |
