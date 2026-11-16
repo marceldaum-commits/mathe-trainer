@@ -121,3 +121,18 @@ Differenzialgleichungen, komplexe Zahlen.
 - Hessen: Abiturerlass Landesabitur 2027 (Erlass vom 02.07.2025) und 2028 (Erlass vom 28.05.2026), Abschnitt 23
 - Hessen: „Hinweise für die Fächer Mathematik, Chemie, Physik und Informatik" (Stand 01.08.2025);
   Operatorenliste Landesabitur 2027
+
+## Nachtrag 16.11.2026 (Version 0.33.0): vier Einheiten aus der Fehl-Liste gebaut
+
+| Einheit | Bayern | Hessen GK | Hessen LK | Anmerkung |
+| --- | --- | --- | --- | --- |
+| a-umkehr (Umkehrfunktion, Wurzelfunktion, rationale Exponenten) | ja | ja | ja | – |
+| a-numerik (Integralfunktion, Newton-Verfahren, Ortskurven) | ja | Integralfunktion und Ortskurve ja; **Newton nein – unsicher** | ja | Schritt „Newton-Schritte“ ist für HE-GK als Zusatz markiert |
+| s-test2 (Binomialverteilung einzeln/kumuliert, Mengenschreibweise, Histogramm, rückwärts nach n/p, zweiseitiger Test, stetige Zufallsgrößen) | ja | ja; **stetige Zufallsgrößen nein** | ja | Schritt „Stetige Zufallsgrößen“ ist für HE-GK als Zusatz markiert |
+| g-abstand2 (Hesse-Form, Schnittgerade, windschiefe Geraden, Spiegelung, Bewegungen) | ja | Schnittgerade, Spiegelung, Bewegung ja; **Hesse-Form und windschiefe Geraden nein** | ja | beide Schritte für HE-GK als Zusatz markiert |
+
+Damit erledigt: Wurzel- und Umkehrfunktion, Integralfunktion, Newton-Verfahren, stetige Zufallsgrößen (Einstieg), zweiseitiger Test,
+Histogramme, Fragen rückwärts nach n/p/k, Hesse-Form, Schnittgerade zweier Ebenen, Abstand windschiefer Geraden, Spiegelungen,
+Bewegungen mit Geschwindigkeitsvektor, Ortskurven, Mengenschreibweise.
+**Weiter offen:** Gütefunktion, Stetigkeit und Differenzierbarkeit anschaulich, allgemeine Transformation a·f(b(x−c))+d, Schattenwurf,
+Körper im Raum, Winkel Gerade–Ebene, Prognose- und Konfidenzintervalle, Normalverteilung rückwärts.

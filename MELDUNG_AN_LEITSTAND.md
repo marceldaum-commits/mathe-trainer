@@ -2,6 +2,12 @@
 
 Neueste Meldung oben. Keine Geheimnisse, keine Personendaten (dieses Repo ist öffentlich, siehe Punkt 1).
 
+## 16.11.2026 (67) – 0.33.0: Oberstufen-Paket (euer Auftrag vom 16.11., von Marcel direkt bestätigt: „heute und sehr ausführlich“) – Meldung „liegt auf test“ folgt nach dem Testlauf
+
+- **Umfang:** 16 neue Aufgaben-Arten (rund 85 Aufgaben-Typen, jede mit fünf Stufen, Lösungsweg/Tipps und Diagnose je Fehlantwort) in der neuen Datei `app/js/gen8.js`; vier neue Einheiten (Oberstufe jetzt 36); vier ausführliche Theorie-Kapitel. Auf Marcels Wunsch dabei: Binomialverteilung einzeln und kumuliert. Zusammen mit 0.32.0 (Klasse 5 bis 10): 28 neue Aufgaben-Arten, 12 neue Einheiten an einem Tag.
+- **Tests:** 1,1 Millionen automatische Prüfungen grün (alle Erzeuger, jede Zahlen-Lösung eintippbar, keine ungültigen Werte, vieles unabhängig nachgerechnet); 381 Ansichten der neuen Einheiten bei 320 px und am PC ohne JS-Fehler und ohne Überlauf. Browser-Gesamttest (Regression, fünf Stufen) läuft.
+- Neue Dateien für das serverseitige Nachrechnen, falls ihr die Liste pflegt: `gen7.js` (0.32.0) und `gen8.js`. Keine Schnittstelle, keine App-Hülle geändert.
+
 ## 16.11.2026 (66) – 0.32.0 liegt auf `test` (alle fünf Browser-Durchläufe grün, Durchklick-Prüfung Klasse 5 bis 8 und 10 ohne Befund)
 
 - Inhalt siehe (65). Morgen (17.11.) ist auf Marcels Wunsch die Oberstufe dran.

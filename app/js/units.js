@@ -24,6 +24,7 @@ import {
   genPolstelle, genAsymptote, genQuotient, genTrigAbl, genTrigInt, genRotation, genUneigentlich, genUnabhaengig, genVarianz, genHyper, genKugel, genAbstandPG, genEbenenLage,
 } from './gen4.js';
 import { genBegrenzt, genBegrenztRate, genLogistisch, genWachstumArt, genSpurpunkt, genNormalenform, genParamPunkt } from './gen5.js';
+import { genUmkehr, genWurzelAbl, genIntegralfunktion, genNewton, genOrtskurve, genHesse, genSchnittgerade, genWindschief, genSpiegelung, genBewegung, genZweiseitig, genHistogramm, genRueckwaerts, genStetig, genMengen, genBinomVerteilung } from './gen8.js';
 import {
   genWendestelle, genMonotonie, genSymmetrie, genGrenzwert, genTangente, genSteckbrief, genSchar, genExtremwert, genLn, genWachstum, genFlaecheZwischen,
   genVierfelder, genBedingt, genKumuliert, genSigma, genHypothese, genNormal, genKombinatorik,
@@ -486,11 +487,71 @@ const OBER = [
       { id: 'spur', kind: 'Festigen', title: 'Spurpunkte', run: quiz([genSpurpunkt, genSpurpunkt, genSpurpunkt, genSpurpunkt]) },
     ],
   },
+  {
+    id: 'a-umkehr', area: 'analysis', title: 'Wurzel- und Umkehrfunktion', sub: 'Umkehren, Definitionsbereich, Wurzeln ableiten',
+    steps: [
+      { id: 'regel', kind: 'Benennen', title: 'Rückwärts rechnen', run: info([
+        { title: 'Was eine Umkehrfunktion tut', html: `${T('f(x)=2x+6\\ \\Rightarrow\\ f^{-1}(x)=\\dfrac{x-6}{2}')}<p>Die Umkehrfunktion macht rückgängig, was ${tex('f')} tut. Rezept: ${tex('y=f(x)')} nach ${tex('x')} auflösen, dann ${tex('x')} und ${tex('y')} vertauschen. Die Graphen liegen spiegelbildlich zur Winkelhalbierenden ${tex('y=x')}.</p>` },
+        { title: 'Wurzel und Quadrat, ln und e', html: `${T('f(x)=x^2\\ (x\\ge 0)\\ \\Rightarrow\\ f^{-1}(x)=\\sqrt x')}<p>Umkehrbar ist eine Funktion nur, wenn jeder y-Wert genau einmal vorkommt. Bei ${tex('x^2')} muss man sich deshalb auf einen Ast beschränken. ${tex('\\ln')} ist die Umkehrung von ${tex('e^x')}.</p>` },
+        { title: 'Wurzeln ableiten', html: `${T("\\left(\\sqrt x\\right)'=\\dfrac{1}{2\\sqrt x}")}<p>Schreibe ${tex('\\sqrt x=x^{1/2}')} – dann gilt die Potenzregel wie immer. Unter der Wurzel darf nichts Negatives stehen: Das legt den Definitionsbereich fest.</p>` },
+      ]) },
+      { id: 'umkehr', kind: 'Brücke', title: 'Umkehrfunktionen bestimmen', run: quiz([genUmkehr, genUmkehr, genUmkehr, genUmkehr]) },
+      { id: 'wurzel', kind: 'Brücke', title: 'Wurzelfunktionen ableiten', run: quiz([genWurzelAbl, genWurzelAbl, genWurzelAbl, genWurzelAbl]) },
+      { id: 'mix', kind: 'Festigen', title: 'Umkehren und Ableiten gemischt', run: quiz([genUmkehr, genWurzelAbl, genUmkehr, genWurzelAbl, genUmkehr]) },
+    ],
+  },
+  {
+    id: 'a-numerik', area: 'analysis', title: 'Integralfunktion, Newton, Ortskurve', sub: 'Drei Werkzeuge für die Prüfung',
+    steps: [
+      { id: 'regel', kind: 'Benennen', title: 'Drei Werkzeuge', run: info([
+        { title: 'Integralfunktion', html: `${T("J_a(x)=\\displaystyle\\int_a^x f(t)\\,dt\\qquad J_a'(x)=f(x)")}<p>Die obere Grenze ist beweglich. Die Integralfunktion ist die Stammfunktion von ${tex('f')}, die bei ${tex('x=a')} den Wert 0 hat. Wo ${tex('f')} das Vorzeichen wechselt, hat ${tex('J_a')} ein Extremum.</p>` },
+        { title: 'Newton-Verfahren', html: `${T("x_{n+1}=x_n-\\dfrac{f(x_n)}{f'(x_n)}")}<p>Man ersetzt die Kurve durch ihre Tangente und nimmt deren Nullstelle als nächsten Näherungswert. Meist reichen wenige Schritte. Bei waagerechter Tangente bricht das Verfahren ab.</p>` },
+        { title: 'Ortskurve', html: `<p>Hängen die Extrempunkte einer Schar von ${tex('k')} ab, etwa ${tex('E_k(k\\mid -k^2+3)')}, liegen sie alle auf einer Kurve. Man findet sie, indem man ${tex('x=k')} nach ${tex('k')} auflöst und in ${tex('y')} einsetzt: ${tex('y=-x^2+3')}.</p>` },
+      ]) },
+      { id: 'intfkt', kind: 'Brücke', title: 'Integralfunktionen', run: quiz([genIntegralfunktion, genIntegralfunktion, genIntegralfunktion, genIntegralfunktion]) },
+      { id: 'newton', kind: 'Brücke', nicht: ['HE-GK'], title: 'Newton-Schritte', run: quiz([genNewton, genNewton, genNewton, genNewton]) },
+      { id: 'ort', kind: 'Festigen', title: 'Ortskurven', run: quiz([genOrtskurve, genOrtskurve, genOrtskurve, genIntegralfunktion]) },
+    ],
+  },
+  {
+    id: 's-test2', area: 'stochastik', title: 'Binomialverteilung genauer, zweiseitig testen', sub: 'Einzeln und kumuliert, Histogramm, rückwärts fragen, stetige Größen',
+    steps: [
+      { id: 'regel', kind: 'Benennen', title: 'Vier Blickwinkel', run: info([
+        { title: 'Ereignisse als Mengen', html: `${T('A\\cap B\\ (\\text{und})\\qquad A\\cup B\\ (\\text{oder})\\qquad\\overline{A}\\ (\\text{nicht})')}<p>Ein Ereignis ist eine Menge von Ergebnissen. Für die Vereinigung gilt ${tex('P(A\\cup B)=P(A)+P(B)-P(A\\cap B)')} – was in beiden liegt, darf nicht doppelt zählen.</p>` },
+        { title: 'Einzeln und kumuliert', html: `${T('P(X=k)=\\binom{n}{k}p^k(1-p)^{n-k}\\qquad P(X\\le k)=\\sum_{i=0}^{k}P(X=i)')}<p>Die <b>Einzelwahrscheinlichkeit</b> gilt für genau ${tex('k')} Treffer. <b>Kumuliert</b> heißt aufsummiert: höchstens ${tex('k')} Treffer. Tabellen und Taschenrechner liefern meist ${tex('P(X\\le k)')} – „mindestens“ und „mehr als“ rechnet man über das Gegenereignis.</p>` },
+        { title: 'Histogramm', html: `${T('\\mu=n\\cdot p\\qquad\\sigma=\\sqrt{n\\cdot p\\cdot(1-p)}')}<p>Die höchste Säule steht beim Erwartungswert, ${tex('\\sigma')} bestimmt die Breite. Nur für ${tex('p=0{,}5')} ist das Bild symmetrisch. Die Gesamtfläche ist immer 1.</p>` },
+        { title: 'Zweiseitiger Test', html: `${T('\\text{Annahmebereich}\\approx[\\mu-1{,}96\\sigma;\\ \\mu+1{,}96\\sigma]')}<p>Sind Abweichungen nach oben <b>und</b> nach unten verdächtig, wird der Ablehnungsbereich auf beide Ränder verteilt – bei 5 % je 2,5 %.</p>` },
+        { title: 'Stetige Zufallsgrößen', html: `<p>Bei Längen, Zeiten oder Gewichten ist jeder einzelne Wert unendlich unwahrscheinlich. Wahrscheinlichkeiten sind dort <b>Flächen</b> unter einer Dichtefunktion: ${tex('P(a\\le X\\le b)=\\displaystyle\\int_a^b f(x)\\,dx')}.</p>` },
+      ]) },
+      { id: 'mengen', kind: 'Brücke', title: 'Mengenschreibweise', run: quiz([genMengen, genMengen, genMengen, genMengen]) },
+      { id: 'binom', kind: 'Brücke', title: 'Einzeln und kumuliert', run: quiz([genBinomVerteilung, genBinomVerteilung, genBinomVerteilung, genBinomVerteilung, genBinomVerteilung]) },
+      { id: 'hist', kind: 'Brücke', title: 'Histogramme lesen', run: quiz([genHistogramm, genHistogramm, genHistogramm, genHistogramm]) },
+      { id: 'rueck', kind: 'Brücke', title: 'Rückwärts nach n und p', run: quiz([genRueckwaerts, genRueckwaerts, genRueckwaerts, genRueckwaerts]) },
+      { id: 'zwei', kind: 'Brücke', title: 'Zweiseitig testen', run: quiz([genZweiseitig, genZweiseitig, genZweiseitig, genZweiseitig]) },
+      { id: 'stetig', kind: 'Festigen', nicht: ['HE-GK'], title: 'Stetige Zufallsgrößen', run: quiz([genStetig, genStetig, genStetig, genStetig]) },
+    ],
+  },
+  {
+    id: 'g-abstand2', area: 'geometrie', title: 'Hesse-Form, Schnittgerade, Spiegelung', sub: 'Abstände, windschiefe Geraden, Bewegungen',
+    steps: [
+      { id: 'regel', kind: 'Benennen', title: 'Senkrecht ist der Schlüssel', run: info([
+        { title: 'Hesse-Form', html: `${T('d(P;E)=\\dfrac{|n_1p_1+n_2p_2+n_3p_3-d|}{|\\vec n|}')}<p>Teilt man die Koordinatenform durch die Länge des Normalenvektors, liefert das Einsetzen eines Punktes direkt seinen Abstand zur Ebene. Das Vorzeichen verrät die Seite.</p>` },
+        { title: 'Schnittgerade zweier Ebenen', html: `${T('\\vec u=\\vec n_1\\times\\vec n_2')}<p>Die Schnittgerade liegt in beiden Ebenen, also steht ihr Richtungsvektor senkrecht auf beiden Normalenvektoren. Als Stützpunkt taugt jeder Punkt, der beide Gleichungen erfüllt.</p>` },
+        { title: 'Windschiefe Geraden', html: `${T('d=\\dfrac{|(\\vec q-\\vec p)\\cdot\\vec n|}{|\\vec n|}\\quad\\text{mit}\\quad\\vec n=\\vec u\\times\\vec v')}<p>Windschief heißt: nicht parallel und trotzdem ohne Schnittpunkt – wie eine Brücke über einer Straße. Der kürzeste Abstand liegt auf der gemeinsamen Senkrechten.</p>` },
+        { title: 'Spiegeln und Bewegen', html: `${T("\\vec{p'}=\\vec p+2\\cdot\\overrightarrow{PF}")}<p>Beim Spiegeln an einer Ebene geht man vom Punkt zum Lotfußpunkt ${tex('F')} und genauso weit weiter. Bei Bewegungen ${tex('\\vec x(t)=\\vec a+t\\cdot\\vec v')} ist ${tex('|\\vec v|')} die Geschwindigkeit.</p>` },
+      ]) },
+      { id: 'hesse', kind: 'Brücke', nicht: ['HE-GK'], title: 'Abstand mit der Hesse-Form', run: quiz([genHesse, genHesse, genHesse, genHesse]) },
+      { id: 'schnitt', kind: 'Brücke', title: 'Schnittgeraden', run: quiz([genSchnittgerade, genSchnittgerade, genSchnittgerade, genSchnittgerade]) },
+      { id: 'schief', kind: 'Brücke', nicht: ['HE-GK'], title: 'Windschiefe Geraden', run: quiz([genWindschief, genWindschief, genWindschief, genWindschief]) },
+      { id: 'spiegel', kind: 'Brücke', title: 'Spiegelungen', run: quiz([genSpiegelung, genSpiegelung, genSpiegelung, genSpiegelung]) },
+      { id: 'flug', kind: 'Festigen', title: 'Bewegungen im Raum', run: quiz([genBewegung, genBewegung, genBewegung, genBewegung]) },
+    ],
+  },
 ];
 const OBER_AREAS = [
-  { id: 'analysis', title: 'Analysis', soon: ['Wurzel- und Umkehrfunktion', 'Integralfunktion', 'Newton-Verfahren', 'Ortskurven'] },
-  { id: 'stochastik', title: 'Stochastik', soon: ['Zweiseitige Tests', 'Histogramme lesen', 'Rückwärts nach n und p fragen'] },
-  { id: 'geometrie', title: 'Analytische Geometrie', soon: ['Schnittgerade zweier Ebenen', 'Spiegelungen', 'Hesse-Form', 'Abstand windschiefer Geraden'] },
+  { id: 'analysis', title: 'Analysis', soon: ['Stetigkeit und Differenzierbarkeit', 'Transformationen a·f(b(x−c))+d', 'Mittelwert einer Funktion'] },
+  { id: 'stochastik', title: 'Stochastik', soon: ['Gütefunktion', 'Normalverteilung rückwärts', 'Prognose- und Konfidenzintervalle'] },
+  { id: 'geometrie', title: 'Analytische Geometrie', soon: ['Schattenwurf', 'Körper im Raum', 'Winkel zwischen Gerade und Ebene'] },
   { id: 'pruefung', title: 'Prüfung', soon: ['Musterlösungen lesen', 'Zeit einteilen'] },
 ];
 
@@ -558,6 +619,14 @@ const META = {
     formeln: [['Begrenztes Wachstum', 'f(t)=S-a\\,e^{-kt},\\quad f\'(t)=k\\,(S-f(t))'], ['Logistisches Wachstum', 'f(t)=\\dfrac{S}{1+a\\,e^{-kt}}'], ['Stärkstes Wachstum (logistisch)', 'f(t_W)=\\tfrac{S}{2},\\quad t_W=\\tfrac{\\ln a}{k}']] },
   'g-ebene2': { boss: ['Spur-Späher', 'S₁', [genParamPunkt, genNormalenform, genSpurpunkt]], why: 'Architekten und 3D-Programme beschreiben Dachflächen, Wände und Rampen als Ebenen – mal über zwei Richtungen, mal über die Senkrechte dazu. Die Spurpunkte zeigen, wo eine Fläche auf den Boden und die Wände trifft.',
     formeln: [['Parameterform', 'E:\\ \\vec x=\\vec a+r\\,\\vec u+s\\,\\vec v'], ['Normalenform → Koordinatenform', '\\vec n\\cdot\\vec x=\\vec n\\cdot\\vec p'], ['Spurpunkt auf der x₁-Achse', 'x_2=0,\\ x_3=0']] },
+  'a-umkehr': { boss: ['Wurzel-Wächter', '√', [genUmkehr, genWurzelAbl]], why: 'Jede Formel, die man „nach etwas anderem auflöst“, ist eine Umkehrfunktion: aus der Bremsweg-Formel die Geschwindigkeit, aus dem Kontostand die Laufzeit. Wurzelfunktionen beschreiben Fallzeiten, Pendel und alles, was mit Flächen und Seitenlängen zusammenhängt.',
+    formeln: [['Umkehrfunktion', 'y=f(x)\\ \\text{nach}\\ x\\ \\text{auflösen, dann}\\ x\\leftrightarrow y'], ['Wurzel ableiten', "\\left(\\sqrt x\\right)'=\\dfrac{1}{2\\sqrt x}"], ['Rationale Exponenten', "\\left(x^{r}\\right)'=r\\cdot x^{r-1}"]] },
+  'a-numerik': { boss: ['Näherungs-Nixe', 'xₙ', [genIntegralfunktion, genNewton, genOrtskurve]], why: 'Die meisten Gleichungen der Technik lassen sich nicht exakt lösen – Taschenrechner und Computer benutzen Verfahren wie das von Newton. Integralfunktionen beschreiben Füllstände und zurückgelegte Wege, Ortskurven zeigen, wie sich eine ganze Familie von Kurven verhält.',
+    formeln: [['Integralfunktion', "J_a(x)=\\displaystyle\\int_a^x f(t)\\,dt,\\quad J_a'(x)=f(x)"], ['Newton-Verfahren', "x_{n+1}=x_n-\\dfrac{f(x_n)}{f'(x_n)}"], ['Ortskurve', '\\text{Parameter eliminieren}']] },
+  's-test2': { boss: ['Histo-Hydra', 'H₀', [genBinomVerteilung, genMengen, genHistogramm, genRueckwaerts, genZweiseitig, genStetig]], why: 'Ob eine Münze fair ist, ein Medikament anders wirkt oder eine Maschine falsch eingestellt ist: Abweichungen in beide Richtungen prüft man zweiseitig. Histogramme und Dichten zeigen auf einen Blick, womit zu rechnen ist – in der Qualitätskontrolle genauso wie in Wahlumfragen.',
+    formeln: [['Einzelwahrscheinlichkeit', 'P(X=k)=\\binom{n}{k}p^k(1-p)^{n-k}'], ['Kumuliert', 'P(X\\ge k)=1-P(X\\le k-1)'], ['Vereinigung', 'P(A\\cup B)=P(A)+P(B)-P(A\\cap B)'], ['Annahmebereich (5 %)', '[\\mu-1{,}96\\sigma;\\ \\mu+1{,}96\\sigma]'], ['Mindestens ein Treffer', '1-(1-p)^n\\ge s'], ['Dichte', 'P(a\\le X\\le b)=\\displaystyle\\int_a^b f(x)\\,dx']] },
+  'g-abstand2': { boss: ['Lot-Leopard', '⊥', [genHesse, genSchnittgerade, genWindschief, genSpiegelung, genBewegung]], why: 'Flugsicherung, Robotik und jedes 3D-Spiel rechnen ständig Abstände aus: Wie nah kommen sich zwei Flugbahnen? Wo trifft ein Lichtstrahl sein Spiegelbild? Fast immer führt der Weg über eine Senkrechte.',
+    formeln: [['Hesse-Form', 'd(P;E)=\\dfrac{|\\vec n\\cdot\\vec p-d|}{|\\vec n|}'], ['Schnittgerade', '\\vec u=\\vec n_1\\times\\vec n_2'], ['Windschiefe Geraden', 'd=\\dfrac{|(\\vec q-\\vec p)\\cdot\\vec n|}{|\\vec n|}'], ['Spiegelpunkt', "\\vec{p'}=\\vec p+2\\cdot\\overrightarrow{PF}"]] },
   operatoren: { boss: ['Operator-Orakel', '!', [genOperator]], why: 'Wer den Operator genau liest, schreibt in der Prüfung weder zu wenig noch zu viel.', formeln: [] },
 };
 /** Alle Einheiten aller Jahrgänge. Ohne Angabe gehört eine Einheit zur Oberstufe (jg 'os'). */

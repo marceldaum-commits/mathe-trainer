@@ -307,7 +307,7 @@ for (const [name, fn] of Object.entries({ ...G, ...H, ...K, ...K4 })) {
   const test = UNITS.find((u) => u.id === 's-test');
   ok(unitExtra(test, GK) && !unitExtra(test, 'BY') && landList(test.bossGens, GK).length === test.bossGens.length, 'Lehrplan: Hypothesentests im Grundkurs als Zusatz markiert, bleiben spielbar');
   const extra = UNITS.flatMap((u) => u.steps.filter((s) => stepExtra(s, GK)).map((s) => `${u.id}/${s.id}`));
-  ok(extra.join() === 'expln/ln,s-verteilung/sigma,g-ebene/kreuz,g-kugel/kugel,a-wachstum/logistisch,g-ebene2/normal' && UNITS.every((u) => !unitExtra(u, 'BY') && u.steps.every((s) => !stepExtra(s, 'BY'))), `Lehrplan: markierte Schritte (${extra.join()})`);
+  ok(extra.join() === 'expln/ln,s-verteilung/sigma,g-ebene/kreuz,g-kugel/kugel,a-wachstum/logistisch,g-ebene2/normal,a-numerik/newton,s-test2/stetig,g-abstand2/hesse,g-abstand2/schief' && UNITS.every((u) => !unitExtra(u, 'BY') && u.steps.every((s) => !stepExtra(s, 'BY'))), `Lehrplan: markierte Schritte (${extra.join()})`);
   ok(UNITS.filter((u) => unitExtra(u, GK)).map((u) => u.id).join() === 's-test,a-gebrochen,a-rotation,g-kugel' && UNITS.filter((u) => unitExtra(u, 'HE-LK')).map((u) => u.id).join() === 'a-gebrochen', 'Lehrplan: Zusatz-Einheiten je Kurs');
 }
 
@@ -785,6 +785,44 @@ for (const u of UNITS) {
 // 14e4) KI-Aufgaben: Themen-Auswahl
 { const KA = await import('../app/js/kiaufgabe.js'); const T = KA.kiThemen();
   ok(T.length === 3 && T.every(([g, ts]) => g && ts.length >= 8 && new Set(ts).size === ts.length) && T.flatMap(([, ts]) => ts).includes('Kettenregel') && KA.VERSUCHE >= 2, 'KI-Aufgaben: Themen aus allen drei Gebieten, ohne Doppelte'); }
+
+// 14e4b) Paket 0.33: Oberstufen-Erzeuger aus gen8.js – Grundprüfungen, eigenes Nachrechnen, Eintippen
+{ const { GENS8 } = await import('../app/js/gen8.js'), { GENS7 } = await import('../app/js/gen7.js'), E8 = await import('../app/js/eingabe.js');
+  const dot3 = (a, b) => a[0] * b[0] + a[1] * b[1] + a[2] * b[2], R8 = (q) => q.options.find((o) => o.correct);
+  for (const [name, fn] of Object.entries(GENS8)) { ok(typeof fn.topic === 'string' && fn.topic.length > 3, `${name}: Themen-Name`);
+    for (const lv of LV) { const arten = new Set(); for (let i = 0; i < REP; i++) { const q = fn(lv); basics(name, q, lv); arten.add(q.kind);
+        ok(q.options.length === 4 && q.options.every((o) => !/\d\.\d/.test(o.tex)), `${name} (Stufe ${lv}): vier Antworten, Komma statt Punkt`); }
+      ok(arten.size >= 1 && !arten.has(undefined), `${name} (Stufe ${lv}): Aufgaben-Art benannt`); }
+    ok(new Set(LV.map((lv) => JSON.stringify([...new Set(Array.from({ length: 60 }, () => fn(lv).kind))].sort()))).size >= 3, `${name}: die Stufen bringen verschiedene Aufgaben-Arten`); }
+  for (const lv of LV) for (let i = 0; i < REP; i++) {
+    { const q = GENS8.genNewton(lv); if (q.kind === 'schritt' || q.kind === 'zwei') ok(close(R8(q).num, q.x0 - (q.x0 * q.x0 - q.c) / (2 * q.x0)) && Math.abs(R8(q).num - Math.sqrt(q.c)) < Math.abs(q.x0 - Math.sqrt(q.c)), `genNewton (Stufe ${lv}): Schritt stimmt und kommt der Nullstelle näher`); }
+    { const q = GENS8.genHesse(lv); if (q.kind === 'abstand') ok(Number.isInteger(q.a) && q.a >= 1 && close(R8(q).num, q.a), `genHesse (Stufe ${lv}): Abstand ganzzahlig`); }
+    { const q = GENS8.genSchnittgerade(lv); if (q.kind === 'richtung') ok(dot3(q.r, q.n1) === 0 && dot3(q.r, q.n2) === 0 && q.r.some((c) => c !== 0), `genSchnittgerade (Stufe ${lv}): Richtung senkrecht auf beiden Normalenvektoren`);
+      if (q.kind === 'punkt' || q.kind === 'gerade') ok(dot3(q.n1, q.A) === q.d1 && dot3(q.n2, q.A) === q.d2, `genSchnittgerade (Stufe ${lv}): Punkt liegt in beiden Ebenen`);
+      if (q.kind === 'gerade') ok(dot3(q.r, q.n1) === 0 && dot3(q.r, q.n2) === 0, `genSchnittgerade (Stufe ${lv}): Gerade liegt in beiden Ebenen`); }
+    { const q = GENS8.genSpiegelung(lv); if (q.kind === 'ebene') { const mitte = q.Q.map((c, j) => (c + q.S[j]) / 2), weg = q.S.map((c, j) => c - q.Q[j]), kr = [weg[1] * q.n[2] - weg[2] * q.n[1], weg[2] * q.n[0] - weg[0] * q.n[2], weg[0] * q.n[1] - weg[1] * q.n[0]];
+        ok(mitte.every((c, j) => c === q.F[j]) && dot3(q.n, q.F) === q.d && kr.every((c) => c === 0), `genSpiegelung (Stufe ${lv}): Mitte liegt in der Ebene, Verbindung senkrecht dazu`); }
+      if (q.kind === 'lot') ok(dot3(q.n, q.F) === q.d, `genSpiegelung (Stufe ${lv}): Lotfußpunkt liegt in der Ebene`);
+      if (q.kind === 'punkt' || q.kind === 'ursprung') ok(q.P.every((c, j) => (c + q.S[j]) / 2 === q.Z[j]), `genSpiegelung (Stufe ${lv}): Zentrum ist die Mitte`); }
+    { const q = GENS8.genWindschief(lv); if (q.kind === 'abstand') ok(Number.isInteger(q.d) && q.d >= 1 && close(R8(q).num, q.d), `genWindschief (Stufe ${lv}): Abstand ganzzahlig`); }
+    { const q = GENS8.genRueckwaerts(lv); if (q.kind === 'mindestens') ok(1 - (1 - q.p) ** q.n >= q.s && 1 - (1 - q.p) ** (q.n - 1) < q.s && R8(q).num === q.n, `genRueckwaerts (Stufe ${lv}): kleinstes n nachgerechnet`); }
+    { const q = GENS8.genZweiseitig(lv); if (q.kind === 'bereich') ok(q.lo >= q.mu - 1.96 * q.si && q.lo - 1 < q.mu - 1.96 * q.si && q.hi <= q.mu + 1.96 * q.si && q.hi + 1 > q.mu + 1.96 * q.si, `genZweiseitig (Stufe ${lv}): Annahmebereich nach innen gerundet`); }
+    { const q = GENS8.genHistogramm(lv); if (q.kind === 'modus') { const bn = (n, k) => { let r = 1; for (let j = 0; j < k; j++) r = (r * (n - j)) / (j + 1); return r; }, P = (k) => bn(q.n, k) * q.p ** k * (1 - q.p) ** (q.n - k);
+        ok(P(q.m) > P(q.m - 1) && P(q.m) > P(q.m + 1), `genHistogramm (Stufe ${lv}): wahrscheinlichste Trefferzahl nachgerechnet`); } }
+    { const q = GENS8.genIntegralfunktion(lv); if (q.kind === 'wert') ok(close(R8(q).num, q.r), `genIntegralfunktion (Stufe ${lv}): Wert stimmt`); }
+    { const q = GENS8.genBinomVerteilung(lv), bn = (n, k) => { let r = 1; for (let j = 0; j < k; j++) r = (r * (n - j)) / (j + 1); return r; }, pd = (n, p, k) => bn(n, k) * p ** k * (1 - p) ** (n - k), cd = (n, p, k) => { let x = 0; for (let j = 0; j <= k; j++) x += pd(n, p, j); return x; }, r = R8(q).num, nah = (a, b) => Math.abs(a - b) < 2.1e-4;
+      const soll = { einzel: () => pd(q.n, q.p, q.k), summe: () => cd(q.n, q.p, 2), hoechstens: () => cd(q.n, q.p, q.k), mindestens: () => 1 - cd(q.n, q.p, q.k - 1), mehr: () => 1 - cd(q.n, q.p, q.k), genau: () => pd(q.n, q.p, q.k), zwischen: () => cd(q.n, q.p, q.b) - cd(q.n, q.p, q.a - 1) }[q.kind];
+      if (soll) ok(nah(r, soll()) && r > 0 && r < 1 && q.options.every((o) => o.num >= 0 && o.num <= 1), `genBinomVerteilung (Stufe ${lv}): ${q.kind} unabhängig nachgerechnet`);
+      else ok(cd(q.n, q.p, q.g) >= q.s && cd(q.n, q.p, q.g - 1) < q.s && r === q.g, `genBinomVerteilung (Stufe ${lv}): kleinstes k nachgerechnet`); }
+  }
+  // Eintippen: Wo eine Zahl verlangt ist, wird die gezeigte Lösung anerkannt und kein Ablenker
+  const tippbar = new Set();
+  for (const [name, fn] of Object.entries({ ...GENS7, ...GENS8 })) for (const lv of LV) for (let i = 0; i < 40; i++) {
+    const q = fn(lv), spec = E8.inputSpec(q); if (!spec) continue; tippbar.add(name);
+    const v = E8.parseInput(spec.sh.plain); ok(v !== null && E8.isRight(v, spec.num, spec.sh.plain), `${name} (Stufe ${lv}): getippte Lösung ${spec.sh.plain} wird anerkannt`);
+    for (const o of q.options) { if (o.correct) continue; const so = E8.shapeOf(o.tex); if (!so) continue; const w = E8.parseInput(so.plain); ok(!E8.isRight(w, spec.num, spec.sh.plain), `${name} (Stufe ${lv}): getippter Ablenker ${so.plain} wird nicht anerkannt (richtig ${spec.sh.plain})`); } }
+  ok(tippbar.size >= 8, `Pakete 0.32 und 0.33: zum Eintippen geeignet (${[...tippbar].join(', ')})`);
+}
 
 // 14e5) Merkbilder: jedes gehört zu einer echten Formel
 { const Mb = await import('../app/js/merkbild.js'); const namen = new Set((await import('../app/js/units.js')).ALLE_UNITS.flatMap((u) => (u.formeln || []).map(([n]) => n)));   // alle Stufen, auch Klasse 5 bis 10
