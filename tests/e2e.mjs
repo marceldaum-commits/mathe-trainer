@@ -979,6 +979,49 @@ await ctx2.close();
   await wp.waitForTimeout(2500); if (await wp.locator('#wache').count()) fail('Start-Wache: Hinweis erscheint, obwohl die App läuft');
   await wc.close();
 }
+// Paket 0.41.0: Formel-Dungeon – Gleichungen und Formeln Schritt für Schritt umstellen
+{ const dc = await browser.newContext({ viewport: { width: 320, height: 640 }, serviceWorkers: 'block' }); const dp = await dc.newPage();
+  dp.on('pageerror', (e) => errors.push(`Dungeon: ${e}`));
+  await dc.addInitScript(() => { window.__mtTest = true; });
+  const breit = async (wo) => { if (await dp.evaluate(() => document.documentElement.scrollWidth - innerWidth > 1)) fail(`Dungeon ${wo}: Seite ist zu breit`); };
+  await dp.goto(BASE); await dp.evaluate(() => localStorage.setItem('mt.v1', JSON.stringify({ jahrgang: '5', xp: 10 })));
+  await dp.goto(`${BASE}#/pruefung`); await dp.reload(); await dp.waitForSelector('a[href="#/dungeon"]'); await dp.click('a[href="#/dungeon"]'); await dp.waitForSelector('#dg-stock');
+  if ((await dp.locator('.dg-wahl:not([disabled])').count()) !== 1) fail('Dungeon: Klasse 5 soll nur Stockwerk 1 offen haben');
+  await dp.click('#dg-spick summary'); await breit('Start'); if (shots) await dp.screenshot({ path: `${shots}/90-dungeon-start.png` });
+  await dp.click('.dg-wahl[data-s="1"]');
+  let falsch = false, falleGesehen = false, waechter = false;
+  for (let k = 0; k < 40; k++) {
+    if (await dp.locator('#dg-tiefer').count()) break;
+    if (await dp.locator('#dg-weiter').count()) { await dp.click('#dg-weiter'); continue; }
+    if (await dp.locator('.dg-fz[data-f]').count()) { falleGesehen = true; if (shots) await dp.screenshot({ path: `${shots}/91-dungeon-falle.png` }); await dp.click('.dg-fz[data-f="1"]'); await dp.waitForSelector('#dg-weiter'); continue; }
+    if (await dp.locator('.dg-opt').count()) {
+      if (await dp.locator('#dg-face').count()) waechter = true;
+      if (!falsch) { falsch = true; await dp.click('.dg-opt[data-ok="0"] >> nth=0'); await dp.waitForSelector('#dg-note .note.bad'); if (shots) await dp.screenshot({ path: `${shots}/92-dungeon-fehler.png` });
+        if ((await dp.locator('.ab-leben .on').count()) !== 2) fail('Dungeon: Ein falscher Schritt soll ein Leben kosten'); }
+      await breit('Raum'); await dp.click('.dg-opt[data-ok="1"]'); continue;
+    }
+    await dp.waitForTimeout(80);
+  }
+  if (!falleGesehen || !waechter) fail(`Dungeon: Stockwerk 1 ohne ${falleGesehen ? 'Wächter' : 'Fallen-Raum'}`);
+  if (!(await dp.locator('#dg-tiefer').count())) fail('Dungeon: Stockwerk 1 lässt sich nicht abschließen');
+  if ((await dp.locator('.ab-leben .on').count()) !== 3) fail('Dungeon: Nach dem Wächter soll es ein Leben dazu geben');
+  await dp.click('#dg-stop'); await dp.waitForSelector('#dg-ende');
+  const st = await dp.evaluate(() => JSON.parse(localStorage.getItem('mt.v1')));
+  if (!(st.count?.dungeonRekord > 0) || st.count?.dungeonTiefe !== 2) fail(`Dungeon: Rekord oder Stockwerk nicht gespeichert (${JSON.stringify(st.count)})`);
+  await dp.click('#dg-again'); await dp.waitForSelector('#dg-stock');
+  if ((await dp.locator('.dg-wahl:not([disabled])').count()) !== 2) fail('Dungeon: Nach Stockwerk 1 soll Stockwerk 2 offen sein');
+  // Oberstufe: tiefste Stockwerke mit Formeln, schmaler Bildschirm
+  await dp.evaluate(() => { const m = JSON.parse(localStorage.getItem('mt.v1')); m.jahrgang = 'os'; m.count.dungeonTiefe = 5; localStorage.setItem('mt.v1', JSON.stringify(m)); });
+  await dp.reload(); await dp.waitForSelector('#dg-stock'); await dp.click('.dg-wahl[data-s="5"]');
+  for (let k = 0; k < 14; k++) {
+    if (await dp.locator('#dg-weiter').count()) { await breit('Stockwerk 5'); await dp.click('#dg-weiter'); continue; }
+    if (await dp.locator('.dg-fz[data-f]').count()) { await dp.click('.dg-fz[data-f="1"]'); continue; }
+    if (await dp.locator('.dg-opt').count()) { if (k === 3) { await dp.click('#dg-tipp'); await dp.waitForSelector('#dg-note .note.tip'); if (shots) await dp.screenshot({ path: `${shots}/93-dungeon-formel.png` }); } await breit('Stockwerk 5'); await dp.click('.dg-opt[data-ok="1"]'); continue; }
+    await dp.waitForTimeout(80);
+  }
+  if (await dp.locator('.katex-error').count()) fail('Dungeon: Formel lässt sich nicht setzen');
+  await dc.close();
+}
 // Paket 0.40.0: Aufgaben werden im Hintergrund nachgeladen – der Start wartet nicht darauf, Aufgaben-Seiten zeigen solange eine Warte-Karte
 { const lc = await browser.newContext({ ...devices['Pixel 7'], serviceWorkers: 'block' }); const lp = await lc.newPage();
   lp.on('pageerror', (e) => errors.push(`Nachladen: ${e}`));

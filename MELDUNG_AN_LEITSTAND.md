@@ -2,6 +2,12 @@
 
 Neueste Meldung oben. Keine Geheimnisse, keine Personendaten (dieses Repo ist öffentlich, siehe Punkt 1).
 
+## 16.11.2026 (83) – 0.41.0: Formel-Dungeon (Gleichungen und Formeln umstellen) – Meldung „liegt auf test“ folgt nach dem Testlauf
+
+- **Was:** Marcels Wunsch („Da haben viele echte Probleme. Bau dies sehr umfangreich ein“), Konzept von Marcel per Auswahl bestätigt. Neuer Spielmodus für **alle Klassen**: fünf Stockwerke von „x + 4 = 9“ bis „Linsengleichung nach b“, „Zinseszins nach n“ und „Schwingkreis nach L“. Jeder Schritt wird gewählt (mit Ergebnis), falsche Schritte sind typische Schülerfehler und werden erklärt; Fallen-Räume (Fehler finden) und Wächter je Stockwerk.
+- **Für euch wichtig:** Keine neuen Dienste, kein Server, keine Daten nach außen – alles läuft im Gerät. Neue Seite `#/dungeon`, neuer Teil im Bündel (wird erst beim Betreten geladen). Zwei neue Abzeichen (`dungeon1`, `dungeon5`) und neue Zähler im Gerätespeicher (`dungeonRekord`, `dungeonTiefe`, …).
+- **Idee für euch (nur Vorschlag, nicht gebaut):** Der Rechenkern `app/js/umform.js` hängt an nichts außer `math.js` – er ließe sich auch in der Lehrkraft-Ansicht oder in anderen Apps nutzen.
+
 ## 16.11.2026 (82) – 0.40.0 liegt auf test (Commit d103422)
 
 - Browser-Gesamttest auf allen fünf Stufen ohne Fehler, Durchklick Oberstufe und Klassen 5, 7, 9 nur mit den bekannten Fehlalarmen. `stand.json` auf `test` zeigt 0.40.0.

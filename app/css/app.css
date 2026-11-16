@@ -973,3 +973,25 @@ button.card.unit{text-align:left;width:100%;font:inherit;color:inherit;cursor:po
 .sk-punkt:hover,.sk-punkt:focus{fill:color-mix(in srgb,var(--orange) 25%,transparent)}
 .sk-schatz{fill:var(--orange);stroke:#fff;stroke-width:2.5}
 .wz-keil{fill:color-mix(in srgb,var(--orange) 28%,transparent);stroke:var(--orange);stroke-width:1.5}
+/* Formel-Dungeon */
+.dg-rechnung{display:grid;gap:4px;padding:12px 14px;overflow-x:auto}
+.dg-zeile{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:center;min-height:40px}
+.dg-zeile+.dg-zeile{border-top:1px dashed var(--line);padding-top:4px}
+.dg-gl{min-width:0;overflow-x:auto;overflow-y:hidden;color:var(--head)}
+.dg-op{font-size:calc(13.5px*var(--fs,1));color:var(--orange-dark);font-weight:800;white-space:nowrap}
+.dg-frage{font-weight:800;color:var(--head);font-size:calc(14.5px*var(--fs,1))}
+.dg-opt{display:grid;grid-template-columns:auto minmax(0,1fr);gap:12px;text-align:left}
+.dg-opt .dg-op{min-width:62px}
+.dg-opt.wrong{opacity:.75}
+.dg-falle .dg-zeile{grid-template-columns:auto minmax(0,1fr);width:100%;font:inherit;color:inherit;text-align:left;background:none;border:0;border-radius:12px;padding:6px 8px;cursor:pointer}
+.dg-falle .dg-zeile+.dg-zeile{border-top:1px dashed var(--line);border-radius:0}
+.dg-falle .dg-zeile .dg-op{min-width:62px;color:var(--muted)}
+.dg-falle .dg-zeile:not([disabled]):active{background:var(--soft)}
+.dg-falle .dg-zeile[disabled]{cursor:default}
+.dg-falle .dg-wahr{background:var(--mint-soft)}
+.dg-falle .dg-falsch{background:var(--red-soft);outline:2px solid var(--red)}
+.dg-spick summary{cursor:pointer;color:var(--head)}
+.dg-spick ol{margin:10px 0 0 18px;display:grid;gap:8px;line-height:1.5}
+.dg-wahl{width:100%;font:inherit;color:inherit;text-align:left;cursor:pointer}
+.dg-wahl[disabled]{cursor:default}
+.dg-falle .dg-folge{opacity:.55}

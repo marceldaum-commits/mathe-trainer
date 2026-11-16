@@ -183,6 +183,7 @@ function stufeView() {
 }
 
 /** „Teste dich“ in der Mittelstufe: Arbeitsblatt, Probe-Arbeit, freies Üben. (Abi-Modus und Co. gibt es nur in der Oberstufe.) */
+const dungeonKarte = () => linkCard('#/dungeon', 'x=', 'Formel-Dungeon', store.n('dungeonRekord') ? `Gleichungen und Formeln umstellen · Rekord ${store.n('dungeonRekord')}` : 'Gleichungen und Formeln umstellen – Schritt für Schritt, Stockwerk für Stockwerk.');
 const kopfKarte = () => linkCard('#/kopf', '1·1', 'Kopfrechen-Arena', knobelHeuteGeloest() ? '60 Sekunden Einmaleins, Plus, Minus und mehr.' : '60 Sekunden rechnen – und die Knobelaufgabe des Tages wartet.');
 const arbeitWort = () => (istOber() ? 'Klausur' : 'Klassenarbeit');
 function arbeitKarte() {
@@ -196,6 +197,7 @@ function testeDichView() {
     <div><span class="eyebrow">Testen · ${esc(jgName(store.jahrgang))}</span><h1 style="margin-top:8px">Zeig, was sitzt</h1></div>
     <section class="stack">
       ${arbeitKarte()}
+      ${dungeonKarte()}
       ${kopfKarte()}
       ${linkCard('#/blatt', 'PDF', 'Arbeitsblatt und Probe-Arbeit', 'Themen wählen, in der App lösen oder drucken – mit Lösungsblatt.')}
       ${LERN_AREAS().map((a) => linkCard(`#/ueben/${a.id}`, '10', `${esc(a.title)} gemischt`, 'Zehn Aufgaben quer durch das Gebiet – immer neu.')).join('')}
@@ -210,7 +212,7 @@ function lernenView() {
   const el = h(`<div class="view stack">
     <div><span class="eyebrow">Lernen · ${esc(jgName(store.jahrgang))}</span><h1 style="margin-top:8px">Wähle ein Gebiet</h1></div>
     <section class="stack">${LERN_AREAS().map((a) => { const s = areaStat(a); return linkCard(`#/g/${a.id}`, `<i class="pct">${Math.round(s.pct)} %</i>`, a.title, `${esc(areaInfo(a))} · ${s.doneUnits}/${s.n} Einheiten`); }).join('')}</section>
-    <section class="stack">${linkCard('#/theorie', '§', 'Theorie nachlesen', istOber() ? 'Jedes Thema kurz erklärt – und ausführlich mit Beispielen, zum Drucken.' : 'Jedes Thema kurz erklärt – zum Nachschlagen und Drucken.')}</section>
+    <section class="stack">${dungeonKarte()}${linkCard('#/theorie', '§', 'Theorie nachlesen', istOber() ? 'Jedes Thema kurz erklärt – und ausführlich mit Beispielen, zum Drucken.' : 'Jedes Thema kurz erklärt – zum Nachschlagen und Drucken.')}</section>
     ${istOber() ? '' : `<section class="stack"><div class="card unit soon"><span class="num">+</span><span><h3>Kommt bald in ${esc(jgName(store.jahrgang))}</h3><small>${esc(baldHier().join(' · '))}</small></span><span></span></div>${linkCard('#/stufe', '⇄', 'Klassenstufe wechseln', 'Stoff einer anderen Klasse ansehen – dein Fortschritt bleibt erhalten.')}</section>`}
     ${!istOber() ? '' : `<section class="stack">${linkCard('#/karte', `<i class="mini-fig">${pi()}</i>`, 'Karte: Die Reise durch Mathea', 'Der ganze Lernpfad als Landkarte – mit Pi und den Wächtern.')}</section>
     <section class="stack">${linkCard('#/einstufung/ergebnis', '?', store.einstufung ? 'Deine Einstufung' : 'Einstufungstest', store.einstufung ? 'Ergebnis ansehen oder Test wiederholen.' : 'Zwölf Aufgaben, fünf Minuten: Wo fängst du am besten an?')}</section>`}
@@ -250,6 +252,7 @@ function pruefungView() {
       ${linkCard('#/aufgabe', 'a–e', 'Abi-Aufgabe am Stück', 'Ein Sachverhalt, mehrere Teilaufgaben – wie in der Prüfung.')}
       ${linkCard('#/tag', ICON.bolt, 'Tages-Runde', tb !== undefined ? `Heute: ${tb} Punkte` : 'Sechs Aufgaben, heute für alle gleich.')}
       ${linkCard('#/abenteuer', `<i class="mini-fig">${figurFor('Der Abi-Drache', 'Abi', { form: 'zack', farbe: ['#ff7418', '#d85042'], horn: 1 })}</i>`, 'Abenteuer', store.n('abenteuerRekord') ? `Dein Rekord: ${store.n('abenteuerRekord')} Punkte` : 'Sieben Räume, Belohnungen, am Ende der Abi-Drache.')}
+      ${dungeonKarte()}
       ${kopfKarte()}
       ${arbeitKarte()}
       ${linkCard('#/blitz', '60', 'Blitz-Runde', store.n('blitzRekord') ? `Dein Rekord: ${store.n('blitzRekord')} Punkte` : '60 Sekunden, Kombo-Faktor, so viele wie möglich.')}
@@ -399,8 +402,17 @@ function theorieSpaeter(teil) {
   return { el };
 }
 
+/** Formel-Dungeon: wird erst beim Betreten geladen. */
+function dungeonSpaeter(after) {
+  const el = h('<div class="view stack" id="dungeon-laedt"><section class="card"><p>Der Formel-Dungeon wird geladen …</p></section></div>'), hier = location.hash;
+  let innen = null;
+  import('./dungeon.js').then((m) => { if (el.isConnected && location.hash === hier) { const r = m.dungeonView(after); el.replaceWith(r.el); innen = r.cleanup || null; } })
+    .catch(() => { if (el.isConnected) el.innerHTML = '<section class="card stack"><h2>Der Formel-Dungeon konnte nicht geladen werden</h2><p>Prüfe kurz die Internet-Verbindung und versuche es noch einmal.</p><button class="btn block" id="dg-neu" type="button">Noch einmal versuchen</button></section>', el.querySelector('#dg-neu')?.addEventListener('click', () => location.reload()); });
+  return { el, cleanup: () => innen?.() };
+}
+
 /** Seiten ohne Aufgaben: Sie erscheinen sofort, auch wenn die Aufgaben-Erzeuger noch im Hintergrund laden. */
-const OHNE_AUFGABEN = ['', '#/', '#/lernen', '#/pruefung', '#/mehr', '#/stufe'];
+const OHNE_AUFGABEN = ['', '#/', '#/lernen', '#/pruefung', '#/mehr', '#/stufe', '#/dungeon'];
 /** Alle anderen Seiten warten kurz, bis die Aufgaben da sind (beim ersten Start; danach liegen sie im Offline-Speicher). */
 function warteAufAufgaben(hash) {
   cleanup?.(); cleanup = null;
@@ -423,7 +435,7 @@ function routeBau() {
   const hash = location.hash;
   const m = hash.match(/^#\/u\/([\w-]+)(?:\/(\d+))?$/);
   const u = m && UNITS.find((x) => x.id === m[1]);
-  const x = hash.match(/^#\/(abi|tag|duell|blitz|bericht|einstellungen|wiederholen|erfolge|formeln|klasse|lehrplan|einstufung|aufgabe|plan|zertifikat|abenteuer|karte|theorie|karten|kiaufgabe|pro|kopf|arbeit)(?:\/([\w-]+))?$/);
+  const x = hash.match(/^#\/(abi|tag|duell|blitz|bericht|einstellungen|wiederholen|erfolge|formeln|klasse|lehrplan|einstufung|aufgabe|plan|zertifikat|abenteuer|karte|theorie|karten|kiaufgabe|pro|kopf|arbeit|dungeon)(?:\/([\w-]+))?$/);
   const gm = hash.match(/^#\/g\/(\w+)$/), g = gm && LERN_AREAS().find((a) => a.id === gm[1]);
   const pm = hash.match(/^#\/ueben\/(\w+?)(-grund)?$/), pa = pm && LERN_AREAS().find((a) => a.id === pm[1]);
   const bm = hash.match(/^#\/blatt(?:\/([\w.\-/]+))?$/);
@@ -436,7 +448,7 @@ function routeBau() {
     const after = () => { chips(); setTimeout(badgeCheck, 600); };
     const r = { abi: () => abiView(['A', 'B'].includes(x[2]) ? x[2] : null, after), tag: () => rundeView('tag', undefined, (res) => { after(); meldeTag(res); }), duell: () => rundeView('duell', x[2], after), blitz: () => blitzView(after),
       bericht: berichtView, einstellungen: settingsView, wiederholen: karteiView, erfolge: erfolgeView, formeln: formelnView, klasse: klasseView, lehrplan: lehrplanView,
-      einstufung: () => (x[2] === 'ergebnis' ? einstufungErgebnis() : einstufungView()), aufgabe: () => verbundView(x[2]), plan: planView, zertifikat: () => zertifikatView(x[2]), abenteuer: () => abenteuerView(after), karte: karteView, theorie: () => theorieSpaeter(x[2]), karten: kartenView, kiaufgabe: kiAufgabeView, pro: proView, kopf: () => kopfView(after), arbeit: () => arbeitView(after) }[x[1]]();
+      einstufung: () => (x[2] === 'ergebnis' ? einstufungErgebnis() : einstufungView()), aufgabe: () => verbundView(x[2]), plan: planView, zertifikat: () => zertifikatView(x[2]), abenteuer: () => abenteuerView(after), karte: karteView, theorie: () => theorieSpaeter(x[2]), karten: kartenView, kiaufgabe: kiAufgabeView, pro: proView, kopf: () => kopfView(after), arbeit: () => arbeitView(after), dungeon: () => dungeonSpaeter(after) }[x[1]]();
     el = r.el; cleanup = r.cleanup || null;
   } else if (hash === '#/stufe') el = stufeView();
   else if (hash === '#/lernen') el = lernenView();
@@ -467,7 +479,7 @@ function nav() {
   const hash = location.hash || '#/';
   const um = hash.match(/^#\/u\/([\w-]+)/), unit = um && UNITS.find((x) => x.id === um[1]);
   const tab = unit ? (unit.area === 'pruefung' ? 'pruefung' : 'lernen')
-    : /^#\/(lernen|g\/|ueben\/|einstufung|karte|theorie)/.test(hash) ? 'lernen' : /^#\/(pruefung|abi|tag|duell|blitz|klasse|aufgabe|abenteuer|blatt|kiaufgabe|kopf|arbeit)/.test(hash) ? 'pruefung' : /^#\/(mehr|bericht|einstellungen|wiederholen|erfolge|formeln|lehrplan|plan|zertifikat|karten|pro)/.test(hash) ? 'mehr' : 'start';
+    : /^#\/(lernen|g\/|ueben\/|einstufung|karte|theorie)/.test(hash) ? 'lernen' : /^#\/(pruefung|abi|tag|duell|blitz|klasse|aufgabe|abenteuer|blatt|kiaufgabe|kopf|arbeit|dungeon)/.test(hash) ? 'pruefung' : /^#\/(mehr|bericht|einstellungen|wiederholen|erfolge|formeln|lehrplan|plan|zertifikat|karten|pro)/.test(hash) ? 'mehr' : 'start';
   document.querySelectorAll('#nav a').forEach((a) => { const on = a.dataset.tab === tab; a.classList.toggle('on', on); if (on) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current'); });
   { const pf = document.querySelector('#nav a[data-tab="pruefung"] span'); if (pf) pf.textContent = istOber() ? 'Prüfung' : 'Testen'; }
   $('#nav').hidden = !!view.querySelector('.stephead');
