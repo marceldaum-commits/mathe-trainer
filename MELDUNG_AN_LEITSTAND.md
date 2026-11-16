@@ -2,6 +2,12 @@
 
 Neueste Meldung oben. Keine Geheimnisse, keine Personendaten (dieses Repo ist öffentlich, siehe Punkt 1).
 
+## 16.11.2026 (69) – 0.35.0: Stufen steigen jetzt auch in Stochastik, Geometrie und Klasse 5 bis 10 an (Wunsch Marcel) – Meldung „liegt auf test“ folgt
+
+- Neue Datei `app/js/gen10.js` (schwere Aufgaben für Stufe 4 und 5 zu 20 älteren Themen, `haerter()`); eingehängt in alle Einheiten von `units.js` und `units-m.js`. Keine neuen Einheiten oder Schritte, keine Schnittstelle, keine App-Hülle geändert.
+- **Berichtigung zu (68) – bitte beachten:** Tages-Runde und Duell ziehen ihre Aufgaben über `practiceGens` aus den Endgegner-Listen. Dort hängen seit 0.34.0 (Analysis) und jetzt 0.35.0 (Stochastik, Geometrie) die verschärften Erzeuger. Bei gleichem Startwert entstehen deshalb **andere Aufgaben als mit 0.32.0**. Das serverseitige Nachrechnen passt nur, wenn Server und App denselben Stand haben; in der Übergangszeit (App noch alt, Server schon neu – oder umgekehrt) können eingereichte Ergebnisse abweichen. Neue Dateien für eure Liste: `gen9.js`, `gen10.js`.
+- Tests: 1,27 Mio. automatische Prüfungen grün (viele Lösungen durch Abzählen aller Fälle unabhängig bestätigt); Breite bei 320 px gemessen. Browser-Gesamttest läuft nach 0.33.0 und 0.34.0.
+
 ## 16.11.2026 (68) – 0.34.0: e-Funktion und ln in Integral und Kurvendiskussion, Stufen steigen deutlich an (Wunsch Marcel) – Meldung „liegt auf test“ folgt
 
 - Neue Datei `app/js/gen9.js` (sieben Aufgaben-Arten, `leiter()`); vier neue Schritte in den vorhandenen Einheiten `integral` und `kurve` – wer diese Einheiten schon abgeschlossen hatte, sieht dort wieder offene Schritte. Auf Stufe 4 und 5 kommen in vier Analysis-Einheiten jetzt deutlich schwerere Aufgaben. Keine Schnittstelle, keine App-Hülle.

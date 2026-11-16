@@ -1115,5 +1115,40 @@ ok(nextStreak({ n: 3, last: '2026-11-10' }, D('2026-11-12')).n === 1, 'Serie: au
   }
 }
 
+// 14e4d) Paket 0.35: schwere Aufgaben für Stufe 4 und 5 in Grundlagen, Stochastik und Geometrie (gen10.js)
+{ const { schwer, THEMEN10, HART, haerter } = await import('../app/js/gen10.js'), E10 = await import('../app/js/eingabe.js'), U10 = await import('../app/js/units.js');
+  const richtig = (q) => q.options.find((o) => o.correct), nah = (a, b) => Math.abs(a - b) < 1e-9, zahlen = (t) => (String(t).replace(/<[^>]+>/g, '').match(/\d+/g) || []).map(Number);
+  ok(THEMEN10.length >= 20, `Paket 0.35: schwere Aufgaben zu ${THEMEN10.length} Themen`);
+  for (const th of THEMEN10) { const arten = [4, 5].map((lv) => { const a = new Set(); for (let i = 0; i < 300; i++) { const q = schwer(th)(lv); basics(`schwer_${th}`, q, lv); a.add(q.kind);
+        ok(q.options.length === 4 && q.options.every((o) => !/\d\.\d|NaN|undefined|\}\{-/.test(o.tex)), `schwer_${th} (Stufe ${lv}): vier saubere Antworten, Komma statt Punkt`);
+        const spec = E10.inputSpec(q); if (spec) { const v = E10.parseInput(spec.sh.plain); ok(v !== null && E10.isRight(v, spec.num, spec.sh.plain), `schwer_${th} (Stufe ${lv}): getippte Lösung wird anerkannt`);
+          for (const o of q.options) if (!o.correct) { const so = E10.shapeOf(o.tex); ok(!so || !E10.isRight(E10.parseInput(so.plain), spec.num, spec.sh.plain), `schwer_${th} (Stufe ${lv}): kein Ablenker gilt beim Eintippen als richtig`); } } } return a; });
+    ok([...arten[0]].every((k) => !arten[1].has(k)), `schwer_${th}: Stufe 5 hat eigene Aufgaben-Arten, nicht die von Stufe 4`); }
+  // Unabhängiges Nachrechnen durch Abzählen aller Fälle
+  for (let i = 0; i < 300; i++) {
+    { const q = schwer('laplace')(4), s = zahlen(q.prompt).pop(); let g = 0; for (let a = 1; a <= 6; a++) for (let b = 1; b <= 6; b++) if (a + b === s) g++; ok(nah(richtig(q).num, g / 36), 'schwer_laplace 4: Augensumme durch Abzählen der 36 Paare bestätigt'); }
+    { const q = schwer('laplace')(5), k = zahlen(q.prompt)[0]; let g = 0; const N = 6 ** k; for (let c = 0; c < N; c++) { let x = c, six = false; for (let j = 0; j < k; j++) { if (x % 6 === 5) six = true; x = Math.floor(x / 6); } if (six) g++; } ok(nah(richtig(q).num, g / N), 'schwer_laplace 5: „mindestens eine Sechs“ durch Abzählen bestätigt'); }
+    for (const lv of [4, 5]) { const q = schwer('baum')(lv), [r, b] = zahlen(q.prompt), kug = [...Array(r).fill(1), ...Array(b).fill(0)], n = r + b; let g = 0, alle = 0;
+      if (lv === 4) { for (let x = 0; x < n; x++) for (let y = 0; y < n; y++) if (x !== y) { alle++; if (kug[x] !== kug[y]) g++; } }
+      else for (let x = 0; x < n; x++) for (let y = 0; y < n; y++) for (let z = 0; z < n; z++) if (x !== y && y !== z && x !== z) { alle++; if (kug[x] + kug[y] + kug[z] >= 2) g++; }
+      ok(nah(richtig(q).num, g / alle), `schwer_baum ${lv}: Urne ohne Zurücklegen durch Abzählen bestätigt`); }
+    { const q = schwer('pythagoras')(4), [a, b, c] = zahlen(q.prompt); ok(nah(richtig(q).num, Math.hypot(a, b, c)), 'schwer_pythagoras 4: Raumdiagonale nachgerechnet'); }
+    { const q = schwer('kennwerte')(4), z = zahlen(q.prompt), n = z[0], m = z[1], rest = z.slice(3); ok(rest.length === n - 1 && nah((rest.reduce((s, v) => s + v, 0) + richtig(q).num) / n, m), 'schwer_kennwerte 4: Mit der fehlenden Zahl stimmt der Mittelwert'); }
+    { const q = schwer('kennwerte')(5), [n, m, neu] = zahlen(q.prompt); ok(nah((n * m + richtig(q).num) / (n + 1), neu), 'schwer_kennwerte 5: Mit der neuen Zahl stimmt der neue Mittelwert'); }
+    { const q = schwer('lingl')(4), m = q.formula.match(/\{x\}\{(\d+)\}\+\\dfrac\{x\}\{(\d+)\}=(\d+)/), x = richtig(q).num; ok(m && nah(x / +m[1] + x / +m[2], +m[3]), 'schwer_lingl 4: Probe der Bruchgleichung'); }
+    { const q = schwer('quadgl')(5), r = richtig(q).tex; if (q.kind === 'biquadratisch') { const [a, b] = zahlen(r), k = zahlen(q.formula); ok([a, -a, b, -b].every((x) => nah(x ** 4 - k[1] * x * x + k[3], 0)), 'schwer_quadgl 5: alle vier Lösungen erfüllen die Gleichung'); }
+      else { const k = zahlen(q.formula), xs = zahlen(r).filter((_, j) => j % 2 === 1); ok(xs.length === 2 && xs.every((x) => nah(x + k[0] / x, k[1])), 'schwer_quadgl 5: beide Lösungen erfüllen die Bruchgleichung'); } }
+    { const q = schwer('kombinatorik')(4), [n, k] = zahlen(q.prompt); let c = 0; for (let x = 0; x < 1 << n; x++) { let bits = 0; for (let j = 0; j < n; j++) bits += (x >> j) & 1; if (bits === k) c++; } ok(richtig(q).num === c, 'schwer_kombinatorik 4: Teams durch Abzählen bestätigt'); }
+    { const q = schwer('prozent')(5); if (q.kind === 'rueckwaerts') { const z = q.prompt.match(/Nach (\d+) % Rabatt kostet eine Jacke ([\d,]+) €/); ok(z && nah(richtig(q).num * (1 - z[1] / 100), +z[2].replace(',', '.')), 'schwer_prozent 5: alter Preis minus Rabatt ergibt den neuen Preis'); } }
+    { const q = schwer('erwartung')(5), z = q.prompt.match(/kostet (\d+) € Einsatz.*\\dfrac\{(\d+)\}\{(\d+)\}/); ok(z && nah((z[2] / z[3]) * richtig(q).num, +z[1]), 'schwer_erwartung 5: Mit dieser Auszahlung ist das Spiel fair'); }
+  }
+  // Einhängen: Jeder ältere Erzeuger aus der Liste wird über die Leiter verschärft – Stufe 1 und 2 bleiben wie bisher, Stufe 5 kommt nur noch aus gen10
+  const eingehaengt = new Set(U10.ALLE_UNITS.flatMap((u) => u.bossGens || []).filter((g) => g.steil).map((g) => g.name));
+  ok(Object.keys(HART).filter((k) => eingehaengt.has(k)).length >= 18, `Paket 0.35: schwere Aufgaben hängen in den Endgegnern (${[...eingehaengt].filter((k) => HART[k]).length} Erzeuger)`);
+  for (const u of U10.ALLE_UNITS) for (const g of u.bossGens || []) if (HART[g.name]) { ok(g.steil === HART[g.name] && haerter(g.basis) === g, `${u.id}: ${g.name} ist über die Leiter eingehängt (immer dieselbe Hülle)`);
+    for (let i = 0; i < 40; i++) { const q1 = g(1), q5 = g(5); ok(q1.von === g.name && q1.gen === g.name, `${g.name}: Stufe 1 bleibt die bisherige Aufgabe`); ok(q5.von.startsWith('schwer_') && q5.gen === g.name && q5.topic === g.topic, `${g.name}: Stufe 5 kommt aus den schweren Aufgaben, Name und Thema bleiben`); } }
+  ok(U10.landOk(haerter((await import('../app/js/gen2.js')).genKreuz ?? (() => 0)), 'HE-GK') === false || !(await import('../app/js/gen2.js')).genKreuz, 'Länder-Filter erkennt auch verschärfte Erzeuger');
+}
+
 console.log(fails ? `${fails} verschiedene Fehler bei ${n} Prüfungen` : `tests: alle ${n} Prüfungen bestanden`);
 process.exit(fails ? 1 : 0);

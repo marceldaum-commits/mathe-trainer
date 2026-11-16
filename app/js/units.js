@@ -38,6 +38,7 @@ import {
   genExtremstellen, genHochTief, genExtremaMix, genStammfunktion, genIntegral, genIntegralMix,
   genErwartung, genBinomial, genBaum, genStochastikMix, genVektorAB, genBetrag, genSkalar, genGeometrieMix,
 } from './gen.js';
+import { haerter as H } from './gen10.js';
 
 const T = (s) => `<div class="big">${tex(s, true)}</div>`;
 
@@ -51,7 +52,7 @@ const NICHT = {
 };
 export const NICHT_TEXT = { 'HE-GK': 'nicht im Grundkurs', 'HE-LK': 'in Hessen kein Prüfungsstoff' };
 /** Gilt die Aufgaben-Art im gewählten Land/Kurs? */
-export const landOk = (fn, land = store.land) => !(NICHT[land] || []).includes(fn);
+export const landOk = (fn, land = store.land) => !(NICHT[land] || []).some((g) => g === fn || g === fn.basis);
 /** Liste nach Land filtern – bleibt nichts übrig, gilt die ganze Liste (die Einheit ist dann ohnehin als Zusatz markiert). */
 export const landList = (fns, land = store.land) => { const ok = fns.filter((f) => landOk(f, land)); return ok.length ? ok : fns; };
 /** Gemischte Runde, die sich nach dem gewählten Land richtet. */
@@ -62,9 +63,9 @@ export const unitExtra = (u, land = store.land) => !!u.nicht?.includes(land);
 
 /** Grundlagen-Aufgaben je Gebiet (für die Grundlagen-Einheiten und das freie Üben). */
 export const GRUND = {
-  analysis: [genBruch, genKlammer, genPotenz, genLinGl, genQuadGl, genSteigung],
-  stochastik: [genProzent, genHaeufigkeit, genKennwerte, genLaplace, genGegen, genVierfelder],
-  geometrie: [genPythagoras, genTrig, genFlaeche, genMittelpunkt, genVektorRechnen],
+  analysis: [H(genBruch), H(genKlammer), H(genPotenz), H(genLinGl), H(genQuadGl), H(genSteigung)],
+  stochastik: [H(genProzent), genHaeufigkeit, H(genKennwerte), H(genLaplace), H(genGegen), H(genVierfelder)],
+  geometrie: [H(genPythagoras), genTrig, genFlaeche, genMittelpunkt, genVektorRechnen],
 };
 
 const OBER = [
@@ -161,8 +162,8 @@ const OBER = [
         { title: 'Genau k Treffer', html: `${T('P(X=k)=\\binom{n}{k}\\,p^k\\,(1-p)^{n-k}')}<p>${tex('p^k(1-p)^{n-k}')} ist ein Pfad mit ${tex('k')} Treffern. ${tex('\\binom{n}{k}')} zählt, wie viele solche Pfade es gibt.</p>` },
         { title: 'Wie breit ist der Berg?', html: `${T('\\sigma=\\sqrt{n\\cdot p\\cdot(1-p)}')}<p>Die Standardabweichung sagt, wie stark die Trefferzahlen um den Erwartungswert streuen.</p>` },
       ]) },
-      { id: 'kenn', kind: 'Brücke', title: 'Erwartungswert und Streuung', run: quiz([genErwartung, genErwartung, genErwartung]) },
-      { id: 'formel', kind: 'Brücke', title: 'Die richtige Rechnung', run: quiz([genBinomial, genBinomial, genBinomial]) },
+      { id: 'kenn', kind: 'Brücke', title: 'Erwartungswert und Streuung', run: quiz([H(genErwartung), H(genErwartung), H(genErwartung)]) },
+      { id: 'formel', kind: 'Brücke', title: 'Die richtige Rechnung', run: quiz([H(genBinomial), H(genBinomial), H(genBinomial)]) },
     ],
   },
   {
@@ -173,7 +174,7 @@ const OBER = [
         { eyebrow: 'Merken', title: 'Mehrere Pfade: plus', html: `<p>Gehören mehrere Pfade zum Ereignis, werden ihre Wahrscheinlichkeiten addiert.</p><p class="muted">„Verschiedene Farben" heißt: rot–blau <b>oder</b> blau–rot.</p>` },
         { title: 'Mit oder ohne Zurücklegen', html: `<p><b>Mit</b> Zurücklegen bleibt die Urne gleich. <b>Ohne</b> Zurücklegen fehlt beim zweiten Zug eine Kugel – Zähler und Nenner ändern sich.</p>` },
       ]) },
-      { id: 'pfad', kind: 'Brücke', title: 'Ziehen aus der Urne', run: quiz([genBaum, genBaum, genBaum, genBaum]) },
+      { id: 'pfad', kind: 'Brücke', title: 'Ziehen aus der Urne', run: quiz([H(genBaum), H(genBaum), H(genBaum), H(genBaum)]) },
       { id: 'mix', kind: 'Festigen', title: 'Stochastik gemischt', run: quiz([genStochastikMix, genStochastikMix, genStochastikMix, genStochastikMix, genStochastikMix]) },
     ],
   },
@@ -186,8 +187,8 @@ const OBER = [
         { title: 'Linearkombination', html: `${T('r\\cdot\\vec u+s\\cdot\\vec v')}<p>Vektoren lassen sich strecken und aneinanderhängen. Ein negativer Faktor dreht die Richtung um – so hast du auch Ziele „hinter" dir erreicht.</p>` },
         { title: 'Im Raum kommt eine Zeile dazu', html: `${T('|\\vec v|=\\sqrt{v_1^2+v_2^2+v_3^2}')}<p>Alles funktioniert genauso mit drei Koordinaten. Die Länge eines Vektors ist Pythagoras im Raum.</p>` },
       ]) },
-      { id: 'ab', kind: 'Brücke', title: 'Verbindungsvektoren', run: quiz([genVektorAB, genVektorAB, genVektorAB]) },
-      { id: 'betrag', kind: 'Brücke', title: 'Länge eines Vektors', run: quiz([genBetrag, genBetrag, genBetrag]) },
+      { id: 'ab', kind: 'Brücke', title: 'Verbindungsvektoren', run: quiz([H(genVektorAB), H(genVektorAB), H(genVektorAB)]) },
+      { id: 'betrag', kind: 'Brücke', title: 'Länge eines Vektors', run: quiz([H(genBetrag), H(genBetrag), H(genBetrag)]) },
     ],
   },
   {
@@ -197,7 +198,7 @@ const OBER = [
         { eyebrow: 'Merken', title: 'Zeile mal Zeile, dann addieren', html: `${T('\\vec u\\cdot\\vec v=u_1v_1+u_2v_2+u_3v_3')}<p>Das Ergebnis ist eine Zahl, kein Vektor.</p>` },
         { title: 'Senkrecht?', html: `${T('\\vec u\\cdot\\vec v=0\\ \\Longleftrightarrow\\ \\vec u\\perp\\vec v')}<p>Ist das Skalarprodukt 0, stehen die Vektoren senkrecht aufeinander. Das ist die häufigste Anwendung im Abitur.</p>` },
       ]) },
-      { id: 'rechnen', kind: 'Brücke', title: 'Skalarprodukt berechnen', run: quiz([genSkalar, genSkalar, genSkalar, genSkalar]) },
+      { id: 'rechnen', kind: 'Brücke', title: 'Skalarprodukt berechnen', run: quiz([H(genSkalar), H(genSkalar), H(genSkalar), H(genSkalar)]) },
       { id: 'mix', kind: 'Festigen', title: 'Geometrie gemischt', run: quiz([genGeometrieMix, genGeometrieMix, genGeometrieMix, genGeometrieMix, genGeometrieMix]) },
     ],
   },
@@ -261,8 +262,8 @@ const OBER = [
         { title: 'Vierfeldertafel', html: `<p>In den vier inneren Feldern stehen die Schnittmengen, am Rand die Summen. Für ${tex('P_B(A)')} teilst du das Feld ${tex('A\\cap B')} durch die <b>Spaltensumme</b> von ${tex('B')}.</p>` },
         { title: 'Vorsicht, Umkehrung', html: `<p>${tex('P_B(A)')} und ${tex('P_A(B)')} sind verschieden. „Kranke werden zu 90 % erkannt" heißt nicht, dass 90 % der positiv Getesteten krank sind.</p>` },
       ]) },
-      { id: 'tafel', kind: 'Brücke', title: 'Vierfeldertafel lesen', run: quiz([genVierfelder, genVierfelder, genVierfelder]) },
-      { id: 'test', kind: 'Brücke', title: 'Vom Testergebnis zurückschließen', run: quiz([genBedingt, genBedingt, genBedingt]) },
+      { id: 'tafel', kind: 'Brücke', title: 'Vierfeldertafel lesen', run: quiz([H(genVierfelder), H(genVierfelder), H(genVierfelder)]) },
+      { id: 'test', kind: 'Brücke', title: 'Vom Testergebnis zurückschließen', run: quiz([H(genBedingt), H(genBedingt), H(genBedingt)]) },
     ],
   },
   {
@@ -294,8 +295,8 @@ const OBER = [
       { id: 'regel', kind: 'Benennen', title: 'Zwei Fragen entscheiden', run: info([
         { title: 'Reihenfolge? Wiederholung?', html: `<p>Mit Wiederholung, Reihenfolge wichtig: ${tex('n^k')}</p><p>Ohne Wiederholung, Reihenfolge wichtig: ${tex('\\dfrac{n!}{(n-k)!}')}</p><p>Ohne Wiederholung, Reihenfolge egal: ${tex('\\binom{n}{k}')}</p><p>Alle anordnen: ${tex('n!')}</p>` },
       ]) },
-      { id: 'zaehlen', kind: 'Brücke', title: 'Das passende Zählmodell', run: quiz([genKombinatorik, genKombinatorik, genKombinatorik, genKombinatorik]) },
-      { id: 'mix', kind: 'Festigen', title: 'Stochastik – alles gemischt', run: quiz(Array(6).fill(mixLand([genErwartung, genBinomial, genBaum, genVierfelder, genBedingt, genKumuliert, genSigma, genHypothese, genNormal, genKombinatorik]))) },
+      { id: 'zaehlen', kind: 'Brücke', title: 'Das passende Zählmodell', run: quiz([H(genKombinatorik), H(genKombinatorik), H(genKombinatorik), H(genKombinatorik)]) },
+      { id: 'mix', kind: 'Festigen', title: 'Stochastik – alles gemischt', run: quiz(Array(6).fill(mixLand([H(genErwartung), H(genBinomial), H(genBaum), H(genVierfelder), H(genBedingt), genKumuliert, genSigma, genHypothese, genNormal, H(genKombinatorik)]))) },
     ],
   },
   {
@@ -307,7 +308,7 @@ const OBER = [
         { title: 'Punktprobe', html: `<p>Liegt ${tex('Q')} auf ${tex('g')}? Aus einer Zeile ${tex('t')} bestimmen, dann die anderen beiden Zeilen prüfen. Alle drei müssen mit demselben ${tex('t')} stimmen.</p>` },
         { title: 'Vier mögliche Lagen', html: `<p><b>Richtungen Vielfache?</b> Ja: parallel oder identisch (Punktprobe entscheidet).</p><p>Nein: Gleichsetzen. Lösbar: Schnittpunkt. Widerspruch: windschief.</p>` },
       ]) },
-      { id: 'punkt', kind: 'Brücke', title: 'Punktprobe', run: quiz([genGeradePunkt, genGeradePunkt, genGeradePunkt]) },
+      { id: 'punkt', kind: 'Brücke', title: 'Punktprobe', run: quiz([H(genGeradePunkt), H(genGeradePunkt), H(genGeradePunkt)]) },
       { id: 'lage', kind: 'Brücke', title: 'Lage zweier Geraden', run: quiz([genLage, genLage, genLage, genLage]) },
     ],
   },
@@ -319,9 +320,9 @@ const OBER = [
         { title: 'Gerade trifft Ebene', html: `<p>Die drei Zeilen der Geraden in die Ebenengleichung einsetzen. Es bleibt eine Gleichung für ${tex('t')}. Dieses ${tex('t')} in die Gerade einsetzen – fertig ist der Schnittpunkt.</p>` },
         { eyebrow: 'Merken', title: 'Kreuzprodukt', html: `${T('\\vec u\\times\\vec v=\\begin{pmatrix}u_2v_3-u_3v_2\\\\u_3v_1-u_1v_3\\\\u_1v_2-u_2v_1\\end{pmatrix}')}<p>Das Ergebnis steht senkrecht auf beiden Vektoren. So bekommt man aus zwei Spannvektoren den Normalenvektor.</p>` },
       ]) },
-      { id: 'punkt', kind: 'Brücke', title: 'Punkte in der Ebene', run: quiz([genEbene, genEbene, genEbene]) },
-      { id: 'schnitt', kind: 'Brücke', title: 'Schnittpunkt Gerade–Ebene', run: quiz([genSchnittpunkt, genSchnittpunkt, genSchnittpunkt]) },
-      { id: 'kreuz', nicht: ['HE-GK'], kind: 'Brücke', title: 'Kreuzprodukt', run: quiz([genKreuz, genKreuz, genKreuz]) },
+      { id: 'punkt', kind: 'Brücke', title: 'Punkte in der Ebene', run: quiz([H(genEbene), H(genEbene), H(genEbene)]) },
+      { id: 'schnitt', kind: 'Brücke', title: 'Schnittpunkt Gerade–Ebene', run: quiz([H(genSchnittpunkt), H(genSchnittpunkt), H(genSchnittpunkt)]) },
+      { id: 'kreuz', nicht: ['HE-GK'], kind: 'Brücke', title: 'Kreuzprodukt', run: quiz([H(genKreuz), H(genKreuz), H(genKreuz)]) },
     ],
   },
   {
@@ -333,7 +334,7 @@ const OBER = [
       ]) },
       { id: 'abstand', kind: 'Brücke', title: 'Abstände', run: quiz([genAbstand, genAbstand, genAbstand]) },
       { id: 'winkel', kind: 'Brücke', title: 'Winkel', run: quiz([genWinkel, genWinkel, genWinkel]) },
-      { id: 'mix', kind: 'Festigen', title: 'Geometrie – alles gemischt', run: quiz(Array(6).fill(mixLand([genVektorAB, genBetrag, genSkalar, genGeradePunkt, genEbene, genLage, genSchnittpunkt, genAbstand, genWinkel, genKreuz]))) },
+      { id: 'mix', kind: 'Festigen', title: 'Geometrie – alles gemischt', run: quiz(Array(6).fill(mixLand([H(genVektorAB), H(genBetrag), H(genSkalar), H(genGeradePunkt), H(genEbene), genLage, H(genSchnittpunkt), genAbstand, genWinkel, H(genKreuz)]))) },
     ],
   },
   {
@@ -355,15 +356,15 @@ const OBER = [
         { title: 'Klammern und binomische Formeln', html: `${T('(a\\pm b)^2=a^2\\pm 2ab+b^2\\qquad (a+b)(a-b)=a^2-b^2')}<p>Jedes Glied der einen Klammer wird mit jedem Glied der anderen multipliziert.</p><p class="muted">Der häufigste Fehler: ${tex('(a+b)^2=a^2+b^2')} – das mittlere Glied fehlt.</p>` },
         { title: 'Potenzgesetze', html: `${T('x^a\\cdot x^b=x^{a+b}\\qquad (x^a)^b=x^{ab}\\qquad x^{-n}=\\dfrac1{x^n}\\qquad \\sqrt[n]{x^m}=x^{\\frac mn}')}<p>Diese vier Regeln brauchst du bei jeder Ableitung und jedem Integral.</p>` },
       ]) },
-      { id: 'bruch', kind: 'Brücke', title: 'Brüche und Klammern', run: quiz([genBruch, genBruch, genKlammer, genKlammer]) },
-      { id: 'potenz', kind: 'Brücke', title: 'Potenzgesetze', run: quiz([genPotenz, genPotenz, genPotenz]) },
+      { id: 'bruch', kind: 'Brücke', title: 'Brüche und Klammern', run: quiz([H(genBruch), H(genBruch), H(genKlammer), H(genKlammer)]) },
+      { id: 'potenz', kind: 'Brücke', title: 'Potenzgesetze', run: quiz([H(genPotenz), H(genPotenz), H(genPotenz)]) },
       { id: 'gleichung', kind: 'Benennen', title: 'Gleichungen lösen', run: info([
         { title: 'Lineare Gleichung', html: `<p>Alles mit ${tex('x')} auf eine Seite, alle Zahlen auf die andere. Was die Seite wechselt, wechselt das Vorzeichen.</p>${T('3x+4=x-6\\ \\Rightarrow\\ 2x=-10\\ \\Rightarrow\\ x=-5')}` },
         { title: 'Quadratische Gleichung', html: `${T('x^2+px+q=0\\ \\Rightarrow\\ x_{1,2}=-\\dfrac p2\\pm\\sqrt{\\left(\\dfrac p2\\right)^2-q}')}<p>Vorher durch die Zahl vor ${tex('x^2')} teilen. Probe: Die Lösungen ergeben als Summe ${tex('-p')} und als Produkt ${tex('q')}.</p>` },
         { title: 'Gerade durch zwei Punkte', html: `${T('m=\\dfrac{y_2-y_1}{x_2-x_1}\\qquad y=m\\,x+b')}<p>Erst die Steigung, dann einen Punkt einsetzen und ${tex('b')} ausrechnen.</p>` },
       ]) },
-      { id: 'loesen', kind: 'Brücke', title: 'Gleichungen', run: quiz([genLinGl, genLinGl, genQuadGl, genQuadGl]) },
-      { id: 'gerade', kind: 'Brücke', title: 'Geraden durch zwei Punkte', run: quiz([genSteigung, genSteigung, genSteigung]) },
+      { id: 'loesen', kind: 'Brücke', title: 'Gleichungen', run: quiz([H(genLinGl), H(genLinGl), H(genQuadGl), H(genQuadGl)]) },
+      { id: 'gerade', kind: 'Brücke', title: 'Geraden durch zwei Punkte', run: quiz([H(genSteigung), H(genSteigung), H(genSteigung)]) },
       { id: 'mix', kind: 'Festigen', title: 'Grundlagen gemischt', run: quiz(Array(6).fill(mixOf([GRUND.analysis]))) },
     ],
   },
@@ -375,14 +376,14 @@ const OBER = [
         { title: 'Absolute und relative Häufigkeit', html: `${T('h=\\dfrac{\\text{Anzahl der Treffer}}{\\text{Anzahl der Versuche}}')}<p>Die absolute Häufigkeit zählt. Die relative Häufigkeit gibt den <b>Anteil</b> an – und ist bei vielen Versuchen ein Schätzwert für die Wahrscheinlichkeit.</p>` },
         { title: 'Mittelwert und Median', html: `<p><b>Arithmetisches Mittel:</b> alle Werte addieren, durch die Anzahl teilen.</p><p><b>Median:</b> der mittlere Wert der sortierten Liste. Er bleibt ruhig, wenn ein einzelner Wert extrem ausreißt.</p>` },
       ]) },
-      { id: 'prozent', kind: 'Brücke', title: 'Prozent und Häufigkeit', run: quiz([genProzent, genProzent, genHaeufigkeit, genHaeufigkeit]) },
-      { id: 'kennwerte', kind: 'Brücke', title: 'Mittelwert, Median, Spannweite', run: quiz([genKennwerte, genKennwerte, genKennwerte]) },
+      { id: 'prozent', kind: 'Brücke', title: 'Prozent und Häufigkeit', run: quiz([H(genProzent), H(genProzent), genHaeufigkeit, genHaeufigkeit]) },
+      { id: 'kennwerte', kind: 'Brücke', title: 'Mittelwert, Median, Spannweite', run: quiz([H(genKennwerte), H(genKennwerte), H(genKennwerte)]) },
       { id: 'zufall', kind: 'Benennen', title: 'Wahrscheinlichkeit', run: info([
         { title: 'Laplace-Regel', html: `${T('P(E)=\\dfrac{\\text{günstige Ergebnisse}}{\\text{mögliche Ergebnisse}}')}<p>Gilt, wenn alle Ergebnisse gleich wahrscheinlich sind: Würfel, Münze, Urne, Glücksrad mit gleich großen Feldern.</p>` },
         { title: 'Gegenereignis', html: `${T('P(\\overline{E})=1-P(E)')}<p>„Mindestens einmal" rechnet man fast immer über das Gegenteil „kein einziges Mal".</p>` },
         { title: 'Vierfeldertafel', html: `<p>Zwei Merkmale mit je zwei Ausprägungen. Innen stehen die vier Kombinationen, am Rand die Summen, unten rechts die Gesamtzahl.</p><p class="muted">Jede Zeile und jede Spalte ergibt ihre Summe – damit lässt sich aus vier passenden Angaben die ganze Tafel füllen.</p>` },
       ]) },
-      { id: 'laplace', kind: 'Brücke', title: 'Laplace und Gegenereignis', run: quiz([genLaplace, genLaplace, genGegen, genGegen]) },
+      { id: 'laplace', kind: 'Brücke', title: 'Laplace und Gegenereignis', run: quiz([H(genLaplace), H(genLaplace), H(genGegen), H(genGegen)]) },
       { id: 'tafel', kind: 'Entdecken', title: 'Vierfeldertafel füllen', run: tafel },
       { id: 'mix', kind: 'Festigen', title: 'Grundlagen gemischt', run: quiz(Array(6).fill(mixOf([GRUND.stochastik]))) },
     ],
@@ -395,7 +396,7 @@ const OBER = [
         { title: 'Sinus, Kosinus, Tangens', html: `${T('\\sin\\alpha=\\dfrac{\\text{Gegenkathete}}{\\text{Hypotenuse}}\\qquad \\cos\\alpha=\\dfrac{\\text{Ankathete}}{\\text{Hypotenuse}}\\qquad \\tan\\alpha=\\dfrac{\\text{Gegenkathete}}{\\text{Ankathete}}')}<p>Erst klären, welche zwei Seiten vorkommen – dann die passende Funktion wählen und umstellen.</p>` },
         { title: 'Flächen und Volumen', html: `${T('A_{\\triangle}=\\tfrac12\\,g\\,h\\qquad A_{\\circ}=\\pi r^2\\qquad V_{\\text{Zyl}}=\\pi r^2h\\qquad V_{\\text{Pyr}}=\\tfrac13\\,G\\,h')}<p>Spitze Körper (Pyramide, Kegel) haben ein Drittel des Volumens des passenden Prismas oder Zylinders.</p>` },
       ]) },
-      { id: 'pythagoras', kind: 'Brücke', title: 'Satz des Pythagoras', run: quiz([genPythagoras, genPythagoras, genPythagoras]) },
+      { id: 'pythagoras', kind: 'Brücke', title: 'Satz des Pythagoras', run: quiz([H(genPythagoras), H(genPythagoras), H(genPythagoras)]) },
       { id: 'trig', kind: 'Brücke', title: 'Sinus, Kosinus, Tangens', run: quiz([genTrig, genTrig, genTrig]) },
       { id: 'flaeche', kind: 'Brücke', title: 'Flächen und Volumen', run: quiz([genFlaeche, genFlaeche, genFlaeche]) },
       { id: 'punkte', kind: 'Benennen', title: 'Punkte und Vektoren', run: info([
@@ -586,25 +587,25 @@ const META = {
     formeln: [['Tangente', "t(x)=f'(x_0)\\cdot(x-x_0)+f(x_0)"], ['Steckbrief', "f(a)=b\\quad f'(a)=m\\quad f''(a)=0"]] },
   expln: { boss: ['Graf Logarithmus', 'ln', [genLn, genWachstum]], why: 'Zinseszins, radioaktiver Zerfall und abkühlender Kaffee folgen Exponentialfunktionen. Mit dem ln berechnet man die Zeit – so wird das Alter von Funden bestimmt.',
     formeln: [['ln ableiten', "(\\ln x)'=\\dfrac1x"], ['Wachstum', 'N(t)=N_0\\cdot a^t=N_0\\cdot e^{kt}'], ['Verdopplungszeit', 't=\\dfrac{\\ln 2}{k}']] },
-  's-labor': { boss: ['Würfel-Baron', 'μ', [genErwartung, genBinomial]], why: 'Versicherungen und Qualitätsprüfer rechnen mit dem Erwartungswert: Wie viele von 1000 Teilen sind vermutlich defekt?',
+  's-labor': { boss: ['Würfel-Baron', 'μ', [H(genErwartung), H(genBinomial)]], why: 'Versicherungen und Qualitätsprüfer rechnen mit dem Erwartungswert: Wie viele von 1000 Teilen sind vermutlich defekt?',
     formeln: [['Erwartungswert', '\\mu=n\\cdot p'], ['Standardabweichung', '\\sigma=\\sqrt{n\\,p\\,(1-p)}'], ['Bernoulli-Formel', 'P(X=k)=\\binom{n}{k}p^k(1-p)^{n-k}']] },
-  's-baum': { boss: ['Urnen-Geist', '⑂', [genBaum]], why: 'Jede mehrstufige Entscheidung unter Unsicherheit ist ein Baum – vom Elfmeterschießen bis zur Lieferkette.',
+  's-baum': { boss: ['Urnen-Geist', '⑂', [H(genBaum)]], why: 'Jede mehrstufige Entscheidung unter Unsicherheit ist ein Baum – vom Elfmeterschießen bis zur Lieferkette.',
     formeln: [['Pfadregeln', '\\text{entlang eines Pfades: mal}\\qquad\\text{mehrere Pfade: plus}']] },
-  's-bedingt': { boss: ['Doktor Bedingt', 'P|B', [genVierfelder, genBedingt]], why: 'Bei seltenen Krankheiten heißt ein positiver Test oft trotzdem „wahrscheinlich gesund". Das versteht man nur mit bedingter Wahrscheinlichkeit.',
+  's-bedingt': { boss: ['Doktor Bedingt', 'P|B', [H(genVierfelder), H(genBedingt)]], why: 'Bei seltenen Krankheiten heißt ein positiver Test oft trotzdem „wahrscheinlich gesund". Das versteht man nur mit bedingter Wahrscheinlichkeit.',
     formeln: [['Bedingte Wahrscheinlichkeit', 'P_B(A)=\\dfrac{P(A\\cap B)}{P(B)}']] },
   's-verteilung': { boss: ['Die Glocke', 'σ', [genKumuliert, genSigma, genNormal]], why: 'Körpergrößen, Messfehler, Prüfungsergebnisse: Vieles ist ungefähr normalverteilt. Die Sigma-Regeln sagen, was üblich und was auffällig ist.',
     formeln: [['Mindestens', 'P(X\\ge k)=1-P(X\\le k-1)'], ['Standardisieren', 'z=\\dfrac{x-\\mu}{\\sigma}'], ['Sigma-Regeln', '1\\sigma:68{,}3\\,\\%\\quad 2\\sigma:95{,}4\\,\\%\\quad 3\\sigma:99{,}7\\,\\%']] },
   's-test': { boss: ['Hypo-These', 'H₀', [genHypothese]], why: 'Ob ein neues Medikament wirkt oder eine Münze gezinkt ist, entscheidet man mit Hypothesentests.',
     formeln: [['Ablehnungsbereich (rechtsseitig)', '\\text{kleinstes }k\\text{ mit }P(X\\ge k)\\le\\alpha']] },
-  's-kombi': { boss: ['Zähl-Zyklop', 'n!', [genKombinatorik]], why: 'Passwörter, Lotto, Turnierpläne: Kombinatorik sagt, wie viele Möglichkeiten es gibt – und wie sicher ein Passwort ist.',
+  's-kombi': { boss: ['Zähl-Zyklop', 'n!', [H(genKombinatorik)]], why: 'Passwörter, Lotto, Turnierpläne: Kombinatorik sagt, wie viele Möglichkeiten es gibt – und wie sicher ein Passwort ist.',
     formeln: [['Zählmodelle', 'n^k\\qquad \\dfrac{n!}{(n-k)!}\\qquad \\binom{n}{k}\\qquad n!']] },
-  'g-vektor': { boss: ['Vektor-Wächter', '→', [genVektorAB, genBetrag]], why: 'Navigationsgeräte, Computerspiele und Roboterarme berechnen jede Bewegung mit Vektoren.',
+  'g-vektor': { boss: ['Vektor-Wächter', '→', [H(genVektorAB), H(genBetrag)]], why: 'Navigationsgeräte, Computerspiele und Roboterarme berechnen jede Bewegung mit Vektoren.',
     formeln: [['Verbindungsvektor', '\\overrightarrow{AB}=B-A'], ['Betrag', '|\\vec v|=\\sqrt{v_1^2+v_2^2+v_3^2}']] },
-  'g-skalar': { boss: ['Skalar-Sphinx', '·', [genSkalar]], why: 'Solarzellen liefern am meisten, wenn die Sonne senkrecht auftrifft. Wie viel Licht ankommt, berechnet man mit dem Skalarprodukt.',
+  'g-skalar': { boss: ['Skalar-Sphinx', '·', [H(genSkalar)]], why: 'Solarzellen liefern am meisten, wenn die Sonne senkrecht auftrifft. Wie viel Licht ankommt, berechnet man mit dem Skalarprodukt.',
     formeln: [['Skalarprodukt', '\\vec u\\cdot\\vec v=u_1v_1+u_2v_2+u_3v_3'], ['Senkrecht', '\\vec u\\cdot\\vec v=0\\iff\\vec u\\perp\\vec v']] },
-  'g-gerade': { boss: ['Linien-Lord', 'g', [genGeradePunkt, genLage]], why: 'Zwei Flugrouten können sich auf der Karte kreuzen und trotzdem aneinander vorbeiführen – in verschiedenen Höhen. Das ist „windschief".',
+  'g-gerade': { boss: ['Linien-Lord', 'g', [H(genGeradePunkt), genLage]], why: 'Zwei Flugrouten können sich auf der Karte kreuzen und trotzdem aneinander vorbeiführen – in verschiedenen Höhen. Das ist „windschief".',
     formeln: [['Gerade', 'g\\colon\\ \\vec x=\\vec p+t\\cdot\\vec u']] },
-  'g-ebene': { boss: ['Ebenen-Eminenz', 'E', [genEbene, genSchnittpunkt, genKreuz]], why: 'In 3D-Grafik besteht alles aus ebenen Flächen. Ob ein Lichtstrahl eine Fläche trifft, ist genau die Aufgabe „Gerade schneidet Ebene".',
+  'g-ebene': { boss: ['Ebenen-Eminenz', 'E', [H(genEbene), H(genSchnittpunkt), H(genKreuz)]], why: 'In 3D-Grafik besteht alles aus ebenen Flächen. Ob ein Lichtstrahl eine Fläche trifft, ist genau die Aufgabe „Gerade schneidet Ebene".',
     formeln: [['Koordinatenform', 'E\\colon\\ n_1x_1+n_2x_2+n_3x_3=d'], ['Kreuzprodukt', '\\vec u\\times\\vec v=\\begin{pmatrix}u_2v_3-u_3v_2\\\\u_3v_1-u_1v_3\\\\u_1v_2-u_2v_1\\end{pmatrix}']] },
   'g-mass': { boss: ['Maßmeister', '∠', [genAbstand, genWinkel]], why: 'Abstände und Winkel braucht man beim Vermessen von Grundstücken, in der Architektur und für Sicherheitsabstände von Drohnen.',
     formeln: [['Abstand Punkt–Ebene', 'd(P;E)=\\dfrac{|\\vec n\\cdot\\vec p-d|}{|\\vec n|}'], ['Winkel', '\\cos\\varphi=\\dfrac{\\vec u\\cdot\\vec v}{|\\vec u|\\cdot|\\vec v|}']] },
