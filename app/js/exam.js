@@ -8,6 +8,7 @@ import { $, h, tex, esc, ICON, sfx, confetti, toast } from './ui.js';
 import { CONFIG } from './config.js';
 import { landOk } from './units.js';
 import { cardBox } from './share.js';
+import { stelle } from './stufe.js';
 
 /** Auswahl-Aufgaben je Gebiet (ohne Lücken- und Graph-Aufgaben, die brauchen mehr Platz und Zeit). */
 export const POOL = {
@@ -25,7 +26,7 @@ export function makeTasks(n, lv, seed = null, land = '') {
   const tasks = [];
   for (let i = 0; i < n; i++) {
     const a = areas[i % areas.length], fn = bags[a][Math.floor(i / areas.length) % bags[a].length];
-    const q = fn(lv); q.gen = fn.name; q.topic = fn.topic; q.area = a;
+    const q = stelle(fn, lv); q.gen = fn.name; q.topic = fn.topic; q.area = a;
     tasks.push(q);
   }
   seedRandom(null);
@@ -246,7 +247,7 @@ export function blitzView(opts_onEnd) {
     };
     const show = () => {
       if (!bag.length) bag = shuffle(BLITZ_POOL);
-      const fn = bag.pop(), q = fn(lv); q.gen = fn.name; q.topic = fn.topic;
+      const fn = bag.pop(), q = stelle(fn, lv); q.gen = fn.name; q.topic = fn.topic;
       const box = $('#bz-q', el);
       box.innerHTML = `<div class="mission"><p>${q.prompt}</p></div>${q.formula ? `<div class="formula">${tex(q.formula, true)}</div>` : ''}<div class="opts"></div>`;
       q.options.forEach((o, k) => {

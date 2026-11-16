@@ -9,6 +9,7 @@ import { api, kiBereit, premiumOn, kiArt } from './api.js';
 import { rechenwegFeld } from './rechenweg.js';
 import { merkZuTitel, merkbilderEinsetzen } from './merkbild.js';
 import { marke } from './pro.js';
+import { stelle } from './stufe.js';
 
 /** sequence: Liste von Erzeugern (eine Aufgabe je Eintrag). */
 export function quiz(sequence, opts = {}) {
@@ -19,7 +20,7 @@ export function quiz(sequence, opts = {}) {
       plot?.destroy(); plot = null;
       const lv = store.level;
       const fn = sequence[qi];
-      const q = fn(lv);
+      const q = stelle(fn, lv);
       q.gen ??= fn.name; q.topic ??= fn.topic;
       window.__mtLast = { gen: q.gen, thema: q.topic, stufe: lv, frage: String(q.prompt).replace(/<[^>]+>/g, ''), formel: q.formula || '' };   // für „Fehler melden“
       const spec = !opts.noInput && store.tippen ? inputSpec(q) : null;

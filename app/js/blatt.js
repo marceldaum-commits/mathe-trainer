@@ -9,6 +9,7 @@ import { quiz } from './quiz.js';
 import { marke } from './pro.js';
 import { CONFIG } from './config.js';
 import { api, premiumOn, premiumBereit, kiBereit, kiArt, kaufLinks } from './api.js';
+import { stelle } from './stufe.js';
 
 export const ANZAHL = [5, 8, 10, 12];
 /** Gebiete des gewählten Jahrgangs als [Kennung, Name] (ohne den Prüfungs-Reiter). */
@@ -33,7 +34,7 @@ export function bauBlatt({ units, lv, n, seed }, land = store.land) {
     // reihum durch die gewählten Themen, je Thema reihum durch seine Aufgaben-Arten – so ist jedes Thema vertreten
     const beutel = us.map((u) => ({ u, gens: shuffle(landList(u.bossGens, land)), i: 0 }));
     for (let k = 0; fragen.length < n && k < n * 4; k++) {
-      const b = beutel[k % beutel.length], fn = b.gens[b.i++ % b.gens.length], q = fn(lv);
+      const b = beutel[k % beutel.length], fn = b.gens[b.i++ % b.gens.length], q = stelle(fn, lv);
       if (!q?.options?.length) continue;
       q.gen ??= fn.name; q.topic ??= fn.topic || b.u.title; q.unit = b.u.title;
       fragen.push(q);
@@ -68,7 +69,7 @@ export function bauSchwach({ lv, n, seed }, arten = schwaechen()) {
   try {
     const fragen = [], reihe = shuffle(liste);
     for (let k = 0; fragen.length < n && k < n * 4; k++) {
-      const { fn, unit } = reihe[k % reihe.length], q = fn(lv);
+      const { fn, unit } = reihe[k % reihe.length], q = stelle(fn, lv);
       if (!q?.options?.length) continue;
       q.gen ??= fn.name; q.topic ??= fn.topic || unit; q.unit = unit; fragen.push(q);
     }
