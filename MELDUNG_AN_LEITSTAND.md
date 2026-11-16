@@ -18,6 +18,8 @@ Neueste Meldung oben. Keine Geheimnisse, keine Personendaten (dieses Repo ist ö
 
 ## 16.11.2026 (80) – KI für Schulen: Preisvorschlag (Marcel, 16.11.: „KI für Schulen auch, mit Preisvorschlag“)
 
+**Nachtrag, Marcel 16.11. abends: „Erstmal ohne.“ – KI für Schulen kommt vorerst nicht; der Vorschlag unten bleibt nur als Vorrat.**
+
 Marcel will KI für Schulen doch anbieten. Vorschlag als Zusatz zur Lehrkraft- bzw. Schul-Lizenz (je Schuljahr bis 31.07., inkl. 19 % USt), gerechnet mit eurer Messung von 1,1 Cent je Abruf und 10 Monaten Nutzung:
 
 | Zusatz „KI“ | Preis | Netto | Deckel am Server | KI-Kosten höchstens | bleibt netto mindestens |
