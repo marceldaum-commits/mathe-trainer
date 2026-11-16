@@ -2,6 +2,45 @@
 
 Neueste Meldung oben. Keine Geheimnisse, keine Personendaten (dieses Repo ist öffentlich, siehe Punkt 1).
 
+## 16.11.2026 (76) – 0.38.0: Stufen-Nachweis (euer Auftrag vom 16.11., von Marcel direkt bestätigt) – Meldung „liegt auf test“ folgt nach dem Testlauf
+
+- **Maßstab** (`app/js/stufe.js`): Jede Aufgabe wird gemessen – Rechenzeichen im Lösungsweg (Schritte), genannte Regeln (Ketten-/Produkt-/Quotientenregel, Substitution, pq-Formel, Gegenereignis …), Grad, Verschachtelung, Buchstaben-Parameter, Länge des Lösungswegs, nicht-ganzzahliges Ergebnis; zusammen die Zahl „Anspruch“.
+- **Auswahl:** Für Stufe 1 wird aus drei erzeugten Aufgaben die leichteste genommen, für Stufe 2 aus zwei; Stufe 3 wie erzeugt; Stufe 4 die schwerere aus zwei, Stufe 5 die schwerste aus drei. Das gilt in Quiz, Boss, Abi-Modus, Tages-Runde, Duell und Arbeitsblatt.
+- **Inhalt:** Alle 141 Aufgaben-Arten haben jetzt fünf echte Stufen mit vollständigem Lösungsweg. Stufe 5: Scharen und Parameter, verkettete e-/ln-Funktionen, Produkt + Kette + Quotient, partielle Integration und Substitution, mehrschrittige Sachaufgaben, krumme Zahlen; in Klasse 5–10 deutlich über Schulbuch-Standard.
+- **Test** `tests/stufen.mjs` (läuft in `npm run check`): je Art und Stufe 300 Aufgaben mit festem Zufall; schlägt fehl, wenn eine Stufe nicht mindestens 3 % (und 0,3 Punkte) über der vorigen liegt oder Stufe 5 nicht mindestens das 1,5-Fache von Stufe 1 erreicht. Ergebnis: alle 141 Arten bestehen. Dazu `tests/hart/*.mjs`: rund 3,3 Mio. unabhängige Nachrechnungen der neuen Aufgaben.
+- **Tabelle** (Mittelwerte je Gebiet; die volle Tabelle je Aufgaben-Art × Stufe steht in `docs/STUFEN.md`):
+
+| Gebiet | Stufe | Anspruch | Schritte | Regeln | Grad | Tiefe | Param. | Weg | krumm |
+|---|---|---|---|---|---|---|---|---|---|
+| Analysis (49 Arten) | 1 | 21,8 | 7,9 | 0,15 | 0,97 | 0,96 | 0,16 | 120 | 25 % |
+|  | 2 | 31,0 | 14,0 | 0,28 | 1,15 | 1,01 | 0,19 | 157 | 32 % |
+|  | 3 | 44,8 | 22,8 | 0,74 | 1,57 | 1,08 | 0,20 | 210 | 40 % |
+|  | 4 | 64,8 | 37,6 | 1,08 | 1,84 | 1,27 | 0,17 | 274 | 52 % |
+|  | 5 | 90,3 | 56,3 | 1,61 | 1,50 | 1,31 | 0,46 | 370 | 75 % |
+| Geometrie (26 Arten) | 1 | 23,8 | 7,5 | 0,27 | 0,08 | 0,35 | 0,69 | 123 | 6 % |
+|  | 2 | 36,4 | 17,0 | 0,33 | 0,08 | 0,35 | 0,71 | 170 | 9 % |
+|  | 3 | 53,6 | 29,2 | 0,45 | 0,08 | 0,41 | 0,87 | 208 | 24 % |
+|  | 4 | 75,8 | 45,4 | 0,81 | 0,08 | 0,54 | 0,73 | 314 | 43 % |
+|  | 5 | 107,6 | 66,0 | 1,52 | 0,08 | 0,45 | 1,38 | 431 | 56 % |
+| Klasse 5–10 (41 Arten) | 1 | 12,2 | 3,8 | 0,07 | 0,10 | 0,25 | 0,00 | 113 | 13 % |
+|  | 2 | 16,3 | 7,1 | 0,13 | 0,06 | 0,23 | 0,00 | 113 | 17 % |
+|  | 3 | 23,2 | 11,4 | 0,22 | 0,10 | 0,33 | 0,00 | 141 | 26 % |
+|  | 4 | 36,2 | 19,7 | 0,23 | 0,25 | 0,34 | 0,03 | 198 | 44 % |
+|  | 5 | 53,4 | 29,3 | 0,38 | 0,35 | 0,57 | 0,07 | 290 | 58 % |
+| Prüfungs-Operatoren (1 Art) | 1 | 8,6 | 0,0 | 0,00 | 0,00 | 0,00 | 0,00 | 227 | 0 % |
+|  | 2 | 15,4 | 0,0 | 0,00 | 0,00 | 0,00 | 0,00 | 431 | 0 % |
+|  | 3 | 20,5 | 0,0 | 0,00 | 0,00 | 0,00 | 0,00 | 506 | 0 % |
+|  | 4 | 23,0 | 0,0 | 0,00 | 0,00 | 0,00 | 0,00 | 594 | 0 % |
+|  | 5 | 31,9 | 0,0 | 0,00 | 0,00 | 0,00 | 0,00 | 602 | 54 % |
+| Stochastik (24 Arten) | 1 | 16,3 | 4,3 | 0,08 | 0,00 | 0,17 | 0,26 | 118 | 39 % |
+|  | 2 | 23,7 | 7,8 | 0,17 | 0,00 | 0,23 | 0,39 | 170 | 45 % |
+|  | 3 | 35,9 | 15,9 | 0,40 | 0,00 | 0,37 | 0,50 | 209 | 58 % |
+|  | 4 | 52,6 | 25,6 | 0,63 | 0,04 | 0,45 | 0,45 | 259 | 76 % |
+|  | 5 | 74,1 | 39,1 | 1,05 | 0,04 | 0,43 | 0,37 | 416 | 79 % |
+
+- **Grenzen des Maßstabs, ehrlich:** Er liest den Lösungsweg, den der Lernende sieht – er misst also auch, wie ausführlich der Weg geschrieben ist. Deshalb haben alle schweren Aufgaben jetzt ihren vollen Rechenweg bekommen. „Grad“ sinkt in der Analysis von Stufe 4 auf 5, weil dort e-, ln- und Wurzel-Funktionen die hohen Potenzen ablösen. Die Operatoren-Aufgabe ist reine Textaufgabe (keine Rechenzeichen).
+- **Für euch wichtig:** (1) Tages-Runde und Duell ziehen dadurch andere Aufgaben als 0.37.0 – Geräte mit verschiedenen Versionen sehen am selben Tag verschiedene Aufgaben. (2) **Ladezeit:** Das Bündel wächst durch die Lösungswege von 1,15 auf 1,9 MB. Erster Start im Labor bei Slow 4G: 7,6 → 11,6 s ohne Kompression, 2,9 → 4,1 s mit gzip; schnelles Netz und zweiter Start unverändert (0,18 s / 0,14 s). **Kompression am Server ist damit noch wichtiger** (Bitte aus (70)). Als nächsten Schritt schlage ich vor, die Aufgaben-Erzeuger erst bei Bedarf zu laden. (3) `npm run check` dauert jetzt etwa eine Minute länger.
+
 ## 16.11.2026 (75) – Konzept Pro: Umsatzsteuer (euer Nachtrag vom 16.11.)
 
 Alle Preise sind Endpreise **inkl. 19 % USt** und werden in der App so angezeigt („inkl. MwSt.“).
