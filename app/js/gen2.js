@@ -1392,7 +1392,8 @@ function kumuliertZahl(lv) {
       : [O(b - 1, a, true), O(b, a - 1, false, `Weder ${a} noch ${b} gehören dazu: Der Bereich ist ${tex(`${a + 1}\\le X\\le ${b - 1}`)}.`), O(b, a, false, `${b} gehört nicht dazu: „weniger als ${b}“ endet bei ${b - 1}.`), O(b - 1, a - 1, false, `${a} gehört nicht dazu: Abgezogen wird alles bis einschließlich ${a}.`)];
     if (!b2versch(opts, 0.001)) return null;
     const wort = inkl ? `mindestens ${a} und höchstens ${b}` : `mehr als ${a}, aber weniger als ${b}`;
-    return { prompt: `${intro(n, fmt(p))} Mit welcher Wahrscheinlichkeit ${verb} <b>${wort}</b> ${objekt} (auf vier Nachkommastellen gerundet)?`,
+    // Tabellenwerte weichen in der 4. Nachkommastelle ab: nur Auswahl, keine freie Eingabe
+    return { ohneEingabe: true, prompt: `${intro(n, fmt(p))} Mit welcher Wahrscheinlichkeit ${verb} <b>${wort}</b> ${objekt} (auf vier Nachkommastellen gerundet)?`,
       formula: `\\def\\arraystretch{1.3}\\begin{array}{l}${P(a - 1)}\\approx${b2vier(Fr(a - 1))}\\\\${P(a)}\\approx${b2vier(Fr(a))}\\\\${P(b - 1)}\\approx${b2vier(Fr(b - 1))}\\\\${P(b)}\\approx${b2vier(Fr(b))}\\end{array}`, options: shuffle(opts),
       hints: [`${tex('X')}: Anzahl ${anzahl}, binomialverteilt mit ${tex(`n=${n}`)} und ${tex(`p=${ft(p)}`)}.`, `Bereich als Ungleichung: ${tex(`${lo}\\le X\\le ${hi}`)}.`, `${tex(`P(${lo}\\le X\\le ${hi})=${P(hi)}-${P(lo - 1)}`)}: alles bis ${hi}, minus alles bis ${lo - 1}.`, `Tabellenwerte einsetzen: ${tex(`${b2vier(Fr(hi))}-${b2vier(Fr(lo - 1))}`)}.`],
       explain: `„${wort[0].toUpperCase()}${wort.slice(1)}“ bedeutet ${tex(`${lo}\\le X\\le ${hi}`)}. ${tex(`P(${lo}\\le X\\le ${hi})=${P(hi)}-${P(lo - 1)}\\approx${b2vier(Fr(hi))}-${b2vier(Fr(lo - 1))}\\approx${b2vier(F(hi) - F(lo - 1))}`)}.`, n, p, lo, hi, kind: 'zahl' };
@@ -1406,7 +1407,7 @@ function kumuliertZahl(lv) {
     O(hi + 1, lo - 2, false, `Die Grenzen ${tex(ft(U))} und ${tex(ft(V))} wurden nach außen gerundet. ${lo - 1} und ${hi + 1} liegen aber schon außerhalb.`),
     O(hi + 1, lo - 1, false, `${hi + 1} liegt schon über ${tex(`\\mu+${ft(c)}\\sigma\\approx${ft(V)}`)}.`)];
   if (!b2versch(opts, 0.001)) return null;
-  return { prompt: `${intro(n, fmt(p))} Mit welcher Wahrscheinlichkeit weicht die Anzahl ${anzahl} um <b>höchstens ${fmt(c)} Standardabweichungen</b> vom Erwartungswert ab (auf vier Nachkommastellen gerundet)?`,
+  return { ohneEingabe: true, prompt: `${intro(n, fmt(p))} Mit welcher Wahrscheinlichkeit weicht die Anzahl ${anzahl} um <b>höchstens ${fmt(c)} Standardabweichungen</b> vom Erwartungswert ab (auf vier Nachkommastellen gerundet)?`,
     formula: `\\def\\arraystretch{1.3}\\begin{array}{l}${P(lo - 2)}\\approx${b2vier(Fr(lo - 2))}\\\\${P(lo - 1)}\\approx${b2vier(Fr(lo - 1))}\\\\${P(lo)}\\approx${b2vier(Fr(lo))}\\\\${P(hi)}\\approx${b2vier(Fr(hi))}\\\\${P(hi + 1)}\\approx${b2vier(Fr(hi + 1))}\\end{array}`, options: shuffle(opts),
     hints: [`Erwartungswert: ${tex(`\\mu=n\\cdot p=${n}\\cdot${ft(p)}=${ft(mu)}`)}.`, `Standardabweichung: ${tex(`\\sigma=\\sqrt{n\\cdot p\\cdot(1-p)}=\\sqrt{${ft(s2, 3)}}\\approx${ft(sg)}`)}.`,
       `Grenzen: ${tex(`\\mu-${ft(c)}\\sigma\\approx${ft(U)}`)} und ${tex(`\\mu+${ft(c)}\\sigma\\approx${ft(V)}`)}.`, `Nur ganze Trefferzahlen zählen – nach innen runden: ${tex(`${lo}\\le X\\le ${hi}`)}.`, `${tex(`P(${lo}\\le X\\le ${hi})=${P(hi)}-${P(lo - 1)}`)}.`],

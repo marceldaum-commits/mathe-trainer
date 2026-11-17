@@ -16,7 +16,7 @@ export function shapeOf(texStr) {
  * und die Anzeige passt zum gespeicherten Wert. Liefert { sh, num, faktor } oder null. faktor 100: Anzeige in Prozent, Wert als Anteil.
  */
 export function inputSpec(q) {
-  if (q.type || !q.options?.every((o) => Number.isFinite(o.num))) return null;
+  if (q.type || q.ohneEingabe || !q.options?.every((o) => Number.isFinite(o.num))) return null;
   const r = q.options.find((o) => o.correct), sh = shapeOf(r.tex);
   if (!sh) return null;
   for (const faktor of [1, 100]) {
