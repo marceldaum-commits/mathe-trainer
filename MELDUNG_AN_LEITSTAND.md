@@ -2,6 +2,42 @@
 
 Neueste Meldung oben. Keine Geheimnisse, keine Personendaten (dieses Repo ist öffentlich, siehe Punkt 1).
 
+## 17.11.2026 (95) – Fertig für den Betriebstest – Version 2.3.2
+
+**Version 2.3.2 liegt auf `test`** (main = test = 2702dd6). `live` habe ich nicht angefasst.
+APK und AAB 2.3.2 liegen im Drive-Ordner „Mathe-Trainer“ (versionCode 20302, gleicher Schlüssel wie bisher), 2.3.0 liegt jetzt in „Alt“.
+
+**Eure letzte Vorgabe umgesetzt:**
+- **Musik startet direkt:** ab Werk an. In der Android-App beim Öffnen, im Web beim ersten Tippen irgendwo. „Musik aus“ wird gemerkt und eingehalten. Im Abi-Modus und in der Probeklausur bleibt es still, beim Vorlesen wird die Musik leiser.
+- **Thorsten ist ganz entfernt:** Die Codesuche nach „thorsten“ und „sherpa“ findet 0 Treffer außer im Änderungsprotokoll (PLAN-Baulog und diese Meldungen). Ein Test prüft das bei jedem `npm run check`.
+
+**Geprüft in der Abschlussphase:**
+- `npm run check` grün, e2e auf allen fünf Stufen grün (3, 1, 5, 2, 4).
+- Klick-Prüfung aller Knöpfe auf allen Klassen, auch mit Stand.
+- 320 px und 1440 px Breite: nichts läuft über, Knopftexte brechen nicht um, Konsole sauber.
+- Offline: App und Theorie laufen ohne Netz.
+- Update von 2.2.0 auf die neue Version: alle Daten bleiben erhalten (Fortschritt, Einstellungen, Pro-Status).
+- Android: Selbsttest der Hülle (27 Prüfungen) grün.
+- Nova: Abspielen einer echten Datei, Tempo in 6 Stufen, offline laden in Standard und Bestqualität, Abbrechen und Weitermachen.
+- Musik-Start: Web erst nach dem ersten Tippen, Android sofort, „Musik aus“ bleibt still.
+
+**Behoben in 2.3.1/2.3.2:**
+- Der Vorlese-Player wird beim Antippen freigegeben. Sonst blockiert die Android-WebView das Abspielen, wenn die Datei erst später ankommt.
+- Alte Abi-Einträge zeigen kein „undefined“ mehr.
+- Musik ab Werk an.
+- Hülle Nr. 6: Damit die Musik in der Android-App sofort spielt, muss die neue APK einmal installiert werden. Bis dahin startet sie auch dort beim ersten Tippen.
+
+**Bekannte offene Punkte:**
+- Nicht auf einem echten Handy getestet und nicht mit dem echten Server aus der App heraus (nur im Browser mit nachgeahmtem Server und echter Nova-Datei).
+- Die Abfrage der KI-Punkte ohne Verbrauch fehlt noch auf dem Server. Bis dahin zeigt die App den Rest aus der letzten KI-Antwort.
+- Der CSP-Header des Servers muss dieselben Einträge erlauben wie die App: `connect-src 'self' https://stimmen.mathenachhilfe-online.com; media-src 'self' blob:`.
+- Die Datenschutzerklärung auf der Website braucht noch Nova und den Hinweis auf /jetzt.
+- Android braucht die neue APK, damit die Musik sofort spielt.
+
+Ab jetzt gilt für mich: eine Woche Betriebstest, nur noch Fehler beheben.
+
+**Web = Android**, Version 2.3.2.
+
 ## 17.11.2026 (94) – Alle Nova-Texte offline laden (Version 2.3.0)
 
 Eure Vorgabe von 16:30. **Stand der Nova-Umstellung:**
