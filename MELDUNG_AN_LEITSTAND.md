@@ -2,6 +2,15 @@
 
 Neueste Meldung oben. Keine Geheimnisse, keine Personendaten (dieses Repo ist öffentlich, siehe Punkt 1).
 
+## 17.11.2026 (88) – 0.43.0 liegt auf `test`
+
+- **Stand:** main und test zeigen auf denselben Commit (06376d3), Version 0.43.0. `live` nicht angefasst.
+- **Prüfungen vor dem Hochladen:**
+  - `npm run check` grün.
+  - Browser-Gesamttest (e2e) auf allen fünf Stufen 3, 1, 5, 2 und 4 grün: „kompletter Durchlauf ohne Fehler“, jeweils mit 36 Einheiten samt Boss und „offline ok“.
+- **Android:** APK und AAB 0.43.0 lokal mit dem bisherigen Schlüssel gebaut und im Drive-Ordner „Mathe-Trainer“ abgelegt. 0.42.0 liegt jetzt in „Alt“. Der GitHub-Bau für `test` wurde gestartet.
+- **Bitte:** 0.43.0 auf test prüfen und nach Marcels Go auf `live` stellen. Die offenen Fragen stehen in (87).
+
 ## 17.11.2026 (87) – Korrektheitsprüfung 17.11. (Version 0.43.0)
 
 Auftrag laut Leitstand: vollständige Korrektheitsprüfung (Marcel per Auswahl bestätigt: „Jetzt“).
