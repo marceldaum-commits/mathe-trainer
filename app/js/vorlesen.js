@@ -1,9 +1,11 @@
 // Vorlesen mit der Stimme „Nova“ (eine mit KI von OpenAI erzeugte Stimme; Marcel, 17.11.2026: „zukünftig nur Nova“).
 // Die App spricht nie mit OpenAI. Sie holt fertige Audiodateien von unserem Server stimmen.mathenachhilfe-online.com:
 //   • feste Texte (Theorie, Formelkarten, „Wo brauche ich das?“) stehen in vorlesen/texte.json und werden dort vorab vertont;
-//   • Texte, die erst in der Aufgabe entstehen, schickt die App in Stücken bis 300 Zeichen an /jetzt (ohne Angaben zur Person).
-// KI-Antworten gehen nicht an /jetzt (einmalig, nur Kosten) – sie liest still die Stimme des Geräts.
-// Klappt es nicht (offline, 204), liest still die Stimme des Geräts (nur eingebaute Stimmen, kein Text an fremde Server).
+//   • Texte, die erst in der Aufgabe entstehen, schickt die App als ganze Sätze (Stücke bis 300 Zeichen, an Satzenden geteilt)
+//     an /jetzt (ohne Angaben zur Person). Nie Schnipsel aus Wörtern und Zahlen.
+// Nie die Android-Stimme, solange Netz da ist (Leitstand, 17.11.2026): lieber warten (mit „Lädt …“ am Knopf), einmal neu versuchen,
+// und wenn Nova trotzdem nicht kommt, einmal je Sitzung „Nova ist gerade nicht erreichbar“. Die Stimme des Geräts liest nur,
+// wenn wirklich kein Netz da ist und nichts offline gespeichert ist. KI-Antworten werden nicht vorgelesen.
 // Wird erst geladen, wenn jemand vorlesen lässt (kein Einfluss auf den Start).
 import { vorlese } from './ui.js';
 import { htmlSprech, normal, stuecke } from './sprech.js';
@@ -31,77 +33,121 @@ export function sprechText(el) {
   return htmlSprech(k.innerHTML);
 }
 
-/* ───────────── Gerätestimme als stille Notlösung ───────────── */
+/* ───────────── Gerätestimme: nur ohne Netz ───────────── */
 const geraeteStimmen = () => ('speechSynthesis' in window ? speechSynthesis.getVoices() : []).filter((v) => v.localService && /^de/i.test(v.lang));
 function geraet(text) {
   return new Promise((fertig) => {
-    const vs = geraeteStimmen(); if (!vs.length || !text) { fertig(false); return; }
-    const u = new SpeechSynthesisUtterance(text); u.voice = vs.find((x) => /de-DE/i.test(x.lang)) || vs[0]; u.lang = u.voice.lang; u.rate = vorlese.tempo;
-    u.onend = () => fertig(true); u.onerror = () => fertig(false); speechSynthesis.speak(u);
+    try {
+      const vs = geraeteStimmen(); if (!vs.length || !text) { fertig(false); return; }
+      const u = new SpeechSynthesisUtterance(text), v = vs.find((x) => /de-DE/i.test(x.lang)) || vs[0]; u.lang = v.lang; u.rate = vorlese.tempo;
+      try { u.voice = v; } catch { /* nur die Sprache */ }
+      u.onend = () => fertig(true); u.onerror = () => fertig(false); speechSynthesis.speak(u);
+    } catch { fertig(false); }
   });
 }
 
 /* ───────────── Nova-Dateien holen ───────────── */
 /** Adresse der Bestqualität (128 kbit/s) zu einer normalen Nova-Adresse. */
 export const original = (u) => u.replace(`${STIMMEN}/nova/`, `${STIMMEN}/nova/original/`);
+const WARTE_MS = 15000;   // so lange darf eine Datei aus dem Netz dauern (/jetzt vertont neu: meist 2–3 s)
+const warte = (ms) => new Promise((r) => setTimeout(r, ms));
+async function netz(url, o = {}) {
+  const ctl = new AbortController(), t = setTimeout(() => ctl.abort(), WARTE_MS);
+  try { return await fetch(url, { ...AUS, ...o, signal: ctl.signal }); } finally { clearTimeout(t); }
+}
+/** Aus dem Gerätespeicher (Bestqualität zuerst) oder null. */
+async function ausSpeicher(url) {
+  try { const c = await caches.open(SPEICHER); const da = (await c.match(original(url))) || (await c.match(url)); return da ? await da.arrayBuffer() : null; } catch { return null; }
+}
+/** Eine Nova-Datei holen. Liefert { roh } – oder { fehlt: true } (404) bzw. { fehler: 'netz' | 'server' }. */
 async function holeDatei(url) {
-  // auf dem Gerät zuerst die Bestqualität (falls offline geladen), dann die normale Datei; aus dem Netz immer die normale
-  let c = null; try { c = await caches.open(SPEICHER); const da = (await c.match(original(url))) || (await c.match(url)); if (da) return da.arrayBuffer(); } catch { /* ohne Zwischenspeicher */ }
-  const r = await fetch(url, AUS);
-  if (!r.ok) return null;
-  if (c) c.put(url, r.clone()).catch(() => {});
-  return r.arrayBuffer();
+  const da = await ausSpeicher(url); if (da) return { roh: da };
+  let r; try { r = await netz(url); } catch { return { fehler: 'netz' }; }
+  if (r.status === 404) return { fehlt: true };
+  if (!r.ok) return { fehler: 'server' };
+  try { const c = await caches.open(SPEICHER); await c.put(url, r.clone()); } catch { /* ohne Zwischenspeicher */ }
+  return { roh: await r.arrayBuffer() };
 }
-/** Audiodatei zu einem Stück: erst die feste Adresse, sonst (wenn erlaubt) über /jetzt vertonen lassen. null = nicht da. */
-async function datei(stueck, jetzt) {
-  try {
-    const roh = await holeDatei(adresse(await kennung(stueck)));
-    if (roh) return roh;
-    if (!jetzt) return null;
-    const r = await fetch(`${STIMMEN}/jetzt`, { ...AUS, method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ text: normal(stueck), sprache: 'de' }) });
-    if (r.status !== 200) return null;
-    const { url } = await r.json();
-    return typeof url === 'string' && url.startsWith(`${STIMMEN}/`) ? holeDatei(url) : null;
-  } catch { return null; }
+/** Einen ganzen Satz (bis 300 Zeichen) über /jetzt vertonen lassen – bei einer Störung einmal neu versuchen. */
+async function jetzt(satz) {
+  let letzter = { fehler: 'server' };
+  for (let versuch = 0; versuch < 2; versuch++) {
+    if (versuch) await warte(700);
+    let r; try { r = await netz(`${STIMMEN}/jetzt`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ text: normal(satz), sprache: 'de' }) }); }
+    catch { letzter = { fehler: 'netz' }; continue; }
+    if (r.status !== 200) { letzter = { fehler: 'server' }; continue; }
+    let url = null; try { ({ url } = await r.json()); } catch { /* unlesbar */ }
+    if (typeof url !== 'string' || !url.startsWith(`${STIMMEN}/nova/`)) { letzter = { fehler: 'server' }; continue; }
+    const d = await holeDatei(url); if (d.roh) return d; letzter = d.fehler ? d : { fehler: 'server' };
+  }
+  return letzter;
 }
+/**
+ * Alle Audiodateien zu einem Stück: erst die feste Adresse (vorab vertont), sonst über /jetzt – als ganze Sätze bis 300 Zeichen.
+ * Liefert { teile: [ArrayBuffer…] } oder { fehler: 'netz' | 'server' }. Protokoll für Prüfungen: window.__mtNova (nur im Test).
+ */
+async function dateien(stueck) {
+  const fest = await holeDatei(adresse(await kennung(stueck)));
+  if (fest.roh) { log(stueck, 'fest'); return { teile: [fest.roh] }; }
+  if (fest.fehler === 'netz') { log(stueck, 'netz'); return fest; }
+  const saetze = stuecke(stueck, JETZT_MAX), teile = await Promise.all(saetze.map(jetzt));
+  const kaputt = teile.find((t) => !t.roh);
+  log(stueck, kaputt ? kaputt.fehler : 'jetzt');
+  return kaputt || { teile: teile.map((t) => t.roh) };
+}
+const log = (text, wie) => { if (window.__mtTest) (window.__mtNova ||= []).push({ wie, text: text.slice(0, 80) }); };
 
 /* ───────────── Sprechen ───────────── */
-let runde = 0, quellen = [];
+let runde = 0, quellen = [], gemeldet = false;
 const melde = (an) => { try { window.dispatchEvent(new CustomEvent('mt-spricht', { detail: an })); } catch { /* egal */ } };
 export function stopp() { runde++; quellen.forEach((q) => { try { q.pause(); } catch { /* schon aus */ } }); quellen = []; try { speechSynthesis?.cancel(); } catch { /* egal */ } melde(false); }
+/** Einmal je Sitzung: Nova kommt gerade nicht. Liefert den Hinweistext oder ''. */
+const einmalMelden = () => { if (gemeldet) return ''; gemeldet = true; return 'Nova ist gerade nicht erreichbar – bitte gleich noch einmal versuchen.'; };
+
+/** Eine Datei abspielen (Tempo bei gleicher Tonhöhe). Liefert 'ok' | 'gesperrt' (Gerät verlangt ein Tippen) | 'fehler'. */
+async function abspielen(roh, meine) {
+  const url = URL.createObjectURL(new Blob([roh], { type: 'audio/mpeg' }));
+  try {
+    // derselbe Player, der beim Antippen freigegeben wurde (siehe vorleseFreigeben in ui.js) – sonst ein neuer
+    const el = window.__mtVorleser || new Audio(); el.src = url; el.preservesPitch = true; el.mozPreservesPitch = true; el.webkitPreservesPitch = true;
+    el.defaultPlaybackRate = vorlese.tempo; el.playbackRate = vorlese.tempo; quellen.push(el);
+    return await new Promise((fertig) => {
+      el.onended = () => fertig('ok'); el.onerror = () => fertig('fehler'); el.onpause = () => { if (!el.ended) fertig(meine === runde ? 'fehler' : 'ok'); };
+      el.play().catch((e) => fertig(e?.name === 'NotAllowedError' ? 'gesperrt' : 'fehler'));
+    });
+  } catch { return 'fehler'; } finally { URL.revokeObjectURL(url); }
+}
 
 /**
- * Liest einen Text vor. art: 'fest' (Theorie – vorab vertont), 'aufgabe' (erst in der Aufgabe entstanden – über /jetzt), 'ki' (nur Gerätestimme).
- * Stück für Stück: Was Nova nicht liefert, liest die Gerätestimme. Liefert, ob etwas zu hören war.
+ * Liest einen Text mit Nova vor. art: 'fest' (Theorie – vorab vertont) oder 'aufgabe' (erst in der Aufgabe entstanden).
+ * beimStart() wird gerufen, sobald der erste Ton läuft (für „Lädt …“ am Knopf).
+ * Liefert { ok, hinweis }: ok = etwas war zu hören; hinweis = Text für eine kurze Meldung (oder '').
  */
-export async function sprich(text, art = 'aufgabe') {
-  stopp(); const meine = runde; if (!normal(text)) return false;
-  melde(true); let gehoert = false;
-  const teile = art === 'ki' ? [text] : stuecke(text, art === 'fest' ? FEST_MAX : JETZT_MAX);
-  // nächste Datei schon holen, während die aktuelle spielt
-  let naechste = art === 'ki' ? null : datei(teile[0], art === 'aufgabe');
+export async function sprich(text, art = 'aufgabe', { beimStart = () => {} } = {}) {
+  stopp(); const meine = runde; if (!normal(text)) return { ok: false, hinweis: '' };
+  melde(true); let gehoert = false, hinweis = '', gestartet = false;
+  const start = () => { if (!gestartet) { gestartet = true; beimStart(); } };
+  const teile = stuecke(text, art === 'fest' ? FEST_MAX : JETZT_MAX);
+  let naechste = dateien(teile[0]);   // nächste Dateien schon holen, während die aktuellen spielen
   for (let i = 0; i < teile.length; i++) {
-    const roh = naechste ? await naechste : null;
-    naechste = art !== 'ki' && i + 1 < teile.length ? datei(teile[i + 1], art === 'aufgabe') : null;
-    if (meine !== runde) return gehoert;
-    let ok = false;
-    if (roh) {
-      // Abspielen mit eingestelltem Tempo bei gleicher Tonhöhe (1,0 = Tempo des Servers)
-      const url = URL.createObjectURL(new Blob([roh], { type: 'audio/mpeg' }));
-      try {
-        // derselbe Player, der beim Antippen freigegeben wurde (siehe vorleseFreigeben in ui.js) – sonst ein neuer
-        const el = window.__mtVorleser || new Audio(); el.src = url; el.preservesPitch = true; el.mozPreservesPitch = true; el.webkitPreservesPitch = true;
-        el.defaultPlaybackRate = vorlese.tempo; el.playbackRate = vorlese.tempo; quellen.push(el);
-        ok = await new Promise((fertig) => { el.onended = () => fertig(true); el.onerror = () => fertig(false); el.onpause = () => { if (!el.ended) fertig(true); }; el.play().catch(() => fertig(false)); });
-      } catch { ok = false; }
-      URL.revokeObjectURL(url);
+    const d = await naechste;
+    naechste = i + 1 < teile.length ? dateien(teile[i + 1]) : null;
+    if (meine !== runde) return { ok: gehoert, hinweis: '' };
+    if (d.teile) {
+      for (const roh of d.teile) {
+        start(); const w = await abspielen(roh, meine);
+        if (meine !== runde) return { ok: true, hinweis: '' };
+        if (w === 'gesperrt') { melde(false); return { ok: gehoert, hinweis: 'Zum Vorlesen bitte noch einmal auf „Vorlesen“ tippen.' }; }
+        if (w === 'ok') gehoert = true;
+      }
+      continue;
     }
-    if (!ok && meine === runde) ok = await geraet(teile[i]);   // stille Notlösung
-    if (meine !== runde) return gehoert || ok;
-    gehoert ||= ok;
+    // Nova kam nicht. Ohne Netz (und nichts offline gespeichert): die Stimme des Geräts. Sonst lieber still als die Android-Stimme.
+    if (d.fehler === 'netz' && navigator.onLine === false) { start(); if (await geraet(teile[i])) gehoert = true; hinweis ||= einmalMelden(); continue; }
+    hinweis = einmalMelden() || hinweis; break;
   }
   if (meine === runde) melde(false);
-  return gehoert;
+  return { ok: gehoert, hinweis };
 }
 if (typeof window !== 'undefined') addEventListener('hashchange', stopp);
 

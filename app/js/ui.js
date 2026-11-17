@@ -149,11 +149,12 @@ export async function vorlies(el, knopf = null, art = 'aufgabe') {
   vorleseFreigeben();   // noch im Antippen – vor allem, was wartet
   const V = await import('./vorlesen.js'); vorleseGeladen = true;
   if (knopf?.classList.contains('spricht')) { V.stopp(); return; }
-  document.querySelectorAll('.vl-knopf.spricht').forEach((b) => b.classList.remove('spricht'));
-  knopf?.classList.add('spricht');
-  const gehoert = await V.sprich(V.sprechText(el), art);
-  knopf?.classList.remove('spricht');
-  if (!gehoert && knopf?.isConnected) toast('Vorlesen geht gerade nicht – bitte mit Internet noch einmal versuchen.');
+  document.querySelectorAll('.vl-knopf.spricht').forEach((b) => { b.classList.remove('spricht', 'laedt'); const t = b.querySelector('span'); if (t) t.textContent = 'Vorlesen'; });
+  const wort = knopf?.querySelector('span'), setze = (t) => { if (wort) wort.textContent = t; };
+  knopf?.classList.add('spricht', 'laedt'); setze('Lädt …');   // Nova braucht für neue Sätze 2–3 Sekunden
+  const { hinweis } = await V.sprich(V.sprechText(el), art, { beimStart: () => { knopf?.classList.remove('laedt'); setze('Stopp'); } });
+  knopf?.classList.remove('spricht', 'laedt'); setze('Vorlesen');
+  if (hinweis && knopf?.isConnected) toast(hinweis);
 }
 const D4 = 293.66, ton = (st) => D4 * 2 ** (st / 12);   // Halbtöne über d′
 /** Gemeinsamer Klangweg (Effekte und Musik): sanfter Tiefpass und ein kleiner Raum. Erst nach einer Berührung erzeugt. */

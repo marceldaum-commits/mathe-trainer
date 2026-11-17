@@ -187,6 +187,7 @@ export function genPolynom(lv = 3) {
     } else if (L === 5) {
       // (a·x² + b)(c·x² + d·x + e) erst ausmultiplizieren
       const a = pick([2, 3, 4, -2]), b = pick([-5, -3, 1, 3, 7]), c = pick([1, 2, 3, -1]), d = pick([-4, -1, 2, 3, 5]), e = pick([-6, -2, 1, 4]);
+      if (e === -d) continue;   // sonst heben sich b·d und b·e im Ablenker auf
       ts = [[a * c, 1, 4], [a * d, 1, 3], [a * e + b * c, 1, 2], [b * d, 1, 1], [b * e, 1, 0]];
       const right = termeAbl(ts), U = polyTex([b, 0, a]), V = polyTex([e, d, c]);
       formula = `f(x)=(${U})(${V})`;
@@ -219,10 +220,10 @@ export function genPolynom(lv = 3) {
       const erster = `${tex(`(${termeTex([ts[0]])})'=${potenzSchritt([ts[0]])}${termeTex(termeAbl([ts[0]])) === potenzSchritt([ts[0]]) ? '' : `=${termeTex(termeAbl([ts[0]]))}`}`)}`;
       hints = L === 1 ? ['Potenzregel: Die Hochzahl kommt als Faktor nach vorn und wird dann um 1 kleiner.', `Die Zahl ${tex(String(c0[0]))} ohne ${tex('x')} fällt beim Ableiten weg.`]
         : L === 2 ? ['Leite jeden Summanden einzeln ab (Summenregel).', `Potenzregel: ${POT}.`, 'Was passiert mit der Zahl ohne x? Sie fällt weg.']
-          : L === 3 ? ['Leite jeden Summanden einzeln ab (Summenregel) – achte auf die Minuszeichen.', `Potenzregel: ${POT}. Erster Summand: ${erster}.`, `Aus ${tex('x')} allein wird 1, die Zahl ohne ${tex('x')} fällt weg.`]
+          : L === 3 ? [`Leite jeden Summanden einzeln ab (Summenregel)${ts.some((t) => t[0] < 0) ? ' – achte auf die Minuszeichen' : ''}.`, `Potenzregel: ${POT}. Erster Summand: ${erster}.`, `${ts.some((t) => t[2] === 1) ? `Aus ${tex('x')} allein wird 1, die` : 'Die'} Zahl ohne ${tex('x')} fällt weg.`]
             : ['Summenregel: Leite jeden Summanden einzeln ab.', `Faktorregel: Ein Bruch vor der Potenz bleibt als Faktor stehen und wird mit der Hochzahl malgenommen (Potenzregel ${POT}).`, `Erster Summand: ${erster} – Brüche kürzen.`, `Die Zahl ohne ${tex('x')} fällt weg.`];
       explain = L === 1 ? `Potenzregel: ${tex(`f'(x)=${potenzSchritt(ts)}${potenzSchritt(ts) === termeTex(right) ? '' : `=${termeTex(right)}`}`)}. Die Zahl ${tex(String(c0[0]))} fällt weg.`
-        : `Summandenweise mit der ${L >= 4 ? 'Potenz- und Faktorregel' : 'Potenzregel'}: ${tex(`f'(x)=${potenzSchritt(ts)}=${termeTex(right)}`)}.`;
+        : `Summandenweise mit der ${L >= 4 ? 'Potenz- und Faktorregel' : 'Potenzregel'}: ${tex(`f'(x)=${potenzSchritt(ts)}${potenzSchritt(ts) === termeTex(right) ? '' : `=${termeTex(right)}`}`)}.`;
     }
     if (!uniq(opts)) continue;
     return { prompt: 'Welche Ableitung ist richtig?', formula, options: shuffle(opts), hints, explain, f: (x) => termeWert(ts, x) };
@@ -496,7 +497,10 @@ export function genExtremstellen(lv = 3) {
 
 /** Kurvenschar für Stufe 5 von genHochTief: Gleichung mit Parameter t > 0. Die Felder f und at (für die Selbstprüfung) gelten für ein festes Beispiel-t. */
 function scharFall() {
-  const art = pick(['a', 'b', 'c', 'd', 'e']), a = pick(art === 'd' ? [1, 2, 3, -1, -2] : [1, 2, -1, -2]), A = VF(a);
+  const art = pick(['a', 'b', 'c', 'd', 'e']), a = pick(art === 'd' ? [1, 2, 3, -1, -2] : [1, 2, -1, -2]), A = VF(a), fall = scharArt(art, a, A);
+  return { ...fall, art };
+}
+function scharArt(art, a, A) {
   if (art === 'a') { const s = pick([1, -1]), t = 2;
     return { formula: `f_t(x)=${A}x^{3}${vz(-3 * a)}t^{2}x`, atT: s > 0 ? 't' : '-t', at: s * t, f: (x) => a * x ** 3 - 3 * a * t * t * x, d1: `${3 * a}x^{2}${vz(-3 * a)}t^{2}`, d2: `${6 * a}x`, ein: `${6 * a}\\cdot ${s > 0 ? 't' : '(-t)'}=${s * 6 * a}t`, pos: s * a > 0 }; }
   if (art === 'b') { const s = pick([0, 1]), t = 2;
@@ -532,14 +536,15 @@ export function genHochTief(lv = 3) {
     einT = d2.length === 1 ? null : `${einsetzen(d2, at)}=${ft(v)}`;
   }
   const kind = v < 0 ? 'H' : 'T';
-  const opt = (label, key, why) => ({ tex: `\\text{${label}}`, correct: key === kind, why, key });
-  const sign = L === 5 ? `${tex(`f_t''(${atT})=${einT}`)} ist wegen ${tex('t>0')} für jedes ${tex('t')} ${v < 0 ? 'negativ' : 'positiv'}`
+  const opt = (label, key, why) => ({ tex: `\\text{${label}}`, correct: key === kind, why: key === kind ? undefined : why, key });
+  const grund = L === 5 ? (fall.art === 'c' ? 'weil die e-Funktion immer positiv ist' : fall.art === 'd' ? `weil ${tex('t>0')} und ${tex('e^{-1}>0')} ist` : `weil ${tex('t>0')} ist`) : '';
+  const sign = L === 5 ? `${tex(`f_t''(${atT})=${einT}`)} ist für jedes ${tex('t')} ${v < 0 ? 'negativ' : 'positiv'}, ${grund}`
     : L === 1 ? `${tex(`f''(x)=${d2T}`)} ist überall ${v < 0 ? 'negativ' : 'positiv'}` : `${tex(`f''(${atT})=${ft(v)}`)} ist ${v < 0 ? 'negativ' : 'positiv'}`;
   if (L === 5) prompt = `Für jedes ${tex('t>0')} hat der Graph von ${tex('f_t')} bei ${tex(`x=${atT}`)} eine waagerechte Tangente. Was liegt dort vor?`;
   else prompt = `Der Graph hat bei ${tex(`x=${atT}`)} eine waagerechte Tangente. Was liegt dort vor?`;
   const hints = L === 1 ? ['Entscheide mit der zweiten Ableitung.', `${tex(`f''(x)=${d2T}`)}: ${tex("f''<0")} heißt Hochpunkt, ${tex("f''>0")} heißt Tiefpunkt.`]
     : L === 5 ? [`Leite zweimal nach ${tex('x')} ab – ${tex('t')} ist dabei eine feste Zahl (Parameter).`, `${tex(`f_t'(x)=${fall.d1}`)}${fall.regel ? ` (${fall.regel})` : ''}.`, `${tex(`f_t''(x)=${d2T}`)}.`,
-      `Setze die Stelle ein: ${tex(`f_t''(${atT})=${einT}`)}.`, `Wegen ${tex('t>0')}${fall.e ? ` und weil die e-Funktion immer positiv ist,` : ''} steht das Vorzeichen fest. ${tex("f''<0")}: Hochpunkt. ${tex("f''>0")}: Tiefpunkt.`]
+      `Setze die Stelle ein: ${tex(`f_t''(${atT})=${einT}`)}.`, `Das Vorzeichen steht für alle ${tex('t>0')} fest, ${grund}. ${tex("f''<0")}: Hochpunkt. ${tex("f''>0")}: Tiefpunkt.`]
       : [...(L === 2 ? [`Setze die Stelle in die zweite Ableitung ein: ${tex(`f''(x)=${d2T}`)}.`] : ['Setze die Stelle in die zweite Ableitung ein.', `${tex(`f''(x)=${d2T}`)}.`]), `Einsetzen: ${tex(`f''(${atT})=${einT}`)}.`, `${tex("f''<0")}: Hochpunkt. ${tex("f''>0")}: Tiefpunkt.`];
   const q = {
     prompt, formula,
@@ -614,18 +619,18 @@ export function genStammfunktion(lv = 3) {
       const F = termeInt(ts);
       // Mit Bedingung bekommt jede Antwort die Konstante, mit der sie die Bedingung erfüllt – falsch ist dann nur die Aufleitung selbst.
       const mitC = (t) => (x0 === null ? t : [...t.filter((s) => s[2] !== 0), [...rSub([y0, 1], termeBruch(t.filter((s) => s[2] !== 0), x0)), 0]]);
-      const mk = (t, correct, why) => { const T = mitC(t); return { tex: `F(x)=${termeTex(T)}`, correct, why, val: (x) => termeWert(T, x) }; };
+      const mk = (t, correct, why, ohneC = false) => { const T = ohneC ? t : mitC(t); return { tex: `F(x)=${termeTex(T)}`, correct, why, val: (x) => termeWert(T, x) }; };
       opts = [mk(F, true),
-        mk(termeAbl(ts), false, 'Das ist die Ableitung. Gesucht ist die Umkehrung: Aufleiten.'),
+        mk(termeAbl(ts), false, 'Das ist die Ableitung. Gesucht ist die Umkehrung: Aufleiten.', true),
         mk(ts.map(([z, n, e]) => [z, n, e + 1]), false, `Der Exponent ist erhöht, aber es fehlt das Teilen durch den neuen Exponenten: ${aufRegel()}.`),
         mk(ts.map(([z, n, e]) => [...kuerze(z, n * (e + 1)), e]), false, 'Geteilt ist richtig – aber der Exponent muss auch um 1 größer werden.')];
       formula = `f(x)=${termeTex(ts)}`; f = (x) => termeWert(ts, x);
       const roh = ts.map(([z, , e], i) => `${z < 0 ? '-' : i ? '+' : ''}${e === 0 ? (Math.abs(z) === 1 ? '' : Math.abs(z)) : `\\frac{${Math.abs(z)}}{${e + 1}}`}${xp(e + 1)}`).join('');
       if (L === 1) { hints = ['Aufleiten ist die Umkehrung des Ableitens: Hochzahl um 1 erhöhen, durch die neue Hochzahl teilen.', 'Probe: Leite deine Stammfunktion ab – es muss wieder f herauskommen.'];
-        explain = `${tex(`F(x)=${roh}=${termeTex(F)}`)}. Probe: ${tex("F'(x)=f(x)")}.`; }
+        explain = `${tex(`F(x)=${roh === termeTex(F) ? '' : `${roh}=`}${termeTex(F)}`)}. Probe: ${tex("F'(x)=f(x)")}.`; }
       else if (L <= 3) { hints = ['Probe: Die Ableitung der Stammfunktion muss wieder f ergeben.', `${aufRegel()}: Exponent um 1 erhöhen, durch den neuen Exponenten teilen.`];
         if (L === 3) hints.push(`Summandenweise: ${tex(`F(x)=${roh}`)} – Brüche kürzen, wo es geht.`);
-        explain = `Summandenweise aufleiten: ${tex(`F(x)=${L === 3 ? `${roh}=` : ''}${termeTex(F)}`)}. Probe: ${tex("F'(x)=f(x)")}.`; }
+        explain = `Summandenweise aufleiten: ${tex(`F(x)=${L === 3 && roh !== termeTex(F) ? `${roh}=` : ''}${termeTex(F)}`)}. Probe: ${tex("F'(x)=f(x)")}.`; }
       else {
         const F0 = termeBruch(F, x0), C = rSub([y0, 1], F0);
         prompt = `Welche Stammfunktion ${tex('F')} von ${tex('f')} erfüllt ${tex(`F(${x0})=${y0}`)}?`;
@@ -724,7 +729,7 @@ export function genErwartung(lv = 3) {
       vorText = gegen ? `Gegenereignis: ${tex(`p=1-\\left(\\dfrac{${m - g}}{${m}}\\right)^2=\\dfrac{${pz}}{${pn}}`)}. ` : `Pfadregel: ${tex(`p=\\left(\\dfrac{${g}}{${m}}\\right)^2=\\dfrac{${pz}}{${pn}}`)}. `;
     }
     const q = 1 - p, mu = n * p, vr = n * p * q, sg = Math.sqrt(vr), P5 = () => `\\dfrac{${pB[0]}}{${pB[1]}}`;
-    const mk = (num, correct, why) => ({ tex: L >= 4 ? rundTex(num) : ft(num), correct, why, num: +num.toFixed(2) });
+    const mk = (num, correct, why) => ({ tex: rundTex(num), correct, why, num: +num.toFixed(2) });
     let opts;
     if (askSigma) opts = [mk(sg, true), mk(vr, false, `Das ist die Varianz ${tex('n\\,p\\,(1-p)')}. Für die Standardabweichung fehlt die Wurzel.`),
       mk(mu, false, `Das ist der Erwartungswert ${tex('\\mu=n\\,p')}.`),
@@ -784,16 +789,16 @@ export function genBinomial(lv = 3) {
       if (k === n - k) continue;
       const N = (num, correct, why) => ({ tex: rundTex(num, 4), num, correct, why });
       const opts = [N(val, true), N(p ** k * q ** (n - k), false, `Das ist nur <b>ein</b> Pfad. Es fehlt die Anzahl der Pfade ${tex(`\\binom{${n}}{${k}}=${C}`)}.`),
-        N(C * q ** k * p ** (n - k), false, fehl ? `Hier wurde mit der Trefferwahrscheinlichkeit gerechnet. ${tex('X')} zählt die Fehlversuche, also ${tex(`p=${ft(p)}`)}.` : `Die Exponenten sind vertauscht: ${tex(`p=${ft(p)}`)} gehört zu den ${k} Treffern.`),
+        N(C * q ** k * p ** (n - k), false, fehl ? `Hier wurde mit der Trefferwahrscheinlichkeit gerechnet. ${tex('X')} zählt die Fehlversuche, also ${tex(`p=${ft(p)}`)}.` : `Die Exponenten sind vertauscht: ${tex(`p=${ft(p)}`)} gehört zu ${k === 1 ? 'dem einen Treffer' : `den ${k} Treffern`}.`),
         N(C * p ** k * q ** n, false, `Der Exponent von ${tex('1-p')} ist ${tex(`n-k=${n - k}`)}, nicht ${tex(`n=${n}`)}.`)];
-      if (val < 0.02 || !fern(opts, 0.011)) continue;
+      if (val < 0.02 || opts.some((o) => o.num < 0.0001) || !fern(opts, 0.011)) continue;
       const B = `\\binom{${n}}{${k}}`, P = ft(p), Q = ft(q);
       return {
-        prompt: `${S[0]} ${fmt(pT * 100)} %. ${S[1]} ${n} ${S[2]}. Wie groß ist die Wahrscheinlichkeit für <b>genau ${k} ${fehl ? (k === 1 ? 'Fehlversuch' : 'Fehlversuche') : 'Treffer'}</b> (auf vier Nachkommastellen)?`,
+        prompt: `${S[0]} ${fmt(pT * 100)} %. ${S[1]} ${n} ${S[2]}, ${tex('X')} zählt die ${fehl ? 'Fehlversuche' : 'Treffer'}. Wie groß ist die Wahrscheinlichkeit für <b>genau ${k} ${fehl ? (k === 1 ? 'Fehlversuch' : 'Fehlversuche') : 'Treffer'}</b> (auf vier Nachkommastellen)?`,
         options: shuffle(opts),
-        hints: [fehl ? `${tex('X')} zählt die Fehlversuche. Deren Wahrscheinlichkeit ist die Gegenwahrscheinlichkeit: ${tex(`p=1-${ft(pT)}=${P}`)}.` : `${tex('X')} zählt die Treffer: ${tex(`p=${P}`)} und ${tex(`1-p=${Q}`)}.`,
+        hints: [fehl ? `${tex('X')} zählt die Fehlversuche. Deshalb ist ${tex('p')} in der Bernoulli-Formel hier die Fehlversuch-Wahrscheinlichkeit (Gegenwahrscheinlichkeit): ${tex(`p=1-${ft(pT)}=${P}`)}.` : `${tex('X')} zählt die Treffer: ${tex(`p=${P}`)} und ${tex(`1-p=${Q}`)}.`,
           `${BF} Hier: ${tex(`n=${n}`)}, ${tex(`k=${k}`)}.`, `Anzahl der Pfade: ${tex(`${B}=\\dfrac{${n}!}{${k}!\\cdot ${n - k}!}=${C}`)}.`,
-          `Potenzen: ${tex(`${hochZ(P, k)}\\approx ${ft(p ** k, 6)}`)} und ${tex(`${hochZ(Q, n - k)}\\approx ${ft(q ** (n - k), 6)}`)}.`, 'Alle drei Faktoren malnehmen und auf vier Nachkommastellen runden.'],
+          `Potenzen: ${[[P, p, k], [Q, q, n - k]].filter(([, , e]) => e > 1).map(([B0, b0, e]) => tex(`${B0}^{${e}}\\approx ${ft(b0 ** e, 6)}`)).join(' und ')}.`, 'Alle drei Faktoren malnehmen und auf vier Nachkommastellen runden.'],
         explain: `${fehl ? `Gegenwahrscheinlichkeit: ${tex(`p=1-${ft(pT)}=${P}`)}. ` : ''}${tex(`P(X=${k})=${B}\\cdot ${hochZ(P, k)}\\cdot ${hochZ(Q, n - k)}=${C}\\cdot ${hochZ(P, k)}\\cdot ${hochZ(Q, n - k)}${rundTex(val, 4).startsWith('\\approx') ? '' : '='}${rundTex(val, 4)}`)}.`, n, p, k, kind: 'eq',
       };
     }
@@ -805,9 +810,9 @@ export function genBinomial(lv = 3) {
       const opts = [N(1 - q ** n, true), N(p ** n, false, `Das ist die Wahrscheinlichkeit für <b>nur</b> ${fehl ? 'Fehlversuche' : 'Treffer'}: ${tex(hochZ(P, n))}.`),
         N(1 - p ** n, false, `Das Gegenereignis zu „mindestens ein ${was}“ ist „${gegen}“, also ${tex(hochZ(Q, n))} – nicht ${tex(hochZ(P, n))}.`),
         N(n * p * q ** (n - 1), false, `Das ist die Wahrscheinlichkeit für <b>genau</b> einen ${was}: ${tex(`${n}\\cdot ${P}\\cdot ${hochZ(Q, n - 1)}`)}.`)];
-      if (opts.some((o) => o.num < 0.001 || o.num > 0.999) || !fern(opts, 0.011)) continue;
+      if (Math.abs(n * p - q) < 1e-9 || opts.some((o) => o.num < 0.001 || o.num > 0.999) || !fern(opts, 0.011)) continue;
       return {
-        prompt: `${S[0]} ${fmt(pT * 100)} %. ${S[1]} ${n} ${S[2]}. Wie groß ist die Wahrscheinlichkeit für <b>mindestens einen</b> ${was} (auf vier Nachkommastellen)?`,
+        prompt: `${S[0]} ${fmt(pT * 100)} %. ${S[1]} ${n} ${S[2]}, ${tex('X')} zählt die ${fehl ? 'Fehlversuche' : 'Treffer'}. Wie groß ist die Wahrscheinlichkeit für <b>mindestens einen</b> ${was} (auf vier Nachkommastellen)?`,
         options: shuffle(opts),
         hints: [`„Mindestens ein ${was}“ umfasst viele Fälle (1, 2, 3, … ${fehl ? 'Fehlversuche' : 'Treffer'}) – einfacher ist das Gegenereignis.`,
           `Das Gegenereignis ist „${gegen}“: ${n}-mal hintereinander ${fehl ? `getroffen, jedes Mal mit ${tex(Q)}` : `daneben, jedes Mal mit ${tex(`1-${P}=${Q}`)}`}.`,
@@ -823,15 +828,15 @@ export function genBinomial(lv = 3) {
     const opts = [
       { tex: `${B}\\cdot ${hochZ(P, k)}\\cdot ${hochZ(Q, n - k)}`, correct: true, num: C * p ** k * q ** (n - k) },
       { tex: `${hochZ(P, k)}\\cdot ${hochZ(Q, n - k)}`, correct: false, why: `Das ist nur <b>ein</b> Pfad. Es fehlt die Anzahl der Pfade ${tex(B)}.`, num: p ** k * q ** (n - k) },
-      { tex: `${B}\\cdot ${hochZ(P, n - k)}\\cdot ${hochZ(Q, k)}`, correct: false, why: fehl ? `Hier wurde mit der Trefferwahrscheinlichkeit gerechnet. ${tex('X')} zählt die Fehlversuche: ${tex(`p=1-${ft(pT)}=${P}`)} gehört zum Exponenten ${k}.` : `Die Exponenten sind vertauscht: ${tex('p')} gehört zu den ${k} Treffern.`, num: C * p ** (n - k) * q ** k },
+      { tex: `${B}\\cdot ${hochZ(P, n - k)}\\cdot ${hochZ(Q, k)}`, correct: false, why: fehl ? `Hier wurde mit der Trefferwahrscheinlichkeit gerechnet. ${tex('X')} zählt die Fehlversuche: ${tex(`p=1-${ft(pT)}=${P}`)} gehört zum Exponenten ${k}.` : `Die Exponenten sind vertauscht: ${tex('p')} gehört zu ${k === 1 ? 'dem einen Treffer' : `den ${k} Treffern`}.`, num: C * p ** (n - k) * q ** k },
       { tex: `${B}\\cdot ${hochZ(P, k)}`, correct: false, why: `${n - k === 1 ? `Der eine ${fehl ? 'Treffer' : 'Nicht-Treffer'} fehlt` : `Die ${n - k} ${fehl ? 'Treffer' : 'Nicht-Treffer'} fehlen`}: Faktor ${tex(`${hochZ(Q, n - k)}`)}.`, num: C * p ** k },
     ];
     const out = {
       prompt: L === 2 ? `${tex('X')} ist binomialverteilt. Welche Rechnung liefert ${tex(`P(X=${k})`)}?`
-        : `${S[0]} ${fmt(pT * 100)} %. ${S[1]} ${n} ${S[2]}. Welche Rechnung liefert die Wahrscheinlichkeit für <b>genau ${k} ${fehl ? (k === 1 ? 'Fehlversuch' : 'Fehlversuche') : 'Treffer'}</b>?`,
+        : `${S[0]} ${fmt(pT * 100)} %. ${S[1]} ${n} ${S[2]}, ${tex('X')} zählt die ${fehl ? 'Fehlversuche' : 'Treffer'}. Welche Rechnung liefert die Wahrscheinlichkeit für <b>genau ${k} ${fehl ? (k === 1 ? 'Fehlversuch' : 'Fehlversuche') : 'Treffer'}</b>?`,
       options: shuffle(opts),
       hints: L === 2 ? [BF, `${k} Treffer und ${n - k} Nicht-Treffer – und alle Reihenfolgen zählen.`]
-        : [fehl ? `${tex('X')} zählt die Fehlversuche. Deren Wahrscheinlichkeit ist die Gegenwahrscheinlichkeit: ${tex(`p=1-${ft(pT)}=${P}`)}.` : `Lies ab: ${tex(`n=${n}`)}, ${tex(`k=${k}`)}, ${tex(`p=${P}`)} und ${tex(`1-p=${Q}`)}.`,
+        : [fehl ? `${tex('X')} zählt die Fehlversuche. Deshalb ist ${tex('p')} in der Bernoulli-Formel hier die Fehlversuch-Wahrscheinlichkeit (Gegenwahrscheinlichkeit): ${tex(`p=1-${ft(pT)}=${P}`)}.` : `Lies ab: ${tex(`n=${n}`)}, ${tex(`k=${k}`)}, ${tex(`p=${P}`)} und ${tex(`1-p=${Q}`)}.`,
           BF, `${k} ${fehl ? (k === 1 ? 'Fehlversuch' : 'Fehlversuche') : 'Treffer'} mit ${tex(P)}, ${n - k} ${fehl ? 'Treffer' : 'Nicht-Treffer'} mit ${tex(Q)} – und alle ${tex(`${B}=\\dfrac{${n}!}{${k}!\\cdot ${n - k}!}=${C}`)} Reihenfolgen zählen.`],
       explain: `${fehl ? `Gegenwahrscheinlichkeit: ${tex(`p=1-${ft(pT)}=${P}`)}. ` : ''}${tex(`P(X=${k})=${B}\\cdot ${hochZ(P, k)}\\cdot ${hochZ(Q, n - k)}`)}.`, n, p, k, kind: 'eq',
     };

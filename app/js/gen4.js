@@ -348,7 +348,7 @@ export function genRotation(lv = 3) {
       explain = `${tex(`V=\\pi\\int_0^{${b}}(x^2+${2 * c}x+${c * c})\\,dx=\\pi\\left[\\tfrac13x^3+${K(c)}x^2+${K(c * c)}x\\right]_0^{${b}}`)} ${tex(`=\\pi\\cdot\\left(${tf(b ** 3, 3)}+${c * b * b}+${c * c * b}\\right)=${pi(vn, vd)}\\approx${ft((vn / vd) * Math.PI, 2)}`)}.`;
     } else if (form === 'poly') {
       const c = pick([1, 2, 3]); b = pick([1, 2]); ftex = `x^2+${c}`; f = (x) => x * x + c; vn = 3 * b ** 5 + 10 * c * b ** 3 + 15 * c * c * b; vd = 15; typ = [3 * b ** 5 + 15 * c * c * b, 15, binomFehlt];
-      hints = [formel, `Binomische Formel: ${tex(`(x^2+${c})^2=x^4+${2 * c}x^2+${c * c}`)}.`, `Stammfunktion: ${tex(`\\tfrac15x^5+${tf(2 * c, 3)}x^3+${K(c * c)}x`)}.`, `Grenzen einsetzen: ${tex(`${tf(b ** 5, 5)}+${tf(2 * c * b ** 3, 3)}+${c * c * b}`)} – auf den Hauptnenner 15 bringen.`];
+      hints = [formel, `Binomische Formel: ${tex(`(x^2+${c})^2=x^4+${2 * c}x^2+${c * c}`)}.`, `Stammfunktion: ${tex(`\\tfrac15x^5+${tf(2 * c, 3)}x^3+${K(c * c)}x`)}.`, `Grenzen einsetzen: ${tex(`${tf(b ** 5, 5)}+${tf(2 * c * b ** 3, 3)}+${c * c * b}`)} – auf einen gemeinsamen Nenner bringen.`];
       explain = `${tex(`V=\\pi\\int_0^{${b}}(x^4+${2 * c}x^2+${c * c})\\,dx=\\pi\\left[\\tfrac15x^5+${tf(2 * c, 3)}x^3+${K(c * c)}x\\right]_0^{${b}}`)} ${tex(`=\\pi\\cdot\\left(${tf(b ** 5, 5)}+${tf(2 * c * b ** 3, 3)}+${c * c * b}\\right)=${pi(vn, vd)}\\approx${ft((vn / vd) * Math.PI, 2)}`)}.`;
     } else if (form === 'stumpf') {
       const m = pick([1, 2]), c = pick([1, 2, 3]); a = pick([1, 2]); b = a + pick([1, 2, 3]); ftex = `${K(m)}x+${c}`; f = (x) => m * x + c;
@@ -360,7 +360,7 @@ export function genRotation(lv = 3) {
       const r = pick([3, 4, 5, 6]); a = pick([0, 1, 2]); b = a + pick([1, 2, 3]); if (b > r) continue;
       ftex = `\\sqrt{${r * r}-x^2}`; f = (x) => Math.sqrt(Math.max(0, r * r - x * x)); vn = 3 * r * r * (b - a) - (b ** 3 - a ** 3); vd = 3; typ = [r * r * (b - a) - (b ** 3 - a ** 3), 1, `Beim Aufleiten von ${tex('x^2')} entsteht ${tex('\\tfrac13x^3')} – der Faktor ${tex('\\tfrac13')} fehlt.`];
       const Fw = (x) => fracTex(3 * r * r * x - x ** 3, 3);
-      prompt = `Eine Kugel mit Radius ${r} entsteht, wenn der Halbkreis zu ${tex('f')} um die x-Achse rotiert. Wie groß ist das Volumen der <b>Kugelschicht</b> zwischen ${tex(`x=${a}`)} und ${tex(`x=${b}`)}?`;
+      prompt = `Eine Kugel mit Radius ${r} entsteht, wenn der Halbkreis zu ${tex('f')} um die x-Achse rotiert. Wie groß ist das Volumen ${b === r ? 'des <b>Kugelabschnitts</b> (Kugelkappe)' : 'der <b>Kugelschicht</b>'} zwischen ${tex(`x=${a}`)} und ${tex(`x=${b}`)}?`;
       hints = [formel, `Das Quadrat hebt die Wurzel auf: ${tex(`f(x)^2=${r * r}-x^2`)}.`, `Stammfunktion: ${tex(`F(x)=${r * r}x-\\tfrac13x^3`)}.`, `Grenzen einsetzen: ${tex(`F(${b})=${Fw(b)}`)} und ${tex(`F(${a})=${Fw(a)}`)}.`];
       explain = `${tex(`V=\\pi\\int_{${a}}^{${b}}(${r * r}-x^2)\\,dx=\\pi\\left[${r * r}x-\\tfrac13x^3\\right]_{${a}}^{${b}}`)} ${tex(`=\\pi\\cdot\\left(${Fw(b)}-${Fw(a)}\\right)=${pi(vn, vd)}\\approx${ft((vn / vd) * Math.PI, 2)}`)}.`;
     } else if (form === 'wsum') {

@@ -209,7 +209,7 @@ export function settingsView() {
     };
     const zeichne = () => { sw.setAttribute('aria-checked', vorlese.an); sw.classList.toggle('an', vorlese.an); mehr.hidden = !vorlese.an; tp.value = TEMPI.indexOf(vorlese.tempo); tpText(); if (vorlese.an) offZeichne(); };
     sw.onclick = () => { vorlese.setze({ an: !vorlese.an }); sfx('tap'); zeichne(); };
-    $('#st-vl-probe', el).onclick = async () => { vorleseFreigeben(); const V = await import('./vorlesen.js'); const ok = await V.sprich('Hallo! So klinge ich. Ich lese dir Aufgaben und Theorie vor, auch Formeln wie f von x gleich x Quadrat.', 'fest'); if (!ok) toast('Vorlesen geht gerade nicht – bitte mit Internet noch einmal versuchen.'); };
+    $('#st-vl-probe', el).onclick = async () => { vorleseFreigeben(); const V = await import('./vorlesen.js'); const { ok, hinweis } = await V.sprich('Hallo! So klinge ich. Ich lese dir Aufgaben und Theorie vor, auch Formeln wie f von x gleich x Quadrat.', 'fest'); if (hinweis || !ok) toast(hinweis || 'Vorlesen geht gerade nicht – bitte mit Internet noch einmal versuchen.'); };
     zeichne(); }
   { // Klang: Effekte und Lernmusik getrennt, eigene Lautstärke, gemerkt; der Lautsprecher oben schaltet alles stumm
     const sch = [['#st-fx', 'fx'], ['#st-musik', 'musik'], ['#st-pruef', 'pruefung']], note = $('#st-klang-note', el), fv = $('#st-fx-vol', el), mv = $('#st-musik-vol', el);

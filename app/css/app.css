@@ -1023,6 +1023,9 @@ button.card.unit{text-align:left;width:100%;font:inherit;color:inherit;cursor:po
 .vl-knopf{display:inline-flex;align-items:center;gap:6px}
 .vl-knopf svg{width:18px;height:18px;flex:none}
 .vl-knopf.spricht{background:var(--orange);color:#fff;border-color:var(--orange)}
+.vl-knopf.laedt{opacity:.85;animation:vl-puls 1.2s ease-in-out infinite}
+@keyframes vl-puls{50%{opacity:.55}}
+@media (prefers-reduced-motion:reduce){.vl-knopf.laedt{animation:none}}
 .t-teil .vl-knopf{margin:2px 0 8px}
 /* Abzeichen „Pro aktiv“ auf der Startseite */
 .pro-aktiv{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 10px;width:fit-content;max-width:100%;padding:8px 14px;border-radius:14px;

@@ -47,14 +47,14 @@ export function genBegrenzt(lv = 3) {
           explain: `${tex(`${S}+a\\,e^{-${ft(k * t1)}}=${y1}\\ \\Rightarrow\\ a=${y1 - S}\\cdot e^{${ft(k * t1)}}\\approx${ft(a, 2)}`)}. Anfangswert: ${tex(`f(0)=${S}+${ft(a, 2)}=${ft(f0, 2)}`)}.`, f: (t) => S + a * Math.exp(-k * t), ask, S, f0, mess: [t1, y1], k };
       }
       const f0 = pick([8, 10, 12, 15, 20]), y1 = f0 + pick([10, 14, 18, 25]), S = (y1 - f0 * q) / (1 - q), [satz, was, zeit] = pick(SACHE.slice(0, 2));
-      const opts = [N(S, true), N((y1 - f0) / (1 - q), false, `Beim Ausmultiplizieren ging ${tex(`${f0}\\cdot e^{-${ft(k * t1)}}`)} verloren.`), N(y1 + (y1 - f0), false, 'So ginge es bei linearem Wachstum weiter. Begrenztes Wachstum wird aber immer langsamer.'), N((y1 - f0 * q) / (1 + q), false, `Vorzeichen: ${tex('S-S\\cdot q=S\\cdot(1-q)')}, nicht ${tex('1+q')}.`)];
+      const opts = [N(S, true), N((y1 - f0) / (1 - q), false, `Beim Ausmultiplizieren fehlt der Faktor ${tex('q')}: Es heißt ${tex(`+${f0}\\cdot q`)}, nicht ${tex(`+${f0}`)}.`), N(y1 + (y1 - f0), false, `${ft(y1 + (y1 - f0))} wäre der Wert nach ${2 * t1} ${zeit}, wenn es gleichmäßig weiterginge – eine Grenze ist das nicht. Begrenztes Wachstum wird immer langsamer.`), N((y1 - f0 * q) / (1 + q), false, `Vorzeichen: ${tex('S-S\\cdot q=S\\cdot(1-q)')}, nicht ${tex('1+q')}.`)];
       if (!weit(opts, 0.11) || S < y1 + 3) continue;
       return { prompt: `${satz} ${tex('f(t)')} ist ${was} nach ${tex('t')} ${zeit}; es gilt ${tex(`f(t)=S-(S-${f0})\\,${ek}`)}. Am Anfang ist der Wert ${f0}, nach ${t1} ${zeit} ist er ${y1}. Welcher Grenze ${tex('S')} nähert sich ${tex('f')} (auf zwei Nachkommastellen)?`,
         formula: `f(t)=S-(S-${f0})\\,${ek}\\qquad f(${t1})=${y1}`, options: shuffle(opts),
         hints: [`Setze den Messwert ein und kürze ab mit ${tex(`q=e^{-${ft(k)}\\cdot ${t1}}=e^{-${ft(k * t1)}}\\approx${ft(q, 4)}`)}: ${tex(`S-(S-${f0})\\cdot q=${y1}`)}.`, `Klammer auflösen und ${tex('S')} ausklammern: ${tex(`S\\cdot(1-q)+${f0}\\,q=${y1}`)}.`, `Auflösen: ${tex(`S=${dfrac(`${y1}-${f0}\\,q`, '1-q')}`)}.`],
         explain: `Mit ${tex(`q=e^{-${ft(k * t1)}}\\approx${ft(q, 4)}`)}: ${tex(`S-(S-${f0})\\,q=${y1}\\ \\Rightarrow\\ S\\,(1-q)=${y1}-${f0}\\,q`)}, also ${tex(`S=${dfrac(`${y1}-${f0}\\cdot${ft(q, 4)}`, `1-${ft(q, 4)}`)}\\approx${ft(S, 2)}`)}.`, f: (t) => S - (S - f0) * Math.exp(-k * t), ask, S, f0, mess: [t1, y1], k };
     }
-    const [satz, was, zeit] = SACHE[Math.max(1, lv) - 1];
+    let [satz, was, zeit] = SACHE[Math.max(1, lv) - 1];
     const S = pick(tier(lv, [20, 50, 80, 100], [40, 60, 90, 120], [70, 150, 200, 240], [60, 80, 120, 150]));
     const k = pick(tier(lv, [0.5, 1], [0.2, 0.5], [0.1, 0.25], [0.05, 0.2, 0.4]));
     const ask = lv === 1 ? 'start' : lv === 2 ? 'grenze' : pick(['grenze', 'start']), ek = `e^{-${kt(k)}}`, eInf = `${tex(ek)} geht für große ${tex('t')} gegen 0`;
@@ -78,6 +78,7 @@ export function genBegrenzt(lv = 3) {
     let a, f0, formula, f, fallend = false, klammer = false;
     if (lv === 3 && ri(0, 1)) {                              // fallend: nähert sich der Grenze von oben
       a = pick([40, 50, 60, 70]); f0 = S + a; fallend = true;
+      [satz, was, zeit] = ['Ein Backofen wird heruntergeschaltet und kühlt auf die neue Temperatur ab.', 'die Temperatur in °C', 'Minuten'];   // fallend passt nicht zum Tropf
       formula = `f(t)=${S}+${a}\\,${ek}`; f = (t) => S + a * Math.exp(-k * t);
     } else if (lv === 3) {                                   // ausgeklammerte Form
       const c = pick([0.5, 0.6, 0.8]); a = S * c; f0 = S - a; klammer = true;
@@ -226,7 +227,7 @@ export function genWachstumArt(lv = 3) {
   let f = F[key], prompt = 'Welches Wachstum beschreibt die Funktion?', formula, warum, hints = [modelle, frage], weg = '';
   if (lv <= 1) {
     prompt = { linear: `In ein Becken laufen jede Minute ${m} Liter Wasser. Welches Wachstum ist das?`, exp: `Eine Bakterienkultur ${q === 2 ? 'verdoppelt' : 'verdreifacht'} sich jede Stunde. Welches Wachstum ist das?`,
-      begr: `Ein Akku lädt: Je voller er ist, desto langsamer lädt er – bis ${S} Minuten Laufzeit erreicht sind. Am Anfang geht es am schnellsten. Welches Wachstum ist das?`,
+      begr: `Ein Akku lädt. Die Laufzeit, für die er reicht, wächst – je voller er ist, desto langsamer. Mehr als ${S} Minuten Laufzeit gehen nicht. Welches Wachstum ist das?`,
       log: `Ein Gerücht in einer Schule mit ${S} Personen: Erst wissen es wenige, dann geht es schnell, am Ende kennen es fast alle. Welches Wachstum ist das?` }[key];
     warum = { linear: 'In gleichen Zeiten kommt gleich viel dazu.', exp: 'In gleichen Zeiten wird mit demselben Faktor vervielfacht.', begr: 'Am Anfang am schnellsten, dann immer langsamer bis zu einer Grenze.', log: 'Erst langsam, dann schnell, dann wieder langsam – eine S-Kurve mit Grenze.' }[key];
   } else if (lv === 2) {
@@ -320,7 +321,7 @@ export function genSpurpunkt(lv = 3) {
     if (!uniq(opts) || Math.abs(val) === Math.abs(co[ax]) || (lv === 3) === Number.isInteger(val)) continue;
     const kx = `${K(co[ax])}x_${ax + 1}`;   // „−x₁“ statt „−1 x₁“
     return { prompt: `Wo schneidet die Ebene E die ${tex(`x_${ax + 1}`)}-Achse (Spurpunkt)?`, formula: `E:\\ ${eq(co, d)}`, options: shuffle(opts),
-      hints: [`Auf der ${tex(`x_${ax + 1}`)}-Achse sind die anderen beiden Koordinaten 0.`, `Es bleibt ${tex(`${kx}=${ft(d)}`)}.`, ...(lv >= 2 ? [`Teile durch ${tex(ft(co[ax]))}${lv >= 3 ? ' und achte auf das Vorzeichen' : ''}: ${tex(`x_${ax + 1}=${dfrac(d, co[ax])}`)}.`] : [])],
+      hints: [`Auf der ${tex(`x_${ax + 1}`)}-Achse sind die anderen beiden Koordinaten 0.`, `Es bleibt ${tex(`${kx}=${ft(d)}`)}.`, ...(lv >= 2 ? [`Teile durch ${tex(ft(co[ax]))}${lv >= 3 && (d < 0 || co[ax] < 0) ? ' und achte auf das Vorzeichen' : ''}: ${tex(`x_${ax + 1}=${dfrac(d, co[ax])}`)}.`] : [])],
       explain: lv >= 2 ? `Die anderen Koordinaten 0 setzen: ${tex(`${kx}=${ft(d)}\\ \\Rightarrow\\ x_${ax + 1}=${dfrac(d, co[ax])}=${ft(val)}`)}, also ${tex(PT('S', on(val, ax)))}.` : `Die anderen Koordinaten 0 setzen: ${tex(`${kx}=${ft(d)}\\ \\Rightarrow\\ x_${ax + 1}=${ft(val)}`)}, also ${tex(PT('S', on(val, ax)))}.`, n: co, d, ax, art: 'ebene' };
   }
 }
