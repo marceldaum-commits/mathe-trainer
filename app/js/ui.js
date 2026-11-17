@@ -115,6 +115,8 @@ export const vorlese = {
   get an() { return vorleseWerte.an === true; },
   /** Sprechtempo (Marcel): 1,0 = Tempo des Servers. */
   get tempo() { return TEMPI.includes(+vorleseWerte.tempo) ? +vorleseWerte.tempo : 1; },
+  /** Qualität für „offline laden“: 'normal' (Standard) oder 'best'. */
+  get qual() { return vorleseWerte.qual === 'best' ? 'best' : 'normal'; },
   setze(w) { vorleseWerte = { ...vorleseWerte, ...w }; try { localStorage.setItem(VORLESE_KEY, JSON.stringify(vorleseWerte)); } catch { /* egal */ } },
 };
 /** Knopf „Vorlesen“ – nur, wenn Vorlesen eingeschaltet ist. */

@@ -194,13 +194,16 @@ export function settingsView() {
         if (lauf) $('#st-vl-off-zahl', off).textContent = `${lauf.fertig} von ${lauf.gesamt}`; return; }
       const [stand, lokal] = await Promise.all([V.offlineStand(), V.offlineLokal()]);
       if (!el.isConnected) return;
-      // fertig, wenn alles da ist, was der Server hat (einzelne fehlende Dateien lassen den Knopf nicht ewig stehen)
-      const rest = !stand || (Number.isFinite(stand.vorhanden) && lokal.anzahl >= stand.vorhanden) ? 0 : Math.max(0, stand.bytes - lokal.bytes);
-      off.innerHTML = (stand && rest > 5e5 ? `<button class="btn small" id="st-vl-off-laden" type="button">Alle Nova-Texte offline laden (ca. ${mb(rest)} MB)</button><small class="muted">Am besten im WLAN. Danach liest Nova die Theorie auch ohne Internet.</small>` : '')
-        + (stand && rest <= 5e5 && lokal.anzahl ? '<small class="muted">Alle Nova-Texte liegen auf diesem Gerät.</small>' : '')
+      // Was fehlt je Qualität – fertig, wenn so viele Dateien da sind, wie der Server hat (einzelne fehlende lassen den Knopf nicht ewig stehen)
+      const voll = (n) => Number.isFinite(stand?.vorhanden) && n >= stand.vorhanden;
+      const restN = !stand || voll(lokal.anzahl) ? 0 : Math.max(0, stand.bytes - lokal.normal.bytes - lokal.best.bytes * (stand.bytes / (stand.bytes_original || stand.bytes)));
+      const restB = !stand || voll(lokal.best.anzahl) || (vorlese.qual === 'best' && voll(lokal.anzahl)) ? 0 : Math.max(0, (stand.bytes_original || stand.bytes) - lokal.best.bytes);
+      const knopf = (q, rest, name) => (rest > 5e5 ? `<button class="btn small${vorlese.qual === q ? '' : ' ghost'}" id="st-vl-off-${q}" type="button">Offline laden – ${name} (ca. ${mb(rest)} MB)</button>` : '');
+      off.innerHTML = (stand && (restN > 5e5 || restB > 5e5) ? `${knopf('normal', restN, 'Standard')}${knopf('best', restB, 'Bestqualität')}<small class="muted">Am besten im WLAN. Danach liest Nova die Theorie auch ohne Internet. Bestqualität ist unkomprimiert (128 statt 40 kbit/s) – beim Vorlesen mit Internet bleibt es bei Standard.</small>` : '')
+        + (stand && restN <= 5e5 && lokal.anzahl ? `<small class="muted">Alle Nova-Texte liegen auf diesem Gerät${restB <= 5e5 ? ' (Bestqualität)' : ''}.</small>` : '')
         + (!stand && !lokal.anzahl ? '<small class="muted">Zum Offline-Laden der Nova-Texte braucht es eine Internet-Verbindung.</small>' : '')
         + (lokal.anzahl ? `<button class="btn ghost small" id="st-vl-off-weg" type="button">Offline-Stimme löschen (${mb(lokal.bytes)} MB)</button>` : '');
-      $('#st-vl-off-laden', off)?.addEventListener('click', async () => { const e = await V.offlineLaden((x) => { if (el.isConnected) offZeichne(x); }); if (el.isConnected) { offZeichne(); if (e === 'fehler') toast('Das Laden hat nicht geklappt – bitte später noch einmal versuchen.'); } });
+      for (const q of ['normal', 'best']) $(`#st-vl-off-${q}`, off)?.addEventListener('click', async () => { vorlese.setze({ qual: q }); const e = await V.offlineLaden((x) => { if (el.isConnected) offZeichne(x); }, q); if (el.isConnected) { offZeichne(); if (e === 'fehler') toast('Das Laden hat nicht geklappt – bitte später noch einmal versuchen.'); } });
       $('#st-vl-off-weg', off)?.addEventListener('click', async () => { await V.offlineLoeschen(); offZeichne(); });
     };
     const zeichne = () => { sw.setAttribute('aria-checked', vorlese.an); sw.classList.toggle('an', vorlese.an); mehr.hidden = !vorlese.an; tp.value = TEMPI.indexOf(vorlese.tempo); tpText(); if (vorlese.an) offZeichne(); };

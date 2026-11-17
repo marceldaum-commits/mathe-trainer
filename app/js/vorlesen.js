@@ -42,8 +42,11 @@ function geraet(text) {
 }
 
 /* ───────────── Nova-Dateien holen ───────────── */
+/** Adresse der Bestqualität (128 kbit/s) zu einer normalen Nova-Adresse. */
+export const original = (u) => u.replace(`${STIMMEN}/nova/`, `${STIMMEN}/nova/original/`);
 async function holeDatei(url) {
-  let c = null; try { c = await caches.open(SPEICHER); const da = await c.match(url); if (da) return da.arrayBuffer(); } catch { /* ohne Zwischenspeicher */ }
+  // auf dem Gerät zuerst die Bestqualität (falls offline geladen), dann die normale Datei; aus dem Netz immer die normale
+  let c = null; try { c = await caches.open(SPEICHER); const da = (await c.match(original(url))) || (await c.match(url)); if (da) return da.arrayBuffer(); } catch { /* ohne Zwischenspeicher */ }
   const r = await fetch(url, AUS);
   if (!r.ok) return null;
   if (c) c.put(url, r.clone()).catch(() => {});
@@ -105,32 +108,39 @@ if (typeof window !== 'undefined') addEventListener('hashchange', stopp);
 // Nur die festen Texte aus vorlesen/texte.json – Laufzeit-Texte (/jetzt) gehören nicht dazu. Gespeichert im Cache Storage
 // (in der Android-App liegt der im App-Speicher). Fehlende Dateien (404) werden still übersprungen; nach einem Abbruch geht es dort weiter.
 const standHost = () => (/^(localhost|127\.)/.test(location.hostname) ? 'trainer-test.mathenachhilfe-online.com' : location.hostname);
-/** Was der Server für diese Adresse vorhält: { bytes, texte } – oder null (offline). */
+/** Was der Server für diese Adresse vorhält: { bytes, bytes_original, vorhanden } – oder null (offline). */
 export async function offlineStand() {
   try { const r = await fetch(`${STIMMEN}/nova/stand-${standHost()}.json`, { ...AUS, cache: 'no-store' }); if (!r.ok) return null; const d = await r.json(); return Number.isFinite(d.bytes) ? d : null; } catch { return null; }
 }
-/** Was schon auf dem Gerät liegt: { anzahl, bytes }. */
+/** Was schon auf dem Gerät liegt: { anzahl, bytes } gesamt, dazu je Qualität (normal, best). */
 export async function offlineLokal() {
+  const leer = () => ({ anzahl: 0, bytes: 0 }), out = { ...leer(), normal: leer(), best: leer() };
   try {
-    const c = await caches.open(SPEICHER), keys = await c.keys(); let bytes = 0;
-    for (const k of keys) { const r = await c.match(k); const n = +r?.headers.get('content-length'); bytes += Number.isFinite(n) && n > 0 ? n : (await r.clone().blob()).size; }
-    return { anzahl: keys.length, bytes };
-  } catch { return { anzahl: 0, bytes: 0 }; }
+    const c = await caches.open(SPEICHER), keys = await c.keys();
+    for (const k of keys) { const r = await c.match(k); const n = +r?.headers.get('content-length'), b = Number.isFinite(n) && n > 0 ? n : (await r.clone().blob()).size;
+      const q = k.url.includes('/nova/original/') ? out.best : out.normal; q.anzahl++; q.bytes += b; out.anzahl++; out.bytes += b; }
+  } catch { /* leer */ }
+  return out;
 }
 let ladeStopp = null;
-/** Alle fehlenden Dateien laden, 4 gleichzeitig. melde({ fertig, gesamt }) nach jeder Datei. Liefert 'fertig' | 'abgebrochen' | 'fehler'. */
-export async function offlineLaden(melde = () => {}) {
+/** Alle fehlenden Dateien laden, 4 gleichzeitig – qual 'normal' (40 kbit/s) oder 'best' (128 kbit/s, bei 404 die normale).
+ *  melde({ fertig, gesamt }) nach jeder Datei. Liefert 'fertig' | 'abgebrochen' | 'fehler'. */
+export async function offlineLaden(melde = () => {}, qual = 'normal') {
   const ctl = new AbortController(); ladeStopp = ctl;
   try {
     const liste = (await (await fetch('vorlesen/texte.json')).json()).texte.map((t) => t.text);
     const c = await caches.open(SPEICHER), offen = [];
-    for (const t of liste) { const u = adresse(await kennung(t)); if (!(await c.match(u))) offen.push(u); }
+    for (const t of liste) { const u = adresse(await kennung(t)); if (!(await c.match(original(u))) && (qual === 'best' || !(await c.match(u)))) offen.push(u); }
     let fertig = 0; const gesamt = offen.length; melde({ fertig, gesamt });
     try { await navigator.storage?.persist?.(); } catch { /* nicht überall */ }
     const arbeiter = async () => {
       while (offen.length && !ctl.signal.aborted) {
         const u = offen.shift();
-        try { const r = await fetch(u, { ...AUS, signal: ctl.signal }); if (r.ok) await c.put(u, r); } catch { if (ctl.signal.aborted) return; }   // 404 und Netzfehler: still weiter
+        try {
+          let r = qual === 'best' ? await fetch(original(u), { ...AUS, signal: ctl.signal }) : null;
+          if (r?.ok) { await c.put(original(u), r); await c.delete(u); }   // Bestqualität ersetzt die normale Datei
+          else if (!(await c.match(u))) { r = await fetch(u, { ...AUS, signal: ctl.signal }); if (r.ok) await c.put(u, r); }
+        } catch { if (ctl.signal.aborted) return; }   // 404 und Netzfehler: still weiter
         fertig++; melde({ fertig, gesamt });
       }
     };

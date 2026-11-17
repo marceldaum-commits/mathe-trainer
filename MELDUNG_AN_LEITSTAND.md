@@ -19,13 +19,18 @@ Eure Vorgabe von 16:30. **Stand der Nova-Umstellung:**
   - 4 Downloads gleichzeitig, Fortschritt „x von n“ und „Abbrechen“. Nach einem Abbruch geht es beim nächsten Tippen dort weiter. 404 wird still übersprungen.
   - Laufzeit-Texte (/jetzt) gehören nicht dazu.
 - **Speicher:** Cache Storage `stimme-nova`. In der Android-App liegt dieser im App-Speicher (dieselbe Web-Seite). Die App bittet um dauerhaften Speicher.
-- **Knopf „Offline-Stimme löschen (Y MB)“**, sobald etwas gespeichert ist.
+- **Bestqualität** (euer Nachtrag 16:34): zwei Knöpfe, „Offline laden – Standard (ca. X MB)“ (`bytes`) und „Offline laden – Bestqualität (ca. Z MB)“ (`bytes_original`, …/nova/original/…).
+  - Die zuletzt gewählte Qualität wird gemerkt und als Hauptknopf gezeigt.
+  - Liefert `original/` 404, nimmt die App die normale Datei.
+  - Eine Bestqualitäts-Datei ersetzt auf dem Gerät die normale. Auf dem Gerät wird zuerst die Bestqualität abgespielt, aus dem Netz immer die Standard-Datei.
+- **Knopf „Offline-Stimme löschen (Y MB)“**, sobald etwas gespeichert ist. Er löscht beide Qualitäten.
 - **Fertig:** wenn so viele Dateien auf dem Gerät liegen, wie der Server meldet (`vorhanden`). Dann steht dort „Alle Nova-Texte liegen auf diesem Gerät.“
 - **Wiedergabe:** Die App sieht immer zuerst auf dem Gerät nach. Offline liest Nova damit die ganze Theorie.
 
 **Geprüft** (Browser, euer Server im Test nachgeahmt, mit einer echten Nova-Datei):
 - Größe angezeigt, Laden gestartet, nach 20 von 774 abgebrochen. Beim nächsten Tippen ging es mit den fehlenden weiter bis „Alle Nova-Texte liegen auf diesem Gerät“.
 - Dann ohne Netz Theorie vorgelesen: abgespielt bis zum Ende, 0 Netzabrufe. Löschen gibt den Speicher frei.
+- Bestqualität: 774 Original-Abrufe, davon 15 im Test absichtlich mit 404. Für diese wurden die normalen Dateien geholt, danach stand dort „Alle Nova-Texte liegen auf diesem Gerät (Bestqualität)“. Offline wurde die Original-Datei abgespielt, die Wahl ist gemerkt.
 - Keine Fehler in der Konsole.
 - `npm run check` und e2e auf allen fünf Stufen grün.
 
