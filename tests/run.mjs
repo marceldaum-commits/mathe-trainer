@@ -760,7 +760,8 @@ for (const u of UNITS) {
   ok(B.NP_GRENZEN[0][1] === 15 && B.NP_GRENZEN.at(-1)[0] === 0 && B.NP_GRENZEN.every((g, i, a) => !i || (g[0] < a[i - 1][0] && g[1] === a[i - 1][1] - 1)), 'Probeklausur: Notenpunkte-Tabelle lückenlos von 15 bis 0');
   for (const u of UNITS) { const K = Th.karten(u); ok(K.length >= 1 && K.every((c) => c.title && c.html), `Theorie ${u.id}: Kurzfassung vorhanden`);
     const kurz = Th.kapitelHtml(u, false); ok(kurz.includes(u.title) && kurz.includes('img/logo.svg') && !/undefined|NaN/.test(kurz), `Theorie ${u.id}: Kapitel mit Titel und Logo`); }
-  ok(Object.keys(Th.LANG).length >= 6 && Object.keys(Th.LANG).every((id) => UNITS.some((u) => u.id === id)) && Object.values(Th.LANG).every((L) => L.length >= 4 && L.every(([t, html]) => t && html.length > 80)), 'Theorie: ausführliche Kapitel gehören zu echten Einheiten und haben mehrere Abschnitte');
+  const ALLE_U = (await import('../app/js/units.js')).ALLE_UNITS;   // auch die Einheiten der Klassen 5–10
+  ok(Object.keys(Th.LANG).length >= 6 && Object.keys(Th.LANG).every((id) => ALLE_U.some((u) => u.id === id)) && Object.values(Th.LANG).every((L) => L.length >= 4 && L.every(([t, html]) => t && html.length > 80)), 'Theorie: ausführliche Kapitel gehören zu echten Einheiten und haben mehrere Abschnitte');
   { const u = UNITS.find((x) => x.id === 'extrema'); ok(Th.kapitelHtml(u, true).includes('Durchgerechnetes Beispiel') && !Th.kapitelHtml(u, false).includes('Durchgerechnetes Beispiel') && Th.kapitelHtml(UNITS.find((x) => x.id === 'a-trig'), true).includes('Durchgerechnetes Beispiel'), 'Theorie: ausführliche Fassung zeigt das Kapitel, die kurze nicht'); }
   store.reset(); }
 
@@ -1174,6 +1175,23 @@ ok(nextStreak({ n: 3, last: '2026-11-10' }, D('2026-11-12')).n === 1, 'Serie: au
   ok(!/^import[^\n]*theorie\.js/m.test(app) && (app.match(/import\('\.\/theorie\.js'\)/g) || []).length >= 2, 'Schnellstart: Die Theorie wird erst beim Öffnen (und in einer ruhigen Minute) geladen');
   ok(wa.includes('ladebildWeg()') && wa.includes("performance.mark('mt-bereit')") && wa.indexOf('ladebildWeg();\n    if (!v') > 0, 'Schnellstart: Das Ladebild verschwindet beim Start – und auch, wenn die Start-Wache ihren Hinweis zeigt');
 }
+
+// Stichprobe 17.11.: Beim Vergleich „Bruch oder Prozent“ trug die richtige Antwort eine falsche Fehler-Erklärung
+{ const { genProzentStart } = await import('../app/js/gen7.js');
+  for (let k = 0; k < 400; k++) { const q = genProzentStart(1 + (k % 5)); if (q.kind !== 'vergleich') continue; const r = q.options.find((o) => o.correct);
+    ok(!r.why, 'Prozent-Vergleich: Die richtige Antwort darf keine Fehler-Erklärung tragen'); } }
+
+// Paket 17.11.: Umstell-Blatt (Pro) und vier ausführliche Kapitel zu Gleichungen
+{ const U = await import('../app/js/umform.js'), P = await import('../app/js/pro.js'), Th = await import('../app/js/theorie.js');
+  for (let st = 1; st <= 5; st++) {
+    const a = U.blattAufgaben(st, 4711 + st), b = U.blattAufgaben(st, 4711 + st);
+    ok(a.length === 8 && a.every((x) => x.weg.length >= 1), `Umstell-Blatt: Stockwerk ${st} hat nicht acht lösbare Aufgaben`);
+    ok(a.map((x) => U.gleichungTex(x.l, x.r)).join('|') === b.map((x) => U.gleichungTex(x.l, x.r)).join('|'), `Umstell-Blatt: Gleiche Nummer muss dasselbe Blatt ergeben (Stockwerk ${st})`);
+    ok(new Set(a.map((x) => U.gleichungTex(x.l, x.r) + x.x)).size === a.length, `Umstell-Blatt: doppelte Aufgabe (Stockwerk ${st})`);
+  }
+  ok(P.FUNKTIONEN.some((f) => f[0] === 'pro' && f[1] === 'Umstell-Blatt'), 'Pro-Liste: Umstell-Blatt fehlt');
+  for (const id of ['k7-terme', 'k7-gleichungen', 'k8-lgs', 'k9-quadrat']) { const L = Th.LANG[id] || [];
+    ok(L.length >= 5 && ['Worum es geht', 'Durchgerechnetes Beispiel', 'Typische Fehler'].every((t) => L.some((x) => x[0] === t)), `Theorie ausführlich: Kapitel ${id} unvollständig`); } }
 
 console.log(fails ? `${fails} verschiedene Fehler bei ${n} Prüfungen` : `tests: alle ${n} Prüfungen bestanden`);
 process.exit(fails ? 1 : 0);

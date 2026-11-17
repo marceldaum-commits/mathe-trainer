@@ -995,3 +995,9 @@ button.card.unit{text-align:left;width:100%;font:inherit;color:inherit;cursor:po
 .dg-wahl{width:100%;font:inherit;color:inherit;text-align:left;cursor:pointer}
 .dg-wahl[disabled]{cursor:default}
 .dg-falle .dg-folge{opacity:.55}
+.dg-blatt-stock{gap:6px}
+.dg-blatt-stock .pick{flex:1;min-width:0}
+.dg-b-weg{border-collapse:collapse;margin:4px 0 6px}
+.dg-b-weg td{padding:2px 10px 2px 0;vertical-align:middle}
+.dg-b-op{color:var(--orange-dark);white-space:nowrap}
+@media print{.dg-b-op{color:#000}}

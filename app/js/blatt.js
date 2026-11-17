@@ -116,7 +116,7 @@ export function zeichne(c, g) {
 }
 
 const heute = () => new Date().toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' });
-const kopf = (titel, unter) => `<header class="b-kopf"><img class="b-logo" src="img/logo.svg" alt="Logo ${esc(CONFIG.firma)}"><div class="b-firma"><b>${esc(CONFIG.firma)}</b><span>${esc(CONFIG.website.replace(/^https?:\/\/|\/$/g, ''))}</span></div>
+export const kopf = (titel, unter) => `<header class="b-kopf"><img class="b-logo" src="img/logo.svg" alt="Logo ${esc(CONFIG.firma)}"><div class="b-firma"><b>${esc(CONFIG.firma)}</b><span>${esc(CONFIG.website.replace(/^https?:\/\/|\/$/g, ''))}</span></div>
   <div class="b-titel"><h1>${esc(titel)}</h1><span>${unter}</span></div></header>`;
 const fuss = (c) => `<footer class="b-fuss"><span>${esc(CONFIG.firma)} · ${esc(CONFIG.website.replace(/^https?:\/\/|\/$/g, ''))}</span><span>${blattName(c)} Nr. ${c.seed} · erstellt am ${heute()}</span></footer>`;
 

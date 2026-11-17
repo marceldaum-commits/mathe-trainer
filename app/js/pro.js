@@ -13,6 +13,7 @@ export const FUNKTIONEN = [
   ['pro', 'Drucken und PDF', 'Arbeitsblatt, Probeklausur und Theorie mit Logo und Lösungsblatt.', '#/blatt'],
   ['pro', 'Schwächen-Blatt', 'Ein Blatt nur aus den Aufgaben, bei denen es zuletzt gehakt hat.', '#/blatt'],
   ['pro', 'Probeklausur', '12 Aufgaben aus allen Gebieten, mit Punkten und Notenpunkte-Tabelle.', '#/blatt'],
+  ['pro', 'Umstell-Blatt', 'Gleichungen und Formeln zum Umstellen drucken – mit jedem Schritt auf dem Lösungsblatt.', '#/dungeon'],
   ['pro', 'Theorie ausführlich', 'Herleitung, durchgerechnetes Beispiel, typische Fehler.', '#/theorie'],
   ['ki', 'KI-Erklärung', '„Erklär’s mir anders“ nach einem Fehler. Drei Proben sind frei.', ''],
   ['ki', 'KI-Tutor', 'Nachfragen zur selben Aufgabe, bis es klar ist.', ''],

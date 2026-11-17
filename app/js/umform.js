@@ -2,7 +2,7 @@
 // Eine Gleichung ist ein Paar aus zwei Termen (Bäumen). Die gesuchte Größe steht genau einmal darin; jeder Schritt macht
 // die äußerste Rechnung um sie herum auf beiden Seiten rückgängig („von außen nach innen“). Zu jedem richtigen Schritt
 // gibt es typische Fehler als Ablenker – jeder wird gegen echte Zahlen geprüft, damit er sicher falsch ist.
-import { ri, pick, shuffle, rand } from './math.js';
+import { ri, pick, shuffle, rand, seedRandom } from './math.js';
 
 // ---------------------------------------------------------------- Bruchzahlen
 const ggT = (a, b) => { a = Math.abs(a); b = Math.abs(b); while (b) [a, b] = [b, a % b]; return a || 1; };
@@ -665,4 +665,18 @@ export function probeTex(a) {
   const w = N(a.x0), T = enthaelt(a.l, 'x') ? a.l : a.r, O = T === a.l ? a.r : a.l;
   const links = ersetze(T, 'x', w), rechts = ersetze(O, 'x', w);
   return `${tx(links)} = ${tx(simp(links))}${ist(O, 'n') ? '' : ` \\quad\\text{und}\\quad ${tx(rechts)} = ${tx(simp(rechts))}`}`;
+}
+
+/** Umstell-Blatt (Pro, zum Drucken): n Aufgaben eines Stockwerks. Unter derselben Nummer entsteht immer dasselbe Blatt. */
+export function blattAufgaben(stock, seed, jg = 'os', n = 8) {
+  seedRandom(seed);
+  try {
+    const out = [], gesehen = new Set();
+    for (let k = 0; out.length < n && k < n * 6; k++) {
+      const a = aufgabe(stock, jg); if (!a) continue;
+      const key = a.th || gleichungTex(a.l, a.r); if (gesehen.has(key)) continue;   // jede Formel nur einmal je Blatt
+      gesehen.add(key); out.push(a);
+    }
+    return out;
+  } finally { seedRandom(null); }   // danach wieder echter Zufall
 }

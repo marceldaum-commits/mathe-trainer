@@ -2,11 +2,18 @@
 // In jedem Raum wählt man den nächsten Umform-Schritt (mit dem Ergebnis daneben). Falsche Schritte kosten ein Leben
 // und werden erklärt. Fallen-Räume: den Fehler in einer fertigen Rechnung finden. Am Ende jedes Stockwerks ein Wächter.
 // Wird erst geladen, wenn man den Dungeon betritt. Nichts wird gekauft, nichts kostet Geld.
-import { $, h, tex, esc, ICON, sfx, buzz, confetti, funken } from './ui.js';
+import { $, h, tex, esc, ICON, sfx, buzz, confetti, funken, drucken } from './ui.js';
 import { store } from './store.js';
-import { shuffle } from './math.js';
+import { shuffle, ri } from './math.js';
 import { figurFor } from './figuren.js';
-import { aufgabe, falle, auswahl, zuege, gleichungTex, ergebnisTex, probeTex, fertig } from './umform.js';
+import { kopf, proOffen } from './blatt.js';
+import { premiumBereit, premiumOn } from './api.js';
+import { marke } from './pro.js';
+import { CONFIG } from './config.js';
+import { aufgabe, falle, auswahl, zuege, gleichungTex, ergebnisTex, probeTex, fertig, blattAufgaben } from './umform.js';
+
+/** Gleichung groß setzen: Brüche in voller Höhe – am Handy besser lesbar. */
+const gl = (l, r) => tex(`\\displaystyle ${gleichungTex(l, r)}`);
 
 export const STOCKWERKE = [
   { name: 'Die Vorhalle', text: 'Gleichungen mit einem Schritt', waechter: ['Der Plus-Pförtner', '+'], farbe: ['#73e0a9', '#177a52'] },
@@ -41,6 +48,40 @@ export function dungeonView(after) {
   let s = null;
   const cleanup = () => {};
 
+  /** Umstell-Blatt (Pro): Aufgabenblatt und Lösungsblatt mit jedem Schritt – in der App ansehen, drucken mit Pro. */
+  function blatt(stock, nr) {
+    const W = STOCKWERKE[stock - 1], as = blattAufgaben(stock, nr, store.jahrgang);
+    const heute = new Date().toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' });
+    const auftrag = (a) => `${a.art === 'formel' ? `<b>${esc(a.th)}:</b> ` : ''}Stelle nach ${tex(a.x)} um.`;
+    const fuss = `<footer class="b-fuss"><span>${esc(CONFIG.firma)}</span><span>Umstell-Blatt Nr. ${nr} · erstellt am ${heute}</span></footer>`;
+    el.className = 'view stack blatt-view';
+    el.innerHTML = `<button class="back noprint" type="button" id="dg-zurueck">${ICON.left} Formel-Dungeon</button>
+      <section class="card stack noprint" id="dg-blatt-aktion"><h3>Umstell-Blatt Nr. ${nr} · ${esc(W.name)}</h3>
+        <small class="muted">${esc(W.text)}. Unter dieser Nummer entsteht immer genau dieses Blatt.</small>
+        <div class="row"><button class="btn grow" id="dg-druck" type="button">PDF ${marke('pro')}</button><button class="btn ghost" id="dg-neu" type="button">Neues Blatt</button></div><div id="dg-pro"></div></section>
+      <article class="blatt" id="blatt">
+        <section class="b-seite">${kopf('Umstell-Blatt Mathematik', `${esc(W.name)}: ${esc(W.text)}<br>${as.length} Aufgaben · Schreibe jeden Schritt mit Strich auf: ${tex('3x+5=20\\ \\mid -5')}`)}
+          <div class="b-name"><span>Name: <i></i></span><span>Klasse: <i class="kurz"></i></span><span>Datum: <i class="kurz"></i></span></div>
+          <ol class="b-liste">${as.map((a, i) => `<li class="b-aufgabe"><div class="b-nr"><b>${i + 1}</b></div><div class="b-inhalt"><p>${auftrag(a)}</p><div class="b-formel">${gl(a.l, a.r)}</div><div class="b-platz" aria-hidden="true">Platz für deine Rechnung</div></div></li>`).join('')}</ol>${fuss}</section>
+        <section class="b-seite b-loesung">${kopf(`Lösungen – Umstell-Blatt Nr. ${nr}`, `${esc(W.name)}: ${esc(W.text)}`)}
+          <ol class="b-liste">${as.map((a, i) => {
+            let vor = { l: a.l, r: a.r };
+            const zeilen = a.weg.map((z) => { const r = `<tr><td>${gl(vor.l, vor.r)}</td><td class="dg-b-op">${tex(`\\mid ${z.label}`)}</td></tr>`; vor = z; return r; }).join('');
+            const probe = probeTex(a);
+            return `<li class="b-lsg"><div class="b-nr"><b>${i + 1}</b></div><div class="b-inhalt"><p>${auftrag(a)}</p><table class="dg-b-weg">${zeilen}<tr><td>${gl(vor.l, vor.r)}</td><td></td></tr></table><p class="b-weg"><b>Ergebnis:</b> ${tex(`\\displaystyle ${ergebnisTex(a)}`)}${probe ? ` · Probe: ${tex(probe)}` : ''}</p></div></li>`;
+          }).join('')}</ol>${fuss}</section></article>`;
+    $('#dg-zurueck', el).onclick = () => { sfx('tap'); start(); };
+    $('#dg-neu', el).onclick = () => { sfx('tap'); blatt(stock, ri(1000, 9999)); };
+    const pro = $('#dg-pro', el);
+    $('#dg-druck', el).onclick = async () => {
+      await premiumBereit();
+      if (!proOffen()) { pro.innerHTML = '<div class="note tip"><b>Drucken und PDF gehören zur Pro-Fassung.</b> Ansehen und im Dungeon üben kannst du trotzdem. <a href="#/einstellungen">Zugangscode eingeben</a></div>'; return; }
+      drucken(`Umstell-Blatt-${nr}`);
+    };
+    premiumBereit().then(() => { if (el.isConnected && !premiumOn()) pro.innerHTML = '<small class="muted">Drucken und PDF gehören später zur Pro-Fassung. In der Testphase sind sie für alle frei.</small>'; });
+    window.scrollTo(0, 0);
+  }
+
   function start() {
     const frei = freiBis(), rek = store.n('dungeonRekord');
     el.className = 'view stack';
@@ -53,7 +94,14 @@ export function dungeonView(after) {
         return `<button class="card unit dg-wahl${offen ? '' : ' soon'}" type="button" data-s="${n}"${offen ? '' : ' disabled'}><span class="num">${n}</span><span><h3>${esc(w.name)}</h3><small>${esc(w.text)}${offen ? '' : ` · öffnet sich, wenn du Stockwerk ${n - 1} schaffst`}</small></span><span class="go">${offen ? ICON.right : ''}</span></button>`;
       }).join('')}</section>
       ${SPICKZETTEL}
+      <section class="card stack" id="dg-blatt-wahl"><div class="row"><h3 class="grow">Umstell-Blatt zum Drucken ${marke('pro')}</h3></div>
+        <small class="muted">Acht Aufgaben eines Stockwerks – auf dem Lösungsblatt steht jeder Schritt.</small>
+        <div class="row dg-blatt-stock" role="radiogroup" aria-label="Stockwerk">${STOCKWERKE.map((_, i) => `<button class="pick${i + 1 === Math.min(3, freiBis()) ? ' sel' : ''}" type="button" role="radio" data-s="${i + 1}">${i + 1}</button>`).join('')}</div>
+        <button class="btn ghost block" id="dg-blatt" type="button">Blatt bauen</button></section>
       <p class="muted small">Du startest mit ${START_LEBEN} Leben. Jeder besiegte Wächter schenkt dir eins dazu. ${store.ruhig ? 'Im ruhigen Modus gibt es keine Leben – du kannst in Ruhe probieren.' : ''}</p>`;
+    let blattStock = Math.min(3, freiBis());
+    el.querySelectorAll('.dg-blatt-stock .pick').forEach((b) => { b.onclick = () => { blattStock = +b.dataset.s; sfx('tap'); el.querySelectorAll('.dg-blatt-stock .pick').forEach((x) => x.classList.toggle('sel', x === b)); }; });
+    $('#dg-blatt', el).onclick = () => { sfx('tap'); blatt(blattStock, ri(1000, 9999)); };
     el.querySelectorAll('.dg-wahl:not([disabled])').forEach((b) => { b.onclick = () => { sfx('tap'); s = neuerLauf(+b.dataset.s, store.ruhig); raum(); }; });
     window.scrollTo(0, 0);
   }
@@ -102,7 +150,7 @@ export function dungeonView(after) {
       <div class="row"><button class="btn ghost small" id="dg-tipp" type="button">Tipp</button></div>
       <div id="dg-note"></div><div class="row" id="dg-row" hidden></div></div>`;
     const weg = $('#dg-weg', st), opts = $('#dg-opts', st), note = $('#dg-note', st);
-    const zeile = (zz, label = '') => `<div class="dg-zeile"><span class="dg-gl">${tex(gleichungTex(zz.l, zz.r))}</span><span class="dg-op">${label ? `|&nbsp;${tex(label)}` : ''}</span></div>`;
+    const zeile = (zz, label = '') => `<div class="dg-zeile"><span class="dg-gl">${gl(zz.l, zz.r)}</span><span class="dg-op">${label ? `|&nbsp;${tex(label)}` : ''}</span></div>`;
     weg.innerHTML = zeile(z);
     const hpZeigen = () => { if (!waechter) return; $('#dg-hp i', st).style.width = `${(hp / a.weg.length) * 100}%`; $('#dg-hp', st).setAttribute('aria-label', `${W.waechter[0]}: noch ${hp} Schritte`); };
     hpZeigen();
@@ -112,7 +160,7 @@ export function dungeonView(after) {
       for (let k = 0; k < 6; k++) { w = auswahl(z, a.wahr); if (w && w.opts.length >= 3) break; }
       opts.innerHTML = '';
       w.opts.forEach((o) => {
-        const b = h(`<button class="opt dg-opt" type="button"><span class="dg-op">|&nbsp;${tex(o.label)}</span><span class="dg-gl">${tex(gleichungTex(o.l, o.r))}</span></button>`);
+        const b = h(`<button class="opt dg-opt" type="button"><span class="dg-op">|&nbsp;${tex(o.label)}</span><span class="dg-gl">${gl(o.l, o.r)}</span></button>`);
         if (window.__mtTest) b.dataset.ok = o.ok ? '1' : '0';
         b.onclick = () => waehle(o, b);
         opts.append(b);
@@ -160,7 +208,7 @@ export function dungeonView(after) {
     let versuche = 0, lock = false;
     st.innerHTML = `<div class="stack">
       <div class="mission"><b class="tag">!</b><p>Fallen-Raum: ${a.art === 'formel' ? `<b>${esc(a.th)}</b> – ` : ''}diese Rechnung stellt nach ${tex(a.x)} um, aber in einer Zeile steckt ein Fehler.<small>Tippe die erste falsche Zeile an.</small></p></div>
-      <div class="card dg-rechnung dg-falle" id="dg-falle">${f.zeilen.map((zz, i) => `<button class="dg-zeile dg-fz" type="button" data-i="${i}"${i === 0 ? ' disabled' : ''}>${i ? `<span class="dg-op">|&nbsp;${tex(zz.label)}</span>` : '<span class="dg-op">Aufgabe</span>'}<span class="dg-gl">${tex(gleichungTex(zz.l, zz.r))}</span></button>`).join('')}</div>
+      <div class="card dg-rechnung dg-falle" id="dg-falle">${f.zeilen.map((zz, i) => `<button class="dg-zeile dg-fz" type="button" data-i="${i}"${i === 0 ? ' disabled' : ''}>${i ? `<span class="dg-op">|&nbsp;${tex(zz.label)}</span>` : '<span class="dg-op">Aufgabe</span>'}<span class="dg-gl">${gl(zz.l, zz.r)}</span></button>`).join('')}</div>
       <div id="dg-note"></div><div class="row" id="dg-row" hidden></div></div>`;
     const note = $('#dg-note', st);
     st.querySelectorAll('.dg-fz:not([disabled])').forEach((b) => {

@@ -234,7 +234,7 @@ export function genProzentStart(lv = 3) {
       opts = [N(G - W, true), N(W, false, 'Das sind die Gewinne. Gefragt sind die Nieten.'), N(100 - p, false, 'Das ist der Prozentsatz der Nieten, nicht ihre Anzahl.'), N(G - p, false, `${p} % sind nicht ${p} Lose.`)];
       hints = [`${p} % sind ${tex(br(z, n))} aller Lose.`, `Gewinne: ${tex(`${G}:${n}${z > 1 ? `\\cdot ${z}` : ''}=${W}`)}.`, 'Zieh die Gewinne von allen Losen ab.']; explain = `Gewinne: ${tex(`${G}:${n}${z > 1 ? `\\cdot ${z}` : ''}=${W}`)}. Nieten: ${tex(`${G}-${W}=${G - W}`)}.`; }
     else if (kind === 'vergleich') { const p2 = pick([25, 40, 30, 60, 70].filter((q) => q !== p)); prompt = 'Was ist größer?';
-      const T = (t, num, c2, w2) => ({ tex: t, num, correct: c2, why: w2 });
+      const T = (t, num, c2, w2) => ({ tex: t, num, correct: c2, why: c2 ? undefined : w2 });   // die richtige Antwort trägt keine Fehler-Erklärung
       opts = [T(br(z, n), 1, p > p2, `${tex(`${br(z, n)}=${p}\\,\\%`)} – das ist weniger als ${p2} %.`), T(`${p2}\\,\\%`, 2, p2 > p, `${tex(`${br(z, n)}=${p}\\,\\%`)} – das ist mehr als ${p2} %.`), T('\\text{beide gleich}', 3, false, `${tex(`${br(z, n)}=${p}\\,\\%`)}, also nicht gleich ${p2} %.`), T('\\text{kann man nicht sagen}', 4, false, 'Doch: Wandle den Bruch in Prozent um und vergleiche.')];
       hints = ['Wandle den Bruch in Prozent um.', `Durch Erweitern auf Hundertstel: ${tex(`${br(z, n)}=${br(p, 100)}`)}.`]; explain = `${tex(`${br(z, n)}=${br(p, 100)}=${p}\\,\\%`)} – das ist ${p > p2 ? 'mehr' : 'weniger'} als ${p2} %.`;
       return fertig(prompt, `${br(z, n)}\\quad\\text{oder}\\quad ${p2}\\,\\%`, opts, hints, explain, kind, { z, n, p2 }); }

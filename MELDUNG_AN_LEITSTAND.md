@@ -2,6 +2,12 @@
 
 Neueste Meldung oben. Keine Geheimnisse, keine Personendaten (dieses Repo ist öffentlich, siehe Punkt 1).
 
+## 17.11.2026 (85) – 0.42.0 (tägliche Routine: Pro vertiefen) – Meldung „liegt auf test“ folgt nach dem Testlauf
+
+- **Neu:** vier ausführliche Theorie-Kapitel für Klasse 7–9 (Gleichungen) und das Pro-Blatt „Umstell-Blatt“ im Formel-Dungeon (Drucken/PDF Pro, Ansehen frei; Pro-Liste in der App ergänzt).
+- **Fehler:** keine Nutzer-Meldungen; ein Datenfehler in einer Klasse-6-Aufgabe behoben, zwei Anzeige-Kleinigkeiten (Bruchgröße im Dungeon, Einzahl in der Theorie).
+- **Für euch:** keine neuen Speicherfelder, keine Änderung an Schnittstelle oder Abrufen, App-Hülle unverändert (`android/` nicht angefasst).
+
 ## 16.11.2026 (84) – 0.41.0 liegt auf test
 
 - Formel-Dungeon aus (83). Gesamtprüfung grün (`npm run check`, davon `hart/dungeon` über 40 000 Prüfungen), Browser-Gesamttest Stufe 3 ohne Fehler einschließlich neuem Block „Paket 0.41.0“ (Klasse 5 bei 320 px: Stockwerk 1 komplett mit Fehler, Falle, Wächter, Freischalten; Oberstufe Stockwerk 5 mit Formeln).

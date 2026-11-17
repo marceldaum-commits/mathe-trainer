@@ -1009,6 +1009,11 @@ await ctx2.close();
   const st = await dp.evaluate(() => JSON.parse(localStorage.getItem('mt.v1')));
   if (!(st.count?.dungeonRekord > 0) || st.count?.dungeonTiefe !== 2) fail(`Dungeon: Rekord oder Stockwerk nicht gespeichert (${JSON.stringify(st.count)})`);
   await dp.click('#dg-again'); await dp.waitForSelector('#dg-stock');
+  // Umstell-Blatt (Pro): acht Aufgaben, Lösungsblatt mit jedem Schritt
+  await dp.click('.dg-blatt-stock .pick[data-s="2"]'); await dp.click('#dg-blatt'); await dp.waitForSelector('#blatt');
+  if ((await dp.locator('#blatt .b-aufgabe').count()) !== 8 || (await dp.locator('#blatt .dg-b-weg').count()) !== 8) fail('Umstell-Blatt: nicht acht Aufgaben mit Lösungsweg');
+  await breit('Umstell-Blatt'); if (shots) await dp.screenshot({ path: `${shots}/94-umstell-blatt.png`, fullPage: true });
+  await dp.click('#dg-zurueck'); await dp.waitForSelector('#dg-stock');
   if ((await dp.locator('.dg-wahl:not([disabled])').count()) !== 2) fail('Dungeon: Nach Stockwerk 1 soll Stockwerk 2 offen sein');
   // Oberstufe: tiefste Stockwerke mit Formeln, schmaler Bildschirm
   await dp.evaluate(() => { const m = JSON.parse(localStorage.getItem('mt.v1')); m.jahrgang = 'os'; m.count.dungeonTiefe = 5; localStorage.setItem('mt.v1', JSON.stringify(m)); });
