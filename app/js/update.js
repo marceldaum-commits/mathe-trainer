@@ -25,7 +25,7 @@ export function updateSuchen(app = globalThis.window?.MTApp, w = globalThis.wind
       const ende = (ev) => { clearTimeout(t); w.removeEventListener('mt-update-fertig', ende);
         const s = updateStand(app);
         if (s?.bereit) return fertig({ art: 'neu', text: `Version ${s.bereit} ist geladen.` });
-        if (s?.huelle) return fertig({ art: 'neu', text: 'Es gibt eine neue App-Datei – bitte installieren.' });
+        if (s?.huelle) return fertig({ art: 'neu', text: 'Es gibt eine neue App-Datei (APK im Test-Ordner) – bitte einmal installieren.' });
         const d = typeof ev?.detail === 'string' ? ev.detail : '';
         if (d === 'ok') return fertig({ art: 'aktuell', text: 'Alles aktuell.' });
         const nr = /^antwort(\d{3})$/.exec(d)?.[1];
@@ -52,7 +52,7 @@ export function updateLeiste(app = globalThis.window?.MTApp) {
     const s = updateStand(app);
     const teile = [];
     if (s?.bereit) teile.push(`<div class="upd-zeile"><span><b>Neue Inhalte geladen</b> (Version ${esc(s.bereit)})</span><button class="btn small" id="upd-los" type="button">Jetzt nutzen</button></div>`);
-    if (s?.huelle) teile.push('<div class="upd-zeile" id="upd-apk"><span><b>Neue App-Datei verfügbar.</b> Sie bringt Neues für Widget oder Erinnerung – bitte die neue Datei installieren.</span></div>');
+    if (s?.huelle) teile.push('<div class="upd-zeile" id="upd-apk"><span><b>Neue App-Datei verfügbar.</b> Sie wird nicht hier in der App geladen: Die neue APK liegt im Test-Ordner. Einmal installieren (über die alte drüber), deine Daten bleiben erhalten. Bis dahin läuft alles wie bisher.</span></div>');
     el.innerHTML = teile.join(''); el.hidden = !teile.length;
     el.querySelector('#upd-los')?.addEventListener('click', () => { if (typeof app?.updateAnwenden === 'function') app.updateAnwenden(); });
   };

@@ -38,8 +38,24 @@ export const ZUGANG_ART = { pass: 'Abi-Pass', tage30: '30-Tage-Pass', frei: 'Fre
 
 /** Übrige KI-Punkte von heute: der letzte Stand, den der Server gemeldet hat (null = heute noch keiner gemeldet). */
 const REST_KEY = 'mt.kirest', heute = () => new Date().toLocaleDateString('sv-SE');
-function kiRestMerken(rest) { try { localStorage.setItem(REST_KEY, JSON.stringify({ tag: heute(), rest })); } catch { /* egal */ } }
-export function kiRestHeute() { try { const r = JSON.parse(localStorage.getItem(REST_KEY) || 'null'); return r && r.tag === heute() && Number.isInteger(r.rest) ? r.rest : null; } catch { return null; } }
+const kiRestLesen = () => { try { const r = JSON.parse(localStorage.getItem(REST_KEY) || 'null'); return r && r.tag === heute() ? r : null; } catch { return null; } };
+function kiRestMerken(rest, limit) {
+  const alt = kiRestLesen(), lim = Number.isInteger(limit) && limit > 0 ? limit : alt?.limit;
+  try { localStorage.setItem(REST_KEY, JSON.stringify({ tag: heute(), rest, ...(lim ? { limit: lim } : {}), ...(alt?.zeit ? { zeit: alt.zeit } : {}) })); } catch { /* egal */ }
+  try { window.dispatchEvent(new Event('mt-kirest')); } catch { /* ohne Fenster */ }
+}
+export function kiRestHeute() { const r = kiRestLesen(); return r && Number.isInteger(r.rest) ? r.rest : null; }
+/** Tageslimit des Zugangs, wie es der Server zuletzt gemeldet hat (alte Codes: 15) – null = unbekannt. */
+export function kiLimitHeute() { const r = kiRestLesen(); return r && Number.isInteger(r.limit) ? r.limit : null; }
+/** Übrige KI-Punkte beim Server nachfragen (POST /ki/rest – verbraucht nichts). Höchstens einmal je Stunde, nur mit gültigem Pro + KI.
+ *  zugang: der Zugangscode, geraet: die Gerätekennung. Meldet sich über das Ereignis „mt-kirest“. */
+export async function kiRestHolen(zugang, geraet) {
+  if (!zugang || !kiEin()) return;
+  const r = kiRestLesen();
+  if (r?.zeit && Date.now() - r.zeit < 3600e3) return;
+  try { localStorage.setItem(REST_KEY, JSON.stringify({ ...(r || { tag: heute() }), zeit: Date.now() })); } catch { /* egal */ }
+  await call('/ki/rest', { zugang, geraet });
+}
 
 async function call(path, body) {
   if (!serverOn()) return { ok: false, off: true };
@@ -47,7 +63,8 @@ async function call(path, body) {
     const res = await fetch(`${CONFIG.api}${path}`, body === undefined ? { headers: { Accept: 'application/json' } }
       : { method: 'POST', headers: { 'Content-Type': 'application/json', Accept: 'application/json' }, body: JSON.stringify(body) });
     const data = await res.json().catch(() => ({}));
-    if (path.startsWith('/ki/')) { if (res.ok && Number.isInteger(data.rest) && data.rest >= 0 && data.art !== 'probe') kiRestMerken(data.rest); else if (res.status === 429) kiRestMerken(0); }
+    if (path === '/ki/rest') { if (res.ok && Number.isInteger(data.rest) && data.rest >= 0) kiRestMerken(data.rest, data.limit); }   // 429 heißt hier nur „zu oft gefragt“
+    else if (path.startsWith('/ki/')) { if (res.ok && Number.isInteger(data.rest) && data.rest >= 0 && data.art !== 'probe') kiRestMerken(data.rest); else if (res.status === 429) kiRestMerken(0); }
     return res.ok ? { ok: true, ...data } : { ok: false, status: res.status, error: data.error || 'Der Server hat die Anfrage abgelehnt.' };
   } catch { return { ok: false, error: 'Keine Verbindung zum Server.' }; }
 }

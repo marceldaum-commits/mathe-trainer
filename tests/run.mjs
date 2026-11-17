@@ -1235,5 +1235,23 @@ ok(nextStreak({ n: 3, last: '2026-11-10' }, D('2026-11-12')).n === 1, 'Serie: au
   ok(!K.verify({ ...z([6, 5, 7, 8]), art: 'integral', funktion: 'tan(x)', von: 0, bis: 2 }).ok, 'KI-Prüfer: Integral über eine Polstelle wird abgelehnt');
 }
 
+// Leitstand 17.11.2026: KI-Punkte über POST /ki/rest abfragen (verbraucht nichts) – höchstens stündlich, 429 dort heißt nicht „0 Punkte“
+{ const A = await import('../app/js/api.js'); const altLS = Object.getOwnPropertyDescriptor(globalThis, 'localStorage'), altFetch = globalThis.fetch;
+  const mem = new Map(); Object.defineProperty(globalThis, 'localStorage', { configurable: true, writable: true, value: { getItem: (k) => (mem.has(k) ? mem.get(k) : null), setItem: (k, v) => mem.set(k, String(v)), removeItem: (k) => mem.delete(k) } });
+  const rufe = []; let antwort = { status: 200, body: { rest: 12, limit: 15, tag: '2026-11-17' } };
+  globalThis.fetch = async (url, o) => { rufe.push({ url, body: JSON.parse(o?.body || 'null') }); return { ok: antwort.status === 200, status: antwort.status, json: async () => antwort.body }; };
+  try {
+    await A.kiRestHolen('MT-AAAA-BBBB-CCCC', 'geraet-1234567890ab');
+    ok(rufe.length === 1 && rufe[0].url === '/api/ki/rest' && rufe[0].body.zugang === 'MT-AAAA-BBBB-CCCC' && rufe[0].body.geraet === 'geraet-1234567890ab' && Object.keys(rufe[0].body).length === 2, 'KI-Punkte: POST /ki/rest nur mit Zugang und Gerät');
+    ok(A.kiRestHeute() === 12 && A.kiLimitHeute() === 15, 'KI-Punkte: Rest und Limit (alte Codes 15) übernommen');
+    await A.kiRestHolen('MT-AAAA-BBBB-CCCC', 'geraet-1234567890ab');
+    ok(rufe.length === 1, 'KI-Punkte: höchstens einmal je Stunde nachfragen');
+    mem.clear(); antwort = { status: 429, body: { error: 'zu oft' } };
+    await A.kiRestHolen('MT-AAAA-BBBB-CCCC', 'geraet-1234567890ab');
+    ok(rufe.length === 2 && A.kiRestHeute() === null, 'KI-Punkte: 429 bei /ki/rest setzt den Rest nicht auf 0');
+    await A.kiRestHolen('', 'geraet-1234567890ab'); ok(rufe.length === 2, 'KI-Punkte: ohne Zugang keine Abfrage');
+  } finally { globalThis.fetch = altFetch; if (altLS) Object.defineProperty(globalThis, 'localStorage', altLS); else delete globalThis.localStorage; }
+}
+
 console.log(fails ? `${fails} verschiedene Fehler bei ${n} Prüfungen` : `tests: alle ${n} Prüfungen bestanden`);
 process.exit(fails ? 1 : 0);

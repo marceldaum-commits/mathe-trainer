@@ -2,7 +2,7 @@
 import { h, esc, ICON } from './ui.js';
 import { store } from './store.js';
 import { CONFIG } from './config.js';
-import { premiumOn, premiumBereit, ZUGANG_ART, kiRestHeute } from './api.js';
+import { premiumOn, premiumBereit, ZUGANG_ART, kiRestHeute, kiLimitHeute, kiRestHolen } from './api.js';
 
 /** Alle Funktionen mit ihrer Stufe. wo = Sprungziel in der App (leer: erscheint direkt bei den Aufgaben). */
 export const FUNKTIONEN = [
@@ -34,7 +34,13 @@ export const hat = (stufe) => stufe === 'frei' || (stufe === 'pro' && store.stuf
 /** Kleine Marke für Knöpfe und Karten: zeigt die Stufe und – mit Haken – dass sie freigeschaltet ist. */
 export const marke = (stufe) => (stufe === 'frei' ? '' : `<span class="marke ${stufe}${hat(stufe) ? ' an' : ''}" title="${hat(stufe) ? 'freigeschaltet' : `gehört zu ${STUFEN[stufe]}`}">${stufe === 'ki' ? 'KI' : 'PRO'}${hat(stufe) ? ' ✓' : ''}</span>`);
 /** Heute noch freie KI-Punkte (zuletzt vom Server gemeldet; ohne Meldung heute das volle Tagesguthaben). */
-export const kiPunkteText = () => { const r = kiRestHeute() ?? KI_PRO_TAG; return `heute noch ${r} ${r === 1 ? 'KI-Punkt' : 'KI-Punkte'}`; };
+const punkteWort = () => { const r = kiRestHeute() ?? kiLimitHeute() ?? KI_PRO_TAG; return `heute noch ${r} ${r === 1 ? 'KI-Punkt' : 'KI-Punkte'}`; };
+/** „heute noch N KI-Punkte“ – aktualisiert sich von selbst, sobald der Server einen neuen Stand meldet. Fragt ihn höchstens stündlich nach. */
+export const kiPunkteText = () => {
+  if (store.stufe === 'proki') kiRestHolen(store.zugang.code, store.geraet).catch(() => {});
+  return `<span class="ki-punkte">${punkteWort()}</span>`;
+};
+if (typeof addEventListener === 'function') addEventListener('mt-kirest', () => document.querySelectorAll('.ki-punkte').forEach((e) => { e.textContent = punkteWort(); }));
 /** Abzeichen „Pro aktiv“ bzw. „Pro + KI aktiv“ mit Ablaufdatum (Startseite) – leer ohne gültigen Zugang. */
 export function proAbzeichen() {
   if (!store.zugangGilt()) return '';
