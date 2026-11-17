@@ -2,6 +2,12 @@
 
 Neueste Meldung oben. Keine Geheimnisse, keine Personendaten (dieses Repo ist öffentlich, siehe Punkt 1).
 
+## 17.11.2026 (86) – 0.42.0 liegt auf test (Commit af0b88f)
+
+- Gesamtprüfung zweimal grün (`npm run check`), Browser-Gesamttest auf allen fünf Stufen ohne Fehler. `main` und `test` stehen auf demselben Commit.
+- App-Hülle unverändert; die App-Datei 0.42.0 liegt wie gewohnt im Drive-Ordner, die alte ist in „Alt“.
+- Bitte nach eurer Prüfung wie gewohnt nach Marcels Go auf `live`.
+
 ## 17.11.2026 (85) – 0.42.0 (tägliche Routine: Pro vertiefen) – Meldung „liegt auf test“ folgt nach dem Testlauf
 
 - **Neu:** vier ausführliche Theorie-Kapitel für Klasse 7–9 (Gleichungen) und das Pro-Blatt „Umstell-Blatt“ im Formel-Dungeon (Drucken/PDF Pro, Ansehen frei; Pro-Liste in der App ergänzt).
