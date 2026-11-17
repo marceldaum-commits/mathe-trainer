@@ -5,7 +5,7 @@ Neueste Meldung oben. Keine Geheimnisse, keine Personendaten (dieses Repo ist ö
 ## 17.11.2026 (97) – Fertig für den Betriebstest – Version 2.3.3
 
 Eure Aufträge: KI-Punkte-Abfrage (Endpunkt live), Nachtauftrag „Aufgaben prüfen“ und „Nova – ganze Sätze, nie die Android-Stimme“.
-**Version 2.3.3 liegt auf `test`.** `live` habe ich nicht angefasst. Die App-Hülle ist unverändert (Nr. 6), es braucht keine neue APK. **Web = Android**, beide 2.3.3.
+**Version 2.3.3 liegt auf `test`.** `live` habe ich nicht angefasst. Wegen des neuen App-Symbols hat die App-Hülle jetzt Nr. 7. Die neue APK/AAB 2.3.3 (versionCode 20303, gleicher Schlüssel) liegt im Drive-Ordner „Mathe-Trainer“, 2.3.2 liegt in „Alt“. **Web = Android**, beide 2.3.3.
 
 ### Zahlen
 - **Aufgaben geprüft:**
@@ -57,13 +57,26 @@ Eure Aufträge: KI-Punkte-Abfrage (Endpunkt live), Nachtauftrag „Aufgaben prü
   - Android: kein Knopf, die Freischaltung klappt trotzdem.
   - Dazu 5 Selbsttests.
 
+### Neues App-Symbol (euer Auftrag von 23:26)
+- **Marcels Entscheidung (eben gefragt):** Das neue Symbol gilt als App-Symbol: Favicon, PWA-Icons, apple-touch-icon und Android-Launcher. Das Logo oben in der App bleibt schwarz-weiß.
+- **Umsetzung:** „f'(x)“ ist als Pfad gesetzt (Inter ExtraBold), nicht als Schrift.
+  - Favicon (SVG) und das Android-Symbol in mdpi (48 px) kommen ohne Text.
+  - Maskable 512: volle Fläche, Motiv auf 80 % für den sicheren Rand.
+  - apple-touch-icon 180: ohne runde Ecken (iOS rundet selbst).
+  - Android adaptiv: Hintergrund = Verlauf (Shape-Drawable), Vordergrund = Kurve und Text auf 62 % im sicheren Bereich; dazu ein monochromes Symbol.
+- **Icon-Adressen für den Shop:**
+  - https://trainer.mathenachhilfe-online.com/img/icon-512.png (512 px, abgerundet)
+  - https://trainer.mathenachhilfe-online.com/img/icon-maskable-512.png (volle Fläche)
+  - auf der Testseite dieselben Pfade unter trainer-test.mathenachhilfe-online.com
+
 ### Weitere Korrektur
 - Kumulierte Binomialverteilung (Stufe 4–5): Die Anzeige ist jetzt der exakte Wert, auf 4 Nachkommastellen gerundet. Vorher stand dort die Differenz gerundeter Tabellenwerte, die bei freier Eingabe abgelehnt wurde.
 - Diese Aufgaben gibt es nur noch als Auswahl, weil Tabellenwerte in der 4. Stelle abweichen können.
 
 ### Geprüft
 - `npm run check` grün, inklusive der strengen Nachrechen-Prüfungen und der Stufen-Steigerung aller 147 Arten.
-- e2e auf allen fünf Stufen grün (siehe unten).
+- e2e auf allen fünf Stufen grün (3, 1, 5, 2, 4). Nach dem neuen Symbol lief Stufe 3 noch einmal grün.
+- APK gebaut und die Signatur geprüft.
 
 ### Liste der geänderten Aufgaben (Erzeuger, Stufe, was unklar oder falsch war)
 - genStammfunktion (auch genIntegralMix) (Stufe 4): Ablenker „Das ist die Ableitung“ ist nicht die Ableitung (Konstante angehängt): bei f=2x^2+7x-1 „F(x)=4x-5“, richtig f'=4x+7.
