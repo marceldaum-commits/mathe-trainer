@@ -585,7 +585,7 @@ const META = {
     formeln: [['Hauptsatz', '\\int_a^b f(x)\\,dx=F(b)-F(a)'], ['Aufleiten', '\\int x^n\\,dx=\\tfrac{1}{n+1}x^{n+1}+C'], ['Fläche zwischen Graphen', 'A=\\int_{x_1}^{x_2}\\bigl(g(x)-f(x)\\bigr)dx']] },
   kurve: { boss: ['Kurven-Krake', '∿', [KU(genWendestelle), KU(genMonotonie), genSymmetrie, genGrenzwert, genKurveE]], why: 'Bei einer Epidemie ist der Wendepunkt der Moment, ab dem die Zahlen langsamer steigen.',
     formeln: [['Wendepunkt', "f''(x_0)=0,\\quad f'''(x_0)\\neq 0"], ['Symmetrie', 'f(-x)=f(x):\\text{ Achse}\\qquad f(-x)=-f(x):\\text{ Punkt}']] },
-  extremwert: { boss: ['Optimus Maximus', 'max', [genExtremwert]], why: 'Getränkedosen haben fast genau die Form, die bei festem Inhalt am wenigsten Blech braucht.',
+  extremwert: { boss: ['Optimus Maximus', 'max', [genExtremwert]], why: 'Welche Dose braucht bei festem Inhalt am wenigsten Blech? Eine Extremwertaufgabe liefert die Antwort: Die Höhe muss so groß sein wie der Durchmesser.',
     formeln: [['Extremwertaufgabe', "\\begin{array}{l}\\text{Zielfunktion aufstellen}\\ \\to\\ \\text{ableiten}\\\\\\to\\ \\text{null setzen}\\ \\to\\ \\text{Rand prüfen}\\end{array}"]] },
   anwenden: { boss: ['Steckbrief-Sheriff', '?', [genTangente, genSteckbrief, genSchar]], why: 'Straßen und Achterbahnen werden aus Kurvenstücken gebaut, die am Übergang in Höhe und Steigung zusammenpassen müssen. Das sind Steckbriefaufgaben.',
     formeln: [['Tangente', "t(x)=f'(x_0)\\cdot(x-x_0)+f(x_0)"], ['Steckbrief', "f(a)=b\\quad f'(a)=m\\quad f''(a)=0"]] },
