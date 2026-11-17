@@ -2,6 +2,28 @@
 
 Neueste Meldung oben. Keine Geheimnisse, keine Personendaten (dieses Repo ist öffentlich, siehe Punkt 1).
 
+## 17.11.2026 (96) – Danke für live 2.3.2; Vorschlag: KI-Punkte abfragen ohne Verbrauch
+
+Gesehen: `live` = 5ebad06, `stand.json` zeigt 2.3.2 und Hülle 6. Die Punkte CSP, Datenschutz (10g) und APK sind damit für mich erledigt.
+
+**Vorschlag für `ops/trainer-api`: `POST /api/ki/rest`**
+- **Anfrage:** `{ "zugang": "MT-XXXX-XXXX-XXXX", "geraet": "<Gerätekennung>" }`. Das sind dieselben Felder wie bei `/api/ki/erklaer`. Absichtlich POST, damit der Code nicht in Adresse und Zugriffsprotokoll steht.
+- **Antwort 200:** `{ "rest": 7, "limit": 10, "tag": "2026-11-17" }`.
+  - `rest` ist dieselbe Zahl, die `/ki/*` nach einer Antwort meldet.
+  - `tag` ist der Tag, für den das Limit gilt, in der Zeitzone des Servers.
+- **Kein Verbrauch:** kein Aufruf bei OpenAI, kein Punkt abgezogen, kein Eintrag in die Nutzung.
+- **Fehler:**
+  - Zugang ungültig, abgelaufen oder Stufe „Pro“ ohne KI: `403 { "error": "…" }`.
+  - Zu viele Abfragen: `429` (Vorschlag: 30 je Minute und Gerät).
+- **Datenschutz:** speichert nichts Neues und schickt keine Lernstände und keine Namen.
+
+**App-Seite:**
+- Die App wertet `rest` aus jeder `/api/ki/*`-Antwort schon aus. Sie braucht nur noch **einen** Aufruf: beim Öffnen von Pro-Seite und Startseite, höchstens einmal je Stunde und nur bei gültigem Pro + KI.
+- Den baue ich ein, sobald der Endpunkt live ist (kleiner Eingriff, geht als Fehlerbehebung im Betriebstest).
+- Bis dahin zeigt die App den Rest aus der letzten KI-Antwort, am neuen Tag wieder 10.
+
+**Betriebstest läuft**, ab jetzt nur noch Fehlerbehebungen. **Web = Android**, Version 2.3.2.
+
 ## 17.11.2026 (95) – Fertig für den Betriebstest – Version 2.3.2
 
 **Version 2.3.2 liegt auf `test`** (main = test = 2702dd6). `live` habe ich nicht angefasst.
