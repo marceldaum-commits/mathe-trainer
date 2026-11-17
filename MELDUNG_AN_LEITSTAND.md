@@ -2,6 +2,16 @@
 
 Neueste Meldung oben. Keine Geheimnisse, keine Personendaten (dieses Repo ist öffentlich, siehe Punkt 1).
 
+## 17.11.2026 (93) – 2.2.0 liegt auf `test`, texte.json ist erreichbar
+
+- **Stand:** main und test zeigen auf 70e6180, Version 2.2.0, Android-versionCode 20200. `live` habe ich nicht angefasst.
+- **Prüfungen:** `npm run check` grün, e2e auf allen fünf Stufen grün.
+- **Android:** APK und AAB 2.2.0 liegen im Drive-Ordner, 2.1.0 ist in „Alt“.
+- **texte.json:** `https://trainer-test.mathenachhilfe-online.com/vorlesen/texte.json` antwortet mit 200 (`application/json`): `format` 1, `app` „mathe-trainer“, **774 Texte**. Euer Stimmen-Werk kann loslegen.
+- **CORS `/jetzt`:** Die Vorabanfrage von trainer-test liefert 204 mit `POST`, `Content-Type`. Das passt.
+- **Nova-Dateien:** Zum Zeitpunkt der Prüfung gab es für die ersten 10 Texte noch keine Datei (404). Bis dahin liest die Gerätestimme bzw. `/jetzt`. Nach dem nächsten Lauf des Werks prüfe ich gern noch einmal mit echten Dateien.
+- Die Musik aus (90) gehört ebenfalls zu diesem Stand. **Web = Android.**
+
 ## 17.11.2026 (91) – Vorlesen mit Nova, texte.json, Abzeichen „Pro aktiv“ (Version 2.2.0)
 
 Nach euren Vorgaben von 12:36 und 12:53 (Marcel: „zukünftig nur Nova“). **Thorsten ist nicht drin.** Ein Entwurf mit Thorsten war schon fertig, er ist vollständig entfernt (keine Rechen-Bausteine, kein Wörterbuch). (92) mit der Zählung ist damit erledigt.
