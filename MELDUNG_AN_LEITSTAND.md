@@ -2,6 +2,115 @@
 
 Neueste Meldung oben. Keine Geheimnisse, keine Personendaten (dieses Repo ist öffentlich, siehe Punkt 1).
 
+## 17.11.2026 (87) – Korrektheitsprüfung 17.11. (Version 0.43.0)
+
+Auftrag laut Leitstand: vollständige Korrektheitsprüfung (Marcel per Auswahl bestätigt: „Jetzt“).
+
+### Was geprüft wurde und wie
+- **Alle Aufgaben-Erzeuger** (gen.js bis gen11.js, rund 190 Erzeuger, jeweils Stufe 1–5):
+  - Je Erzeuger und Stufe 200–400 Aufgaben mit eigenen Skripten erzeugt.
+  - Lösungen unabhängig nachgerechnet (harte Tests mit über 2,5 Mio. Prüfungen, dazu je Aufgaben-Art ein vollständiges Beispiel von Hand).
+  - Jeden Ablenker samt Fehler-Diagnose, jeden Tipp und jeden Lösungsweg gelesen.
+  - **4,18 Mio. Formeln** mit echtem KaTeX gesetzt: 0 Fehler.
+- **Theorie:** alle Seiten (kurz und ausführlich) gelesen, rund 150 Beispielrechnungen nachgerechnet (Binomial, Normal, Logarithmus mit eigener Rechnung).
+- **Weitere Inhalte:**
+  - Infokarten, Formelkarten, Merkbild-Zuordnungen, Karteikarten.
+  - Probeklausuren: 3150 Blätter (Punkte 48, Notenschlüssel, Gebiete, Länderfilter, ein Lösungsbuchstabe je Aufgabe).
+  - Abi-Modus: 1600 Runden.
+  - Arbeitsblätter mit Lösungsblatt, Umstell-Blatt.
+  - Formel-Dungeon: alle 55 Formeln mit jeder Zielgröße, Fallen, Wächter, Spickzettel.
+- **Spiele (30) und übrige Module:** Spielaufgaben mit eigenem Skript nachgerechnet (4803 Prüfungen), Eingabe-Erkennung mit 34 Grenzfällen.
+- **KI-Teile:**
+  - Ausdruck-Leser und KI-Prüfer mit rund 45 Grenzfällen geprüft (Polstellen, doppelte Antworten, fehlende Werte, eingeschleuste HTML-Teile).
+  - Begrenzungen und „nur Klartext“ geprüft.
+  - Keine Namen und keine Lernstände an die KI (geprüft).
+- **Funktion:**
+  - Durchklick-Prüfung jeder Seite und jedes Schritts in Klasse 5–9 (Klasse 10, Oberstufe und „mit Lernstand“ siehe unten).
+  - **320-px-Prüfung** jeder Seite, jeder Theorie (kurz und lang) und jedes Schritts in allen Klassen: Formeln über dem Rand, KaTeX-Fehler, Platzhalter, Knöpfe ohne Namen, Bilder ohne alt, umbrechende Knopftexte, Konsolenfehler.
+  - **Offline-Test:** App laden, Netz aus, neu laden, Seiten und Aufgabe.
+  - **Android-Selbstaktualisierung:** 27 Prüfungen am Rechner.
+  - Browser-Gesamttest (e2e: Pro-Codes, Klassen-Rangliste, Updates, Duell, Kartei, Bericht und mehr) auf allen fünf Stufen, Ergebnis unter (88).
+- **Stufen-Test** (`tests/stufen.mjs`): grün.
+
+### Abweichungen mit Korrektur (vorher → nachher)
+
+**Fachliche Fehler (Aufgabe oder Bewertung betroffen)**
+- **Eingabe:** „1 1/2“ wurde als 11/2 = 5,5 gelesen → jetzt gemischte Zahl 1,5. „–3“ (Halbgeviertstrich) wurde nicht erkannt → jetzt Minus.
+- **gen9 (Ableitung ln, Wert):** Ein Ablenker „2/2·ln(…)“ war wertgleich mit der Lösung, es gab also zwei richtige Antworten → Ablenker geändert.
+- **Formel-Dungeon Klasse 5/6:** In etwa 1 % der Aufgaben in Stockwerk 3/4 kamen negative Zwischenwerte vor → jeder Zwischenwert wird geprüft (Test erweitert).
+- **Zinsen-Spiel:** Drei Zinssatz-Aufgaben waren mehrdeutig, auch höhere Sätze waren richtig → „Such den kleinsten, der reicht.“
+- **gen6 Parabel „Landung“:** Ball startete teils unter dem Boden, die Frage war mehrdeutig → nur noch Abwurfhöhe > 0.
+- **gen6 Zinseszins „wechsel“:** Die gerundete Zwischenzahl ergab eine um 1 Cent falsche Rechenkette → Zwischenwert mit 4 Nachkommastellen.
+- **KI-Prüfer:**
+  - Doppelte Antworten („x“ und „x+0“) → werden abgelehnt.
+  - Antwort ohne Wert zählte als 0 → zählt nicht.
+  - Integrale über Polstellen gaben Zufallswerte → werden abgelehnt.
+  - „Konstante = 2“ wurde fälschlich als Code abgelehnt → behoben.
+  - Name „constructor(x)“ wurde als Funktion angenommen → abgelehnt.
+  - Frage, Tipps und Erklärung der KI werden jetzt als Klartext maskiert.
+  - Feld „formel“ wird jetzt geprüft (max. 300 Zeichen).
+- **gen6 Binomische Formel „zurück“:** Erklärung bei Vorfaktor 1 nicht setzbar (`2\cdotx`) → behoben.
+- **gen2 Schar:** `k\cdotk^2` nicht setzbar → behoben.
+
+**Falsche Tipps und Erklärungen**
+- **gen4 Kosinus-Ableitung:** Tipp „(−2)·4 = −8“, Lösung +8 → „(−2)·(−1)·4 = 8“.
+- **gen7 Sinusfunktion:** Ablenker 540° hieß „Das ist die Amplitude“ → richtige Fehler-Diagnose.
+- **gen2:**
+  - ln-Diagnose sachlich falsch.
+  - „lineares Wachstum“-Ablenker mit falschem Wert.
+  - Halbierungs-Diagnose sprach von Verdopplung.
+  - Kombinatorik „Kreuzungen“ → „Häuserblöcke“.
+- **gen8:**
+  - Rueckwaerts-Ablenker (Werte passten nicht zur Diagnose).
+  - Rundung 0,33/0,333 vereinheitlicht.
+  - „≈“ bzw. „=“ richtig gesetzt.
+- **gen11:** Frage nach dem Verhältnis AC:AB, die keine Antwort beantwortete → gestrichen.
+- **Spiel Tangente:** „Links vom Hochpunkt am steilsten“ (falsch) → „je weiter links, desto steiler“.
+- **Spiel Kästchen:** Erklärung „bei gleicher Fläche den kürzesten Rand“ passte nicht zur Aufgabe → „bei gleichem Rand die größte Fläche“.
+- **Einheit Kurvendiskussion:** „Wendepunkt: dort ist er am steilsten“ → „Steigung am größten oder kleinsten“, denn bei x³ ist er die flachste Stelle.
+- **Exponentialfunktion:** „sonst fällt sie“ → „liegt b zwischen 0 und 1, fällt sie“, denn b = 1 ist konstant.
+- **Extremwert-Einleitung:** „Getränkedosen haben fast genau die Form …“ (sachlich falsch) → richtig gestellt.
+- **Merkbilder:** „Scheitelwinkel“ bekam das Parabel-Bild, „Sinus, Kosinus, Tangens“ die Sinuswelle, „Gerade“ (Klasse 8) das Bild der Raumgeraden → richtige Zuordnung.
+- **Formel-Dungeon:**
+  - „v² = v0² + 2as“ hieß „Bremsweg“ → „Geschwindigkeit und Weg“.
+  - „Hoch 3 heißt mal sich selbst“ → „3 gleiche Faktoren“.
+  - Spickzettel „Bruch im Nenner“ → „Gesuchte Größe im Nenner“.
+- **Probe-Arbeit Klasse 5–10:** Der Kopf nannte fest „Analysis · Stochastik · Geometrie“ → die tatsächlichen Gebiete.
+- **Theorie s-test2:** Beispiele in der Reihenfolge 4, 2, 3 → 2, 3, 4.
+
+**Sprache, Darstellung, Barrierefreiheit (Auswahl, insgesamt über 150 Stellen)**
+- **Einzahl/Mehrzahl:**
+  - „genau 1 Fehlversuche“, „bei 1 Treffern“, „1 Schritte bis zum Sieg“, „Es sind 1 Grad“, „Heute noch 1 KI-Punkte“, „Auch die 1 nicht-roten Kugeln“ → jeweils richtig gebeugt.
+- **Schreibweise:**
+  - „1x“, „−1x“, „2·0x“, „x^{3}-1x“, „3·1k²“ → „x“, „−x“, entfällt, „x³−x“, „3k²“.
+  - Geld: „2,5 €“, „58,5 €“, „0,6 €“ → „2,50 €“, „58,50 €“, „0,60 €“.
+  - „x=6.25“ → „6,25“.
+  - „480:3 ≈ 160“ → „= 160“.
+- **Grammatik:**
+  - „Wie viele fehlerhaften“, „Nüsse muss“, „Bei einem Glücksrad Jedes Mal“, „wird laufend mehr“ → korrigiert.
+  - Zahnrad- und Wanderer-Texte neu gefasst.
+- **Typografie:** über 100 gerade Schlusszeichen (") → „…“.
+- **320 px:**
+  - Vier Formeln in der Theorie „Kugel“ ragten über den Rand → abgesetzt oder zweizeilig. Weitere lange Formeln vorsorglich abgesetzt.
+  - Waage-Knöpfe brachen um („1 Gewicht wegnehmen“) → „Gewicht weg“ / „Teilen“, mit vollem Namen für Screenreader.
+- **Schriftgrößen:** zwei feste Angaben (abenteuer.js, raum.js) → `calc(…*var(--fs,1))`, damit „große Schrift“ greift.
+- **Android-Brücke:** fünf Aufrufe ohne `typeof … === 'function'` (Mitteilungen, Erinnerung aus/Stand, Update, geübt) → abgesichert.
+- **Store-Text (docs/PLAYSTORE.md):**
+  - „keine fremden Dienste“ war falsch, denn KI-Anfragen gehen über den eigenen Server an einen KI-Dienst → richtig gestellt.
+  - Formular „Datensicherheit“ vervollständigt (Klassen-Code, Zugangscode, KI-Anfragen, Geräte-Kennung).
+  - Satz zur Selbst-Aktualisierung aktualisiert.
+
+### Was nicht prüfbar war oder offen ist
+- **KI-Limit „15 Punkte pro Tag“:** Steht im Repo nirgends. Die App zeigt nur den Rest an, den der Server meldet. Die Grenze setzt der Server durch, dessen Code nicht in diesem Repo liegt. In PLAN.md und älteren Meldungen steht als Plan „Tageslimit 10“. **Bitte Zahl festlegen und am Server prüfen.** In der App ist nichts zu ändern.
+- **Preise inkl. MwSt.:**
+  - Die App und PLAYSTORE.md nennen keine Preise. Die Preise stehen nur in PLAN.md und den Meldungen und sind dort einheitlich (4,99 / 19,99 / 9,99 / 39,99 €).
+  - Meldung (≈ Zeile 178 alt) sagt, die App zeige Preise „inkl. MwSt.“ an. Das stimmt nicht, sie zeigt keine. Preise und MwSt. stehen auf der Website (nicht in diesem Repo).
+- **Store-Beschreibungen** (Kurz- und Langtext) liegen nicht im Repo.
+- **Grauzone Android:** „Nachhilfe buchen“ und „Zur Website“ erscheinen auch in der Android-App. Die Website führt den Pro-Shop. Einen direkten Kauflink gibt es in der App nicht. Bitte entscheiden, ob die Links in der Android-App ausgeblendet werden sollen.
+- **Nicht im Browser prüfbar:** Zeichnungen der Merkbilder (Canvas) nur über Text und Zuordnung. Echte Android-Geräte habe ich nicht getestet (nur Rechner-Test der Hülle).
+- **Lehrplan-Angaben** einzelner Länder (Hessen, Bayern) nicht gegen amtliche Quellen geprüft.
+- **Stilfragen bewusst gelassen:** Zum Beispiel heißt es „Probeklausur ohne Hilfsmittel“, obwohl ab Stufe 4 auch Tabellen-Aufgaben vorkommen. Das ist eine inhaltliche Entscheidung für Marcel.
+
 ## 17.11.2026 (86) – 0.42.0 liegt auf test (Commit af0b88f)
 
 - Gesamtprüfung zweimal grün (`npm run check`), Browser-Gesamttest auf allen fünf Stufen ohne Fehler. `main` und `test` stehen auf demselben Commit.
