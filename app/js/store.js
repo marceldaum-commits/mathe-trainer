@@ -51,7 +51,7 @@ export function nextStreak(streak, today = new Date()) {
 
 /** Markiert den heutigen Tag als aktiv: Serie und Wochen-Ziel. */
 function touchDay(today = new Date()) {
-  try { globalThis.window?.MTApp?.geuebt?.(); } catch { /* nur in der Android-App: heute keine Erinnerung mehr */ }
+  try { const a = globalThis.window?.MTApp; if (typeof a?.geuebt === 'function') a.geuebt(); } catch { /* nur in der Android-App: heute keine Erinnerung mehr */ }
   mem.streak = nextStreak(mem.streak, today);
   const wk = weekKey(today), dk = dayKey(today);
   if (mem.week.key !== wk) mem.week = { key: wk, days: [], claimed: false };

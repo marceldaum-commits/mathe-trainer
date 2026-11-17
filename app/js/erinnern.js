@@ -7,6 +7,7 @@ import { store } from './store.js';
 export const nativ = () => typeof window !== 'undefined' && typeof window.MTApp?.erinnerungAn === 'function';
 /** Zustand aus der Android-App lesen: { an, zeit, erlaubt } – oder null, wenn die Antwort unlesbar ist. */
 export function nativStand() {
+  if (typeof window.MTApp?.erinnerungStand !== 'function') return null;
   try { const s = JSON.parse(window.MTApp.erinnerungStand()); return { an: s.an === true, zeit: zeitOk(s.zeit) ? s.zeit : ZEIT_VORGABE, erlaubt: s.erlaubt === true }; } catch { return null; }
 }
 export const pushOn = () => nativ() || (CONFIG.push === true && typeof CONFIG.api === 'string' && CONFIG.api.length > 0);
@@ -81,7 +82,7 @@ export async function pushAn(zeit) {
 }
 /** Ausschalten: Abo beim Server abmelden und im Gerät löschen. */
 export async function pushAus() {
-  if (nativ()) { window.MTApp.erinnerungAus(); store.erinnern = { zeit: zeitOk(store.erinnern?.zeit) ? store.erinnern.zeit : ZEIT_VORGABE, an: false }; return; }
+  if (nativ()) { if (typeof window.MTApp.erinnerungAus === 'function') window.MTApp.erinnerungAus(); store.erinnern = { zeit: zeitOk(store.erinnern?.zeit) ? store.erinnern.zeit : ZEIT_VORGABE, an: false }; return; }
   try {
     const reg = await bereit(), abo = await reg.pushManager.getSubscription();
     if (abo) { await post('/push/aus', { endpoint: abo.endpoint }).catch(() => {}); await abo.unsubscribe(); }

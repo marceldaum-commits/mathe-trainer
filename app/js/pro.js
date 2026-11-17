@@ -6,7 +6,7 @@ import { premiumOn, premiumBereit, ZUGANG_ART } from './api.js';
 
 /** Alle Funktionen mit ihrer Stufe. wo = Sprungziel in der App (leer: erscheint direkt bei den Aufgaben). */
 export const FUNKTIONEN = [
-  ['frei', 'Lernpfad, Spiele, Abenteuer und Karte', 'Alle Einheiten mit Boss – wird laufend mehr.', '#/lernen'],
+  ['frei', 'Lernpfad, Spiele, Abenteuer und Karte', 'Alle Einheiten mit Boss – es werden laufend mehr.', '#/lernen'],
   ['frei', 'Merkbilder und Theorie kurz', 'Bewegte Bilder zum Anfassen, jedes Thema kurz erklärt.', '#/theorie'],
   ['frei', 'Lernkarten', 'Formeln und eigene Karten, wiederholt in wachsenden Abständen.', '#/karten'],
   ['frei', 'Arbeitsblatt in der App lösen', 'Themen wählen, Blatt bauen, in der App rechnen.', '#/blatt'],

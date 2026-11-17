@@ -62,7 +62,7 @@ export function rechenwegFeld(q, richtigTex) {
     } else if (r.status === 402) div.innerHTML = `<b>Der Rechenweg-Prüfer gehört zur Stufe „Pro + KI“.</b>${premiumOn() ? ' <a href="#/einstellungen">Zugangscode eingeben</a>' : ''}${window.MTApp ? '' : ` <a href="${CONFIG.website}" target="_blank" rel="noopener">Zur Website</a>`}`;
     else div.textContent = r.status === 429 ? 'Dein KI-Guthaben für heute reicht dafür nicht mehr. Morgen geht es weiter.' : r.status === 413 ? 'Das Bild ist zu groß. Bitte näher herangehen oder den Rechenweg abtippen.' : (r.error || 'Der Prüfer ist gerade nicht erreichbar.');
     out.replaceChildren(div);
-    if (r.ok && Number.isInteger(r.rest)) out.append(h(`<small class="muted ki-rest">Heute noch ${r.rest} KI-Punkte.</small>`));
+    if (r.ok && Number.isInteger(r.rest)) out.append(h(`<small class="muted ki-rest">Heute noch ${r.rest} ${r.rest === 1 ? 'KI-Punkt' : 'KI-Punkte'}.</small>`));
     go.disabled = r.status === 402;
   };
   return box;

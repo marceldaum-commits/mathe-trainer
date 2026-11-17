@@ -20,9 +20,9 @@ export function parse(src, vars = ['x']) {
     const m = /^[a-z]+/i.exec(s.slice(i));
     if (!m) throw new Error(`Unerwartetes Zeichen an Stelle ${i + 1}`);
     const name = m[0].toLowerCase(); i += m[0].length;
-    if (FUNCS[name]) { eat('('); const a = expr(); eat(')'); const f = FUNCS[name]; return (v) => f(a(v)); }
+    if (Object.hasOwn(FUNCS, name)) { eat('('); const a = expr(); eat(')'); const f = FUNCS[name]; return (v) => f(a(v)); }
     if (vars.includes(name)) return (v) => v[name];
-    if (name in CONSTS) { const n = CONSTS[name]; return () => n; }
+    if (Object.hasOwn(CONSTS, name)) { const n = CONSTS[name]; return () => n; }
     throw new Error(`Unbekannter Name „${name}"`);
   }
   const f = expr();

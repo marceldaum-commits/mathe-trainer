@@ -56,9 +56,9 @@ export function genBruch(lv = 3) {
     const F = (n, den, correct, why) => (den === 0 ? null : { tex: fracTex(n, den), num: n / den, correct, why });
     const opts = {
       '+': gleich ? [F(z, H, true), F(a + c, 2 * b, false, 'Bei gleichen Nennern bleibt der Nenner stehen – nur die Zähler werden addiert.'), F(a + c, b * b, false, 'Der Nenner bleibt, wie er ist – er wird nicht mit sich selbst multipliziert.'), F(a * c, b, false, 'Die Zähler werden addiert, nicht multipliziert.')]
-        : [F(z, H, true), F(a + c, b + d, false, 'Zähler und Nenner dürfen nicht einfach getrennt addiert werden. Erst gleichnamig machen.'), F(a + c, H, false, 'Der Nenner ist gleichnamig – aber die Zähler müssen mit erweitert werden.'), F(a * c, b * d, false, 'Das wäre Multiplizieren. Beim Addieren erst auf den Hauptnenner bringen.')],
+        : [F(z, H, true), F(a + c, b + d, false, 'Zähler und Nenner dürfen nicht einfach getrennt addiert werden. Erst gleichnamig machen.'), F(a + c, H, false, 'Der Hauptnenner stimmt – aber die Zähler müssen mit erweitert werden.'), F(a * c, b * d, false, 'Das wäre Multiplizieren. Beim Addieren erst auf den Hauptnenner bringen.')],
       '-': gleich ? [F(z, H, true), F(a + c, b, false, 'Hier wurde addiert statt subtrahiert.'), F(a - c, b * b, false, 'Der Nenner bleibt, wie er ist – er wird nicht mit sich selbst multipliziert.'), F(a - c, 2 * b, false, 'Bei gleichen Nennern bleibt der Nenner stehen – nur die Zähler werden subtrahiert.')]
-        : [F(z, H, true), F(a - c, b - d, false, 'Zähler und Nenner dürfen nicht getrennt subtrahiert werden. Erst gleichnamig machen.'), F(a - c, H, false, 'Der Nenner ist gleichnamig – aber die Zähler müssen mit erweitert werden.'), F(a * e1 + c * e2, H, false, 'Hier wurde addiert statt subtrahiert.')],
+        : [F(z, H, true), F(a - c, b - d, false, 'Zähler und Nenner dürfen nicht getrennt subtrahiert werden. Erst gleichnamig machen.'), F(a - c, H, false, 'Der Hauptnenner stimmt – aber die Zähler müssen mit erweitert werden.'), F(a * e1 + c * e2, H, false, 'Hier wurde addiert statt subtrahiert.')],
       '·': [F(a * c, b * d, true), F(a * d, b * c, false, 'Mit dem Kehrwert rechnet man nur beim Dividieren.'), F(a * d + c * b, b * d, false, 'Das wäre Addieren. Beim Multiplizieren: Zähler mal Zähler, Nenner mal Nenner.'), F(a * c, b + d, false, 'Auch die Nenner werden multipliziert.')],
       ':': [F(a * d, b * c, true), F(a * c, b * d, false, 'Dividieren heißt: mit dem Kehrwert des zweiten Bruchs multiplizieren.'), F(b * c, a * d, false, 'Es wird der zweite Bruch umgedreht, nicht der erste.'), F(a + c, b + d, false, 'Brüche dividiert man, indem man mit dem Kehrwert multipliziert.')],
     }[op];
@@ -173,7 +173,7 @@ export function genLinGl(lv = 3) {
     } else if (L === 1) {
       const a = ri(2, 6), x0 = ri(2, 9), d = a * x0; art = 'mal';
       formula = `${a}x=${d}`; left = (x) => a * x; right = () => d;
-      opts = [X(x0, true), X(d * a, false, `Es wird durch ${a} geteilt, nicht mit ${a} multipliziert.`), X(d - a, false, `Zwischen ${a} und ${tex('x')} steht ein Malpunkt: teilen, nicht abziehen.`), X(-x0, false, 'Beide Seiten sind positiv – die Lösung auch.')];
+      opts = [X(x0, true), X(d * a, false, `Es wird durch ${a} geteilt, nicht mit ${a} multipliziert.`), X(d - a, false, `${tex(`${a}x`)} heißt ${tex(`${a}\\cdot x`)}: teilen, nicht abziehen.`), X(-x0, false, 'Beide Seiten sind positiv – die Lösung auch.')];
       hints = [`Teile beide Seiten durch ${a}.`, `${tex(`x=${d}:${a}`)}.`]; explain = `${tex(`x=${d}:${a}=${x0}`)}.`;
     } else if (L === 2) {
       const a = pick([2, 3, 4, 5, 6]), b = pick([1, 2, 3, 5, 7, -1, -4, -6]), x0 = pick([2, 3, 4, 5, 6, -1, -2, -3]), d = a * x0 + b; art = 'zwei';
@@ -299,7 +299,7 @@ export function genPotenz(lv = 3) {
       hints = [`Zähler – Exponenten addieren: ${tex(`-${a}+${b}=${b - a}`)}.`, `Bruch – Exponent des Nenners abziehen, minus minus ergibt plus: ${tex(`${b - a}-(-${c})=${b - a}+${c}=${e}`)}.`, ...(e < 0 ? [`Ein negativer Exponent bedeutet Kehrwert: ${tex(`x^{${e}}=\\dfrac{1}{${xe(-e)}}`)}.`] : [])];
       explain = `${tex(`${formula}=x^{-${a}+${b}-(-${c})}=${opts[0].tex}`)}.`; }
     else if (kind === 'neg') { formula = `x^{-${a}}`; f = (x) => x ** -a;
-      opts = [{ tex: `\\dfrac{1}{x^{${a}}}`, correct: true, val: (x) => 1 / x ** a }, { tex: `-x^{${a}}`, correct: false, why: 'Ein negativer Exponent bedeutet „Kehrwert", nicht „negatives Vorzeichen".', val: (x) => -(x ** a) }, { tex: `-${a}x`, correct: false, why: 'Der Exponent ist kein Faktor.', val: (x) => -a * x }, { tex: `\\dfrac{1}{x^{-${a}}}`, correct: false, why: `Das wäre ${tex(`x^{${a}}`)}.`, val: (x) => x ** a }];
+      opts = [{ tex: `\\dfrac{1}{x^{${a}}}`, correct: true, val: (x) => 1 / x ** a }, { tex: `-x^{${a}}`, correct: false, why: 'Ein negativer Exponent bedeutet „Kehrwert“, nicht „negatives Vorzeichen“.', val: (x) => -(x ** a) }, { tex: `-${a}x`, correct: false, why: 'Der Exponent ist kein Faktor.', val: (x) => -a * x }, { tex: `\\dfrac{1}{x^{-${a}}}`, correct: false, why: `Das wäre ${tex(`x^{${a}}`)}.`, val: (x) => x ** a }];
       hints = ['Ein negativer Exponent bedeutet: Kehrwert bilden.', `Die Potenz wandert in den Nenner, der Exponent wird dort positiv: ${tex('x^{-n}=\\dfrac{1}{x^n}')}.`]; explain = `${tex(`${formula}=${opts[0].tex}`)}.`; }
     else if (kind === 'wurzel') { const n = pick([2, 3, 4, 5]), m = pick([1, 2, 3, 5, 6].filter((v) => v !== n)); formula = wz(n, xe(m)); f = (x) => (x ** m) ** (1 / n);
       opts = [Q(m, n, true), Q(n, m, false, 'Der Wurzelexponent steht im Nenner des Bruchs.'), Q(m * n, 1, false, 'Eine Wurzel verkleinert den Exponenten: Er wird geteilt, nicht multipliziert.'), Q(m - n, 1, false, 'Der Exponent wird durch den Wurzelexponenten geteilt, nicht vermindert.')];
@@ -543,7 +543,7 @@ export function genGegen(lv = 3) {
       return { prompt: ctx, options: shuffle(opts), hints: [`Die beiden genannten Fälle zusammen: ${tex(`${p1}\\,\\%+${p2}\\,\\%=${p}\\,\\%`)}.`, `Der dritte Fall ist das Gegenereignis dazu – alles zusammen ergibt 100 %: ${tex(`100\\,\\%-${p}\\,\\%`)}.`], explain: `${tex(`100\\,\\%-(${p1}\\,\\%+${p2}\\,\\%)=100\\,\\%-${p}\\,\\%=${100 - p}\\,\\%`)}.`, kind: 'einfach', p, art: 'rest', roh: { p1, p2 } };
     }
     // „Mindestens ein Treffer“ über das Gegenereignis „kein Treffer“
-    let prompt, n, miss, Fm, Ft, roh;   // Fm: P(kein Treffer) je Versuch als Formel, Ft: P(Treffer) je Versuch
+    let prompt, n, miss, Fm, Ft, roh, W = ['Treffer', 'Treffer', 'Treffern'];   // Fm: P(kein Treffer) je Versuch als Formel, Ft: P(Treffer) je Versuch
     if (L <= 4) {
       const [was, treffer, z, nn, verb] = pick(L === 3 ? [['Ein Würfel', 'eine Sechs', 5, 6, 'geworfen'], ['Eine Münze', 'einmal Kopf', 1, 2, 'geworfen'], ['Ein Würfel', 'eine Zahl größer als 4', 2, 3, 'geworfen']]
         : [['Ein Glücksrad mit 4 gleich großen Feldern hat ein Gewinnfeld. Es', 'einen Gewinn', 3, 4, 'gedreht'], ['Ein Glücksrad mit 5 gleich großen Feldern hat ein Gewinnfeld. Es', 'einen Gewinn', 4, 5, 'gedreht'], ['Ein Glücksrad mit 10 gleich großen Feldern hat 3 Gewinnfelder. Es', 'einen Gewinn', 7, 10, 'gedreht'], ['Ein Würfel', 'eine Sechs', 5, 6, 'geworfen'], ['Ein Glücksrad mit 8 gleich großen Feldern hat 3 Gewinnfelder. Es', 'einen Gewinn', 5, 8, 'gedreht']]);
@@ -551,17 +551,19 @@ export function genGegen(lv = 3) {
       prompt = `${was} wird ${n}-mal ${verb}. Welche Rechnung liefert die Wahrscheinlichkeit für <b>mindestens ${treffer}</b>?`;
     } else {
       const d = pick([2, 4, 5, 8, 12, 15]); n = ri(6, 15); miss = 1 - d / 100; Fm = ft(miss); Ft = ft(d / 100); roh = { d, n };
-      prompt = pick([`Ein Bauteil ist mit einer Wahrscheinlichkeit von ${d} % defekt. Es werden ${n} Bauteile unabhängig voneinander geprüft. Welche Rechnung liefert die Wahrscheinlichkeit für <b>mindestens ein defektes Bauteil</b>?`, `Eine Basketballerin verwirft einen Freiwurf mit einer Wahrscheinlichkeit von ${d} %. Sie wirft ${n}-mal. Welche Rechnung liefert die Wahrscheinlichkeit für <b>mindestens einen Fehlwurf</b>?`]);
+      const korb = rand() < 0.5;   // Beim Freiwurf heißt das gesuchte Ereignis „Fehlwurf“ – „Treffer“ wäre hier das Gegenteil.
+      prompt = korb ? `Eine Basketballerin verwirft einen Freiwurf mit einer Wahrscheinlichkeit von ${d} %. Sie wirft ${n}-mal. Welche Rechnung liefert die Wahrscheinlichkeit für <b>mindestens einen Fehlwurf</b>?` : `Ein Bauteil ist mit einer Wahrscheinlichkeit von ${d} % defekt. Es werden ${n} Bauteile unabhängig voneinander geprüft. Welche Rechnung liefert die Wahrscheinlichkeit für <b>mindestens ein defektes Bauteil</b>?`;
+      if (korb) W = ['Fehlwurf', 'Fehlwürfe', 'Fehlwürfen'];
     }
     const kl = (t) => (/dfrac/.test(t) ? `\\left(${t}\\right)` : t), wert = 1 - miss ** n;
     const opts = [{ tex: `1-${kl(Fm)}^{${n}}`, num: wert, correct: true },
       { tex: `${n}\\cdot${Ft}`, num: n * (1 - miss), correct: false, why: 'Wahrscheinlichkeiten dürfen hier nicht einfach addiert werden – bei vielen Versuchen käme sonst mehr als 100 % heraus.' },
-      { tex: `${kl(Ft)}^{${n}}`, num: (1 - miss) ** n, correct: false, why: 'Das ist die Wahrscheinlichkeit für <b>nur</b> Treffer.' },
-      { tex: `1-${kl(Ft)}^{${n}}`, num: 1 - (1 - miss) ** n, correct: false, why: `Das Gegenereignis von „mindestens ein Treffer" ist „kein Treffer" – mit ${tex(Fm)} je Versuch.` }];
+      { tex: `${kl(Ft)}^{${n}}`, num: (1 - miss) ** n, correct: false, why: `Das ist die Wahrscheinlichkeit für <b>nur</b> ${W[1]}.` },
+      { tex: `1-${kl(Ft)}^{${n}}`, num: 1 - (1 - miss) ** n, correct: false, why: `Das Gegenereignis von „mindestens ein ${W[0]}“ ist „kein ${W[0]}“ – mit ${tex(Fm)} je Versuch.` }];
     if (!uniqNum(opts) || !uniq(opts) || opts.slice(1).some((o) => Math.abs(o.num - wert) < 0.004)) continue;
-    const hints = ['„Mindestens ein Treffer" ist das Gegenereignis von „kein einziger Treffer".', `Die Wahrscheinlichkeit für „kein Treffer" bei einem Versuch ist ${tex(L <= 4 ? Fm : `1-${Ft}=${Fm}`)}.`, `${n}-mal hintereinander kein Treffer (Pfadregel – entlang des Pfades multiplizieren): ${tex(`${kl(Fm)}^{${n}}`)}.`];
+    const hints = [`„Mindestens ein ${W[0]}“ ist das Gegenereignis von „kein einziger ${W[0]}“.`, `Die Wahrscheinlichkeit für „kein ${W[0]}“ bei einem Versuch ist ${tex(L <= 4 ? Fm : `1-${Ft}=${Fm}`)}.`, `${n}-mal hintereinander kein ${W[0]} (Pfadregel – entlang des Pfades multiplizieren): ${tex(`${kl(Fm)}^{${n}}`)}.`];
     if (L >= 4) hints.push(`Ausgerechnet: ${tex(`${kl(Fm)}^{${n}}\\approx ${ft(miss ** n, 4)}`)}, also ${tex(`P\\approx 1-${ft(miss ** n, 4)}=${ft(1 - rd(miss ** n, 4), 4)}`)}.`);
-    if (L >= 5) hints.push(`Als Prozentzahl: ${tex(`P\\approx ${ft(wert * 100, 1)}\\,\\%`)} – deutlich weniger als ${tex(`${n}\\cdot ${Ft}`)}, weil sich die Fälle mit mehreren Treffern überschneiden.`);
+    if (L >= 5) hints.push(`Als Prozentzahl: ${tex(`P\\approx ${ft(wert * 100, 1)}\\,\\%`)} – deutlich weniger als ${tex(`${n}\\cdot ${Ft}`)}, weil sich die Fälle mit mehreren ${W[2]} überschneiden.`);
     return { prompt, options: shuffle(opts), hints, explain: `${tex(`P=1-${kl(Fm)}^{${n}}\\approx${ft(wert * 100, 1)}\\,\\%`)}.`, kind: 'min1', n, miss, art: L <= 4 ? 'min1' : 'min1prozent', roh };
   }
 }
@@ -722,7 +724,7 @@ export function genFlaeche(lv = 3) {
     else if (kind === 'pyramide') { const s = halb() + 2, hh = halb() + 1; want = (s * s * hh) / 3; roh = { s, h: hh };
       prompt = `Eine Pyramide hat eine quadratische Grundfläche mit der Seitenlänge ${tex(`a=${ft(s)}`)} cm und die Höhe ${tex(`h=${ft(hh)}`)} cm. Wie groß ist ihr Volumen (in cm³)?`;
       opts = [V(want, true), V(s * s * hh, false, `Es fehlt der Faktor ${tex('\\tfrac13')}: Eine Pyramide füllt nur ein Drittel des Quaders.`), V((s * s * hh) / 2, false, `Bei Pyramide und Kegel ist der Faktor ${tex('\\tfrac13')}, nicht ${tex('\\tfrac12')}.`), V((s * hh) / 3, false, 'Die Grundfläche ist Seitenlänge mal Seitenlänge.')];
-      hints = [`Pyramide: ein Drittel von Grundfläche mal Höhe, ${tex('V=\\tfrac13\\cdot G\\cdot h')}.`, `Grundfläche: ${tex(`G=${ft(s)}^2=${ft(s * s)}`)}.`, `Grundfläche mal Höhe: ${tex(`${ft(s * s)}\\cdot ${ft(hh)}=${ft(s * s * hh, 3)}`)}.`, `Durch 3 teilen: ${tex(`${ft(s * s * hh, 3)}:3${ca(want, 1)}`)}.`]; explain = `${tex(`V=\\tfrac13\\cdot ${ft(s)}^2\\cdot ${ft(hh)}=\\tfrac13\\cdot ${ft(s * s * hh, 3)}${ca(want, 1)}`)} cm³.`; }
+      hints = [`Pyramide: ein Drittel von Grundfläche mal Höhe, ${tex('V=\\tfrac13\\cdot G\\cdot h')}.`, `Grundfläche: ${tex(`G=${ft(s)}^2=${ft(s * s)}`)}.`, `Grundfläche mal Höhe: ${tex(`${ft(s * s)}\\cdot ${ft(hh)}=${ft(s * s * hh, 3)}`)}.`, `Durch 3 teilen: ${tex(`${ft(s * s * hh, 3)}:3${un(want, 1)}`)}.`]; explain = `${tex(`V=\\tfrac13\\cdot ${ft(s)}^2\\cdot ${ft(hh)}=\\tfrac13\\cdot ${ft(s * s * hh, 3)}${un(want, 1)}`)} cm³.`; }
     else if (kind === 'kegel') { const d = 2 * halb() + 1, r = d / 2, hh = halb() + 2; want = (PI * r * r * hh) / 3; roh = { d, h: hh };
       prompt = `Ein Kegel hat den Durchmesser ${tex(`d=${ft(d)}`)} cm und die Höhe ${tex(`h=${ft(hh)}`)} cm. Wie groß ist sein Volumen (in cm³)?`;
       opts = [V(want, true), V(PI * r * r * hh, false, `Es fehlt der Faktor ${tex('\\tfrac13')}: Ein Kegel füllt nur ein Drittel des Zylinders.`), V((PI * d * d * hh) / 3, false, 'Hier wurde mit dem Durchmesser statt mit dem Radius gerechnet.'), V((PI * r * hh) / 3, false, `Der Radius wird quadriert: ${tex('V=\\tfrac13\\pi r^2h')}.`)];
@@ -872,7 +874,7 @@ export function genVektorRechnen(lv = 3) {
       formula = `${U}=${vecTex(u)},\\quad ${Vv}=${vecTex(v)}`;
       if (kind === 'add') { term = `${U}+${Vv}`; opts = [O(erg, true), O(u.map((c, i) => c - v[i]), false, 'Hier wurde subtrahiert statt addiert.'), O(u.map((c, i) => c * v[i]), false, 'Zeilenweise multiplizieren ist keine Vektoraddition.'), O(u.map((c, i) => (i === 0 ? c + v[i] : c)), false, 'Die Addition gilt für <b>jede</b> Zeile.')];
         hints = art === 'add2' ? ['Addiere Zeile für Zeile.', `Oben ${tex(`${u[0]}+${v[0]}`)}, unten ${tex(`${u[1]}+${v[1]}`)}.`] : ['Addiere Zeile für Zeile – achte auf die Vorzeichen.', `${zl((i) => `${ft(u[i])}+${par(v[i])}=${ft(erg[i])}`)}.`]; }
-      else if (kind === 'sub') { term = `${U}-${Vv}`; opts = [O(erg, true), O(v.map((c, i) => c - u[i]), false, `Reihenfolge vertauscht: Das ist ${tex(`${Vv}-${U}`)}.`), O(u.map((c, i) => c + v[i]), false, 'Hier wurde addiert statt subtrahiert.'), O(u.map((c, i) => c - Math.abs(v[i])), false, 'Achte auf „minus minus": Eine negative Zahl abzuziehen heißt addieren.')];
+      else if (kind === 'sub') { term = `${U}-${Vv}`; opts = [O(erg, true), O(v.map((c, i) => c - u[i]), false, `Reihenfolge vertauscht: Das ist ${tex(`${Vv}-${U}`)}.`), O(u.map((c, i) => c + v[i]), false, 'Hier wurde addiert statt subtrahiert.'), O(u.map((c, i) => c - Math.abs(v[i])), false, 'Achte auf „minus minus“: Eine negative Zahl abzuziehen heißt addieren.')];
         hints = ['Subtrahiere Zeile für Zeile – eine negative Zahl abzuziehen heißt addieren.', `${zl((i) => `${ft(u[i])}-${par(v[i])}=${ft(erg[i])}`)}.`]; }
       else if (kind === 'skalar') { term = `${ft(k)}\\cdot${U}`; opts = [O(erg, true), O(u.map((c, i) => (i === 0 ? k * c : c)), false, 'Der Faktor wird mit <b>jeder</b> Zeile multipliziert.'), O(u.map((c) => c + k), false, 'Es wird multipliziert, nicht addiert.'), O(u.map((c) => -k * c), false, 'Achte auf das Vorzeichen des Faktors.')];
         hints = [`Multipliziere jede Zeile mit ${tex(ft(k))}${k < 0 ? ' – minus mal minus ergibt plus' : ''}.`, `${zl((i) => `${par(k)}\\cdot ${par(u[i])}=${ft(erg[i])}`)}.`]; }

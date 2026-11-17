@@ -52,7 +52,7 @@ export function quiz(sequence, opts = {}) {
           else if (r.status === 402) div.innerHTML = `<b>Rückfragen an den Tutor gehören zur Stufe „Pro + KI“.</b>${kauf()}`;
           else div.textContent = r.status === 429 ? 'Dein KI-Guthaben für heute ist aufgebraucht. Morgen geht es weiter.' : (r.error || 'Der Tutor ist gerade nicht erreichbar.');
           warte.replaceWith(div);
-          if (r.ok && Number.isInteger(r.rest)) { form.querySelector('.ki-rest')?.remove(); form.append(h(`<small class="muted ki-rest">Heute noch ${r.rest} KI-Punkte.</small>`)); }
+          if (r.ok && Number.isInteger(r.rest)) { form.querySelector('.ki-rest')?.remove(); form.append(h(`<small class="muted ki-rest">Heute noch ${r.rest} ${r.rest === 1 ? 'KI-Punkt' : 'KI-Punkte'}.</small>`)); }
           const zu = r.status === 402 || r.status === 429 || verlauf.length >= 13;   // nach sechs Rückfragen ist Schluss – dann lieber die Aufgabe noch einmal rechnen
           knopf.disabled = zu; feld.disabled = zu; if (!zu) feld.focus();
         };
@@ -71,7 +71,7 @@ export function quiz(sequence, opts = {}) {
             // In der Android-App kein Verweis auf einen Kauf außerhalb (Regel des Play Store) – dort nur das Code-Feld.
             div.innerHTML = `<b>Deine drei kostenlosen Erklärungen sind aufgebraucht.</b> Mit „Pro + KI“ geht es weiter.${kauf()}`;
           } else div.textContent = r.ok && r.text ? String(r.text).replace(/<[^>]*>/g, '').slice(0, 900) : r.status === 429 ? 'Dein KI-Guthaben für heute ist aufgebraucht. Morgen geht es weiter.' : (r.error || 'Die Erklärung ist gerade nicht erreichbar.');
-          const rest = r.ok && Number.isInteger(r.rest) && r.rest >= 0 ? h(`<small class="muted ki-rest">${r.art === 'probe' ? (r.rest === 0 ? 'Das war deine letzte kostenlose Erklärung.' : `Noch ${r.rest} von 3 kostenlosen Erklärungen.`) : `Heute noch ${r.rest} KI-Punkte.`}</small>`) : '';
+          const rest = r.ok && Number.isInteger(r.rest) && r.rest >= 0 ? h(`<small class="muted ki-rest">${r.art === 'probe' ? (r.rest === 0 ? 'Das war deine letzte kostenlose Erklärung.' : `Noch ${r.rest} von 3 kostenlosen Erklärungen.`) : `Heute noch ${r.rest} ${r.rest === 1 ? 'KI-Punkt' : 'KI-Punkte'}.`}</small>`) : '';
           out.replaceChildren(div, rest);
           if (r.ok && r.text && kiArt('frage')) nachfragen(out, String(r.text).slice(0, 900), b.dataset.k); box.querySelectorAll('button').forEach((x) => { x.disabled = false; });
         }; });

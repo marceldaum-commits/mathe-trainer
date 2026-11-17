@@ -242,7 +242,7 @@ function loesenView(c) {
           if (r.ok && r.text) div.textContent = String(r.text).replace(/<[^>]*>/g, '').slice(0, 900);
           else if (r.status === 402) div.innerHTML = `<b>Die KI-Auswertung gehört zur Stufe „Pro + KI“.</b>${kaufLinks()}`;
           else div.textContent = r.status === 429 ? 'Dein KI-Guthaben für heute reicht dafür nicht mehr. Morgen geht es weiter.' : (r.error || 'Die Auswertung ist gerade nicht erreichbar.');
-          out.replaceChildren(div); if (r.ok && Number.isInteger(r.rest)) out.append(h(`<small class="muted ki-rest">Heute noch ${r.rest} KI-Punkte.</small>`));
+          out.replaceChildren(div); if (r.ok && Number.isInteger(r.rest)) out.append(h(`<small class="muted ki-rest">Heute noch ${r.rest} ${r.rest === 1 ? 'KI-Punkt' : 'KI-Punkte'}.</small>`));
           go.disabled = r.ok || r.status === 402;
         };
       });

@@ -75,7 +75,7 @@ export function kiAufgabeView() {
     let richtig = false;
     const ctx = { progress: (f) => { $('.prog i', el).style.width = `${Math.round(f * 100)}%`; },
       done: () => { store.bonus(richtig ? 6 : 3); store.touch(); store.bump('kiAufgabe'); window.dispatchEvent(new Event('mt-ruhig'));
-        wahl(`<div class="note ok" id="ka-fertig"><b>${richtig ? 'Auf Anhieb richtig.' : 'Geschafft.'}</b>${Number.isInteger(rest) ? ` Heute noch ${rest} KI-Punkte.` : ''}</div>`); } };
+        wahl(`<div class="note ok" id="ka-fertig"><b>${richtig ? 'Auf Anhieb richtig.' : 'Geschafft.'}</b>${Number.isInteger(rest) ? ` Heute noch ${rest} ${rest === 1 ? 'KI-Punkt' : 'KI-Punkte'}.` : ''}</div>`); } };
     const run = quiz([() => q], { onRight: () => { richtig = true; }, kopf: `KI-Aufgabe · ${esc(q.topic || '')}` });
     queueMicrotask(() => { cleanup = run($('#stage', el), ctx) || null; });
   }

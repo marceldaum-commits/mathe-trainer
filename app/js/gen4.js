@@ -99,7 +99,7 @@ export function genAsymptote(lv = 3) {
       zc = [b, a]; nc = [d, c];
       opts = [C(a, c, true), C(b, d, false, 'Das ist der Wert bei x = 0 (y-Achsenabschnitt), nicht das Verhalten für große x.'), C(0, 1, false, 'Zähler und Nenner haben denselben Grad: Der Bruch nähert sich dem Verhältnis der Vorfaktoren, nicht 0.'), C(-d, c, false, 'Das ist die Polstelle (ein x-Wert), keine waagerechte Asymptote.')];
       hints = ['Zähler und Nenner haben denselben Grad.', `Klammere oben und unten ${tex('x')} aus und kürze: ${tex(`f(x)=${dfrac(`${ft(a)}${durchX(b)}`, `${ft(c)}${durchX(d)}`)}`)}.`, `Für große ${tex('x')} gehen die Brüche mit ${tex('x')} im Nenner gegen 0.`];
-      explain = `Ausklammern von ${tex('x')} und Kürzen: ${tex(`f(x)=${dfrac(`${ft(a)}${durchX(b)}`, `${ft(c)}${durchX(d)}`)}\\to${dfrac(ft(a), ft(c))}`)}. Asymptote: ${tex(`y=${fracTex(a, c)}${a % c ? `=${ft(a / c, 3)}` : ''}`)}.`;
+      explain = `Ausklammern von ${tex('x')} und Kürzen: ${tex(`f(x)=${dfrac(`${ft(a)}${durchX(b)}`, `${ft(c)}${durchX(d)}`)}\\to${dfrac(ft(a), ft(c))}`)}. Asymptote: ${tex(`y=${fracTex(a, c)}${a % c ? `${Number.isInteger((a * 1000) / c) ? '=' : '\\approx '}${ft(a / c, 3)}` : ''}`)}.`;
     } else if (lv === 3) {
       const gleich = rand() < 0.5, a = pick([2, 3, 4, -2, 5]), c = pick([2, 3, 4]), b = pick([1, -3, 5, 6]), d = pick([1, 2, 4, 5]), b1 = pick([-4, -1, 2, 3]);
       zc = gleich ? [b, b1, a] : [b, a]; nc = [d, 0, c];
@@ -225,7 +225,7 @@ export function genTrigAbl(lv = 3) {
       formula = `${K(a)}\\${fn}${arg(b)}${sgn(c)}`; f = (x) => a * F(b * x) + c;
       const D = (coef, name, correct, why) => T(`${K(coef)}\\${name}${arg(b)}`, (x) => coef * (name === 'sin' ? Math.sin(b * x) : Math.cos(b * x)), correct, why);
       opts = [D(sg * a * b, gn, true), D(-sg * a * b, gn, false, vz), D(sg * a * b, fn, false, wechsel), D(sg * a, gn, false, `Kettenregel: Die innere Ableitung ${tex(ft(b))} fehlt als Faktor.`)];
-      hints = [grund, `Kettenregel: äußere Ableitung mal innere Ableitung. Innen steht ${tex(`${b}x`)} mit der Ableitung ${tex(ft(b))}.`, `Vorfaktor: ${tex(`${par(a)}\\cdot ${b}=${a * b}`)}. Die einzelne Zahl ${tex(ft(c))} fällt weg.`];
+      hints = [grund, `Kettenregel: äußere Ableitung mal innere Ableitung. Innen steht ${tex(`${b}x`)} mit der Ableitung ${tex(ft(b))}.`, `Vorfaktor: ${tex(`${par(a)}\\cdot ${isSin ? '' : '(-1)\\cdot '}${b}=${sg * a * b}`)}. Die einzelne Zahl ${tex(ft(c))} fällt weg.`];
       explain = `Kettenregel: ${tex(`f'(x)=${par(a)}\\cdot${isSin ? '' : '(-1)\\cdot'}\\${gn}${arg(b)}\\cdot ${b}=${opts[0].tex.slice(6)}`)}.`;
     } else if (lv === 4) {
       const a = pick([1, 2, 3, -2]), n = pick([1, 2, 3]), t1 = `${mono(a * n, n - 1)}\\${fn}(x)`, t2 = `${mono(Math.abs(a), n)}\\${gn}(x)`;
@@ -517,7 +517,7 @@ export function genUnabhaengig(lv = 3) {
     const opts = [O('u', zahl ? `Unabhängig, denn ${tex(`P(A)\\cdot P(B)=${z(prod)}=P(A\\cap B)`)}.` : `Unabhängig, denn ${tex('P(A)\\cdot P(B)=P(A\\cap B)')}.`, unab, `Rechne nach: ${tex(`P(A)\\cdot P(B)${gl(prod)}${z(prod)}`)}, aber ${tex(`P(A\\cap B)${gl(pAB)}${z(pAB)}`)}.`),
       O('a', zahl ? `Abhängig, denn ${tex(`P(A)\\cdot P(B)=${z(prod)}\\neq${z(pAB)}`)}.` : `Abhängig, denn ${tex('P(A)\\cdot P(B)\\neq P(A\\cap B)')}.`, !unab, `Rechne nach: ${tex(`P(A)\\cdot P(B)=${z(prod)}`)} – das ist genau ${tex('P(A\\cap B)')}.`),
       O('s', 'Das lässt sich mit diesen Angaben nicht entscheiden.', false, `Doch: Aus den Angaben lassen sich ${tex('P(A)')}, ${tex('P(B)')} und ${tex('P(A\\cap B)')} bestimmen – mehr braucht die Prüfung nicht.`),
-      O('g', `Abhängig, denn ${tex('P(A\\cap B)>0')}: Die Ereignisse können gemeinsam eintreten.`, false, 'Gemeinsam eintreten können auch unabhängige Ereignisse. „Unvereinbar" und „unabhängig" sind verschiedene Dinge.')];
+      O('g', `Abhängig, denn ${tex('P(A\\cap B)>0')}: Die Ereignisse können gemeinsam eintreten.`, false, 'Gemeinsam eintreten können auch unabhängige Ereignisse. „Unvereinbar“ und „unabhängig“ sind verschiedene Dinge.')];
     return { prompt, formula, options: shuffle(opts), hints, explain, n: N0, A, B, AB, daten };
   }
 }
@@ -569,7 +569,7 @@ export function genHyper(lv = 3) {
       const T = (t, num, correct, why) => ({ tex: t, num, correct, why });
       const opts = [T(term, hyp, true),
         T(`${B(n, k)}\\cdot\\left(${tf(Kk, Nn)}\\right)^{${k}}\\cdot\\left(${tf(Nn - Kk, Nn)}\\right)^{${n - k}}`, bern, false, 'Das ist die Bernoulli-Formel – sie gilt nur <b>mit</b> Zurücklegen, wenn sich die Wahrscheinlichkeit nicht ändert.'),
-        T(dfrac(B(Kk, k), B(Nn, n)), c1 / c3, false, `Auch die ${n - k} nicht-roten Kugeln müssen ausgewählt werden.`),
+        T(dfrac(B(Kk, k), B(Nn, n)), c1 / c3, false, n - k === 1 ? 'Auch die eine nicht-rote Kugel muss ausgewählt werden.' : `Auch die ${n - k} nicht-roten Kugeln müssen ausgewählt werden.`),
         Kk !== n && Kk !== Nn - n ? T(dfrac(`${B(Kk, k)}\\cdot${B(Nn - Kk, n - k)}`, B(Nn, Kk)), (c1 * c2) / binom(Nn, Kk), false, `Im Nenner stehen alle Möglichkeiten, ${n} aus ${Nn} zu ziehen.`)
           : T(dfrac(`${B(Kk, k)}+${B(Nn - Kk, n - k)}`, B(Nn, n)), (c1 + c2) / c3, false, 'Die beiden Auswahlen werden multipliziert, nicht addiert: Beides muss zugleich eintreten.')];
       // kein Ablenker darf zufällig denselben Wert haben
