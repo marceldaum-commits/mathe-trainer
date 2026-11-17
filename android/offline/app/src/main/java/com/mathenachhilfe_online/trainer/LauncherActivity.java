@@ -216,7 +216,7 @@ public class LauncherActivity extends Activity {
         s.setTextZoom(100);
         s.setAllowFileAccess(false);
         s.setAllowContentAccess(false);
-        s.setMediaPlaybackRequiresUserGesture(true);
+        s.setMediaPlaybackRequiresUserGesture(false);   // Lernmusik gleich beim Öffnen (Marcel, 17.11.2026); „Musik aus“ regelt die Seite
         web.addJavascriptInterface(new Bruecke(), "MTApp");
         web.setWebViewClient(new Auslieferung());
         // Datei-Auswahl (Foto für den Rechenweg-Prüfer): Android zeigt seine eigene Auswahl; die App braucht dafür keine Berechtigung.

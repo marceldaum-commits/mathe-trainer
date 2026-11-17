@@ -85,7 +85,8 @@ export function toast(msg, action, { sticky = false } = {}) {
    sound.on ist die Stummschaltung oben (gilt für alles). klang regelt Effekte und Lernmusik getrennt, jeweils mit eigener Lautstärke. */
 const SOUND_KEY = 'mt.sound', KLANG_KEY = 'mt.klang';
 let soundOn = (() => { try { return localStorage.getItem(SOUND_KEY) !== '0'; } catch { return true; } })();
-const KLANG_VORGABE = { fx: true, fxVol: 0.7, musik: false, musikVol: 0.5, pruefung: false };
+// Musik ab Werk an (Marcel, 17.11.2026: „beim Start direkt laufen“) – „Musik aus“ in den Einstellungen bleibt gemerkt.
+const KLANG_VORGABE = { fx: true, fxVol: 0.7, musik: true, musikVol: 0.5, pruefung: false };
 let klangWerte = (() => { try { return { ...KLANG_VORGABE, ...JSON.parse(localStorage.getItem(KLANG_KEY) || '{}') }; } catch { return { ...KLANG_VORGABE }; } })();
 let ac = null, bus = null, plingN = 0, plingT = 0, inPruefung = false;
 const klangMelder = new Set();   // wer wissen will, dass sich am Klang etwas geändert hat (die Lernmusik)

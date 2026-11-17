@@ -64,7 +64,7 @@ export function settingsView() {
       <label class="regler"><span>Lautstärke Musik</span><input type="range" id="st-musik-vol" min="0" max="100" step="5" aria-label="Lautstärke der Lernmusik"></label>
       <button class="schalter" id="st-pruef" type="button" role="switch" aria-checked="false"><span class="knopf" aria-hidden="true"></span><span>Klang auch in Prüfungen</span></button>
       <button class="btn ghost small" id="st-klang-probe" type="button">Probe hören</button>
-      <small class="muted" id="st-klang-note">Leises Piano, eigens für den Mathe-Trainer komponiert. Die Musik startet erst, wenn du die App berührst, und macht nach jedem Stück eine Pause. Im Abi-Modus und bei der Probeklausur ist alles still, außer du schaltest „Klang auch in Prüfungen“ ein. Alles, was ein Ton meldet, siehst du auch auf dem Bildschirm.</small></section>
+      <small class="muted" id="st-klang-note">Leises Piano, eigens für den Mathe-Trainer komponiert. Die Musik läuft ab dem ersten Tippen (in der App gleich beim Öffnen) und macht nach jedem Stück eine Pause – hier kannst du sie ausschalten. Im Abi-Modus und bei der Probeklausur ist alles still, außer du schaltest „Klang auch in Prüfungen“ ein. Alles, was ein Ton meldet, siehst du auch auf dem Bildschirm.</small></section>
     <section class="card stack" id="st-vorlesen"><h3>Vorlesen</h3>
       <button class="schalter" id="st-vl" type="button" role="switch" aria-checked="false"><span class="knopf" aria-hidden="true"></span><span>Aufgaben und Theorie vorlesen</span></button>
       <div class="stack" id="st-vl-mehr">

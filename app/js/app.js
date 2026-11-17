@@ -23,11 +23,13 @@ import { api, serverOn, kiBereit, kiArt } from './api.js';
 import { updateLeiste } from './update.js';
 import { theorieKnopf, theorieKnoepfe, hatTheorie } from './theoriefenster.js';
 import { settingsView, berichtView, karteiView, dailyGoal, openSteps, levelCard, erfolgeView, formelnView, klasseView, weekCard, readiness, applySkin, applySchrift, lehrplanView } from './extras.js';
-// Lernmusik: startet nie vor der ersten Berührung und wird nur geladen, wenn sie eingeschaltet ist (kein Einfluss auf Start und Ladegröße).
-{ let beruehrt = false, m = null;
+// Lernmusik (ab Werk an): In der Android-App startet sie gleich beim Öffnen (die App-Hülle erlaubt Ton ohne Tippen),
+// im Browser beim allerersten Tippen oder Klick irgendwo (Browser blockieren Ton davor). Geladen wird sie erst dann (kein Einfluss auf den Start).
+{ let beruehrt = typeof window !== 'undefined' && !!window.MTApp, m = null;
   const stimmen = () => { if (!beruehrt || (!m && !klang.musik)) return; (m ? Promise.resolve(m) : import('./musik.js').then((x) => (m = x))).then((x) => x.musikStimmen()).catch(() => {}); };
   const erste = () => { beruehrt = true; removeEventListener('pointerdown', erste, true); removeEventListener('keydown', erste, true); stimmen(); };
-  if (typeof window !== 'undefined') { addEventListener('pointerdown', erste, true); addEventListener('keydown', erste, true); document.addEventListener('visibilitychange', stimmen); klang.beobachte(stimmen); } }
+  if (typeof window !== 'undefined') { addEventListener('pointerdown', erste, true); addEventListener('keydown', erste, true); document.addEventListener('visibilitychange', stimmen); klang.beobachte(stimmen);
+    if (beruehrt) setTimeout(stimmen, 800); } }   // Android: kurz nach dem ersten Bild
 // Lernserie: ein eigener kleiner Klang, wenn die Serie heute wächst (nicht im ruhigen Modus – dort gibt es keine Serie).
 if (typeof window !== 'undefined') addEventListener('mt-serie', () => { if (!store.ruhig) setTimeout(() => sfx('serie'), 700); });
 // Android-App: keine Links zur Website und keine Nachhilfe-Werbung (Regel des Play Store) – stattdessen ein offener Hinweis ohne Link (.nur-app).

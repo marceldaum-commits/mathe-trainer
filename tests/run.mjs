@@ -1209,7 +1209,7 @@ ok(nextStreak({ n: 3, last: '2026-11-10' }, D('2026-11-12')).n === 1, 'Serie: au
   const vl = fs.readFileSync(new URL('../app/js/vorlesen.js', import.meta.url), 'utf8').replace(/^\s*\/\/.*$/gm, '');
   ok(JSON.stringify((await import('../app/js/ui.js')).TEMPI) === '[0.75,0.9,1,1.15,1.3,1.5]' && /preservesPitch = true/.test(vl) && /u\.rate = vorlese\.tempo/.test(vl), 'Vorlesen: Sprechtempo in sechs Stufen, gleiche Tonhöhe, auch für die Gerätestimme');
   ok(/stand-\$\{standHost\(\)\}\.json/.test(vl) && (vl.match(/arbeiter\(\)/g) || []).length === 4 && /SPEICHER = 'stimme-nova'/.test(vl), 'Vorlesen offline: Größe vom Server, 4 Downloads gleichzeitig, eigener Speicher');
-  ok(!/openai\.com|api\.openai|thorsten|espeak/i.test(vl) && /credentials: 'omit'/.test(vl) && /JETZT_MAX = 300/.test(vl), 'Vorlesen: nichts an OpenAI, keine Angaben zur Person, Stücke bis 300 Zeichen'); }
+  ok(!new RegExp(['openai\\.com', 'api\\.openai', 'thor' + 'sten', 'sh' + 'erpa', 'espeak'].join('|'), 'i').test(vl) && /credentials: 'omit'/.test(vl) && /JETZT_MAX = 300/.test(vl), 'Vorlesen: nichts an OpenAI, keine Angaben zur Person, Stücke bis 300 Zeichen'); }
 // Abschlussprüfung 17.11.2026: alte Abi-Einträge ohne „richtig von gesamt“ zeigen kein undefined/NaN
 { const { examText } = await import('../app/js/exam.js');
   ok(examText({ correct: 7, total: 9 }) === '7/9 richtig' && examText({ pct: 60 }) === '60 % richtig' && examText({ score: 60, np: 9 }) === '60 %' && examText({}) === '', 'Abi-Ergebnis in Worten, auch für alte Einträge'); }
@@ -1217,7 +1217,7 @@ ok(nextStreak({ n: 3, last: '2026-11-10' }, D('2026-11-12')).n === 1, 'Serie: au
 { const fs = await import('node:fs'); const ui = fs.readFileSync(new URL('../app/js/ui.js', import.meta.url), 'utf8'), mu = fs.readFileSync(new URL('../app/js/musik.js', import.meta.url), 'utf8');
   for (const n of ['tap', 'ok', 'bad', 'roll', 'win', 'tag', 'duell', 'abi', 'serie', 'start']) ok(new RegExp(`\\b${n}: \\(a, z, t\\)`).test(ui), `Klang: Effekt „${n}“ vorhanden`);
   ok(!/Math\.random|\.mp3|\.ogg|\.wav|fetch\(/.test(mu) && !/\.mp3|\.ogg|\.wav/.test(ui), 'Klang: selbst erzeugt, keine Dateien, kein Math.random');
-  ok(/musik: false/.test(ui) && /pruefung: false/.test(ui), 'Klang: Musik und Klang in Prüfungen sind ab Werk aus'); }
+  ok(/musik: true/.test(ui) && /pruefung: false/.test(ui), 'Klang: Musik ab Werk an (Marcel 17.11.), Klang in Prüfungen ab Werk aus'); }
 // Marcel 17.11.2026: Preise inkl. MwSt. bei Pro, KI-Limit 10, „ohne Hilfsmittel“ nur im Teil ohne
 { const P = await import('../app/js/pro.js'); const BL = await import('../app/js/blatt.js');
   ok(P.KI_PRO_TAG === 10 && JSON.stringify(P.PREISE) === JSON.stringify([['Pro', '4,99 €', '19,99 €'], ['Pro + KI', '9,99 €', '39,99 €']]), 'Pro-Seite: Preise und KI-Punkte pro Tag wie von Marcel festgelegt');
