@@ -182,7 +182,7 @@ export const MITTEL = [
     ] },
   { id: 'k6-dezimal', jg: '6', area: 'mzahl', title: 'Dezimalzahlen', sub: 'Rechnen mit Komma, Bruch und Prozent',
     meta: { boss: ['Komma-Kobold', '0,1', [genDezimal, genBruchDezimal]], why: 'Preise, Zeiten im Sport, Messwerte: Fast alles, was genau gemessen wird, steht als Kommazahl da. Wer Bruch, Kommazahl und Prozent ineinander umrechnen kann, versteht dieselbe Angabe in jeder Form.',
-      formeln: [['Bruch und Dezimalzahl', '\\dfrac14=0{,}25=25\\,\\%'], ['Mal 10, 100, 1000', '\\text{Komma nach rechts}\\qquad :10:\\ \\text{Komma nach links}']] },
+      formeln: [['Bruch und Dezimalzahl', '\\dfrac14=0{,}25=25\\,\\%'], ['Mal 10, 100, 1000', '\\cdot 10:\\ \\text{Komma nach rechts}\\qquad :10:\\ \\text{Komma nach links}']] },
     steps: [
       { id: 'schieber', kind: 'Entdecken', title: 'Stellenwert-Schieber', run: stellen },
       { id: 'komma', kind: 'Benennen', title: 'Zahlen mit Komma', run: info([
