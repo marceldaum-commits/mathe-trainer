@@ -2,88 +2,56 @@
 
 Neueste Meldung oben. Keine Geheimnisse, keine Personendaten (dieses Repo ist öffentlich, siehe Punkt 1).
 
-## 17.11.2026 (92) – Zählung feste Vorlese-Texte (eure Frage 12:29, noch nichts gebaut)
+## 17.11.2026 (91) – Vorlesen mit Nova, texte.json, Abzeichen „Pro aktiv“ (Version 2.2.0)
 
-Gezählt mit der Sprechfassung der App (`app/js/sprech.js`): Formeln so, wie sie gesprochen werden, HTML entfernt.
+Nach euren Vorgaben von 12:36 und 12:53 (Marcel: „zukünftig nur Nova“). **Thorsten ist nicht drin.** Ein Entwurf mit Thorsten war schon fertig, er ist vollständig entfernt (keine Rechen-Bausteine, kein Wörterbuch). (92) mit der Zählung ist damit erledigt.
 
-| Art | Texte | Zeichen (gesprochen) |
-|---|---|---|
-| Theorie kurz (Erklär-Karten der 73 Einheiten) | 233 | 51 889 |
-| Theorie ausführlich (39 Kapitel inkl. Vertiefung, je Abschnitt) | 395 | 150 043 |
-| Formelkarten (Name + Formel) | 177 | 14 227 |
-| „Wo brauche ich das?“ (Infokarten) | 73 | 12 196 |
-| **Summe fest** | **878** | **228 355** |
+### (a) texte.json – liegt mit 2.2.0 auf test
+- **Adresse:** `https://trainer-test.mathenachhilfe-online.com/vorlesen/texte.json`. Auf live erst nach Marcels Go.
+- **Format:** `{"format":1,"app":"mathe-trainer","texte":[{"text":"…","sprache":"de"},…]}`
+- **Inhalt:** **774 feste Texte, zusammen 232 000 Zeichen, der längste hat 960.**
+  - Jeder Theorie-Abschnitt, kurz und ausführlich, aller 73 Einheiten von Klasse 5 bis Oberstufe. Darin stecken „Formeln zum Merken“ (Formelkarten) und „Wo brauche ich das?“ (Infokarten).
+  - Dazu der Probe-Satz aus den Einstellungen.
+- **Erzeugung:** automatisch bei jedem Bau (`npm run fix` → `tools/vorlesetexte.mjs`). `npm run check` meldet, wenn die Liste veraltet ist. Ein Text hat höchstens 1 500 Zeichen.
+- **Formeln** stehen in Worten drin, ohne KaTeX, nach einer einheitlichen Regel (`app/js/sprech.js`). Beispiele: „f Strich von x“, „x Quadrat“, „3 durch 4“, „Wurzel aus …“, „Integral von 0 bis 2 über x d x“, „Vektor A B“, „A mit den Koordinaten 2, 3 und 0“, „Alpha“.
+- **Abgleich:** Die App bildet beim Vorlesen denselben Text aus der Seite. Geprüft im Browser: 213 von 213 Theorie-Abschnitten stimmen genau mit der Liste überein (Oberstufe, Klasse 7 und 9, kurz und ausführlich).
+- **Kennung:** SHA-256 von `nova|de|` + Normalform, die ersten 32 Hex-Zeichen. Euer Prüfwert `cb1e6d67882767042ebaa54d163e450c` steht als Selbstprüfung im Test.
 
-Nicht mitgezählt sind kleine feste Texte in Spielen, im Dungeon (Spickzettel) und in der Oberfläche. Die schätze ich auf höchstens 10–20 % zusätzlich.
-
-**Erzeugt, nicht vorab aufnehmbar:**
-- Alle Aufgaben, Antworten, Tipps und Lösungswege kommen aus 152 Erzeugern mit Zufallszahlen auf 5 Stufen. Eine Stichprobe mit nur 40 Aufgaben je Erzeuger und Stufe ergibt schon über 70 000 verschiedene Texte und 128 000 verschiedene Formeln. Die Menge ist praktisch unbegrenzt.
-- Dazu kommen KI-Antworten und KI-Aufgaben.
-- Beim Üben ist damit fast alles, was vorgelesen wird, erzeugt (geschätzt über 90 % der Vorlese-Vorgänge). Fest ist im Wesentlichen nur die Theorie.
-
-**Mein Rat:**
-- Die Theorie könnte vorab aufgenommen werden. Rund 228 000 Zeichen sind grob 4–5 Stunden Sprache.
-- Die Aufgaben bleiben bei Thorsten bzw. den Gerätestimmen.
-- Bei Textänderungen müssten die Aufnahmen neu erzeugt werden. Die Zählung kann ich als Werkzeug ins Repo legen.
-
-## 17.11.2026 (91) – Vorlesen mit Thorsten und Abzeichen „Pro aktiv“ (Version 2.2.0)
-
-Eure Aufträge zum Vorlesen (06:59/10:14) und zum Abzeichen (11:35). Musik steht in (90).
-
-### Vorlesen
-- **Was:** Aufgabe mit Antworten, dazu der gerade offene Tipp oder Lösungsweg (Knopf „Vorlesen“ neben „Tipp“ und „Theorie“), sowie jeder Theorie-Abschnitt (kurz und ausführlich, auch im Theorie-Fenster). Noch einmal tippen hält an; bei der nächsten Aufgabe oder einem Seitenwechsel ist Schluss.
+### (b) Nova in der App
+- **Vorlesen:**
+  - Knopf „Vorlesen“ bei jeder Aufgabe (Aufgabe, Antworten A–D, offener Tipp bzw. Lösungsweg) und bei jedem Theorie-Abschnitt.
+  - Noch einmal tippen hält an. Bei der nächsten Aufgabe oder einem Seitenwechsel ist Schluss. Die Musik wird beim Vorlesen leiser.
+- **Feste Texte:** direkt `…/nova/<h[0:2]>/<h>.mp3`.
+- **Erzeugte Texte:**
+  - In Stücken bis 300 Zeichen, an Satzenden geschnitten. Erst die direkte `/nova/`-Adresse, sonst `POST /jetzt {text, sprache}`.
+  - Bei 200 `{url}` wird abgespielt und im Speicher `stimme-nova` zwischengespeichert (dann auch offline).
+  - Bei 204, Fehler oder offline liest still die Gerätestimme, nur eingebaute Stimmen.
+  - Gesendet wird nur `text` und `sprache`, ohne Cookies, ohne Referer, ohne Kennungen (im Test geprüft).
+  - Die nächste Datei wird schon geholt, während die aktuelle spielt.
+- **KI-Antworten** werden nicht über /jetzt vorgelesen; sie werden beim Vorlesen der Aufgabe ausgelassen.
 - **Einstellungen → „Vorlesen“:**
-  - Von Haus aus aus. Stimme wählbar: Thorsten oder jede eingebaute deutsche Gerätestimme.
-  - Sprechtempo 70–130 %, „Probe hören“. Die Wahl wird gemerkt.
-  - Thorsten laden mit Fortschritt, „Abbrechen“ und „Stimme entfernen“. Hinweis „ca. 75 MB, am besten im WLAN“.
-- **Formeln in Worten** (`app/js/sprech.js`, aus der TeX-Quelle jeder Formel). Beispiele:
+  - Schalter (Werk: aus) und als Stimme „Nova – KI-generierte Stimme“ (Pflicht-Kennzeichnung).
+  - „Probe hören“ und euer Datenschutz-Text vom 12:53 wörtlich.
+  - Kein Tempo-Regler, das Tempo setzt euer Server (1,25).
+- **Die App spricht nie mit OpenAI.** Die CSP erlaubt nur `connect-src 'self' https://stimmen.mathenachhilfe-online.com`.
+- **Bitte prüfen:** CORS auf `/nova/…` und `/jetzt` für `trainer`, `trainer-test` und POST mit `Content-Type: application/json` (Vorabanfrage OPTIONS). Falls der Server einen eigenen CSP-Header schickt, braucht er dieselbe `connect-src`-Angabe.
 
-  | Formel | gesprochen |
-  |---|---|
-  | `f′(x)` | „f Strich von x“ |
-  | `x²` | „x Quadrat“ |
-  | `3/4` | „3 durch 4“ |
-  | Bruch aus Termen | „Bruch: …, geteilt durch …, Ende des Bruchs“ |
-  | dritte Wurzel aus 27 | „dritte Wurzel aus 27“ |
-  | Integral von 0 bis 2 | „Integral von 0 bis 2 über x d x“ |
-  | Vektor AB | „Vektor A B“ |
-  | `A(2|3|0)` | „A mit den Koordinaten 2, 3 und 0“ |
-  | α, π | „Alpha“, „Pi“ |
-  | Binomialkoeffizient | „n über k“ |
-  | Spaltenvektor | „Spaltenvektor 1, minus 2 und 3“ |
-  | Vierfeldertafel | Zeile für Zeile, leere Felder als „Lücke“ |
-
-- **Thorsten technisch:**
-  - Wie bei Wissensgarten im Browser: ONNX Runtime Web 1.23.2 (MIT, `app/vendor/ort/`), kein sherpa-onnx nötig.
-  - Die Android-App zeigt dieselbe Seite, also Web = Android.
-  - Stimmdatei von `stimmen.mathenachhilfe-online.com`, nur auf Knopfdruck. Größe und SHA-256 (7e64762d…) werden geprüft, danach liegt sie im Speicher `stimme-thorsten`, also offline nutzbar. Die Rechen-Bausteine (12 MB) kommen dabei mit in den Speicher.
-  - Lautschrift vorab am Entwicklungsrechner (`tools/stimme/`, piper-tts nur dort): 7 504 Einträge (alle Wörter der App + 0–999), 200 KB.
-  - **Kein espeak-ng in der App.** Unbekannte Wörter werden buchstabiert.
-  - Die Musik wird leiser, solange vorgelesen wird.
-- **Gerätestimmen:** nur solche mit `localService`, also kein Text an fremde Server.
-  - In der Android-App (WebView) gibt es oft keine. Dann zeigt die App „bitte Thorsten laden“.
-  - Eine Brücke zur Android-Sprachausgabe bräuchte eine neue App-Hülle. Das habe ich bewusst nicht gemacht.
-- **Schnell:** Beim Start lädt die App nur rund 6 KB mehr. Alles andere kommt erst beim ersten Vorlesen bzw. Laden.
-
-### Bitte an euch
-1. **Dateiarten:** Der Server erlaubt kein `.wasm`. Der Rechenkern liegt deshalb als `vendor/ort/ort-wasm-simd-threaded.wasm.txt` dort, und die App lädt ihn als Daten (funktioniert so). Wenn ihr `.wasm` (`application/wasm`) erlaubt, benenne ich ihn gern um.
-2. **Sicherheits-Header:** Die App erlaubt in ihrer eigenen CSP jetzt `connect-src https://stimmen.mathenachhilfe-online.com` und `script-src 'self' 'wasm-unsafe-eval'`. Falls der Server einen eigenen, strengeren CSP-Header schickt, braucht er dieselben Angaben, sonst kann Thorsten nicht laden.
-3. **Datenschutzerklärung (Abschnitt Mathe-Trainer):** Bitte ergänzen: Auf Wunsch einmaliger Download der Stimme vom eigenen Server (IP-Adresse und Zeitpunkt); es werden keine Texte gesendet. `docs/PLAYSTORE.md` ist angepasst.
-4. **KI-Punkte ohne Verbrauch abfragen:** siehe unten.
-
-### Abzeichen „Pro aktiv“
+### Abzeichen „Pro aktiv“ (eure Bitte 11:35)
 - **Startseite** (ganz oben): „Pro aktiv ✓“ bzw. „Pro + KI aktiv ✓“ mit „gültig bis TT.MM.JJJJ“, bei Pro + KI dazu „heute noch N KI-Punkte“. Antippen führt zur Pro-Seite.
 - **Einstellungen** und **Pro-Seite** zeigen dasselbe. Im Kopf stand die Stufe schon vorher („PRO“ bzw. „PRO + KI“).
 - **KI-Punkte:**
   - Der Server meldet den Rest bisher nur mit einer KI-Antwort. Die App merkt sich diesen Wert für den Tag, ohne Meldung zeigt sie das volle Tagesguthaben (10).
-  - Bitte, wenn möglich: eine Abfrage ohne Verbrauch, z. B. `POST /api/ki/rest {geraet, zugang} → {rest}`, oder `rest` in der Antwort von `/api/status` bzw. `/api/zugang`. Dann zeigt die App den Stand gleich beim Start.
+  - **Bitte, wenn möglich:** eine Abfrage ohne Verbrauch, z. B. `POST /api/ki/rest {geraet, zugang} → {rest}` oder `rest` in `/api/status` bzw. `/api/zugang`.
 
 ### Geprüft
-- Browser-Test (Web, 360 px): Thorsten laden (aus lokaler Kopie) und Prüfsumme; Probe, Aufgabe und Theorie werden hörbar vorgelesen (Pegel 0,4–0,6); Abzeichen auf dem Start und in den Einstellungen; keine Fehler in der Konsole.
-- Neue Selbstprüfungen: Formeln in Worten, Zeichenliste, Zahlen, kein espeak, Abdeckung des Wörterbuchs mit Aufgaben, die nicht zum Erzeugen dienten.
-- `npm run check` grün, e2e auf allen fünf Stufen grün.
-- Hörprobe Thorsten an Marcel.
-- **Nicht geprüft:** auf einem echten Handy. Rechenzeit im Test: erster Satz nach 2–4 s, danach am Stück.
+- Browser-Test (360 px), Stimmen-Server im Test nachgeahmt:
+  - Theorie spielt die feste Datei ab, ohne /jetzt.
+  - Eine Aufgabe ruft /jetzt in Stücken unter 300 Zeichen auf, dann wird abgespielt.
+  - Keine Cookies oder Referer, keine Fehler in der Konsole.
+  - Abzeichen auf Start und in den Einstellungen.
+- Selbstprüfungen: Formeln in Worten, Kennung mit eurem Prüfwert, Stücke, Format von texte.json (ohne TeX und HTML), keine OpenAI-Adresse in der App.
+- `npm run check` und e2e auf allen fünf Stufen grün.
+- **Nicht geprüft:** mit eurem echten Server und echten Nova-Dateien, auf einem echten Handy.
 
 **Web = Android**, Version 2.2.0.
 

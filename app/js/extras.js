@@ -67,12 +67,10 @@ export function settingsView() {
     <section class="card stack" id="st-vorlesen"><h3>Vorlesen</h3>
       <button class="schalter" id="st-vl" type="button" role="switch" aria-checked="false"><span class="knopf" aria-hidden="true"></span><span>Aufgaben und Theorie vorlesen</span></button>
       <div class="stack" id="st-vl-mehr">
-        <div class="picks col" id="st-vl-stimme" role="radiogroup" aria-label="Stimme"></div>
-        <div id="st-vl-thorsten"></div>
-        <label class="regler"><span id="st-vl-tempo-text">Sprechtempo</span><input type="range" id="st-vl-tempo" min="70" max="130" step="5" aria-label="Sprechtempo"></label>
+        <div class="picks col" role="radiogroup" aria-label="Stimme"><button class="pick sel" type="button" role="radio" aria-checked="true" id="st-vl-nova">Nova – KI-generierte Stimme</button></div>
         <button class="btn ghost small" id="st-vl-probe" type="button">Probe hören</button>
       </div>
-      <small class="muted">Ein Knopf „Vorlesen“ erscheint bei jeder Aufgabe und bei jedem Theorie-Abschnitt. Vorgelesen werden Aufgabe, Antworten, der offene Tipp oder Lösungsweg – Formeln werden in Worten gesprochen. Es wird kein Text gesendet: Gerätestimmen nur, wenn sie auf dem Gerät eingebaut sind. Die Stimme „Thorsten“ kommt einmal vom Server von Mathenachhilfe Online (er sieht dabei nur die IP-Adresse) und liest danach ohne Internet.</small></section>
+      <small class="muted" id="st-vl-info">Ein Knopf „Vorlesen“ erscheint bei jeder Aufgabe und bei jedem Theorie-Abschnitt. Formeln werden in Worten gesprochen.<br><br>Vorgelesen wird mit der Stimme Nova, einer mit KI (OpenAI) erzeugten Stimme. Feste Texte vertonen wir vorab. Texte, die erst in der Aufgabe entstehen (z.&nbsp;B. Rechenaufgaben), schickt die App ohne Angaben zu dir an unseren Server stimmen.mathenachhilfe-online.com; dieser lässt sie einmalig von OpenAI vertonen und speichert die Audiodatei. Es werden keine Namen, Konten oder Geräte-Kennungen übertragen, und unser Server speichert keine Zugriffsprotokolle.</small></section>
     <section class="card stack"><h3>Schriftgröße</h3>
       <div class="umschalt drei" id="st-schrift" role="radiogroup" aria-label="Schriftgröße"><button class="pick" type="button" role="radio" data-s="klein">Klein</button><button class="pick" type="button" role="radio" data-s="normal">Normal</button><button class="pick" type="button" role="radio" data-s="gross">Groß</button></div>
       <small class="muted">Gilt für die ganze App. Ausdrucke bleiben in normaler Größe.</small></section>
@@ -181,30 +179,11 @@ export function settingsView() {
     if (!window.MTApp) { ub.hidden = true; un.hidden = true; }   // Web-App: aktualisiert sich von selbst, kein Knopf
     ub.onclick = () => { ub.disabled = true; un.textContent = 'Suche …';
       updateSuchen().then((r) => { ub.disabled = false; un.textContent = r.text; if (r.art === 'neu') window.dispatchEvent(new Event('mt-update')); }); }; }
-  { // Vorlesen: an/aus, Stimme (Gerät oder Thorsten), Tempo, Probe – die Wahl wird gemerkt
-    const sw = $('#st-vl', el), mehr = $('#st-vl-mehr', el), wahl = $('#st-vl-stimme', el), th = $('#st-vl-thorsten', el), tempo = $('#st-vl-tempo', el);
-    let V = null; const holen = async () => (V ||= await import('./vorlesen.js'));
-    const zeichne = async () => {
-      sw.setAttribute('aria-checked', vorlese.an); sw.classList.toggle('an', vorlese.an); mehr.hidden = !vorlese.an; tempo.value = Math.round(vorlese.tempo * 100);
-      $('#st-vl-tempo-text', el).textContent = `Sprechtempo ${Math.round(vorlese.tempo * 100)} %`;
-      if (!vorlese.an) return;
-      const M = await holen(), z = M.thorsten.zustand === 'laedt' ? 'laedt' : await M.thorsten.pruefen(), geraete = M.geraeteStimmen();
-      const opt = [['thorsten', 'Thorsten – natürliche Stimme'], ...geraete.map((v) => [`geraet:${v.voiceURI}`, `${v.name} (Gerät)`])];
-      const aktiv = vorlese.stimme && opt.some(([k]) => k === vorlese.stimme) ? vorlese.stimme : (z === 'bereit' || !geraete.length ? 'thorsten' : opt[1]?.[0]);
-      wahl.innerHTML = opt.map(([k, n]) => `<button class="pick${k === aktiv ? ' sel' : ''}" type="button" role="radio" aria-checked="${k === aktiv}" data-k="${esc(k)}">${esc(n)}</button>`).join('');
-      wahl.querySelectorAll('button').forEach((b) => { b.onclick = () => { vorlese.setze({ stimme: b.dataset.k }); sfx('tap'); zeichne(); }; });
-      th.innerHTML = z === 'bereit' ? '<div class="note ok"><b>Thorsten ist geladen</b> und liest auch ohne Internet. <button class="linkbtn" id="st-vl-weg" type="button">Stimme entfernen</button></div>'
-        : z === 'laedt' ? `<div class="note tip" role="status">Thorsten wird geladen … ${M.thorsten.prozent} % <button class="linkbtn" id="st-vl-stopp" type="button">Abbrechen</button></div>`
-        : z === 'geht-nicht' ? '<small class="muted">Thorsten läuft in diesem Browser nicht. Es liest die Stimme des Geräts.</small>'
-        : `${z === 'fehler' ? `<div class="note tip">${esc(M.thorsten.grund)}</div>` : ''}<button class="btn small" id="st-vl-laden" type="button">Thorsten laden (ca. 75 MB)</button><small class="muted"> Am besten im WLAN. Danach liest er ohne Internet.</small>${geraete.length ? '' : '<div class="note tip">Auf diesem Gerät gibt es keine eingebaute deutsche Stimme – zum Vorlesen bitte Thorsten laden.</div>'}`;
-      $('#st-vl-laden', th)?.addEventListener('click', () => { M.thorsten.laden(() => { if (el.isConnected) zeichne(); }); zeichne(); });
-      $('#st-vl-stopp', th)?.addEventListener('click', () => M.thorsten.abbrechen());
-      $('#st-vl-weg', th)?.addEventListener('click', async () => { await M.thorsten.entfernen(); zeichne(); });
-    };
+  { // Vorlesen: an/aus (Stimme Nova, KI-generiert – Pflicht-Kennzeichnung), Probe; die Wahl wird gemerkt
+    const sw = $('#st-vl', el), mehr = $('#st-vl-mehr', el);
+    const zeichne = () => { sw.setAttribute('aria-checked', vorlese.an); sw.classList.toggle('an', vorlese.an); mehr.hidden = !vorlese.an; };
     sw.onclick = () => { vorlese.setze({ an: !vorlese.an }); sfx('tap'); zeichne(); };
-    tempo.oninput = () => { vorlese.setze({ tempo: tempo.value / 100 }); $('#st-vl-tempo-text', el).textContent = `Sprechtempo ${tempo.value} %`; };
-    $('#st-vl-probe', el).onclick = async () => { const M = await holen(); const wer = await M.sprich('Hallo! So klinge ich. Die Ableitung von f von x gleich x Quadrat ist 2 x.'); if (!wer) toast('Keine Stimme verfügbar – bitte Thorsten laden.'); };
-    if ('speechSynthesis' in window) speechSynthesis.addEventListener?.('voiceschanged', () => { if (el.isConnected) zeichne(); });
+    $('#st-vl-probe', el).onclick = async () => { const V = await import('./vorlesen.js'); const ok = await V.sprich('Hallo! So klinge ich. Ich lese dir Aufgaben und Theorie vor, auch Formeln wie f von x gleich x Quadrat.', 'fest'); if (!ok) toast('Vorlesen geht gerade nicht – bitte mit Internet noch einmal versuchen.'); };
     zeichne(); }
   { // Klang: Effekte und Lernmusik getrennt, eigene Lautstärke, gemerkt; der Lautsprecher oben schaltet alles stumm
     const sch = [['#st-fx', 'fx'], ['#st-musik', 'musik'], ['#st-pruef', 'pruefung']], note = $('#st-klang-note', el), fv = $('#st-fx-vol', el), mv = $('#st-musik-vol', el);

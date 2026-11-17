@@ -106,14 +106,12 @@ export const klang = {
   get stumm() { return !soundOn || (inPruefung && !klangWerte.pruefung); },
   beobachte(f) { klangMelder.add(f); return () => klangMelder.delete(f); },
 };
-/* Vorlesen: Einstellungen (gemerkt). Die Stimme selbst steckt in vorlesen.js und wird erst geladen, wenn jemand vorlesen lässt. */
+/* Vorlesen mit der Stimme „Nova“ (KI-generiert): Einstellung an/aus wird gemerkt (von Haus aus aus).
+   Die Stimme selbst steckt in vorlesen.js und wird erst geladen, wenn jemand vorlesen lässt. */
 const VORLESE_KEY = 'mt.vorlesen';
-let vorleseWerte = (() => { try { return { an: false, stimme: '', tempo: 1, ...JSON.parse(localStorage.getItem(VORLESE_KEY) || '{}') }; } catch { return { an: false, stimme: '', tempo: 1 }; } })();
+let vorleseWerte = (() => { try { return { an: false, ...JSON.parse(localStorage.getItem(VORLESE_KEY) || '{}') }; } catch { return { an: false }; } })();
 export const vorlese = {
   get an() { return vorleseWerte.an === true; },
-  /** '' = automatisch (Thorsten, wenn geladen, sonst Gerät) · 'thorsten' · 'geraet:<Kennung>' */
-  get stimme() { return typeof vorleseWerte.stimme === 'string' ? vorleseWerte.stimme : ''; },
-  get tempo() { const t = +vorleseWerte.tempo; return Number.isFinite(t) ? Math.min(1.3, Math.max(0.7, t)) : 1; },
   setze(w) { vorleseWerte = { ...vorleseWerte, ...w }; try { localStorage.setItem(VORLESE_KEY, JSON.stringify(vorleseWerte)); } catch { /* egal */ } },
 };
 /** Knopf „Vorlesen“ – nur, wenn Vorlesen eingeschaltet ist. */
@@ -121,21 +119,22 @@ export const vorleseKnopf = (was = 'Vorlesen') => (vorlese.an ? `<button class="
 let vorleseGeladen = false;
 /** Vorlesen anhalten (z. B. bei der nächsten Aufgabe). */
 export const vorleseStopp = () => { if (vorleseGeladen) import('./vorlesen.js').then((V) => V.stopp()).catch(() => {}); };
-/** Theorie: neben jede Abschnitts-Überschrift einen Knopf „Vorlesen“ (nicht im Ausdruck). */
+/** Theorie: neben jede Abschnitts-Überschrift einen Knopf „Vorlesen“ (nicht im Ausdruck). Diese Texte sind vorab vertont. */
 export function vorleseKnoepfe(root) {
   if (!vorlese.an) return;
   root.querySelectorAll('.t-teil').forEach((sec) => { const h2 = sec.querySelector('h2'); if (!h2 || sec.querySelector('.vl-knopf')) return;
-    h2.insertAdjacentHTML('afterend', vorleseKnopf(`${h2.textContent} vorlesen`)); const b = sec.querySelector('.vl-knopf'); b.classList.add('noprint'); b.onclick = () => vorlies(sec, b); });
+    h2.insertAdjacentHTML('afterend', vorleseKnopf(`${h2.textContent} vorlesen`)); const b = sec.querySelector('.vl-knopf'); b.classList.add('noprint'); b.onclick = () => vorlies(sec, b, 'fest'); });
 }
-/** Liest einen Bereich der Seite vor (lädt die Stimme beim ersten Mal nach). Noch einmal tippen hält an. */
-export async function vorlies(el, knopf = null) {
+/** Liest einen Bereich der Seite vor (lädt den Baustein beim ersten Mal nach). Noch einmal tippen hält an.
+ *  art: 'fest' (vorab vertont) · 'aufgabe' (erst in der Aufgabe entstanden). */
+export async function vorlies(el, knopf = null, art = 'aufgabe') {
   const V = await import('./vorlesen.js'); vorleseGeladen = true;
   if (knopf?.classList.contains('spricht')) { V.stopp(); return; }
   document.querySelectorAll('.vl-knopf.spricht').forEach((b) => b.classList.remove('spricht'));
   knopf?.classList.add('spricht');
-  const aus = (e) => { if (!e.detail) { knopf?.classList.remove('spricht'); removeEventListener('mt-spricht', aus); } };
-  const wer = await V.sprich(V.sprechText(el));
-  if (wer) addEventListener('mt-spricht', aus); else { knopf?.classList.remove('spricht'); toast('Auf diesem Gerät gibt es keine deutsche Stimme. In den Einstellungen kannst du die Stimme „Thorsten“ laden.'); }
+  const gehoert = await V.sprich(V.sprechText(el), art);
+  knopf?.classList.remove('spricht');
+  if (!gehoert && knopf?.isConnected) toast('Vorlesen geht gerade nicht – bitte mit Internet noch einmal versuchen.');
 }
 const D4 = 293.66, ton = (st) => D4 * 2 ** (st / 12);   // Halbtöne über d′
 /** Gemeinsamer Klangweg (Effekte und Musik): sanfter Tiefpass und ein kleiner Raum. Erst nach einer Berührung erzeugt. */

@@ -81,11 +81,11 @@ Vollbild; vorher zeigt sie oben eine Adressleiste.
 - Service Worker mit Offline-Betrieb und Updates.
 - Läuft vollständig über HTTPS auf eigener Adresse, kein Tracking, keine Werbung Dritter. Die App spricht nur mit dem
   eigenen Server; für die KI-Funktionen gibt dieser die Anfrage (ohne Namen, ohne Lernstand) an einen KI-Dienst weiter.
-- **Vorlesen (ab 2.2.0):** Von Haus aus aus. Gerätestimmen nur, wenn sie auf dem Gerät eingebaut sind. Die natürliche Stimme
-  „Thorsten“ wird nur auf Knopfdruck einmal vom eigenen Server geladen (`stimmen.mathenachhilfe-online.com`, ca. 75 MB mit
-  Rechen-Bausteinen; der Server sieht dabei nur IP-Adresse und Zeitpunkt) und rechnet danach auf dem Gerät. Es werden keine
-  Texte gesendet. Für das Formular „Datensicherheit“: keine Datenerhebung durch das Vorlesen. Lizenzen: Stimme CC0 (Thorsten
-  Müller), ONNX Runtime Web MIT (`app/vendor/ort/LICENSE.txt`); espeak-ng (GPL) nur am Entwicklungsrechner (`tools/stimme/`).
+- **Vorlesen (ab 2.2.0):** Von Haus aus aus. Stimme „Nova“ (mit KI von OpenAI erzeugt, in der App gekennzeichnet). Feste Texte
+  sind vorab vertont; Texte, die erst in der Aufgabe entstehen, schickt die App ohne Angaben zur Person an den eigenen Server
+  `stimmen.mathenachhilfe-online.com`, der sie einmalig vertonen lässt. Die App selbst spricht nie mit OpenAI. Ohne Verbindung liest
+  die eingebaute Gerätestimme. Für das Formular „Datensicherheit“: Text der Aufgabe wird an den eigenen Server übertragen (keine
+  Kennungen, keine Protokolle laut Leitstand) – bitte so angeben.
 - Bedienung auf kleinen Bildschirmen geprüft (360 × 640), Hell/Dunkel, Hochformat.
 
 ## Erinnerungen in der Play-Store-App (Marcel, 13.11.2026: „erst Schalter, dann Play Store“)

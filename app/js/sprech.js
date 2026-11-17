@@ -96,8 +96,31 @@ function klammerEnde(s, i) { let t = 0; for (let j = i; j < s.length; j++) { if 
 
 /** Text mit eingebetteten Formeln (⟦…⟧ oder $…$) und HTML → Sprechfassung. */
 export function textSprech(t) {
-  return String(t).replace(/<[^>]+>/g, ' ').replace(/&nbsp;/g, ' ').replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>')
+  return String(t).replace(/⟦([^⟧]*)⟧/g, (_, x) => ` ${texSprech(x)} `).replace(/<[^>]+>/g, ' ').replace(/&nbsp;/g, ' ').replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>')
     .replace(/⟦([^⟧]*)⟧/g, (_, x) => ` ${texSprech(x)} `)
     .replace(/(\d)\s*%/g, '$1 Prozent').replace(/[„“”"]/g, '').replace(/–/g, ', ').replace(/→/g, ', dann').replace(/≈/g, 'ungefähr').replace(/·/g, 'mal')
     .replace(/\s+/g, ' ').replace(/\s+([,.:;?!])/g, '$1').trim();
+}
+
+/** HTML (Formeln als ⟦TeX⟧) → Sprechfassung. Dieselbe Regel beim Bauen der Liste für Nova (vorlesen/texte.json) und in der App –
+ *  nur so findet die App die vorab vertonte Datei wieder. */
+export function htmlSprech(html) {
+  // Formeln zuerst (sie können < und > enthalten); in der App kommen sie als Text mit &lt; usw. an, beim Bauen roh
+  const ent = (x) => x.replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&nbsp;/g, ' ').replace(/&amp;/g, '&');
+  const t = textSprech(String(html).replace(/⟦([^⟧]*)⟧/g, (_, x) => ` ${texSprech(ent(x))} `).replace(/&quot;/g, '"').replace(/<\/(p|li|h[1-6]|div|section|tr|summary|figcaption|ol|ul)>|<br\s*\/?>/gi, '. ').replace(/<[^>]+>/g, ' '));
+  return normal(t.replace(/([:;,!?])\s*\.(\s*\.)*/g, '$1').replace(/(\.\s*){2,}/g, '. ').replace(/^[.\s]+/, ''));
+}
+/** Normalform für den Abgleich mit dem Stimmen-Werk: NFC, jeder Leerraum ein Leerzeichen, außen abgeschnitten. */
+export const normal = (t) => String(t).normalize('NFC').replace(/\s+/g, ' ').trim();
+/** Text in Stücke von höchstens max Zeichen schneiden – an Satzenden, notfalls an Kommas oder Leerzeichen. */
+export function stuecke(text, max) {
+  const out = []; let rest = normal(text);
+  while (rest.length > max) {
+    const kopf = rest.slice(0, max + 1); let k = Math.max(kopf.lastIndexOf('. '), kopf.lastIndexOf('? '), kopf.lastIndexOf('! '));
+    if (k < max * 0.4) k = kopf.lastIndexOf(', '); if (k < max * 0.4) k = kopf.lastIndexOf(' ');
+    if (k <= 0) k = max - 1;
+    out.push(rest.slice(0, k + 1).trim()); rest = rest.slice(k + 1).trim();
+  }
+  if (rest) out.push(rest);
+  return out;
 }

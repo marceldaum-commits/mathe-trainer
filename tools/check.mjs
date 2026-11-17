@@ -18,6 +18,12 @@ const B = await buendeln();
     else errors0.push('Das Bündel app/b/ passt nicht zum Quelltext in app/js/ → npm run fix'); } }
 const GEBUENDELT = new Set(B.quellen);   // diese Quell-Dateien stecken im Bündel: nicht in den Offline-Speicher, nicht in die Update-Liste
 
+// Feste Vorlese-Texte für das Stimmen-Werk (Nova): app/vorlesen/texte.json – aus dem Quelltext erzeugt, vor allem anderen (gehört zur Dateiliste).
+{ const { execFileSync } = await import('node:child_process');
+  const soll = execFileSync(process.execPath, [new URL('./vorlesetexte.mjs', import.meta.url).pathname], { maxBuffer: 64 << 20 }).toString();
+  const pfad = join(APP, 'vorlesen/texte.json'), ist = existsSync(pfad) ? readFileSync(pfad, 'utf8') : '';
+  if (ist !== soll) { if (fix) { mkdirSync(join(APP, 'vorlesen'), { recursive: true }); writeFileSync(pfad, soll); console.log(`vorlesen/texte.json aktualisiert: ${JSON.parse(soll).texte.length} feste Texte`); } else errors0.push('app/vorlesen/texte.json ist veraltet → npm run fix'); }
+  if (JSON.parse(soll).texte.some((t) => t.text.length > 1500)) errors0.push('vorlesen/texte.json: ein Text ist länger als 1 500 Zeichen'); }
 function walk(dir) {
   return readdirSync(dir).flatMap((n) => {
     const p = join(dir, n);
@@ -26,8 +32,8 @@ function walk(dir) {
 }
 const files = walk(APP).filter((f) => f !== 'sw.js' && f !== 'stand.json' && !/LICENSE/.test(f)).sort();
 // Bilder für den Installations-Dialog (img/shots) braucht die App offline nicht.
-// Die Rechen-Bausteine und das Wörterbuch der Stimme „Thorsten“ (vendor/ort, 12 MB; stimme/) lädt die App erst, wenn jemand die Stimme holt – nicht vorab in den Offline-Speicher.
-const assets = ['./', ...files.filter((f) => f !== 'index.html' && !f.startsWith('img/shots/') && !f.startsWith('vendor/ort/') && !f.startsWith('stimme/') && !GEBUENDELT.has(f))];
+// Die Liste der festen Vorlese-Texte (vorlesen/) holt das Stimmen-Werk vom Server – die App braucht sie offline nicht.
+const assets = ['./', ...files.filter((f) => f !== 'index.html' && !f.startsWith('img/shots/') && !f.startsWith('vorlesen/') && !GEBUENDELT.has(f))];
 
 const swPath = join(APP, 'sw.js');
 let sw = readFileSync(swPath, 'utf8');
