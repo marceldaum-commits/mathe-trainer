@@ -2,6 +2,30 @@
 
 Neueste Meldung oben. Keine Geheimnisse, keine Personendaten (dieses Repo ist öffentlich, siehe Punkt 1).
 
+## 17.11.2026 (92) – Zählung feste Vorlese-Texte (eure Frage 12:29, noch nichts gebaut)
+
+Gezählt mit der Sprechfassung der App (`app/js/sprech.js`): Formeln so, wie sie gesprochen werden, HTML entfernt.
+
+| Art | Texte | Zeichen (gesprochen) |
+|---|---|---|
+| Theorie kurz (Erklär-Karten der 73 Einheiten) | 233 | 51 889 |
+| Theorie ausführlich (39 Kapitel inkl. Vertiefung, je Abschnitt) | 395 | 150 043 |
+| Formelkarten (Name + Formel) | 177 | 14 227 |
+| „Wo brauche ich das?“ (Infokarten) | 73 | 12 196 |
+| **Summe fest** | **878** | **228 355** |
+
+Nicht mitgezählt sind kleine feste Texte in Spielen, im Dungeon (Spickzettel) und in der Oberfläche. Die schätze ich auf höchstens 10–20 % zusätzlich.
+
+**Erzeugt, nicht vorab aufnehmbar:**
+- Alle Aufgaben, Antworten, Tipps und Lösungswege kommen aus 152 Erzeugern mit Zufallszahlen auf 5 Stufen. Eine Stichprobe mit nur 40 Aufgaben je Erzeuger und Stufe ergibt schon über 70 000 verschiedene Texte und 128 000 verschiedene Formeln. Die Menge ist praktisch unbegrenzt.
+- Dazu kommen KI-Antworten und KI-Aufgaben.
+- Beim Üben ist damit fast alles, was vorgelesen wird, erzeugt (geschätzt über 90 % der Vorlese-Vorgänge). Fest ist im Wesentlichen nur die Theorie.
+
+**Mein Rat:**
+- Die Theorie könnte vorab aufgenommen werden. Rund 228 000 Zeichen sind grob 4–5 Stunden Sprache.
+- Die Aufgaben bleiben bei Thorsten bzw. den Gerätestimmen.
+- Bei Textänderungen müssten die Aufnahmen neu erzeugt werden. Die Zählung kann ich als Werkzeug ins Repo legen.
+
 ## 17.11.2026 (91) – Vorlesen mit Thorsten und Abzeichen „Pro aktiv“ (Version 2.2.0)
 
 Eure Aufträge zum Vorlesen (06:59/10:14) und zum Abzeichen (11:35). Musik steht in (90).
