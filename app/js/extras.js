@@ -12,7 +12,7 @@ import { quiz } from './quiz.js';
 import { store, LEVELS, LAENDER, KARTEI_TAGE } from './store.js';
 import { UNITS, AREAS, istOber, jgName } from './units.js';
 import { pi, HUETE, BRILLEN, outfitFrei, outfitJetzt } from './figuren.js';
-import { $, h, esc, ICON, sfx, toast, confetti, drucken } from './ui.js';
+import { $, h, esc, ICON, sfx, sound, klang, toast, confetti, drucken } from './ui.js';
 import { CONFIG, VERSION, STAND } from './config.js';
 import { updateStand, updateSuchen } from './update.js';
 import { merkbilderEinsetzen, hatMerkbild } from './merkbild.js';
@@ -55,6 +55,14 @@ export function settingsView() {
     <section class="card stack"><h3>Ruhiger Modus</h3>
       <button class="schalter" id="st-ruhig" type="button" role="switch" aria-checked="false"><span class="knopf" aria-hidden="true"></span><span>Ohne Druck lernen</span></button>
       <small class="muted">Keine Lernserie, kein Wochen-Ziel, keine Herzen beim Boss, Abi-Modus ohne Uhr. Du lernst in deinem Tempo – Punkte und Fortschritt bleiben. Tages-Runde, Duell und Blitz-Runde sind weiter auf Zeit, weil dort alle dieselben Bedingungen brauchen.</small></section>
+    <section class="card stack" id="st-klang"><h3>Klang</h3>
+      <button class="schalter" id="st-fx" type="button" role="switch" aria-checked="false"><span class="knopf" aria-hidden="true"></span><span>Töne bei Antworten</span></button>
+      <label class="regler"><span>Lautstärke Töne</span><input type="range" id="st-fx-vol" min="0" max="100" step="5" aria-label="Lautstärke der Töne"></label>
+      <button class="schalter" id="st-musik" type="button" role="switch" aria-checked="false"><span class="knopf" aria-hidden="true"></span><span>Lernmusik</span></button>
+      <label class="regler"><span>Lautstärke Musik</span><input type="range" id="st-musik-vol" min="0" max="100" step="5" aria-label="Lautstärke der Lernmusik"></label>
+      <button class="schalter" id="st-pruef" type="button" role="switch" aria-checked="false"><span class="knopf" aria-hidden="true"></span><span>Klang auch in Prüfungen</span></button>
+      <button class="btn ghost small" id="st-klang-probe" type="button">Probe hören</button>
+      <small class="muted" id="st-klang-note">Leises Piano, eigens für den Mathe-Trainer komponiert. Die Musik startet erst, wenn du die App berührst, und macht nach jedem Stück eine Pause. Im Abi-Modus und bei der Probeklausur ist alles still, außer du schaltest „Klang auch in Prüfungen“ ein. Alles, was ein Ton meldet, siehst du auch auf dem Bildschirm.</small></section>
     <section class="card stack"><h3>Schriftgröße</h3>
       <div class="umschalt drei" id="st-schrift" role="radiogroup" aria-label="Schriftgröße"><button class="pick" type="button" role="radio" data-s="klein">Klein</button><button class="pick" type="button" role="radio" data-s="normal">Normal</button><button class="pick" type="button" role="radio" data-s="gross">Groß</button></div>
       <small class="muted">Gilt für die ganze App. Ausdrucke bleiben in normaler Größe.</small></section>
@@ -163,6 +171,16 @@ export function settingsView() {
     if (!window.MTApp) { ub.hidden = true; un.hidden = true; }   // Web-App: aktualisiert sich von selbst, kein Knopf
     ub.onclick = () => { ub.disabled = true; un.textContent = 'Suche …';
       updateSuchen().then((r) => { ub.disabled = false; un.textContent = r.text; if (r.art === 'neu') window.dispatchEvent(new Event('mt-update')); }); }; }
+  { // Klang: Effekte und Lernmusik getrennt, eigene Lautstärke, gemerkt; der Lautsprecher oben schaltet alles stumm
+    const sch = [['#st-fx', 'fx'], ['#st-musik', 'musik'], ['#st-pruef', 'pruefung']], note = $('#st-klang-note', el), fv = $('#st-fx-vol', el), mv = $('#st-musik-vol', el);
+    const paintK = () => { sch.forEach(([id, k]) => { const b = $(id, el); b.setAttribute('aria-checked', klang[k]); b.classList.toggle('an', klang[k]); });
+      fv.value = Math.round(klang.fxVol * 100); mv.value = Math.round(klang.musikVol * 100); fv.disabled = !klang.fx; mv.disabled = !klang.musik;
+      note.classList.toggle('warn', !sound.on); if (!sound.on && !note.dataset.stumm) { note.dataset.stumm = '1'; note.insertAdjacentHTML('afterbegin', '<b>Der Ton ist oben ausgeschaltet (Lautsprecher).</b> '); } };
+    sch.forEach(([id, k]) => { $(id, el).onclick = () => { klang.setze({ [k]: !klang[k] }); paintK(); if (k === 'fx' && klang.fx) sfx('ok'); }; });
+    fv.oninput = () => klang.setze({ fxVol: fv.value / 100 }); fv.onchange = () => sfx('ok');
+    mv.oninput = () => klang.setze({ musikVol: mv.value / 100 });
+    $('#st-klang-probe', el).onclick = () => sfx('start', { probe: true });
+    paintK(); }
   { const rb = $('#st-ruhig', el), paintR = () => { rb.setAttribute('aria-checked', store.ruhig); rb.classList.toggle('an', store.ruhig); };
     rb.onclick = () => { store.ruhig = !store.ruhig; paintR(); sfx('tap'); window.dispatchEvent(new Event('mt-ruhig')); }; paintR(); }
   const tb = $('#st-tipp', el);

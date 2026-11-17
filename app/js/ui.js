@@ -80,41 +80,93 @@ export function toast(msg, action, { sticky = false } = {}) {
   if (!sticky) toastTimer = setTimeout(() => { el.hidden = true; }, action ? 7000 : 3200);
 }
 
-/* Töne: werden im Browser erzeugt (Web Audio) – keine Sounddateien, keine Lizenzen. */
-const SOUND_KEY = 'mt.sound';
+/* Klang: alles wird im Browser erzeugt (Web Audio) – selbst komponiert, keine Sounddateien, keine fremden Samples, keine Lizenzen.
+   Klang-Identität: ruhig, konzentriert, erwachsen – weiches Piano in D-Dur mit sanften Flächen. Web und Android klingen gleich (dieselbe Seite).
+   sound.on ist die Stummschaltung oben (gilt für alles). klang regelt Effekte und Lernmusik getrennt, jeweils mit eigener Lautstärke. */
+const SOUND_KEY = 'mt.sound', KLANG_KEY = 'mt.klang';
 let soundOn = (() => { try { return localStorage.getItem(SOUND_KEY) !== '0'; } catch { return true; } })();
-let ac = null, plingN = 0, plingT = 0;
+const KLANG_VORGABE = { fx: true, fxVol: 0.7, musik: false, musikVol: 0.5, pruefung: false };
+let klangWerte = (() => { try { return { ...KLANG_VORGABE, ...JSON.parse(localStorage.getItem(KLANG_KEY) || '{}') }; } catch { return { ...KLANG_VORGABE }; } })();
+let ac = null, bus = null, plingN = 0, plingT = 0, inPruefung = false;
+const klangMelder = new Set();   // wer wissen will, dass sich am Klang etwas geändert hat (die Lernmusik)
+const melde = () => klangMelder.forEach((f) => { try { f(); } catch { /* weiter */ } });
 export const sound = {
   get on() { return soundOn; },
-  set on(v) { soundOn = !!v; try { localStorage.setItem(SOUND_KEY, soundOn ? '1' : '0'); } catch { /* egal */ } },
+  set on(v) { soundOn = !!v; try { localStorage.setItem(SOUND_KEY, soundOn ? '1' : '0'); } catch { /* egal */ } melde(); },
 };
-function tone(freq, at, dur, { type = 'sine', vol = 0.14, to = null } = {}) {
-  const o = ac.createOscillator(), g = ac.createGain(), t0 = ac.currentTime + at;
-  o.type = type; o.frequency.setValueAtTime(freq, t0);
-  if (to) o.frequency.exponentialRampToValueAtTime(to, t0 + dur);
-  g.gain.setValueAtTime(0.0001, t0);
-  g.gain.exponentialRampToValueAtTime(vol, t0 + 0.012);
-  g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
-  o.connect(g).connect(ac.destination); o.start(t0); o.stop(t0 + dur + 0.02);
+const zahl01 = (v, d) => (Number.isFinite(+v) ? Math.min(1, Math.max(0, +v)) : d);
+/** Einstellungen für Effekte und Lernmusik (werden gemerkt). */
+export const klang = {
+  get fx() { return klangWerte.fx !== false; }, get fxVol() { return zahl01(klangWerte.fxVol, 0.7); },
+  get musik() { return klangWerte.musik === true; }, get musikVol() { return zahl01(klangWerte.musikVol, 0.5); },
+  get pruefung() { return klangWerte.pruefung === true; },
+  setze(werte) { klangWerte = { ...klangWerte, ...werte }; try { localStorage.setItem(KLANG_KEY, JSON.stringify(klangWerte)); } catch { /* egal */ } melde(); },
+  /** Prüfung läuft (Abi-Modus, Probeklausur): Klang standardmäßig aus, außer „Klang auch in Prüfungen“ ist an. */
+  set pruefungLaeuft(v) { inPruefung = !!v; melde(); },
+  get stumm() { return !soundOn || (inPruefung && !klangWerte.pruefung); },
+  beobachte(f) { klangMelder.add(f); return () => klangMelder.delete(f); },
+};
+const D4 = 293.66, ton = (st) => D4 * 2 ** (st / 12);   // Halbtöne über d′
+/** Gemeinsamer Klangweg (Effekte und Musik): sanfter Tiefpass und ein kleiner Raum. Erst nach einer Berührung erzeugt. */
+export function audio() {
+  const AC = window.AudioContext || window.webkitAudioContext;
+  if (!AC) return null;
+  if (!ac) {
+    ac = new AC();
+    const out = ac.createDynamicsCompressor(); out.threshold.value = -14; out.ratio.value = 3; out.connect(ac.destination);
+    const raum = ac.createConvolver(), len = Math.floor(ac.sampleRate * 1.8), ir = ac.createBuffer(2, len, ac.sampleRate);
+    for (let c = 0; c < 2; c++) { const d = ir.getChannelData(c); let s = 12345 + c * 777; for (let i = 0; i < len; i++) { s = (s * 1103515245 + 12345) >>> 0; d[i] = ((s / 4294967296) * 2 - 1) * (1 - i / len) ** 3; } }
+    raum.buffer = ir; const nass = ac.createGain(); nass.gain.value = 0.22; raum.connect(nass).connect(out);
+    const fx = ac.createGain(); fx.connect(out); fx.connect(raum);
+    const musik = ac.createGain(); musik.gain.value = 0; musik.connect(out); musik.connect(raum);
+    bus = { out, raum, fx, musik };
+  }
+  if (ac.state === 'suspended') ac.resume().catch(() => {});
+  return { ac, ...bus };
 }
-/** Spielt einen kurzen Ton: 'tap', 'pling' (Stern, steigt bei Serien), 'ok', 'bad', 'win', 'roll'. */
-export function sfx(name) {
-  if (!soundOn) return;
+// Nur für die Browser-Tests: Zugriff auf den Klangweg, um den Pegel zu messen.
+if (globalThis.window?.__mtTest) window.__mtAudio = () => (ac ? { ac, ...bus, klang, sfx } : null);
+/** Weicher Klavierton: Grundton plus leise Obertöne, schneller Anschlag, langes Ausklingen, Filz-Filter. */
+export function klavier(a, ziel, f, t0, dauer = 1.2, vol = 0.12) {
+  const { ac: c } = a, g = c.createGain(), lp = c.createBiquadFilter();
+  lp.type = 'lowpass'; lp.frequency.setValueAtTime(Math.min(4200, f * 6), t0); lp.frequency.exponentialRampToValueAtTime(Math.max(500, f * 1.6), t0 + dauer * 0.8); lp.Q.value = 0.4;
+  g.gain.setValueAtTime(0.0001, t0); g.gain.exponentialRampToValueAtTime(vol, t0 + 0.006); g.gain.exponentialRampToValueAtTime(vol * 0.35, t0 + 0.25); g.gain.exponentialRampToValueAtTime(0.0001, t0 + dauer);
+  g.connect(lp).connect(ziel);
+  [[1, 'triangle', 1, 0], [2, 'sine', 0.32, 3], [3, 'sine', 0.1, -4]].forEach(([m, typ, anteil, cent]) => {
+    const o = c.createOscillator(), og = c.createGain(); o.type = typ; o.frequency.value = f * m; o.detune.value = cent; og.gain.value = anteil;
+    o.connect(og).connect(g); o.start(t0); o.stop(t0 + dauer + 0.05);
+  });
+}
+// Effekte: Halbtöne über d′. Die Erkennungsmelodie (d″ – a′ – e″ – fis″ – a″ über Dmaj9) steckt in „tag“ und „start“.
+const MOTIV = [[12, 0], [7, 0.16], [14, 0.32], [16, 0.48], [19, 0.66, 1.8]];
+const EFFEKTE = {
+  tap: (a, z, t) => klavier(a, z, ton(24), t, 0.12, 0.035),
+  ok: (a, z, t) => { klavier(a, z, ton(12), t, 0.7, 0.1); klavier(a, z, ton(19), t + 0.09, 0.9, 0.1); },
+  // falsch: neutral und leise – eine offene Quinte tief unten, kein „Fehler-Brummen“
+  bad: (a, z, t) => { klavier(a, z, ton(-3), t, 0.8, 0.09); klavier(a, z, ton(4), t + 0.02, 0.8, 0.06); },
+  roll: (a, z, t) => [0, 4, 7, 12].forEach((s, i) => klavier(a, z, ton(s), t + i * 0.07, 0.5, 0.04)),
+  win: (a, z, t) => { [[-12, 0], [4, 0], [9, 0]].forEach(([s]) => klavier(a, z, ton(s), t, 1.6, 0.05)); [[16, 0], [19, 0.12], [24, 0.26, 1.4]].forEach(([s, d, l = 0.6]) => klavier(a, z, ton(s), t + d, l, 0.11)); },
+  tag: (a, z, t) => { [-12, -5, 4, 9].forEach((s) => klavier(a, z, ton(s), t, 2.4, 0.045)); MOTIV.forEach(([s, d, l = 0.7]) => klavier(a, z, ton(s), t + d, l, 0.11)); },
+  start: (a, z, t) => EFFEKTE.tag(a, z, t),
+  // Duell: Frage und Antwort – zwei kurze Aufstiege, der zweite landet höher
+  duell: (a, z, t) => { [7, 12, 16].forEach((s, i) => klavier(a, z, ton(s), t + i * 0.09, 0.5, 0.1)); [9, 14, 19, 24].forEach((s, i) => klavier(a, z, ton(s), t + 0.4 + i * 0.09, i === 3 ? 1.4 : 0.5, 0.1)); },
+  // Abi-Modus geschafft: ruhige Kadenz G – A – D, als Akkorde
+  abi: (a, z, t) => { [[-7, -3, 2, 7], [-5, -1, 4, 9], [-12, 4, 9, 12, 16]].forEach((ak, i) => ak.forEach((s, k) => klavier(a, z, ton(s), t + i * 0.42 + k * 0.012, i === 2 ? 2.2 : 0.9, 0.06))); },
+  // Lernserie: vier Töne nach oben, oben ein heller Glanz
+  serie: (a, z, t) => { [0, 4, 7, 12].forEach((s, i) => klavier(a, z, ton(s + 12), t + i * 0.1, 0.6, 0.09)); klavier(a, z, ton(31), t + 0.42, 1.2, 0.04); },
+};
+/** Spielt einen Effekt: 'tap', 'pling' (Stern, steigt bei Serien), 'ok', 'bad', 'win', 'roll', 'tag', 'duell', 'abi', 'serie', 'start'. */
+export function sfx(name, { probe = false } = {}) {
+  if (!probe && (klang.stumm || !klang.fx)) return;
   try {
-    const AC = window.AudioContext || window.webkitAudioContext;
-    if (!AC) return;
-    ac ||= new AC();
-    if (ac.state === 'suspended') ac.resume();
-    if (name === 'tap') tone(520, 0, 0.05, { type: 'triangle', vol: 0.07 });
-    else if (name === 'pling') {
+    const a = audio(); if (!a) return;
+    const t = a.ac.currentTime + 0.01;
+    a.fx.gain.setValueAtTime(klang.fxVol * 1.1, t);
+    if (name === 'pling') {
       const now = performance.now();
       plingN = now - plingT < 2500 ? Math.min(plingN + 1, 7) : 0; plingT = now;
-      const f = 784 * 2 ** ([0, 2, 4, 5, 7, 9, 11, 12][plingN] / 12);
-      tone(f, 0, 0.22, { type: 'sine', vol: 0.16 }); tone(f * 2, 0.02, 0.18, { type: 'sine', vol: 0.05 });
-    } else if (name === 'ok') { tone(659, 0, 0.13, { type: 'triangle' }); tone(988, 0.1, 0.22, { type: 'triangle' }); }
-    else if (name === 'bad') tone(233, 0, 0.24, { type: 'sine', vol: 0.13, to: 165 });
-    else if (name === 'roll') tone(180, 0, 0.5, { type: 'sine', vol: 0.05, to: 320 });
-    else if (name === 'win') [523, 659, 784, 1047].forEach((f, i) => tone(f, i * 0.11, i === 3 ? 0.5 : 0.16, { type: 'triangle', vol: 0.15 }));
+      klavier(a, a.fx, ton(19 + [0, 2, 4, 5, 7, 9, 11, 12][plingN]), t, 0.6, 0.09);
+    } else EFFEKTE[name]?.(a, a.fx, t);
   } catch { /* ohne Ton weiter */ }
 }
 

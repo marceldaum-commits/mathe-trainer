@@ -1193,6 +1193,11 @@ ok(nextStreak({ n: 3, last: '2026-11-10' }, D('2026-11-12')).n === 1, 'Serie: au
   for (const id of ['k7-terme', 'k7-gleichungen', 'k8-lgs', 'k9-quadrat']) { const L = Th.LANG[id] || [];
     ok(L.length >= 5 && ['Worum es geht', 'Durchgerechnetes Beispiel', 'Typische Fehler'].every((t) => L.some((x) => x[0] === t)), `Theorie ausführlich: Kapitel ${id} unvollständig`); } }
 
+// Klang 17.11.2026: eigene Effekte und Lernmusik, ohne Math.random, ohne Dateien
+{ const fs = await import('node:fs'); const ui = fs.readFileSync(new URL('../app/js/ui.js', import.meta.url), 'utf8'), mu = fs.readFileSync(new URL('../app/js/musik.js', import.meta.url), 'utf8');
+  for (const n of ['tap', 'ok', 'bad', 'roll', 'win', 'tag', 'duell', 'abi', 'serie', 'start']) ok(new RegExp(`\\b${n}: \\(a, z, t\\)`).test(ui), `Klang: Effekt „${n}“ vorhanden`);
+  ok(!/Math\.random|\.mp3|\.ogg|\.wav|fetch\(/.test(mu) && !/\.mp3|\.ogg|\.wav/.test(ui), 'Klang: selbst erzeugt, keine Dateien, kein Math.random');
+  ok(/musik: false/.test(ui) && /pruefung: false/.test(ui), 'Klang: Musik und Klang in Prüfungen sind ab Werk aus'); }
 // Marcel 17.11.2026: Preise inkl. MwSt. bei Pro, KI-Limit 10, „ohne Hilfsmittel“ nur im Teil ohne
 { const P = await import('../app/js/pro.js'); const BL = await import('../app/js/blatt.js');
   ok(P.KI_PRO_TAG === 10 && JSON.stringify(P.PREISE) === JSON.stringify([['Pro', '4,99 €', '19,99 €'], ['Pro + KI', '9,99 €', '39,99 €']]), 'Pro-Seite: Preise und KI-Punkte pro Tag wie von Marcel festgelegt');

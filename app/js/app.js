@@ -14,7 +14,7 @@ import { mixOf } from './a/gen.js';
 import { ladeAufgaben, aufgabenDa, NichtGeladen } from './faul.js';
 import { store, LEVELS } from './store.js';
 import { CONFIG, VERSION, STAND } from './config.js';
-import { $, h, esc, ICON, starsHtml, toast, sfx, sound, confetti, look, formelnEinpassen } from './ui.js';
+import { $, h, esc, ICON, starsHtml, toast, sfx, sound, klang, confetti, look, formelnEinpassen } from './ui.js';
 import { abiView, rundeView, blitzView } from './exam.js';
 import { kopfView, knobelHeuteGeloest } from './kopf.js';
 import { arbeitView, arbeitPlan } from './arbeit.js';
@@ -23,6 +23,13 @@ import { api, serverOn, kiBereit, kiArt } from './api.js';
 import { updateLeiste } from './update.js';
 import { theorieKnopf, theorieKnoepfe, hatTheorie } from './theoriefenster.js';
 import { settingsView, berichtView, karteiView, dailyGoal, openSteps, levelCard, erfolgeView, formelnView, klasseView, weekCard, readiness, applySkin, applySchrift, lehrplanView } from './extras.js';
+// Lernmusik: startet nie vor der ersten Berührung und wird nur geladen, wenn sie eingeschaltet ist (kein Einfluss auf Start und Ladegröße).
+{ let beruehrt = false, m = null;
+  const stimmen = () => { if (!beruehrt || (!m && !klang.musik)) return; (m ? Promise.resolve(m) : import('./musik.js').then((x) => (m = x))).then((x) => x.musikStimmen()).catch(() => {}); };
+  const erste = () => { beruehrt = true; removeEventListener('pointerdown', erste, true); removeEventListener('keydown', erste, true); stimmen(); };
+  if (typeof window !== 'undefined') { addEventListener('pointerdown', erste, true); addEventListener('keydown', erste, true); document.addEventListener('visibilitychange', stimmen); klang.beobachte(stimmen); } }
+// Lernserie: ein eigener kleiner Klang, wenn die Serie heute wächst (nicht im ruhigen Modus – dort gibt es keine Serie).
+if (typeof window !== 'undefined') addEventListener('mt-serie', () => { if (!store.ruhig) setTimeout(() => sfx('serie'), 700); });
 // Android-App: keine Links zur Website und keine Nachhilfe-Werbung (Regel des Play Store) – stattdessen ein offener Hinweis ohne Link (.nur-app).
 if (typeof window !== 'undefined' && window.MTApp) {
   document.documentElement.classList.add('in-app');
@@ -440,7 +447,7 @@ function route() {
   try { routeBau(); } catch (e) { if (e instanceof NichtGeladen) warteAufAufgaben(hash); else throw e; }
 }
 function routeBau() {
-  cleanup?.(); cleanup = null;
+  cleanup?.(); cleanup = null; klang.pruefungLaeuft = false;   // eine Prüfung schaltet das beim Start selbst wieder ein
   $('#sheet').hidden = true;
   const hash = location.hash;
   const m = hash.match(/^#\/u\/([\w-]+)(?:\/(\d+))?$/);

@@ -1016,3 +1016,6 @@ button.card.unit{text-align:left;width:100%;font:inherit;color:inherit;cursor:po
 .pro-tab th,.pro-tab td{padding:8px 6px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap}
 .pro-tab th:first-child{text-align:left;color:var(--head)}
 .pro-tab thead th{font-size:calc(13px*var(--fs,1));color:var(--muted);font-weight:600}
+/* Klang-Einstellungen */
+.regler{display:grid;gap:2px;padding:0 4px;font-size:calc(14px*var(--fs,1));color:var(--muted)}
+.regler input:disabled{opacity:.45}

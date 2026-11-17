@@ -4,7 +4,7 @@ import * as H from './a/gen2.js';
 import * as K from './a/gen3.js';
 import { seedRandom, shuffle, fmt } from './math.js';
 import { store, LEVELS, LAENDER, dayKey } from './store.js';
-import { $, h, tex, esc, ICON, sfx, confetti, toast } from './ui.js';
+import { $, h, tex, esc, ICON, sfx, klang, confetti, toast } from './ui.js';
 import { CONFIG } from './config.js';
 import { landOk } from './units.js';
 import { cardBox } from './share.js';
@@ -118,10 +118,11 @@ export function abiView(part, opts_onEnd) {
   const plan = abiPlan(part);
   el.innerHTML = `<div class="stephead"><a class="x" href="#/abi" aria-label="Abbrechen">${ICON.close}</a><b>${plan.title}</b></div><div id="stage"></div>`;
   queueMicrotask(() => {
+    klang.pruefungLaeuft = true;   // im Abi-Modus standardmäßig ohne Musik und Effekte (Einstellung „Klang auch in Prüfungen“)
     stop = round($('#stage', el), { tasks: makeTasks(plan.n, plan.lv, null, store.land), seconds: plan.seconds, ohneZeit: store.ruhig, onEnd: (r) => {
       const pct = Math.round((r.correct / r.total) * 100), np = notenpunkte(pct);
       store.addExam({ part, pct, np, correct: r.correct, total: r.total, xp: r.correct * 3 });
-      sfx('win'); if (np >= 8) confetti(np >= 12 ? 60 : 30);
+      klang.pruefungLaeuft = false; sfx('abi'); if (np >= 8) confetti(np >= 12 ? 60 : 30);
       const weakT = [...new Set(r.wrong.map((w) => w.q.topic))];
       el.innerHTML = `<a class="back" href="#/abi">${ICON.left} Abi-Modus</a>
         <section class="board" style="text-align:center"><div class="board-top"><span>${esc(plan.title.toUpperCase())}</span><b>● PROGNOSE</b></div>
@@ -178,7 +179,7 @@ export function rundeView(kind, arg, opts_onEnd) {
       if (kind === 'tag') { store.setTag(score); store.bump('tagRunden'); }
       const won = cfg.rival !== null ? score > cfg.rival : null;
       if (won) store.bump('duellSiege');
-      sfx('win'); if (won !== false && r.correct >= r.total / 2) confetti(40);
+      sfx(kind === 'tag' ? 'tag' : 'duell'); if (won !== false && r.correct >= r.total / 2) confetti(40);
       const url = kind === 'tag' ? linkFor('#/tag') : linkFor(`#/duell/${seed}-${cfg.lv}-${score}`);
       const text = kind === 'tag' ? `Mathe-Trainer Tages-Runde: ${score} Punkte. Schaffst du mehr?` : `Ich habe ${score} Punkte im Mathe-Duell. Schlag mich – du bekommst dieselben Aufgaben:`;
       el.innerHTML = `<a class="back" href="#/pruefung">${ICON.left} Prüfung</a>

@@ -2,6 +2,60 @@
 
 Neueste Meldung oben. Keine Geheimnisse, keine Personendaten (dieses Repo ist öffentlich, siehe Punkt 1).
 
+## 17.11.2026 (90) – Eigene Musik und Klänge (Version 2.1.0)
+
+Euer Auftrag von 07:52 (Marcel: „Jede App soll eigene, passende Musik komponieren“). Vorlesen folgt als Nächstes, Marcel will es nacheinander.
+
+**Klang-Identität Mathe-Trainer:**
+- Ruhig, konzentriert, erwachsen: weiches Piano in D-Dur mit sanften Flächen, Lo-Fi-Farben (maj9-, m9- und sus-Akkorde).
+- **Erkennungsmelodie:** d″ – a′ – e″ – fis″ – a″ über einem Dmaj9-Akkord.
+
+**Entstehung:**
+- Alles ist selbst komponiert und wird live im Browser mit Web Audio erzeugt. Es gibt keine Dateien, keine fremden Samples oder Loops und damit keine Lizenzfragen.
+- **Klavierton:** Dreieck-Grundton plus zwei leise Obertöne, schneller Anschlag, langes Ausklingen, ein Tiefpass, der sich schließt („Filz-Klavier“).
+- **Raum:** ein kleiner Nachhall aus selbst berechnetem, abklingendem Rauschen.
+- **Fläche:** zwei leicht verstimmte Sägezahn-Stimmen hinter einem Tiefpass bei 650 Hz.
+- **Bass:** ein Sinus.
+
+**Musik** (`app/js/musik.js`, 2,5 KB, wird erst geladen, wenn die Musik eingeschaltet ist):
+- Drei Stücke mit eigener Akkordfolge (A A B A) und eigenem Tempo (64–72 BPM).
+- Die Melodie entsteht jedes Mal neu aus der D-Dur-Pentatonik, im leichten Swing, mal still, mal 2–5 Töne je Takt. Anschlag und Lautstärke schwanken leicht.
+- Gegen nervige Schleifen: Ein Stück läuft gut drei Minuten, dann folgen 25–40 Sekunden Ruhe und ein anderes Stück.
+
+**Effekte** (in `ui.js`):
+
+| Effekt | Klang |
+|---|---|
+| richtig | Quinte d″ → a″ |
+| falsch | neutral: leise offene Quinte unten, kein Fehler-Brummen |
+| Stern | steigt bei Serien |
+| geschafft | Akkord mit drei Tönen nach oben |
+| Tages-Runde | die Erkennungsmelodie |
+| Duell | Frage und Antwort, zwei Aufstiege |
+| Abi-Modus geschafft | Kadenz G – A – D |
+| Lernserie wächst | vier Töne nach oben mit hellem Glanz |
+
+**Bedienung** (Einstellungen → „Klang“):
+- Je ein Schalter mit eigener Lautstärke für „Töne bei Antworten“ und „Lernmusik“.
+- Dazu „Klang auch in Prüfungen“ und „Probe hören“. Die Wahl wird gemerkt.
+- Der Lautsprecher-Knopf oben schaltet alles stumm.
+
+**Respekt:**
+- Die Musik ist ab Werk aus und startet nie vor der ersten Berührung. Ist sie eingeschaltet, setzt sie mit der ersten Berührung ein.
+- Sie folgt der Stummschaltung oben und pausiert, wenn die App im Hintergrund ist.
+- Im Abi-Modus und bei der Probeklausur ist ab Werk alles still, Musik und Effekte. Zum Schluss erklingt der Abi-Klang.
+- Barrierefreiheit: Jeder Ton begleitet nur, was auch auf dem Bildschirm steht.
+
+**Schnell:** Der Start lädt 5,5 KB mehr (unkomprimiert), die Musik wird nur bei Bedarf geladen.
+
+**Web = Android:** Die Android-App zeigt dieselbe Seite, also klingt sie gleich, mit gleicher Version 2.1.0.
+
+**Geprüft:**
+- Browser-Test: Musik-Teil beim Start nicht geladen; Pegel mit Musik 0,05, bei Stummschaltung 0, im Abi-Modus 0, danach wieder da; Einstellung nach Neuladen gemerkt; keine Fehler in der Konsole.
+- Neue Selbstprüfungen in `tests/run.mjs`.
+- `npm run check` und e2e auf allen fünf Stufen grün.
+- Eine Hörprobe (MP3, 1:21) hat Marcel bekommen. Die Musik wurde bisher nur gemessen und nicht angehört. Marcel entscheidet nach Gehör.
+
 ## 17.11.2026 (89) – Marcels Antworten zur Korrektheitsprüfung, Theorie zu jeder Übung (Version 2.0.0)
 
 Marcel hat die offenen Punkte aus (87) beantwortet und einen Wunsch ergänzt. Alles ist gebaut und liegt auf `test`.

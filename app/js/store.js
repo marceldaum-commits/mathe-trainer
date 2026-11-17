@@ -52,7 +52,9 @@ export function nextStreak(streak, today = new Date()) {
 /** Markiert den heutigen Tag als aktiv: Serie und Wochen-Ziel. */
 function touchDay(today = new Date()) {
   try { const a = globalThis.window?.MTApp; if (typeof a?.geuebt === 'function') a.geuebt(); } catch { /* nur in der Android-App: heute keine Erinnerung mehr */ }
+  const vorher = mem.streak.n;
   mem.streak = nextStreak(mem.streak, today);
+  if (mem.streak.n > vorher && vorher > 0) try { globalThis.window?.dispatchEvent(new Event('mt-serie')); } catch { /* ohne Klang */ }
   const wk = weekKey(today), dk = dayKey(today);
   if (mem.week.key !== wk) mem.week = { key: wk, days: [], claimed: false };
   if (!mem.week.days.includes(dk)) mem.week.days.push(dk);

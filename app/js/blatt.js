@@ -1,7 +1,7 @@
 // Arbeitsblatt-Generator und Probeklausur: Aufgaben aus den vorhandenen Erzeugern, in der App lösbar oder
 // als Blatt zum Drucken / als PDF – mit Logo, Namen-Zeile, Lösungsblatt. Ohne KI: jede Lösung ist nachgerechnet.
 // Ein Blatt ist durch (Themen, Stufe, Anzahl, Blatt-Nummer) eindeutig bestimmt: gleiche Nummer = gleiches Blatt.
-import { $, h, tex, esc, ICON, sfx, drucken, starsHtml } from './ui.js';
+import { $, h, tex, esc, ICON, sfx, klang, drucken, starsHtml } from './ui.js';
 import { store, LEVELS } from './store.js';
 import { seedRandom, shuffle } from './math.js';
 import { UNITS, AREAS, landList, unitExtra, istOber } from './units.js';
@@ -226,6 +226,7 @@ function loesenView(c) {
   const ctx = {
     progress: (f) => { $('.prog i', el).style.width = `${Math.round(f * 100)}%`; },
     done: (res) => {
+      klang.pruefungLaeuft = false;
       const gain = 10 + 2 * richtig; store.bonus(gain); store.touch(); store.bump('blatt');
       $('#stage', el).innerHTML = `<div class="stack"><section class="board" style="text-align:center"><div class="board-top"><span>${blattName(c).toUpperCase()} NR. ${c.seed}</span><b>● FERTIG</b></div>
         ${starsHtml(res.stars ?? 1)}<h2 id="b-ergebnis">${richtig} von ${fragen.length} auf Anhieb</h2><div class="gain" style="justify-content:center"><span class="chip xp">${ICON.bolt}+${gain} Punkte</span></div></section>
@@ -252,7 +253,7 @@ function loesenView(c) {
     },
   };
   const run = quiz(fragen.map((q) => () => q), { theorie: !c.klausur, onRight: (q) => { richtig++; gut.add(q); } });
-  queueMicrotask(() => { cleanup = run($('#stage', el), ctx) || null; });
+  queueMicrotask(() => { if (c.klausur) klang.pruefungLaeuft = true; cleanup = run($('#stage', el), ctx) || null; });
   return { el, cleanup: () => cleanup?.() };
 }
 
