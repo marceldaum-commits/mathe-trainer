@@ -2,7 +2,7 @@
 
 Neueste Meldung oben. Keine Geheimnisse, keine Personendaten (dieses Repo ist öffentlich, siehe Punkt 1).
 
-## 17.11.2026 (89) – Marcels Antworten zur Korrektheitsprüfung, Theorie zu jeder Übung (Version 0.44.0)
+## 17.11.2026 (89) – Marcels Antworten zur Korrektheitsprüfung, Theorie zu jeder Übung (Version 2.0.0)
 
 Marcel hat die offenen Punkte aus (87) beantwortet und einen Wunsch ergänzt. Alles ist gebaut und liegt auf `test`.
 
@@ -32,7 +32,17 @@ Marcel hat die offenen Punkte aus (87) beantwortet und einen Wunsch ergänzt. Al
    - Der Knopf öffnet die Theorie der passenden Einheit als Fenster über der Aufgabe, kurz und mit Pro ausführlich. Nach „Zurück zur Aufgabe“ geht die Runde genau dort weiter.
    - Nicht beim Einstufungstest und bei der Probeklausur, weil das Prüfungen sind.
    - Im freien Üben haben in allen Jahrgängen 5–10 und Oberstufe alle Aufgaben einen Theorie-Knopf (Stichprobe: 6 Aufgaben je Gebiet).
-6. **Nebenbei:** Die Waage-Knöpfe („Gewicht weg“) brachen auf schmalen Handys um. Das ist behoben.
+6. **Neues Versionsschema (eure Vorgabe von 07:53):**
+   - Diese Version heißt **2.0.0**, war als 0.44.0 geplant.
+   - Der Android-versionCode wird aus der Nummer berechnet und steigt von 4300 (0.43.0) auf 20000. Danach ergibt 2.1.0 den Code 20100, 2.1.1 den Code 20101.
+   - Die Selbst-Aktualisierung vergleicht die Versionen Teil für Teil als Zahlen, also gilt 2.0.0 als neuer als 0.43.0.
+7. **Web = Android:**
+   - Inhalt, Funktionen, Texte und die Versionsnummer 2.0.0 sind gleich.
+   - Bewusste Ausnahmen wegen der Play-Store-Regeln, mit Marcels Antwort vom 17.11.:
+     - In der Android-App fehlen Website-Links, Probestunden-Werbung und die Preistabelle, denn es gibt dort keinen Kauf außerhalb des Stores.
+     - Dafür steht dort der Hinweis „Wer steckt dahinter?“.
+   - Vorlesen gibt es noch nicht. Musik und Vorlesen sind die nächsten Aufträge, Marcel: „erst eines fertig, dann den Rest“.
+8. **Nebenbei:** Die Waage-Knöpfe („Gewicht weg“) brachen auf schmalen Handys um. Das ist behoben.
 
 **Geprüft:**
 - `npm run check` ist grün, mit neuen Selbstprüfungen für Preise, KI-Limit und Hilfsmittel.
