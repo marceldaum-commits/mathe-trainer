@@ -2,6 +2,147 @@
 
 Neueste Meldung oben. Keine Geheimnisse, keine Personendaten (dieses Repo ist öffentlich, siehe Punkt 1).
 
+## 17.11.2026 (97) – Fertig für den Betriebstest – Version 2.3.3
+
+Eure Aufträge: KI-Punkte-Abfrage (Endpunkt live), Nachtauftrag „Aufgaben prüfen“ und „Nova – ganze Sätze, nie die Android-Stimme“.
+**Version 2.3.3 liegt auf `test`.** `live` habe ich nicht angefasst. Die App-Hülle ist unverändert (Nr. 6), es braucht keine neue APK. **Web = Android**, beide 2.3.3.
+
+### Zahlen
+- **Aufgaben geprüft:**
+  - Alle 152 Aufgaben-Erzeuger, automatisch: 152 000 Aufgaben (Stufe 1–5, je 200 Startwerte).
+  - Dazu 5 Prüfer mit Stichproben: je Erzeuger und Stufe bis zu 3 Varianten, alle Lösungen nachgerechnet.
+- **Aufgaben geändert:** 91 Befunde in über 70 Aufgabenarten behoben. Einer war ein Fehlalarm.
+  - Automatische Befunde: 11 Arten vorher (Rundung ohne Angabe, Anzeige ≠ gespeicherter Wert, zwei gleichwertige Antworten). Jetzt 3, und die sind gewollt (interne Werte, die der Schüler nie sieht).
+- **Nova-Abdeckung: 100 %.**
+  - Theorie: 555 von 555 Abschnitten (alle 72 Einheiten, kurz und ausführlich) finden ihre Datei. Der Server hat 774 von 774 Texten aus `texte.json` (alle HTTP 200).
+  - Live-Durchlauf mit eurem echten Server: 24 vorlesbare Stellen (Aufgaben aus Kl. 5, 7, 9, 11, Oberstufe und Theorie), 27 von 27 Sprachstücken kamen von Nova (`/jetzt` 17× „200 neu“, Dateien 25× 200). Die Gerätestimme kam 0-mal.
+  - Einmal antwortete `/jetzt` mit 502, der zweite Versuch klappte.
+
+### Nova: Ursache und Änderung
+- **Ursachen für die Android-Stimme in dieser App:**
+  1. Kam eine Nova-Datei nicht (404 bei einem festen Text, `/jetzt` ≠ 200, Netzfehler), sprang die App sofort auf die Gerätestimme.
+  2. Feste Texte hatten keinen Rückweg über `/jetzt`.
+  3. Verweigerte das Gerät das Abspielen (Android verlangt ein Tippen), las ebenfalls die Gerätestimme.
+  4. KI-Antworten waren für die Gerätestimme vorgesehen.
+  - Ein Hash-Fehler war es nicht: Laufzeit-Texte und `texte.json` stimmen 555 von 555 überein.
+- **Jetzt:**
+  - Immer ganze Sätze. Feste Texte nimmt die App vorab vertont. Fehlt eine Datei oder entsteht der Text erst in der Aufgabe, gehen Stücke bis 300 Zeichen an `/jetzt`, geteilt an Satzenden. Nie Wort- oder Zahlenschnipsel.
+  - Der Knopf zeigt „Lädt …“, bis der Ton läuft. Die App wartet bis 15 s je Abruf (`/jetzt` braucht meist 2–3 s) und versucht es bei einer Störung ein zweites Mal.
+  - Die Gerätestimme liest nur, wenn wirklich kein Netz da ist (`navigator.onLine === false`) und nichts offline gespeichert ist.
+  - Sonst bleibt die App still und zeigt einmal je Sitzung: „Nova ist gerade nicht erreichbar – bitte gleich noch einmal versuchen.“
+  - Verweigert das Gerät das Abspielen: „Zum Vorlesen bitte noch einmal auf ‚Vorlesen‘ tippen.“ Die Datei liegt dann schon im Speicher.
+  - KI-Antworten werden nicht vorgelesen.
+  - Geprüft mit nachgebautem Server in 7 Fällen: Datei da, Datei fehlt, Aufgabe, `/jetzt` erst 500, Server kaputt, kaputt zum zweiten Mal, ohne Netz. Ergebnis: Gerätestimme nur ohne Netz, Hinweis einmal.
+- **Einmaleins vorab:** Nicht nötig. Aufgaben werden samt Antworten als ganze Sätze über `/jetzt` vertont und danach auf dem Gerät gespeichert.
+
+### KI-Punkte (`POST /api/ki/rest`)
+- Die App fragt höchstens einmal je Stunde nach, nur mit gültigem Pro + KI.
+- Sie zeigt „heute noch N KI-Punkte“ auf Startseite, Pro-Seite und in den Einstellungen und aktualisiert das von selbst. Das Limit 15 alter Codes wird übernommen.
+- Ein 429 dieser Abfrage setzt den Rest nicht auf 0.
+
+### Weitere Korrektur
+- Kumulierte Binomialverteilung (Stufe 4–5): Die Anzeige ist jetzt der exakte Wert, auf 4 Nachkommastellen gerundet. Vorher stand dort die Differenz gerundeter Tabellenwerte, die bei freier Eingabe abgelehnt wurde.
+- Diese Aufgaben gibt es nur noch als Auswahl, weil Tabellenwerte in der 4. Stelle abweichen können.
+
+### Geprüft
+- `npm run check` grün, inklusive der strengen Nachrechen-Prüfungen und der Stufen-Steigerung aller 147 Arten.
+- e2e auf allen fünf Stufen grün (siehe unten).
+
+### Liste der geänderten Aufgaben (Erzeuger, Stufe, was unklar oder falsch war)
+- genStammfunktion (auch genIntegralMix) (Stufe 4): Ablenker „Das ist die Ableitung“ ist nicht die Ableitung (Konstante angehängt): bei f=2x^2+7x-1 „F(x)=4x-5“, richtig f'=4x+7.
+- genPolynom (Stufe 5, auch genMix) (Stufe 5): Erklärung passt nicht: Ablenker 48x^3-12x^2+26x, Erklärung „Die Zahl 3 ohne x fällt beim Ableiten weg.“ (Fall e=-d, b·d und b·e heben sich auf).
+- genKollinear (Stufe 1,3): Vorzeichen-Ablenker „ja: AC=-3·AB — Der Faktor muss in jeder Zeile derselbe sein“ – Faktor ist überall gleich, nur das Vorzeichen falsch.
+- genBinomial / genStochastikMix (Stufe 4 „mindestens ein Treffer“): p=0,2, n=4: 4·0,2·0,8^3=0,4096=0,8^4 → Ablenker „genau ein Treffer“ fällt mit P(X=0) zusammen.
+- genBinomial / genStochastikMix (Stufe 4–5 Fehlversuche): X nicht genannt, p stillschweigend 1-0,7 umdefiniert.
+- genBinomial (Stufe 5): Ablenker „≈ 0,0000“; Tipp „Potenzen: 0,15≈0,15“ leer.
+- genKoordSpiegel (Stufe 4): Fehler-Erklärung beschreibt die richtige Rechnung: „✘ (8
+- genKoordSpiegel (Stufe 5): „✘ c=-8 — Das ist der Abstand …“ – Abstand nie negativ.
+- genBinomial / genStochastikMix (Stufe 2–3 (k=1)): „p gehört zu den 1 Treffern.“
+- genHochTief / genExtremaMix (Stufe 5): „f_t''(t-1)=-e^{t-1} ist wegen t>0 für jedes t negativ.“ falsche Begründung.
+- genMix / genPolynom (Stufe 3): Tipps „achte auf die Minuszeichen“, „Aus x allein wird 1“ obwohl kein Minus / kein x-Glied.
+- genMix (2), genStammfunktion (3) (Stufe 2/3): Lösung doppelt: „f'(x)=2x+2=2x+2“.
+- genErwartung / genStochastikMix (Stufe 1–2): Gerundete Ablenker ohne ≈ („4,9“ für √24, „3,46“, „11,88“).
+- genHochTief / genExtremaMix (Stufe alle): why an der richtigen Antwort falsch („✔ Hochpunkt — … also ein Tiefpunkt“).
+- genSigma (Stufe 1–3): Sigma-Regeln bei zu kleinem σ (n=25,p=0,2 → σ=2; μ=5,σ=2; μ=10,σ=3; n=36,p=0,5 → σ=3). Ab Stufe 4 sagt die App selbst „weil σ>3“. Echte Werte …
+- genFlaecheZwischen (Stufe 5): Ablenker „A≈10,67 – Die Wurzel fehlt: 2±√2, nicht 2±2“ kommt beim beschriebenen Fehler nicht heraus (wäre ≈2,67 = anderer Ablenker); kubisch …
+- genAbstand (Stufe 5): „Einheit: 10 Meter“ mehrdeutig, Lösung „≈4,37 (in der Einheit der Aufgabe)“.
+- genWendestelle (Stufe 4): Ablenker „x=-7 – Vorzeichenfehler beim Auflösen von 0,25x-0,25=0“ passt nicht (Vorzeichenfehler gäbe −1).
+- genMonotonie (Stufe 5): Probe „f'(2,5)≈0, f'(4)≈0“ zeigt kein Vorzeichen.
+- genExtremwert (Stufe 1): Erklärungen „x=2,5 – A'(x)=10-2x=0 – teile nur durch 2.“ und „x≈6,67 – Leite A(x)=… ab und setze null.“ beschreiben den Fehler nicht.
+- genWachstum (Stufe 2): Abnahme: „Bei Prozenten wächst der Betrag mit.“; Zunahme-Tipp: „Es bleiben 105 % des Vorjahres.“
+- genWachstum (Stufe 3): Lösung „t=\dfrac{\ln(2)}{0{,}04}=\dfrac{\ln(2)}{0{,}04}\approx17{,}3“ doppelt, keine Zeiteinheit.
+- genSigma (Stufe 3–4): „Nur mit etwa 31,7 % … außerhalb eines dieser Intervalle. Außerhalb von welchem?“ schwer lesbar.
+- genKombinatorik (Stufe 2): „für die Plätze 1 bis 2“
+- genGeradePunkt, genSymmetrie (Stufe alle): why an der richtigen Antwort widerspricht ihr.
+- genKumuliert (Stufe 4): Antworten als Differenz gerundeter Tabellenwerte (0,5449) statt gerundetem Ergebnis (0,5448); bei freier Eingabe wird die angezeigte richtige …
+- genBedingt (Stufe 3–5): Gerundete Lösung ohne ≈/Rundungsangabe.
+- genVierfelder (Stufe 5): Gerundete Lösung ohne ≈/Rundungsangabe.
+- genPotenz (Stufe 2): Ablenker passt nicht zur Erklärung: Bei (x^5)^5 steht „✘ x^{11} — Die Exponenten werden multipliziert, nicht potenziert.“ Der Code ersetzt a**b>99 …
+- genRotation (Stufe 4): Tipp falsch: „… auf den Hauptnenner 15 bringen.“ Hauptnenner fest eingetragen (gen4.js:351).
+- genPythagoras (Stufe 3): Mast-Aufgabe: Tipp „Wand und Boden bilden einen rechten Winkel“, es gibt keine Wand.
+- genPythagoras (Stufe 3/4): Unrealistisch: „50 m lange Leiter … Fuß 30 m von der Wand“, „19 m Leiter … 16 m von der Wand“.
+- genLaplace (Stufe 5): „Zwei Würfel werden geworfen … zweite Zahl größer als die erste?“ – keine Reihenfolge bei gleichzeitigem Wurf.
+- genHaeufigkeit (Stufe 1/2): „Wie groß ist die relative Häufigkeit?“ – wovon?
+- genTrig (Stufe 4): Leiter mit Winkel zur Wand: Fehler-Erklärung „≈ 2,14 — Kosinus gehört zu Ankathete und Hypotenuse.“ irreführend (2,14 = 3,2·sin42°; 3,2·cos42° ist …
+- genLinGl (Stufe 3): Lösung „x=3, also x=3.“ bei Faktor 1.
+- genUnabhaengig (Stufe 5): „Von den Schülern besitzen 10 % ein Fahrrad (Ereignis B).“ – B unklar.
+- genVarianz (Stufe 3–5): Gerundete Werte ohne ≈/Rundungshinweis (1,19 statt 1,1875; σ 2,49 …).
+- genSteigung (Stufe 1–3): Ablenker „0{,}333“, „-1{,}333“ als scheinbar exakte Werte.
+- genAbstandPG (Stufe 5): „Koordinaten in 100 m … (in Einheiten, auf zwei Nachkommastellen)“ widersprüchlich.
+- genUneigentlich (Stufe 4): Lösung „\dfrac{6}{3\cdot 27}=\dfrac{2}{27}“ passt nicht zu Tipps (F(x)=-2x^{-3/2}); „\dfrac{12}{3\cdot 8}=\dfrac12 … ≈0,5“.
+- genProzent (Stufe 3): „Wie hoch ist der neue Preis?“ Einheit fehlt (Optionen nackte Zahlen).
+- genGegen (Stufe 5): Bauteile: „Treffer“ statt „defekt“ in Ablenker/Tipps.
+- genRotation (Stufe 4): „Kugelschicht zwischen x=1 und x=4“ (x=4 ist Pol) → Kugelkappe.
+- genQuotient (Stufe 5): „(vollständig gekürzt)“ – Ablenker „\dfrac{3}{3x^{3}}“ ungekürzt.
+- genVarianz (Stufe 5): Tipp: „ergeben zusammen 1 (Gegenwahrscheinlichkeit)“ – falscher Begriff.
+- genBruch (Stufe 4/5): Fehler-Erklärung „✘ 5/13 — Brüche dividiert man, indem man mit dem Kehrwert multipliziert.“ (5/13 = getrennt addiert).
+- genFlaeche (Stufe 4): „Wie groß ist die Glasfläche (in m²)?“, „✔ ≈ 4“ neben „≈ 3,2“ – Genauigkeit wechselt.
+- genHyper (Stufe 3–5): Gerundete Prozent-Lösung „53,57 %“ (genau 53,5714…) ohne ≈ und ohne Rundungsangabe.
+- genLGS (Stufe 3): Lösung kaputt: „x=6 ergibt x=6; eingesetzt …“ (gen6.js ~Z. 1173, Koeffizient 1).
+- genSinussatz (Stufe 1): Erklärung an der richtigen Option widerspricht ihr (Texte fest an Optionen, gen6.js ~Z. 1718).
+- genZuordnung (Stufe 1): Gleiches Muster: „✔ keins von beiden – Doch: …“; beim Alters-Beispiel „doppelte Seitenzahl“ (gen6.js ~Z. 1493).
+- genLog (Stufe 5): „Nach wie vielen Jahren hat es sich verdoppelt? ✔ ≈11,9 Jahre“ – bei jährlicher Verzinsung widersprüchlich zu genZinseszins (12 Jahre).
+- genBegrenzt (Stufe 5): „✘ 21,15 – Beim Ausmultiplizieren ging 15·e^{-0,64} verloren.“ – tatsächlich fehlt nur der Faktor q.
+- genBegrenzt (Stufe 5): „✘ 35 – So ginge es bei linearem Wachstum weiter.“ unverständlich als Grenze (auch „60“ Pflanze).
+- genSinussatz (Stufe 1): „Welcher Satz hilft zuerst weiter?“ – Winkelsumme auch vertretbar.
+- genWachstumArt (Stufe 1): „Ein Akku lädt: … bis 500 Minuten Laufzeit erreicht sind“ – liest sich wie Ladezeit.
+- genZuordnung (Stufe 1–2): Bei Litern „Stück“: „3 Liter Saft kosten 12 €“, Tipp „Ein Stück kostet 12:3 €“.
+- genEinheit (Stufe 3): „0,75 min in s“, Tipp „erst die ganzen Minuten …“ – keine ganzen Minuten.
+- genBegrenzt (Stufe 3): „Medikament als Tropf“ mit fallender Formel 70+60e^{-0,1t}.
+- genKreis (Stufe 5): „Tortenstück“ mit 270°.
+- genKreis (Stufe 5): Lösung „8+1\pi“ – Faktor 1 vor π.
+- genTerm (Stufe 2): Ablenker „1x^3“ – Faktor 1.
+- genLinFunktion (Stufe 2): Bei f(x)=5x−4: „Punkt vor Strich: Erst malnehmen, dann addieren.“
+- genNegativ (Stufe 1–2): „✘ -14 – Von der Zahl geht es nur um die Differenz ins Minus, nicht um die Summe.“ unverständlich.
+- genSpurpunkt (Stufe 3): „Teile durch 5 und achte auf das Vorzeichen“ obwohl alles positiv.
+- genZufallStart (Stufe 2): Ablenker 2/3 bei k=3 mit „Das ist die Wahrscheinlichkeit für das Gegenteil“ falsch (Gegenteil 3/6).
+- genRational (Stufe 2–3): Plus mal Minus: Erklärungen passen nicht (12·(−6): „6 – nicht abgezogen“, ist aber 12+(−6); „−18 – nicht addiert“).
+- genWindschief (Stufe 2–3): Ablenker „5,39 — Abstand zweier Stützpunkte“ falsch, Code Math.hypot(a,h) ohne y.
+- genHistogramm (Stufe 1–2): „Gesamtfläche aller Säulen …?“ ohne n und p, Ablenker beziehen sich darauf.
+- genHistogramm (Stufe 3): p=0,5: Erklärungen „100 — Mitte … nur bei p=0,5 der Gipfel“ und „51 — Gipfel für die Gegenwahrscheinlichkeit“ falsch.
+- genBinomVerteilung (Stufe 1): n=2,p=0,2: „0,1 — ein Faktor fehlt“ (wäre 0,2).
+- genBinomVerteilung (Stufe 5): „(vier Nachkommastellen)“ aber ✔ „0{,}196“.
+- genMengen (Stufe 5): „(drei Nachkommastellen)“, Antworten 0,25/0,75 exakt, Lösung „≈ 0,25“.
+- genNewton (Stufe 5): „(auf vier Nachkommastellen)“, ✔ „2{,}875“.
+- genSinusFkt (Stufe 3): b=0,5: „π — Ein größerer Faktor vor x staucht …“ falsch.
+- genSinusFkt (Stufe 4): „2\sin(0{,}5x)-1 — Der Faktor vor x ist 2π/p – nicht die Periode selbst“ passt nicht; „-1\sin(4x)+2“.
+- genSinusFkt (Stufe 3): „um d nach oben verschoben“ – kein d in der Formel.
+- genIntegrierenSteil (Stufe 4): „Differenz auf dem Hauptnenner 12: 14+\dfrac{3}{2}“ – Hauptnenner falsch fest.
+- genSchnittgerade (Stufe 5): Tipp „2·I−(−2)·II …“ verdreht (= I+II).
+- genKurveSteil (Stufe 3): „x=0 und x=±4 — Nullstellen der Ableitung, nicht die von f“ passt nicht (f-Nullstellen 0, ±√48).
+- genPrisma (Stufe 5): „Wie schwer ist das Rohr? Runde auf zwei Nachkommastellen.“ ohne Einheit; Ablenker 1 Nachkommastelle.
+- genZufallStart (Stufe 3): „33 % — Geteilt wird Treffer durch Würfe, nicht umgekehrt.“ (80:24 = 333 %).
+- genHistogramm (Stufe 5): „n=33,33, p=0,3 — σ muss erst quadriert werden“ – zwei Fehler.
+- genWinkelArt (Stufe 3): „liegen 1 Abschnitte“.
+- genWinkelArt (Stufe 2): „360^\circ=360^\circ.“
+- genKurveE (Stufe 3): „f''(x)=(x-0)e^x“.
+- genIntegralE (Stufe 3/5): „1e^{2x}“, „\int_0^{\ln 4}(x)\,e^x\,dx“.
+- genWurzelAbl (Stufe 3): Ablenker „f'(x)=1\sqrt{x}“.
+- genBinomVerteilung (Stufe 2): „Auch die 1 Nieten gehören dazu“.
+- genStetig (Stufe 1): P(X genau 5) bei Gleichverteilung: zwei Ablenker 0,5 und 1/2 gleichwertig.
+
+**Web = Android**, Version 2.3.3.
+
 ## 17.11.2026 (96) – Danke für live 2.3.2; Vorschlag: KI-Punkte abfragen ohne Verbrauch
 
 Gesehen: `live` = 5ebad06, `stand.json` zeigt 2.3.2 und Hülle 6. Die Punkte CSP, Datenschutz (10g) und APK sind damit für mich erledigt.
