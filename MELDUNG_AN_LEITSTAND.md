@@ -2,6 +2,44 @@
 
 Neueste Meldung oben. Keine Geheimnisse, keine Personendaten (dieses Repo ist öffentlich, siehe Punkt 1).
 
+## 17.11.2026 (89) – Marcels Antworten zur Korrektheitsprüfung, Theorie zu jeder Übung (Version 0.44.0)
+
+Marcel hat die offenen Punkte aus (87) beantwortet und einen Wunsch ergänzt. Alles ist gebaut und liegt auf `test`.
+
+1. **KI-Limit: 10 pro Tag** (Marcel: „10, vielleicht später korrigieren“).
+   - Die App nennt jetzt „10 KI-Punkte pro Tag“ auf der Pro-Seite.
+   - **Bitte am Server prüfen:** Die Grenze muss dort auf 10 stehen. Der Auftrag vom 17.11. nannte 15.
+2. **Preise inkl. MwSt. bei der Pro-Option:**
+   - Die Pro-Seite der Web-App zeigt jetzt eine Preistabelle.
+     | | 30 Tage | Abi-Pass |
+     |---|---|---|
+     | Pro | 4,99 € | 19,99 € |
+     | Pro + KI | 9,99 € | 39,99 € |
+   - Darunter steht: „Alle Preise inkl. 19 % MwSt.“, der Abi-Pass gilt bis zum 31.07. des Abi-Jahres, „Pro + KI“ enthält 10 KI-Punkte pro Tag.
+   - In der Android-App erscheint die Tabelle nicht, weil es dort keinen Kauf außerhalb des Stores gibt.
+   - Korrektur zu (75): Erst ab jetzt zeigt die App Preise.
+3. **Android: keine Website-Links, aber offen ein Hinweis auf Marcel.**
+   - In der Android-App sind ausgeblendet: Probestunden- und Website-Knöpfe, Werbe-Hinweise nach Fehlern und der Website-Link im Logo oben. Impressum und Datenschutz bleiben.
+   - Neu unter „Mehr“: „Wer steckt dahinter?“. Der Text nennt Mathenachhilfe Online, persönliche Mathe-Nachhilfe online und die Adresse mathenachhilfe-online.com als Text ohne Link.
+   - In der Web-App ändert sich nichts.
+4. **„ohne Hilfsmittel“ nur, wenn es ein Teil ohne ist.**
+   - Die Probeklausur auf dem Blatt heißt bei Stufe 1–3 „ohne Hilfsmittel“, wie Teil A im Abi-Modus.
+   - Ab Stufe 4 heißt sie „mit Hilfsmitteln (Taschenrechner, Formelsammlung)“.
+   - Teil A/B im Abi-Modus waren schon richtig.
+5. **Neu: Theorie zu jeder Übung** (Marcel: „damit es nicht frustet“).
+   - Knopf „Theorie“ in jedem Schritt einer Einheit, oben neben dem Fortschritt. Das gilt auch für Spiele und den Boss.
+   - Außerhalb der Einheiten steht er bei jeder Aufgabe neben „Tipp“: freies Üben, Fehler-Kartei, Klassenarbeits-Trainer, Arbeitsblatt, KI-Aufgabe.
+   - Der Knopf öffnet die Theorie der passenden Einheit als Fenster über der Aufgabe, kurz und mit Pro ausführlich. Nach „Zurück zur Aufgabe“ geht die Runde genau dort weiter.
+   - Nicht beim Einstufungstest und bei der Probeklausur, weil das Prüfungen sind.
+   - Im freien Üben haben in allen Jahrgängen 5–10 und Oberstufe alle Aufgaben einen Theorie-Knopf (Stichprobe: 6 Aufgaben je Gebiet).
+6. **Nebenbei:** Die Waage-Knöpfe („Gewicht weg“) brachen auf schmalen Handys um. Das ist behoben.
+
+**Geprüft:**
+- `npm run check` ist grün, mit neuen Selbstprüfungen für Preise, KI-Limit und Hilfsmittel.
+- Browser-Test Web und Android (simuliert): Links, Hinweis, Preise und Theorie-Fenster ohne Fehler, KaTeX ohne Fehler, Seite nicht zu breit.
+- 320-px-Prüfung Oberstufe und Klasse 7.
+- e2e auf allen fünf Stufen grün.
+
 ## 17.11.2026 (88) – 0.43.0 liegt auf `test`
 
 - **Stand:** main und test zeigen auf denselben Commit (06376d3), Version 0.43.0. `live` nicht angefasst.

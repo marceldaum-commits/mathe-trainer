@@ -47,7 +47,7 @@ export function einstufungView() {
   for (const [a, set] of Object.entries(EINSTUFUNG)) for (const [teil, fns] of Object.entries(set)) for (const fn of fns) {
     seq.push(() => { const q = fn(teil === 'grund' ? 2 : 3); q.gen = fn.name; q.topic = fn.topic; q.ein = [a, teil === 'grund' ? 0 : 1]; return q; });
   }
-  return frame('#/lernen', quiz(seq, { noInput: true, onRight: (q) => { res[q.ein[0]][q.ein[1]]++; } }), () => {
+  return frame('#/lernen', quiz(seq, { noInput: true, theorie: false, onRight: (q) => { res[q.ein[0]][q.ein[1]]++; } }), () => {
     const e = einstufung(res);
     store.einstufung = { tag: dayKey(), res, stufe: e.stufe };
     store.bonus(20); store.touch();
@@ -67,7 +67,7 @@ export function einstufungErgebnis() {
       <div class="bar big"><i style="width:${((g + k) / 4) * 100}%"></i></div><small class="muted">Grundlagen ${g}/2 · Oberstufe ${k}/2</small><p>${TXT[e.rat[a.id]]}</p><a class="btn ghost" href="${href}">${esc(label)} ${ICON.right}</a></section>`; }).join('')}
     <section class="card stack"><h3>Passende Schwierigkeit: ${LEVELS[e.stufe - 1]}</h3><small class="muted">Aktuell eingestellt: ${LEVELS[store.level - 1]}. Du kannst sie jederzeit ändern.</small>
       ${store.level === e.stufe ? '' : '<button class="btn" id="es-lv" type="button">Schwierigkeit übernehmen</button>'}</section>
-    ${e.total <= 8 ? `<section class="cta"><h2>${esc(AREAS.find((a) => a.id === e.schwach).title)} hakt noch?</h2><p>Genau dafür gibt es die kostenlose Probestunde: Wir schauen gemeinsam, woran es liegt.</p><a class="btn" href="${CONFIG.probestunde}" target="_blank" rel="noopener">Gratis Probestunde ${ICON.right}</a></section>` : ''}
+    ${e.total <= 8 ? `<section class="cta nur-web"><h2>${esc(AREAS.find((a) => a.id === e.schwach).title)} hakt noch?</h2><p>Genau dafür gibt es die kostenlose Probestunde: Wir schauen gemeinsam, woran es liegt.</p><a class="btn" href="${CONFIG.probestunde}" target="_blank" rel="noopener">Gratis Probestunde ${ICON.right}</a></section>` : ''}
     <a class="btn ghost block" href="#/einstufung">Test wiederholen</a></div>`);
   $('#es-lv', el)?.addEventListener('click', (ev) => { store.level = e.stufe; sfx('ok'); ev.target.replaceWith(h('<div class="note ok">Übernommen.</div>')); });
   return { el };
@@ -88,7 +88,7 @@ export function verbundView(areaId) {
     const s = sheet(`${starsHtml(r.stars ?? 1)}<small class="muted">${esc(area.title)} · Schwierigkeit: ${LEVELS[store.level - 1]}</small>
       <h2 id="vb-be">${be} von ${total} BE</h2><p class="muted">${right} von ${A.parts.length} Teilaufgaben auf Anhieb. Gewertet wird wie in der Prüfung nur der erste Versuch.</p>
       <div class="gain"><span class="chip xp">${ICON.bolt}+${gain} Punkte</span></div>
-      ${be < total / 2 ? `<div class="promo">Solche Aufgaben am Stück sind Übungssache. In einer <a href="${CONFIG.probestunde}" target="_blank" rel="noopener">kostenlosen Probestunde</a> rechnen wir eine gemeinsam durch.</div>` : ''}
+      ${be < total / 2 ? `<div class="promo nur-web">Solche Aufgaben am Stück sind Übungssache. In einer <a href="${CONFIG.probestunde}" target="_blank" rel="noopener">kostenlosen Probestunde</a> rechnen wir eine gemeinsam durch.</div>` : ''}
       <button class="btn block" id="sh-go" type="button">Neue Aufgabe</button><a class="btn ghost block" href="#/aufgabe">Zur Übersicht</a>`);
     if (be === total) confetti(40);
     $('#sh-go', s).onclick = () => { s.hidden = true; again(); };

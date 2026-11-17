@@ -1193,6 +1193,11 @@ ok(nextStreak({ n: 3, last: '2026-11-10' }, D('2026-11-12')).n === 1, 'Serie: au
   for (const id of ['k7-terme', 'k7-gleichungen', 'k8-lgs', 'k9-quadrat']) { const L = Th.LANG[id] || [];
     ok(L.length >= 5 && ['Worum es geht', 'Durchgerechnetes Beispiel', 'Typische Fehler'].every((t) => L.some((x) => x[0] === t)), `Theorie ausführlich: Kapitel ${id} unvollständig`); } }
 
+// Marcel 17.11.2026: Preise inkl. MwSt. bei Pro, KI-Limit 10, „ohne Hilfsmittel“ nur im Teil ohne
+{ const P = await import('../app/js/pro.js'); const BL = await import('../app/js/blatt.js');
+  ok(P.KI_PRO_TAG === 10 && JSON.stringify(P.PREISE) === JSON.stringify([['Pro', '4,99 €', '19,99 €'], ['Pro + KI', '9,99 €', '39,99 €']]), 'Pro-Seite: Preise und KI-Punkte pro Tag wie von Marcel festgelegt');
+  ok(P.FUNKTIONEN.some((f) => /10 KI-Punkte pro Tag/.test(f[2])) && !P.FUNKTIONEN.some((f) => /15 KI-Punkte|15 Punkte pro Tag/.test(f[2])), 'KI-Limit überall 10');
+  ok([1, 2, 3].every((l) => BL.hilfsmittel(l) === 'ohne Hilfsmittel') && [4, 5].every((l) => /^mit Hilfsmitteln/.test(BL.hilfsmittel(l))), 'Probeklausur: „ohne Hilfsmittel“ nur bis Stufe 3'); }
 // Korrektheitsprüfung 17.11.2026: gefundene Fehler kommen nicht wieder
 { const E = await import('../app/js/eingabe.js'); const { parse } = await import('../app/js/ki/expr.js'); const K = await import('../app/js/ki/verify.js');
   ok(E.parseInput('1 1/2') === 1.5 && E.parseInput('-1 1/2') === -1.5 && E.parseInput('–3') === -3, 'Eingabe: gemischte Zahl „1 1/2“ ist 1,5, Halbgeviertstrich ist Minus');

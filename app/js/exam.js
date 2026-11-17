@@ -126,7 +126,7 @@ export function abiView(part, opts_onEnd) {
       el.innerHTML = `<a class="back" href="#/abi">${ICON.left} Abi-Modus</a>
         <section class="board" style="text-align:center"><div class="board-top"><span>${esc(plan.title.toUpperCase())}</span><b>● PROGNOSE</b></div>
           <div class="npbig" id="ex-np">${np}</div><h2>Notenpunkte</h2><p>${r.correct} von ${r.total} richtig (${pct} %) · ${clock(r.secsUsed)} Minuten${r.answered < r.total ? ` · ${r.total - r.answered} nicht beantwortet` : ''}</p></section>
-        ${weakT.length ? `<div class="promo">Hier lohnt sich Üben: <b>${weakT.map(esc).join(', ')}</b>. Diese Aufgabenarten liegen jetzt in deiner Fehler-Kartei. Wenn es an einem Thema länger hakt, hilft eine <a href="${CONFIG.probestunde}" target="_blank" rel="noopener">kostenlose Probestunde</a>.</div>` : '<div class="note ok"><b>Fehlerfrei.</b> Probier die nächste Schwierigkeit.</div>'}
+        ${weakT.length ? `<div class="promo">Hier lohnt sich Üben: <b>${weakT.map(esc).join(', ')}</b>. Diese Aufgabenarten liegen jetzt in deiner Fehler-Kartei. <span class="nur-web">Wenn es an einem Thema länger hakt, hilft eine <a href="${CONFIG.probestunde}" target="_blank" rel="noopener">kostenlose Probestunde</a>.</span></div>` : '<div class="note ok"><b>Fehlerfrei.</b> Probier die nächste Schwierigkeit.</div>'}
         <div id="ex-card"></div>
         ${review(r.wrong)}
         <a class="btn block" id="ex-again" href="#/abi">Zurück zum Abi-Modus</a>`;

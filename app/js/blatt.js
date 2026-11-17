@@ -121,10 +121,12 @@ export const kopf = (titel, unter) => `<header class="b-kopf"><img class="b-logo
 const fuss = (c) => `<footer class="b-fuss"><span>${esc(CONFIG.firma)} · ${esc(CONFIG.website.replace(/^https?:\/\/|\/$/g, ''))}</span><span>${blattName(c)} Nr. ${c.seed} · erstellt am ${heute()}</span></footer>`;
 
 /** Das Blatt selbst (Vorschau = Druckbild): Aufgaben-Seiten und Lösungsblatt. */
+/** Hilfsmittel der Probeklausur: Stufe 1–3 ist ein Teil ohne Hilfsmittel (wie Teil A im Abi-Modus), ab Stufe 4 kommen Aufgaben mit Tabelle und Taschenrechner. */
+export const hilfsmittel = (lv) => (lv <= 3 ? 'ohne Hilfsmittel' : 'mit Hilfsmitteln (Taschenrechner, Formelsammlung)');
 export function blattHtml(c, fragen) {
   const titel = `${blattName(c)} Mathematik`, be = fragen.reduce((s, q) => s + (q.be || 0), 0);
   const themenText = c.klausur ? gebiete().map(([, name]) => esc(name)).join(' · ') : [...new Set(fragen.map((q) => q.unit))].map(esc).join(' · ');
-  const unter = `${themenText}<br>Schwierigkeit: ${LEVELS[c.lv - 1]} · ${fragen.length} Aufgaben${c.klausur ? ` · ${be} Punkte (BE) · Zeit: ${fragen.length * 5} Minuten · ohne Hilfsmittel` : ''}`;
+  const unter = `${themenText}<br>Schwierigkeit: ${LEVELS[c.lv - 1]} · ${fragen.length} Aufgaben${c.klausur ? ` · ${be} Punkte (BE) · Zeit: ${fragen.length * 5} Minuten · ${hilfsmittel(c.lv)}` : ''}`;
   const aufgabe = (q, i) => `<li class="b-aufgabe"><div class="b-nr"><b>${i + 1}</b>${q.be ? `<small>${q.be} BE</small>` : ''}</div><div class="b-inhalt">
       <p>${q.prompt}</p>${q.formula ? `<div class="b-formel">${tex(q.formula, true)}</div>` : ''}${q.graph ? `<canvas class="b-graph" data-i="${i}" aria-label="Graph zu Aufgabe ${i + 1}"></canvas>` : ''}
       <div class="b-opts">${q.options.map((o, k) => `<span class="b-opt"><i>${'ABCD'[k]}</i><span>${o.html ?? tex(o.tex)}</span></span>`).join('')}</div>
@@ -249,7 +251,7 @@ function loesenView(c) {
       sfx('win'); window.dispatchEvent(new Event('mt-ruhig'));   // Punkte-Anzeige oben auffrischen
     },
   };
-  const run = quiz(fragen.map((q) => () => q), { onRight: (q) => { richtig++; gut.add(q); } });
+  const run = quiz(fragen.map((q) => () => q), { theorie: !c.klausur, onRight: (q) => { richtig++; gut.add(q); } });
   queueMicrotask(() => { cleanup = run($('#stage', el), ctx) || null; });
   return { el, cleanup: () => cleanup?.() };
 }

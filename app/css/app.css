@@ -908,8 +908,8 @@ textarea.field{resize:vertical;min-height:72px;font:inherit;padding:10px 12px}
 .wg-mitte{font-size:calc(24px*var(--fs,1));font-weight:800;color:var(--head);padding-bottom:10px}
 .wg-kiste{display:grid;place-items:center;width:34px;height:34px;border-radius:8px;background:var(--orange);color:#fff;font-style:italic;font-weight:800;font-size:calc(17px*var(--fs,1))}
 .wg-gew{display:block;width:17px;height:17px;border-radius:50%;background:var(--kind-2,#2f9bff)}
-.wg-knoepfe{display:grid;grid-template-columns:repeat(auto-fit,minmax(96px,1fr));gap:8px}
-.wg-knoepfe .pick{padding:8px 6px;font-size:calc(14px*var(--fs,1));line-height:1.25}
+.wg-knoepfe{display:grid;grid-template-columns:repeat(auto-fit,minmax(104px,1fr));gap:8px}
+.wg-knoepfe .pick{white-space:nowrap;padding:8px 6px;font-size:calc(14px*var(--fs,1));line-height:1.25}
 .gr-feld{fill:var(--card);stroke:var(--head);stroke-width:2;cursor:pointer;transition:fill .15s}
 .gr-feld.an{fill:var(--orange)}
 .gr-feld:focus-visible{outline:none;stroke:var(--kind-2,#2f9bff);stroke-width:4}
@@ -1001,3 +1001,18 @@ button.card.unit{text-align:left;width:100%;font:inherit;color:inherit;cursor:po
 .dg-b-weg td{padding:2px 10px 2px 0;vertical-align:middle}
 .dg-b-op{color:var(--orange-dark);white-space:nowrap}
 @media print{.dg-b-op{color:#000}}
+/* Android-App: Website-Links und Nachhilfe-Werbung aus, dafür ein Hinweis ohne Link */
+:root.in-app .nur-web{display:none!important}
+:root:not(.in-app) .nur-app{display:none!important}
+/* Theorie zur Aufgabe: Fenster über der Übung, der Fortschritt bleibt erhalten */
+.t-fenster{position:fixed;inset:0;z-index:45;background:var(--bg);overflow:auto;-webkit-overflow-scrolling:touch;animation:fade .2s;
+  padding:calc(10px + env(safe-area-inset-top)) 16px calc(24px + env(safe-area-inset-bottom))}
+.t-fenster-in{max-width:760px;margin:0 auto}
+.t-fenster-kopf{position:sticky;top:-10px;z-index:1;display:flex;align-items:center;gap:12px;padding:10px 0;background:var(--bg);border-bottom:1px solid var(--line);margin-bottom:12px}
+.t-fenster-kopf b{flex:1;color:var(--head);font-size:calc(17px*var(--fs,1))}
+.t-fenster .blatt .b-kopf,.t-fenster .blatt .b-fuss{display:none}
+.stephead .theo,.q .theo{flex:none}
+.pro-tab{width:100%;border-collapse:collapse;font-size:calc(15px*var(--fs,1))}
+.pro-tab th,.pro-tab td{padding:8px 6px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap}
+.pro-tab th:first-child{text-align:left;color:var(--head)}
+.pro-tab thead th{font-size:calc(13px*var(--fs,1));color:var(--muted);font-weight:600}

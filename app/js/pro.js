@@ -15,13 +15,20 @@ export const FUNKTIONEN = [
   ['pro', 'Probeklausur', '12 Aufgaben aus allen Gebieten, mit Punkten und Notenpunkte-Tabelle.', '#/blatt'],
   ['pro', 'Umstell-Blatt', 'Gleichungen und Formeln zum Umstellen drucken – mit jedem Schritt auf dem Lösungsblatt.', '#/dungeon'],
   ['pro', 'Theorie ausführlich', 'Herleitung, durchgerechnetes Beispiel, typische Fehler.', '#/theorie'],
-  ['ki', 'KI-Erklärung', '„Erklär’s mir anders“ nach einem Fehler. Drei Proben sind frei.', ''],
+  ['ki', 'KI-Erklärung', `„Erklär’s mir anders“ nach einem Fehler. Drei Proben sind frei, mit Pro + KI 10 KI-Punkte pro Tag.`, ''],
   ['ki', 'KI-Tutor', 'Nachfragen zur selben Aufgabe, bis es klar ist.', ''],
   ['ki', 'Rechenweg-Prüfer', 'Foto vom Heft – die KI zeigt die Zeile mit dem Fehler.', ''],
   ['ki', 'KI-Aufgaben', 'Immer neue Aufgaben im Abi-Stil, vom Server nachgerechnet.', '#/kiaufgabe'],
   ['ki', 'KI-Auswertung', 'Nach einem gelösten Blatt: was sitzt, was üben.', '#/blatt'],
 ];
 export const STUFEN = { frei: 'Frei', pro: 'Pro', ki: 'Pro + KI' };
+/** Endpreise inkl. 19 % MwSt. (Marcel, 14.11.2026). Stehen nur in der Web-App bei der Kauf-Möglichkeit – in der Android-App gibt es keinen Kauf außerhalb des Stores. */
+export const PREISE = [['Pro', '4,99 €', '19,99 €'], ['Pro + KI', '9,99 €', '39,99 €']];
+/** KI-Punkte pro Tag mit „Pro + KI“ (Marcel, 17.11.2026: 10). Die Grenze setzt der Server durch. */
+export const KI_PRO_TAG = 10;
+const preisTabelle = () => `<section class="card stack pro-preise nur-web" id="pro-preise"><h3>Preise</h3>
+  <table class="pro-tab"><thead><tr><th></th><th>30 Tage</th><th>Abi-Pass</th></tr></thead><tbody>${PREISE.map(([n, a, b]) => `<tr><th>${esc(n)}</th><td>${a}</td><td>${b}</td></tr>`).join('')}</tbody></table>
+  <small class="muted">Alle Preise inkl. 19 % MwSt. Der Abi-Pass gilt bis zum 31.07. deines Abi-Jahres. „Pro + KI“ enthält ${KI_PRO_TAG} KI-Punkte pro Tag.</small></section>`;
 /** Ist eine Funktion dieser Stufe auf diesem Gerät freigeschaltet? */
 export const hat = (stufe) => stufe === 'frei' || (stufe === 'pro' && store.stufe !== '') || (stufe === 'ki' && store.stufe === 'proki');
 /** Kleine Marke für Knöpfe und Karten: zeigt die Stufe und – mit Haken – dass sie freigeschaltet ist. */
@@ -37,6 +44,7 @@ export function proView() {
       <h2 id="pro-stufe">${st === 'proki' ? 'Pro + KI' : st === 'pro' ? 'Pro' : 'Frei'}</h2>
       <p>${st ? `${esc(ZUGANG_ART[z.art] || 'Zugang')} · ${esc(gueltig(z))}` : 'Alles zum Lernen und Spielen ist frei. Pro nimmt dir Arbeit ab, Pro + KI erklärt und prüft persönlich.'}</p>
       <div id="pro-aktion"></div></section>
+    ${window.MTApp ? '' : preisTabelle()}
     ${['frei', 'pro', 'ki'].map((s) => `<div class="sect"><h2>${STUFEN[s]}</h2></div><section class="stack">${FUNKTIONEN.filter((f) => f[0] === s).map(([, name, text, wo]) =>
       `<${wo ? `a href="${wo}"` : 'div'} class="card unit pro-zeile ${hat(s) ? 'offen' : 'zu'}"><span class="num">${hat(s) ? '✓' : '🔒'}</span><span><h3>${esc(name)} ${marke(s)}</h3><small>${esc(text)}</small></span>${wo ? `<span class="go">${ICON.right}</span>` : '<span></span>'}</${wo ? 'a' : 'div'}>`).join('')}</section>`).join('')}
   </div>`);

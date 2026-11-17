@@ -21,7 +21,14 @@ import { arbeitView, arbeitPlan } from './arbeit.js';
 import { checkBadges, titleOf } from './badges.js';
 import { api, serverOn, kiBereit, kiArt } from './api.js';
 import { updateLeiste } from './update.js';
+import { theorieKnopf, theorieKnoepfe, hatTheorie } from './theoriefenster.js';
 import { settingsView, berichtView, karteiView, dailyGoal, openSteps, levelCard, erfolgeView, formelnView, klasseView, weekCard, readiness, applySkin, applySchrift, lehrplanView } from './extras.js';
+// Android-App: keine Links zur Website und keine Nachhilfe-Werbung (Regel des Play Store) – stattdessen ein offener Hinweis ohne Link (.nur-app).
+if (typeof window !== 'undefined' && window.MTApp) {
+  document.documentElement.classList.add('in-app');
+  const logo = document.querySelector('a.brand-logo');   // Logo oben: in der App nur Bild, kein Link zur Website
+  if (logo) { logo.removeAttribute('href'); logo.removeAttribute('target'); logo.setAttribute('role', 'img'); logo.setAttribute('aria-label', 'Logo Mathenachhilfe Online'); logo.removeAttribute('title'); }
+}
 
 const view = $('#view');
 let cleanup = null;
@@ -93,7 +100,7 @@ const unitCard = (u, k) => {
 };
 const linkCard = (href, num, title, sub) => `<a class="card unit" href="${href}"><span class="num">${num}</span><span><h3>${esc(title)}</h3><small>${sub}</small></span><span class="go">${ICON.right}</span></a>`;
 const footer = () => `<footer class="foot">
-    <a class="site" href="${CONFIG.website}" target="_blank" rel="noopener">${esc(CONFIG.firma)}</a>
+    <a class="site nur-web" href="${CONFIG.website}" target="_blank" rel="noopener">${esc(CONFIG.firma)}</a><span class="nur-app">${esc(CONFIG.firma)} · ${esc(CONFIG.website.replace(/^https?:\/\/(www\.)?|\/$/g, ''))}</span>
     <a href="${CONFIG.impressum}" target="_blank" rel="noopener">Impressum</a>
     <a href="${CONFIG.datenschutz}" target="_blank" rel="noopener">Datenschutz</a>
     <span id="ver">Version ${VERSION} · ${STAND}${typeof window.MTApp?.updateStand === 'function' ? ' · hält sich selbst aktuell' : ''}</span></footer>`;
@@ -136,7 +143,7 @@ function home() {
     <div class="sect"><h2>Was möchtest du üben?</h2></div>
     <section class="areas">${AREAS.map((a) => areaCard(a, a.id === 'pruefung' ? '#/pruefung' : `#/g/${a.id}`)).join('')}${istOber() ? '' : areaLink('#/pruefung', 'Teste dich', 'Arbeitsblatt, Probe-Arbeit, freies Üben')}</section>
     <div id="today" class="stack"></div>
-    <section class="cta schmal">
+    <section class="cta schmal nur-web">
       <h2>Hängt es an einer Stelle?</h2>
       <div class="row"><a class="btn small" href="${CONFIG.probestunde}" target="_blank" rel="noopener">Gratis Probestunde</a><a class="btn small line site" href="${CONFIG.website}" target="_blank" rel="noopener">Zur Website ↗</a></div>
     </section>
@@ -282,12 +289,13 @@ function mehrView() {
       ${linkCard('#/einstellungen', ICON.gear, 'Einstellungen', istOber() ? `Schwierigkeit ${LEVELS[store.level - 1]} · Bundesland · Abi-Termin` : `${jgName(store.jahrgang)} · Schwierigkeit ${LEVELS[store.level - 1]} · Schrift`)}
     </section>
     <div id="install"></div>
-    <section class="cta">
+    <section class="cta nur-web">
       <h2>Persönliche Nachhilfe</h2>
       <p>Wenn es an einem Thema länger hakt: In einer kostenlosen Probestunde klären wir gemeinsam, was hilft.</p>
       <a class="btn" href="${CONFIG.probestunde}" target="_blank" rel="noopener">Gratis Probestunde ${ICON.right}</a>
       <a class="btn line site" href="${CONFIG.website}" target="_blank" rel="noopener">Zur Website ↗</a>
     </section>
+    <section class="card stack nur-app" id="wer"><h3>Wer steckt dahinter?</h3><p>Den Mathe-Trainer macht ${esc(CONFIG.firma)}. Dort gibt es auch persönliche Mathe-Nachhilfe – online, eins zu eins. Mehr dazu unter ${esc(CONFIG.website.replace(/^https?:\/\/(www\.)?|\/$/g, ''))}.</p></section>
     ${footer()}
   </div>`);
   if (installEvent) {
@@ -320,14 +328,16 @@ function unitView(u) {
 function stepView(u, i) {
   const s = u.steps[i];
   const el = h(`<div class="view">
-    <div class="stephead"><a class="x" href="#/u/${u.id}" aria-label="Schließen">${ICON.close}</a><div class="prog"><i></i></div></div>
+    <div class="stephead"><a class="x" href="#/u/${u.id}" aria-label="Schließen">${ICON.close}</a><div class="prog"><i></i></div>${theorieKnopf(u)}</div>
     <div id="stage"></div>
   </div>`);
   const bar = $('.prog i', el);
   const ctx = {
     progress: (f) => { bar.style.width = `${Math.round(Math.max(0, Math.min(1, f)) * 100)}%`; },
     done: (res) => finish(u, i, res),
+    mitTheorie: hatTheorie(u),   // der Knopf steht schon oben – die Aufgaben brauchen keinen eigenen
   };
+  theorieKnoepfe(el);
   queueMicrotask(() => { cleanup = s.run($('#stage', el), ctx) || null; });
   return el;
 }
@@ -351,7 +361,7 @@ function finish(u, i, res) {
     ${after !== before ? `<div class="note ok"><b>Neuer Titel:</b> ${esc(after)}</div>` : ''}
     ${unitDone && u.formeln?.length ? `<div class="note tip"><b>${u.formeln.length} ${u.formeln.length === 1 ? 'Formelkarte' : 'Formelkarten'} freigeschaltet.</b> <a href="#/formeln">Zur Formelsammlung</a></div>` : ''}
     <div class="gain"><span class="chip xp">${ICON.bolt}+${r.gain} Punkte</span>${store.ruhig ? '' : `<span class="chip fire">${ICON.fire}${r.streak} ${r.streak === 1 ? 'Tag' : 'Tage'} in Folge</span>`}</div>
-    ${(res.mistakes ?? 0) >= 3 ? `<div class="promo">Das Thema hakt noch? Das ist normal. In einer <a href="${CONFIG.probestunde}" target="_blank" rel="noopener">kostenlosen Probestunde</a> gehen wir es gemeinsam durch.</div>` : ''}
+    ${(res.mistakes ?? 0) >= 3 ? `<div class="promo nur-web">Das Thema hakt noch? Das ist normal. In einer <a href="${CONFIG.probestunde}" target="_blank" rel="noopener">kostenlosen Probestunde</a> gehen wir es gemeinsam durch.</div>` : ''}
     <a class="btn block" id="sh-go" href="${nextI !== null ? `#/u/${u.id}/${nextI}` : u.area === 'pruefung' ? '#/pruefung' : `#/g/${u.area}`}">${nextI !== null ? `Weiter: ${esc(u.steps[nextI].title)}` : 'Zur Übersicht'}</a>
     ${nextI !== null ? `<a class="btn ghost block" href="#/u/${u.id}">Zur Übersicht</a>` : ''}
   </div>`;
@@ -381,7 +391,7 @@ function uebenView(area, nurGrund) {
         <small class="muted">${nurGrund ? 'Grundlagen' : esc(area.title)} · Schwierigkeit: ${LEVELS[store.level - 1]}</small>
         <h2>${right} von ${N} auf Anhieb</h2>
         <div class="gain"><span class="chip xp">${ICON.bolt}+${gain} Punkte</span></div>
-        ${mistakes >= 4 ? `<div class="promo">Da hakt noch etwas? In einer <a href="${CONFIG.probestunde}" target="_blank" rel="noopener">kostenlosen Probestunde</a> gehen wir es gemeinsam durch.</div>` : ''}
+        ${mistakes >= 4 ? `<div class="promo nur-web">Da hakt noch etwas? In einer <a href="${CONFIG.probestunde}" target="_blank" rel="noopener">kostenlosen Probestunde</a> gehen wir es gemeinsam durch.</div>` : ''}
         <button class="btn block" id="sh-go" type="button">Noch eine Runde</button>
         <a class="btn ghost block" href="${back}">Zur Übersicht</a></div>`;
       sheet.hidden = false; sfx('win'); if ((res.stars ?? 1) >= 2) confetti(32);

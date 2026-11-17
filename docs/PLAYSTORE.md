@@ -181,7 +181,7 @@ erst nach dem ersten Start mit Netz. Deshalb gibt es `android/offline/`: ein eig
 
 - Beim Bauen wird der Ordner `app/` in die App-Datei kopiert (`www`). `LauncherActivity` zeigt ihn in einem eingebauten
   Browser-Fenster unter der echten Adresse an. Der Lernstand liegt wie in der Web-App im Gerät.
-- Nur `/api/…` geht ins Netz (Rangliste, Fehler melden) – wenn es eines gibt. Links zur Website öffnen den Browser.
+- Nur `/api/…` geht ins Netz (Rangliste, Fehler melden) – wenn es eines gibt. Ab 0.44.0 zeigt die Android-App keine Links zur Website und keine Nachhilfe-Werbung mehr (nur Impressum und Datenschutz). Stattdessen steht unter „Mehr“ ein Hinweis ohne Link, wer den Trainer macht.
 - Versionsname = `VERSION` aus `app/js/config.js`, Versionsnummer = `Haupt·10000 + Neben·100 + Patch`.
 - Widget (`android/widget/`) und Kurzbefehle sind eingebaut.
 

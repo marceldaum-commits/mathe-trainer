@@ -10,6 +10,7 @@ import { rechenwegFeld } from './rechenweg.js';
 import { merkZuTitel, merkbilderEinsetzen } from './merkbild.js';
 import { marke } from './pro.js';
 import { stelle } from './stufe.js';
+import { einheitZu, theorieKnopf, theorieKnoepfe } from './theoriefenster.js';
 
 /** sequence: Liste von Erzeugern (eine Aufgabe je Eintrag). */
 export function quiz(sequence, opts = {}) {
@@ -87,10 +88,11 @@ export function quiz(sequence, opts = {}) {
           ${q.formula ? `<div class="formula" id="q-f">${tex(q.formula, true)}</div>` : ''}
           <div id="q-body"></div>
           <div id="q-note"></div>
-          <div class="row"><button class="btn ghost small" id="q-tip" type="button" ${lv >= 5 ? 'hidden' : ''}>Tipp</button><span class="grow"></span>
+          <div class="row"><button class="btn ghost small" id="q-tip" type="button" ${lv >= 5 ? 'hidden' : ''}>Tipp</button>${opts.theorie === false || ctx.mitTheorie ? '' : theorieKnopf(einheitZu(q.gen))}<span class="grow"></span>
             <button class="btn" id="q-next" type="button" hidden>Weiter</button></div>
         </div>`;
       const body = el.querySelector('#q-body'), note = el.querySelector('#q-note'), next = el.querySelector('#q-next'), tip = el.querySelector('#q-tip');
+      theorieKnoepfe(el);   // Theorie zur Aufgabe als Fenster – die Runde bleibt stehen
 
       if (q.graph) {
         plot = new Plot(el.querySelector('canvas'), q.graph.view);
