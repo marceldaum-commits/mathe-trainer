@@ -76,7 +76,7 @@ const P = {
       const M = 1e7, krank = M * p, tp = krank * se, fpz = (M - krank) * fp; want = tp / (tp + fpz); }
     else { const zeilen = q.formula.split('\\\\'), proz = (s) => [...s.matchAll(/(\d+(?:\{,\}\d+)?)\\,\\%/g)].map((x) => Z(x[1]) / 100), ant = proz(zeilen[zeilen.length - 2]), gut = proz(zeilen[zeilen.length - 1]);
       ok(ant.length === 3 && gut.length === 3 && nah(ant[0] + ant[1] + ant[2], 1), `${tag}: Tabelle lesbar, Anteile ergeben 100 %`);
-      const i = +q.prompt.match(/M_(\d)\?/)[1] - 1, M = 1e7, schlecht = ant.map((x, j) => M * x * (1 - gut[j])); want = schlecht[i] / (schlecht[0] + schlecht[1] + schlecht[2]); }
+      const i = +q.prompt.match(/M_(\d)/)[1] - 1, M = 1e7, schlecht = ant.map((x, j) => M * x * (1 - gut[j])); want = schlecht[i] / (schlecht[0] + schlecht[1] + schlecht[2]); }
     ok(nah(r.num, want, 1e-7) && nah(q.TP / (q.TP + q.FP), want, 1e-7), `${tag}: Wahrscheinlichkeit stimmt`);
     if (lv >= 3) ok(Math.abs(Z(r.tex.replace('\\,\\%', '')) - want * 100) <= 0.0501, `${tag}: angezeigter Wert gerundet richtig`);
     for (const o of falsche(q)) ok(Math.abs(o.num - want) > 3e-3, `${tag}: Ablenker falsch`);

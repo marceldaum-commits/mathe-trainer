@@ -619,9 +619,9 @@ export function genStammfunktion(lv = 3) {
       const F = termeInt(ts);
       // Mit Bedingung bekommt jede Antwort die Konstante, mit der sie die Bedingung erfüllt – falsch ist dann nur die Aufleitung selbst.
       const mitC = (t) => (x0 === null ? t : [...t.filter((s) => s[2] !== 0), [...rSub([y0, 1], termeBruch(t.filter((s) => s[2] !== 0), x0)), 0]]);
-      const mk = (t, correct, why, ohneC = false) => { const T = ohneC ? t : mitC(t); return { tex: `F(x)=${termeTex(T)}`, correct, why, val: (x) => termeWert(T, x) }; };
+      const mk = (t, correct, why) => { const T = mitC(t); return { tex: `F(x)=${termeTex(T)}`, correct, why, val: (x) => termeWert(T, x) }; };
       opts = [mk(F, true),
-        mk(termeAbl(ts), false, 'Das ist die Ableitung. Gesucht ist die Umkehrung: Aufleiten.', true),
+        mk(termeAbl(ts), false, x0 === null ? 'Das ist die Ableitung. Gesucht ist die Umkehrung: Aufleiten.' : `Hier wurde abgeleitet statt aufgeleitet (${tex(`f'(x)=${termeTex(termeAbl(ts))}`)}) und nur die Zahl passend gemacht. Gesucht ist die Umkehrung: Aufleiten.`),
         mk(ts.map(([z, n, e]) => [z, n, e + 1]), false, `Der Exponent ist erhöht, aber es fehlt das Teilen durch den neuen Exponenten: ${aufRegel()}.`),
         mk(ts.map(([z, n, e]) => [...kuerze(z, n * (e + 1)), e]), false, 'Geteilt ist richtig – aber der Exponent muss auch um 1 größer werden.')];
       formula = `f(x)=${termeTex(ts)}`; f = (x) => termeWert(ts, x);

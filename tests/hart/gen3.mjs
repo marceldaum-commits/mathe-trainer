@@ -172,7 +172,7 @@ const SKAT = { 'ein Ass': (k) => k.wert === 'Ass', 'eine Herz-Karte': (k) => k.f
   'keine Bildkarte (Bube, Dame, König)': (k) => !k.bild, 'eine rote Bildkarte (Bube, Dame, König)': (k) => k.rot && k.bild, 'eine Karte, die kein Ass ist': (k) => k.wert !== 'Ass', 'eine schwarze Karte oder eine Dame': (k) => !k.rot || k.wert === 'Dame',
   'eine Karte, die weder Herz noch Bildkarte ist': (k) => !(k.farbe === 'Herz' || k.bild), 'eine rote Zahlenkarte (7, 8, 9 oder 10)': (k) => k.rot && k.zahl, 'ein Ass, einen König oder eine Kreuz-Karte': (k) => ['Ass', 'König'].includes(k.wert) || k.farbe === 'Kreuz' };
 ARTEN.genLaplace = laufe('genLaplace', (q, r, f, tag) => {
-  const z = zahlen(q.prompt), was = (/Wahrscheinlichkeit für (.*)\?$/.exec(q.prompt.replace(/<[^>]+>/g, '')) || [])[1]; let g, m;
+  const z = zahlen(q.prompt), was = /zweite Augenzahl größer ist als die erste/.test(q.prompt) ? 'eine zweite Zahl, die größer ist als die erste' : (/Wahrscheinlichkeit für (.*)\?$/.exec(q.prompt.replace(/<[^>]+>/g, '')) || [])[1]; let g, m;
   if (q.art === 'wuerfel') { m = 6; g = [1, 2, 3, 4, 5, 6].filter(WUERFEL1[was]).length; }
   else if (q.art === 'rad') { [m, g] = z; }
   else if (q.art === 'urne') { m = z[0] + z[1] + z[2]; g = z[0]; }
