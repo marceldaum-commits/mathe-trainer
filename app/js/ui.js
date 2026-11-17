@@ -109,9 +109,12 @@ export const klang = {
 /* Vorlesen mit der Stimme „Nova“ (KI-generiert): Einstellung an/aus wird gemerkt (von Haus aus aus).
    Die Stimme selbst steckt in vorlesen.js und wird erst geladen, wenn jemand vorlesen lässt. */
 const VORLESE_KEY = 'mt.vorlesen';
+export const TEMPI = [0.75, 0.9, 1, 1.15, 1.3, 1.5];
 let vorleseWerte = (() => { try { return { an: false, ...JSON.parse(localStorage.getItem(VORLESE_KEY) || '{}') }; } catch { return { an: false }; } })();
 export const vorlese = {
   get an() { return vorleseWerte.an === true; },
+  /** Sprechtempo (Marcel): 1,0 = Tempo des Servers. */
+  get tempo() { return TEMPI.includes(+vorleseWerte.tempo) ? +vorleseWerte.tempo : 1; },
   setze(w) { vorleseWerte = { ...vorleseWerte, ...w }; try { localStorage.setItem(VORLESE_KEY, JSON.stringify(vorleseWerte)); } catch { /* egal */ } },
 };
 /** Knopf „Vorlesen“ – nur, wenn Vorlesen eingeschaltet ist. */

@@ -1207,6 +1207,7 @@ ok(nextStreak({ n: 3, last: '2026-11-10' }, D('2026-11-12')).n === 1, 'Serie: au
   const L = JSON.parse(fs.readFileSync(new URL('../app/vorlesen/texte.json', import.meta.url), 'utf8'));
   ok(L.format === 1 && L.app === 'mathe-trainer' && L.texte.length > 500 && L.texte.every((t) => t.sprache === 'de' && t.text.length <= 1500 && t.text === normal(t.text) && !/⟦|\\[a-z]|<|>/.test(t.text)), 'Vorlesen: texte.json im vereinbarten Format, ohne TeX und HTML');
   const vl = fs.readFileSync(new URL('../app/js/vorlesen.js', import.meta.url), 'utf8').replace(/^\s*\/\/.*$/gm, '');
+  ok(JSON.stringify((await import('../app/js/ui.js')).TEMPI) === '[0.75,0.9,1,1.15,1.3,1.5]' && /preservesPitch = true/.test(vl) && /u\.rate = vorlese\.tempo/.test(vl), 'Vorlesen: Sprechtempo in sechs Stufen, gleiche Tonhöhe, auch für die Gerätestimme');
   ok(!/openai\.com|api\.openai|thorsten|espeak/i.test(vl) && /credentials: 'omit'/.test(vl) && /JETZT_MAX = 300/.test(vl), 'Vorlesen: nichts an OpenAI, keine Angaben zur Person, Stücke bis 300 Zeichen'); }
 // Klang 17.11.2026: eigene Effekte und Lernmusik, ohne Math.random, ohne Dateien
 { const fs = await import('node:fs'); const ui = fs.readFileSync(new URL('../app/js/ui.js', import.meta.url), 'utf8'), mu = fs.readFileSync(new URL('../app/js/musik.js', import.meta.url), 'utf8');

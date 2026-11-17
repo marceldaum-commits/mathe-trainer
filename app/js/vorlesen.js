@@ -5,7 +5,7 @@
 // KI-Antworten gehen nicht an /jetzt (einmalig, nur Kosten) – sie liest still die Stimme des Geräts.
 // Klappt es nicht (offline, 204), liest still die Stimme des Geräts (nur eingebaute Stimmen, kein Text an fremde Server).
 // Wird erst geladen, wenn jemand vorlesen lässt (kein Einfluss auf den Start).
-import { audio } from './ui.js';
+import { vorlese } from './ui.js';
 import { htmlSprech, normal, stuecke } from './sprech.js';
 
 export const STIMMEN = 'https://stimmen.mathenachhilfe-online.com';
@@ -36,7 +36,7 @@ const geraeteStimmen = () => ('speechSynthesis' in window ? speechSynthesis.getV
 function geraet(text) {
   return new Promise((fertig) => {
     const vs = geraeteStimmen(); if (!vs.length || !text) { fertig(false); return; }
-    const u = new SpeechSynthesisUtterance(text); u.voice = vs.find((x) => /de-DE/i.test(x.lang)) || vs[0]; u.lang = u.voice.lang;
+    const u = new SpeechSynthesisUtterance(text); u.voice = vs.find((x) => /de-DE/i.test(x.lang)) || vs[0]; u.lang = u.voice.lang; u.rate = vorlese.tempo;
     u.onend = () => fertig(true); u.onerror = () => fertig(false); speechSynthesis.speak(u);
   });
 }
@@ -65,7 +65,7 @@ async function datei(stueck, jetzt) {
 /* ───────────── Sprechen ───────────── */
 let runde = 0, quellen = [];
 const melde = (an) => { try { window.dispatchEvent(new CustomEvent('mt-spricht', { detail: an })); } catch { /* egal */ } };
-export function stopp() { runde++; quellen.forEach((q) => { try { q.stop(); } catch { /* schon aus */ } }); quellen = []; try { speechSynthesis?.cancel(); } catch { /* egal */ } melde(false); }
+export function stopp() { runde++; quellen.forEach((q) => { try { q.pause(); } catch { /* schon aus */ } }); quellen = []; try { speechSynthesis?.cancel(); } catch { /* egal */ } melde(false); }
 
 /**
  * Liest einen Text vor. art: 'fest' (Theorie – vorab vertont), 'aufgabe' (erst in der Aufgabe entstanden – über /jetzt), 'ki' (nur Gerätestimme).
@@ -83,12 +83,14 @@ export async function sprich(text, art = 'aufgabe') {
     if (meine !== runde) return gehoert;
     let ok = false;
     if (roh) {
+      // Abspielen mit eingestelltem Tempo bei gleicher Tonhöhe (1,0 = Tempo des Servers)
+      const url = URL.createObjectURL(new Blob([roh], { type: 'audio/mpeg' }));
       try {
-        const a = audio(), buf = await a.ac.decodeAudioData(roh);
-        if (meine !== runde) return gehoert;
-        await new Promise((fertig) => { const q = a.ac.createBufferSource(); q.buffer = buf; q.connect(a.out); q.onended = fertig; quellen.push(q); q.start(); });
-        ok = true;
+        const el = new Audio(url); el.preservesPitch = true; el.mozPreservesPitch = true; el.webkitPreservesPitch = true;
+        el.defaultPlaybackRate = vorlese.tempo; el.playbackRate = vorlese.tempo; quellen.push(el);
+        ok = await new Promise((fertig) => { el.onended = () => fertig(true); el.onerror = () => fertig(false); el.onpause = () => { if (!el.ended) fertig(true); }; el.play().catch(() => fertig(false)); });
       } catch { ok = false; }
+      URL.revokeObjectURL(url);
     }
     if (!ok && meine === runde) ok = await geraet(teile[i]);   // stille Notlösung
     if (meine !== runde) return gehoert || ok;

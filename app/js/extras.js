@@ -13,7 +13,7 @@ import { store, LEVELS, LAENDER, KARTEI_TAGE } from './store.js';
 import { UNITS, AREAS, istOber, jgName } from './units.js';
 import { pi, HUETE, BRILLEN, outfitFrei, outfitJetzt } from './figuren.js';
 import { kiPunkteText } from './pro.js';
-import { $, h, esc, ICON, sfx, sound, klang, vorlese, toast, confetti, drucken } from './ui.js';
+import { $, h, esc, ICON, sfx, sound, klang, vorlese, TEMPI, toast, confetti, drucken } from './ui.js';
 import { CONFIG, VERSION, STAND } from './config.js';
 import { updateStand, updateSuchen } from './update.js';
 import { merkbilderEinsetzen, hatMerkbild } from './merkbild.js';
@@ -68,6 +68,7 @@ export function settingsView() {
       <button class="schalter" id="st-vl" type="button" role="switch" aria-checked="false"><span class="knopf" aria-hidden="true"></span><span>Aufgaben und Theorie vorlesen</span></button>
       <div class="stack" id="st-vl-mehr">
         <div class="picks col" role="radiogroup" aria-label="Stimme"><button class="pick sel" type="button" role="radio" aria-checked="true" id="st-vl-nova">Nova – KI-generierte Stimme</button></div>
+        <label class="regler"><span id="st-vl-tempo-text">Sprechtempo</span><input type="range" id="st-vl-tempo" min="0" max="5" step="1" aria-label="Sprechtempo"></label>
         <button class="btn ghost small" id="st-vl-probe" type="button">Probe hören</button>
       </div>
       <small class="muted" id="st-vl-info">Ein Knopf „Vorlesen“ erscheint bei jeder Aufgabe und bei jedem Theorie-Abschnitt. Formeln werden in Worten gesprochen.<br><br>Vorgelesen wird mit der Stimme Nova, einer mit KI (OpenAI) erzeugten Stimme. Feste Texte vertonen wir vorab. Texte, die erst in der Aufgabe entstehen (z.&nbsp;B. Rechenaufgaben), schickt die App ohne Angaben zu dir an unseren Server stimmen.mathenachhilfe-online.com; dieser lässt sie einmalig von OpenAI vertonen und speichert die Audiodatei. Es werden keine Namen, Konten oder Geräte-Kennungen übertragen, und unser Server speichert keine Zugriffsprotokolle.</small></section>
@@ -181,7 +182,9 @@ export function settingsView() {
       updateSuchen().then((r) => { ub.disabled = false; un.textContent = r.text; if (r.art === 'neu') window.dispatchEvent(new Event('mt-update')); }); }; }
   { // Vorlesen: an/aus (Stimme Nova, KI-generiert – Pflicht-Kennzeichnung), Probe; die Wahl wird gemerkt
     const sw = $('#st-vl', el), mehr = $('#st-vl-mehr', el);
-    const zeichne = () => { sw.setAttribute('aria-checked', vorlese.an); sw.classList.toggle('an', vorlese.an); mehr.hidden = !vorlese.an; };
+    const tp = $('#st-vl-tempo', el), tpText = () => { const t = String(vorlese.tempo).replace('.', ','); $('#st-vl-tempo-text', el).textContent = `Sprechtempo ${t}${vorlese.tempo === 1 ? ' (Standard)' : ''}`; tp.setAttribute('aria-valuetext', `${t}-fach`); };
+    tp.oninput = () => { vorlese.setze({ tempo: TEMPI[+tp.value] }); tpText(); };
+    const zeichne = () => { sw.setAttribute('aria-checked', vorlese.an); sw.classList.toggle('an', vorlese.an); mehr.hidden = !vorlese.an; tp.value = TEMPI.indexOf(vorlese.tempo); tpText(); };
     sw.onclick = () => { vorlese.setze({ an: !vorlese.an }); sfx('tap'); zeichne(); };
     $('#st-vl-probe', el).onclick = async () => { const V = await import('./vorlesen.js'); const ok = await V.sprich('Hallo! So klinge ich. Ich lese dir Aufgaben und Theorie vor, auch Formeln wie f von x gleich x Quadrat.', 'fest'); if (!ok) toast('Vorlesen geht gerade nicht – bitte mit Internet noch einmal versuchen.'); };
     zeichne(); }

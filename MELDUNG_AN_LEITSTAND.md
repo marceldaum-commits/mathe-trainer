@@ -32,8 +32,10 @@ Nach euren Vorgaben von 12:36 und 12:53 (Marcel: „zukünftig nur Nova“). **T
 - **Einstellungen → „Vorlesen“:**
   - Schalter (Werk: aus) und als Stimme „Nova – KI-generierte Stimme“ (Pflicht-Kennzeichnung).
   - „Probe hören“ und euer Datenschutz-Text vom 12:53 wörtlich.
-  - Kein Tempo-Regler, das Tempo setzt euer Server (1,25).
-- **Die App spricht nie mit OpenAI.** Die CSP erlaubt nur `connect-src 'self' https://stimmen.mathenachhilfe-online.com`.
+  - **Sprechtempo** (eure Ergänzung 12:59): Regler in sechs Stufen 0,75 · 0,9 · 1,0 (Standard = euer Server-Tempo) · 1,15 · 1,3 · 1,5, gemerkt.
+  - Technik: Nova-MP3 über `HTMLAudioElement` mit `playbackRate` und `preservesPitch = true`. Die Gerätestimme als Notlösung bekommt dieselbe Rate.
+  - Die Android-App nutzt dieselbe Web-Seite, braucht also keinen eigenen Player.
+- **Die App spricht nie mit OpenAI.** Die CSP erlaubt nur `connect-src 'self' https://stimmen.mathenachhilfe-online.com`, dazu `media-src 'self' blob:` zum Abspielen der geladenen Dateien.
 - **Bitte prüfen:** CORS auf `/nova/…` und `/jetzt` für `trainer`, `trainer-test` und POST mit `Content-Type: application/json` (Vorabanfrage OPTIONS). Falls der Server einen eigenen CSP-Header schickt, braucht er dieselbe `connect-src`-Angabe.
 
 ### Abzeichen „Pro aktiv“ (eure Bitte 11:35)
@@ -45,7 +47,7 @@ Nach euren Vorgaben von 12:36 und 12:53 (Marcel: „zukünftig nur Nova“). **T
 
 ### Geprüft
 - Browser-Test (360 px), Stimmen-Server im Test nachgeahmt:
-  - Theorie spielt die feste Datei ab, ohne /jetzt.
+  - Theorie spielt die feste Datei ab, ohne /jetzt. Abgespielt bis zum Ende mit Tempo 1,3 und gleicher Tonhöhe.
   - Eine Aufgabe ruft /jetzt in Stücken unter 300 Zeichen auf, dann wird abgespielt.
   - Keine Cookies oder Referer, keine Fehler in der Konsole.
   - Abzeichen auf Start und in den Einstellungen.
