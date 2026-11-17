@@ -335,7 +335,7 @@ function gegen() {
 }
 function logist() {
   const S = 100, f = (t) => S / (1 + 19 * Math.exp(-0.7 * t));
-  return buehne({ titel: 'Logistisches Wachstum: Ein Gerücht macht die Runde', regler: { label: 'Zeit t', min: 0, max: 10 }, dauer: 7500, hoehe: 200, text: (t) => { const y = f(t); return `${zahl(y, 0)} von 100 wissen es. ${y < 30 ? 'Noch langsam – es erzählen erst wenige weiter.' : y < 70 ? 'Jetzt geht es am schnellsten – genau bei der Hälfte.' : 'Es wird langsamer – fast alle wissen es schon.'}`; },
+  return buehne({ titel: 'Logistisches Wachstum: Ein Gerücht macht die Runde', regler: { label: 'Zeit t', min: 0, max: 10 }, dauer: 7500, hoehe: 200, text: (t) => { const y = f(t); return `${zahl(y, 0)} von 100 wissen es. ${y < 30 ? 'Noch langsam – es erzählen erst wenige weiter.' : y < 70 ? 'Jetzt geht es schnell – am schnellsten genau bei der Hälfte.' : 'Es wird langsamer – fast alle wissen es schon.'}`; },
     zeichne(g, B, H, t, _z, F) {
       const X = (a) => 18 + (a / 10) * (B * 0.56 - 18), Y = (y) => H - 18 - (y / 110) * (H - 30), n = Math.round(f(t));
       g.strokeStyle = F.rot; g.setLineDash([6, 5]); g.lineWidth = 2; g.beginPath(); g.moveTo(X(0), Y(S)); g.lineTo(X(10), Y(S)); g.stroke(); g.setLineDash([]);
@@ -462,7 +462,7 @@ export const MERK = {
 /** Stichwörter in Karten-Überschriften → Merkbild (für die Erklär-Karten der Einheiten). */
 const STICHWORT = [[/Im Dreieck: 180|Winkelsumme im Dreieck/i, 'Winkelsumme im Dreieck'], [/einmal abrollen|Kreiszahl/i, 'Kreiszahl'], [/Erste und zweite Formel|binomische Formel/i, 'Erste binomische Formel'], [/Antiproportional/i, 'Antiproportional'], [/Kettenregel/i, 'Kettenregel'], [/Produktregel/i, 'Produktregel'], [/Tangente|Steigung an einer Stelle|Ableitung ist/i, 'Ableitung'], [/Hauptsatz|Fläche unter|Integral als/i, 'Hauptsatz'],
   [/Bernoulli|Binomial|Nagelbrett/i, 'Bernoulli-Formel'], [/Bedingte/i, 'Bedingte Wahrscheinlichkeit'], [/Skalarprodukt|Senkrecht/i, 'Skalarprodukt'], [/Verbindungsvektor|Spitze minus/i, 'Verbindungsvektor'],
-  [/Begrenztes Wachstum/i, 'Begrenztes Wachstum'], [/Pythagoras/i, 'Pythagoras'], [/Scheitel/i, 'Scheitelform'], [/Sinus/i, 'Sinusfunktion'], [/Hoch- und Tief|Extrempunkt|Extremstelle/i, 'Extrempunkt'],
+  [/Begrenztes Wachstum/i, 'Begrenztes Wachstum'], [/Pythagoras/i, 'Pythagoras'], [/Scheitel(?!winkel)/i, 'Scheitelform'], [/Sinusfunktion/i, 'Sinusfunktion'], [/Hoch- und Tief|Extrempunkt|Extremstelle/i, 'Extrempunkt'],
   [/Wendepunkt|Wendestelle|Krümmung/i, 'Wendepunkt'], [/Pfadregel|Baumdiagramm/i, 'Pfadregeln'], [/Sigma/i, 'Sigma-Regeln'], [/Parameterform der Geraden|Gerade im Raum|Stützvektor/i, 'Gerade'],
   [/Potenz- und Summenregel|Potenzregel/i, 'Potenzregel'], [/e-Funktion/i, 'e-Funktion'], [/Logistisch/i, 'Logistisches Wachstum'], [/Symmetrie/i, 'Symmetrie'], [/Rotationsvolumen|Rotationskörper/i, 'Rotationsvolumen'], [/Gegenereignis/i, 'Gegenereignis'], [/zwischen (zwei )?Graphen/i, 'Fläche zwischen Graphen']];
 export const merkZuTitel = (titel) => { const t = String(titel || ''); return hatMerkbild(t) ? t : (STICHWORT.find(([re]) => re.test(t)) || [])[1] || ''; };

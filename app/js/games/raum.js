@@ -55,7 +55,7 @@ export function raum(el, ctx) {
     <div class="stack">
       <div class="mission"><b class="tag" id="rm-n"></b><p><span id="rm-t"></span><small id="rm-s"></small></p></div>
       <div class="stage"><span class="tagline">Mit dem Finger drehen</span><canvas id="rm-c" style="aspect-ratio:1" aria-label="Drehbares 3D-Koordinatensystem"></canvas></div>
-      <div class="formula" id="rm-f" style="font-size:16px"></div>
+      <div class="formula" id="rm-f" style="font-size:calc(16px*var(--fs,1))"></div>
       <div id="rm-body"></div>
       <div id="rm-note"></div>
       <div class="row" id="rm-next" hidden><button class="btn block" type="button">Weiter</button></div>

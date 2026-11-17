@@ -266,9 +266,9 @@ export function schritt(e, x) {
     case 'pow': {
       const [b, k] = e.a;
       if (i === 0) return { label: wurzelLabel(k), rest: b, auf: (o) => wurzel(o, k), innen, neu,
-        tipp: `Die Gegenrechnung von „hoch ${tex$(tx(k))}“ ist die ${istZahl(k, 2) ? 'Wurzel' : `${tex$(tx(k))}-te Wurzel`}. (Alle Größen sind hier positiv.)`,
+        tipp: `Die Gegenrechnung von „hoch ${tex$(tx(k))}“ ist die ${istZahl(k, 2) ? 'Wurzel' : `${tex$(tx(k))}. Wurzel`}. (Alle Größen sind hier positiv.)`,
         falsch: [
-          ...(ist(k, 'n') ? [{ label: geteiltLabel(k), auf: (o) => div(o, k), why: `„Hoch ${tex$(tx(k))}“ heißt „mal sich selbst“, nicht „mal ${tex$(tx(k))}“ – die Gegenrechnung ist die Wurzel, nicht das Teilen.` }] : []),
+          ...(ist(k, 'n') ? [{ label: geteiltLabel(k), auf: (o) => div(o, k), why: `„Hoch ${tex$(tx(k))}“ heißt ${istZahl(k, 2) ? '„mal sich selbst“' : `„${tex$(tx(k))} gleiche Faktoren“`}, nicht „mal ${tex$(tx(k))}“ – die Gegenrechnung ist die Wurzel, nicht das Teilen.` }] : []),
           { auf: (o) => pow(o, k), why: `Die Gegenrechnung von „hoch ${tex$(tx(k))}“ ist die Wurzel – nicht noch einmal „hoch ${tex$(tx(k))}“.` },
           { auf: (o) => (ist(o, 'add') ? add(...o.a.map((t) => (negTerm(t) ? neg(wurzel(betrag(t), k)) : wurzel(t, k)))) : null), why: `Die Wurzel aus einer Summe ist nicht die Summe der Wurzeln: ${tex$('\\sqrt{a^2-b^2}\\neq a-b')}.` },
         ] };
@@ -489,7 +489,7 @@ export const FORMELN = [
   { f: 'N = N0*e^(k*t)', th: 'Exponentielles Wachstum', st: 5, ziele: ['t', 'k'] },
   { f: 'N = N0*(1/2)^(t/T)', th: 'Halbwertszeit', st: 5, ziele: ['t', 'T'] },
   { f: 'F = G*m1*m2/r^2', th: 'Gravitationsgesetz', st: 5, ziele: ['r', 'm1'] },
-  { f: 'v^2 = v0^2 + 2*a*s', th: 'Bremsweg', st: 5, ziele: ['s', 'a', 'v0'], dep: 'v', wert: 'v = sqrt(v0^2 + 2*a*s)' },
+  { f: 'v^2 = v0^2 + 2*a*s', th: 'Geschwindigkeit und Weg', st: 5, ziele: ['s', 'a', 'v0'], dep: 'v', wert: 'v = sqrt(v0^2 + 2*a*s)' },
   { f: 'V = 4/3*pi*r^3', th: 'Volumen einer Kugel', st: 5, ziele: ['r'] },
   { f: 'BMI = m/l^2', th: 'Body-Mass-Index', st: 5, ziele: ['l', 'm'] },
   { f: 'R = rho*l/A', th: 'Widerstand eines Drahts', st: 5, ziele: ['A', 'l'] },
@@ -559,7 +559,7 @@ export function zahlAufgabe(stock, klein = false) {
     const muster = pick((ZAHL_MUSTER[stock] || ZAHL_MUSTER[3]).filter((m) => !(klein && m.includes('vonzahl'))));
     let x0 = klein ? ri(2, 12) : nz(-9, 15); if (muster.includes('quadratmach') || muster.includes('wurzel')) x0 = ri(1, 12);
     let T = S('x'), w = x0, ok = true;
-    for (const art of muster) { const s = schicht(art, T, w, o); if (!s) { ok = false; break; } [T, w] = s; }
+    for (const art of muster) { const s = schicht(art, T, w, o); if (!s || (klein && s[1] < 0)) { ok = false; break; } [T, w] = s; }   // Klasse 5/6: auch kein negativer Zwischenwert
     if (!ok || Math.abs(w) > 400 || (klein && w < 0)) continue;
     const links = rand() < 0.8, st = { l: links ? T : N(w), r: links ? N(w) : T, x: 'x' }, wahr = [{ x: x0 }];
     const weg = loesungsweg(st, wahr); if (!weg) continue;

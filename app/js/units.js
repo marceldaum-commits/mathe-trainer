@@ -572,7 +572,7 @@ const OBER_AREAS = [
 /* ───────────── Zusatz je Einheit: Boss, „Wo brauche ich das?", Formelkarten ───────────── */
 const META = {
   formen: { boss: ['Parabel-Golem', 'x²', [genScheitel]], why: 'Parabeln beschreiben Wurfbahnen, Brückenbögen und Satellitenschüsseln. Sinus-Kurven beschreiben Töne, Wechselstrom und Gezeiten.',
-    formeln: [['Gerade', 'f(x)=m\\,x+b'], ['Scheitelform', 'f(x)=a\\,(x-d)^2+e,\\quad S(d\\mid e)'], ['Sinusfunktion', 'f(x)=a\\sin(b\\,x)+d,\\quad p=\\tfrac{2\\pi}{b}']] },
+    formeln: [['Geradengleichung', 'f(x)=m\\,x+b'], ['Scheitelform', 'f(x)=a\\,(x-d)^2+e,\\quad S(d\\mid e)'], ['Sinusfunktion', 'f(x)=a\\sin(b\\,x)+d,\\quad p=\\tfrac{2\\pi}{b}']] },
   steigung: { boss: ['Tangenten-Titan', 'm', [genPolynom, genTangente]], why: 'Die Steigung ist eine Änderungsrate: Geschwindigkeit ist die Änderungsrate des Weges, Inflation die der Preise.',
     formeln: [['Ableitung', "f'(x_0)=\\text{Steigung der Tangente bei }x_0"], ['Waagerechte Tangente', "f'(x_0)=0"]] },
   zeichnen: { boss: ['Skizzen-Schatten', "f′", [genMonotonie, genHochTief, genPolynom]], why: 'Ärzte lesen aus einer Fieberkurve, ob es besser oder schlechter wird – das ist grafisches Ableiten.',

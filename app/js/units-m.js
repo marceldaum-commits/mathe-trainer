@@ -367,7 +367,7 @@ export const MITTEL = [
     ] },
   { id: 'k8-linear', jg: '8', area: 'malgebra', title: 'Lineare Funktionen', sub: 'Steigung, Achsenabschnitt, Nullstelle',
     meta: { boss: ['Geraden-Greif', 'm', [genLinFunktion, H(genSteigung)]], why: 'Ein Handytarif mit Grundgebühr, eine Taxifahrt, ein gleichmäßig voll laufendes Becken: Alles, was gleichmäßig wächst oder fällt, ist eine lineare Funktion.',
-      formeln: [['Gerade', 'f(x)=m\\,x+b'], ['Steigung', 'm=\\dfrac{y_2-y_1}{x_2-x_1}'], ['Nullstelle', 'm\\,x+b=0\\ \\Rightarrow\\ x=-\\dfrac bm']] },
+      formeln: [['Geradengleichung', 'f(x)=m\\,x+b'], ['Steigung', 'm=\\dfrac{y_2-y_1}{x_2-x_1}'], ['Nullstelle', 'm\\,x+b=0\\ \\Rightarrow\\ x=-\\dfrac bm']] },
     steps: [
       { id: 'zieher', kind: 'Entdecken', title: 'Geraden-Zieher', run: geraden },
       { id: 'gerade', kind: 'Benennen', title: 'Die Geradengleichung', run: info([
@@ -596,7 +596,7 @@ export const MITTEL = [
       formeln: [['Exponentialfunktion', 'f(x)=a\\cdot b^x'], ['Sinusfunktion', 'f(x)=a\\cdot\\sin(b\\,x)+d'], ['Periode', 'p=\\dfrac{2\\pi}{b}']] },
     steps: [
       { id: 'exp', kind: 'Benennen', title: 'Exponentialfunktionen', run: info([
-        { title: 'Startwert und Faktor', html: `${T('f(x)=a\\cdot b^x')}<p>${tex('a')} ist der Startwert (für ${tex('x=0')}), ${tex('b')} der Wachstumsfaktor: In jedem Schritt wird mit ${tex('b')} malgenommen. Ist ${tex('b')} größer als 1, wächst die Funktion, sonst fällt sie.</p>` },
+        { title: 'Startwert und Faktor', html: `${T('f(x)=a\\cdot b^x')}<p>${tex('a')} ist der Startwert (für ${tex('x=0')}), ${tex('b')} der Wachstumsfaktor: In jedem Schritt wird mit ${tex('b')} malgenommen. Ist ${tex('b')} größer als 1, wächst die Funktion; liegt ${tex('b')} zwischen 0 und 1, fällt sie.</p>` },
         { title: 'Linear oder exponentiell?', html: `<p><b>Linear:</b> In jedem Schritt kommt derselbe <b>Betrag</b> dazu (5, 8, 11, 14).</p><p><b>Exponentiell:</b> In jedem Schritt wird mit demselben <b>Faktor</b> malgenommen (5, 10, 20, 40). „Plus 20 %“ bedeutet Faktor 1,2.</p>` },
       ]) },
       { id: 'expueben', kind: 'Brücke', title: 'Wachstum mit Faktor', run: quiz([genExpFunktion, genExpFunktion, genExpFunktion, genExpFunktion]) },

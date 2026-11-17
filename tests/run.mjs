@@ -1193,5 +1193,17 @@ ok(nextStreak({ n: 3, last: '2026-11-10' }, D('2026-11-12')).n === 1, 'Serie: au
   for (const id of ['k7-terme', 'k7-gleichungen', 'k8-lgs', 'k9-quadrat']) { const L = Th.LANG[id] || [];
     ok(L.length >= 5 && ['Worum es geht', 'Durchgerechnetes Beispiel', 'Typische Fehler'].every((t) => L.some((x) => x[0] === t)), `Theorie ausführlich: Kapitel ${id} unvollständig`); } }
 
+// Korrektheitsprüfung 17.11.2026: gefundene Fehler kommen nicht wieder
+{ const E = await import('../app/js/eingabe.js'); const { parse } = await import('../app/js/ki/expr.js'); const K = await import('../app/js/ki/verify.js');
+  ok(E.parseInput('1 1/2') === 1.5 && E.parseInput('-1 1/2') === -1.5 && E.parseInput('–3') === -3, 'Eingabe: gemischte Zahl „1 1/2“ ist 1,5, Halbgeviertstrich ist Minus');
+  for (const b of ['constructor(x)', 'toString(x)', 'hasOwnProperty']) { let thrown = false; try { parse(b); } catch { thrown = true; } ok(thrown, `Ausdrücke: „${b}“ wird abgelehnt (kein Name aus dem Prototyp)`); }
+  const z = (ws, extra = {}) => ({ art: 'zahl', thema: 'Zahlen', stufe: 1, frage: 'Was ergibt 2 mal 3?', erklaerung: 'Der Funktionswert = 6.', tipps: ['Die Konstante = 2.', 'Mal rechnen.'], rechnung: '2*3',
+    antworten: ws.map((w, i) => ({ tex: `a${i}`, wert: w, richtig: i === 0, ...(i ? { fehler: 'Falsch gerechnet.' } : {}) })), ...extra });
+  ok(K.verify(z([6, 5, 7, 8])).ok, 'KI-Prüfer: „Konstante =“ und „Funktionswert =“ sind kein eingeschleuster Code');
+  ok(!K.verify(z([6, 5, 5.0000000001, 8])).ok, 'KI-Prüfer: rechnerisch gleiche Antworten werden abgelehnt');
+  ok(!K.verify(z([6, null, 7, 8])).ok || !K.verify(z([null, 5, 7, 8])).ok, 'KI-Prüfer: Antwort ohne Wert zählt nicht als 0');
+  ok(!K.verify({ ...z([6, 5, 7, 8]), art: 'integral', funktion: 'tan(x)', von: 0, bis: 2 }).ok, 'KI-Prüfer: Integral über eine Polstelle wird abgelehnt');
+}
+
 console.log(fails ? `${fails} verschiedene Fehler bei ${n} Prüfungen` : `tests: alle ${n} Prüfungen bestanden`);
 process.exit(fails ? 1 : 0);

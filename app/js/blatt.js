@@ -123,7 +123,7 @@ const fuss = (c) => `<footer class="b-fuss"><span>${esc(CONFIG.firma)} · ${esc(
 /** Das Blatt selbst (Vorschau = Druckbild): Aufgaben-Seiten und Lösungsblatt. */
 export function blattHtml(c, fragen) {
   const titel = `${blattName(c)} Mathematik`, be = fragen.reduce((s, q) => s + (q.be || 0), 0);
-  const themenText = c.klausur ? 'Analysis · Stochastik · Analytische Geometrie' : [...new Set(fragen.map((q) => q.unit))].map(esc).join(' · ');
+  const themenText = c.klausur ? gebiete().map(([, name]) => esc(name)).join(' · ') : [...new Set(fragen.map((q) => q.unit))].map(esc).join(' · ');
   const unter = `${themenText}<br>Schwierigkeit: ${LEVELS[c.lv - 1]} · ${fragen.length} Aufgaben${c.klausur ? ` · ${be} Punkte (BE) · Zeit: ${fragen.length * 5} Minuten · ohne Hilfsmittel` : ''}`;
   const aufgabe = (q, i) => `<li class="b-aufgabe"><div class="b-nr"><b>${i + 1}</b>${q.be ? `<small>${q.be} BE</small>` : ''}</div><div class="b-inhalt">
       <p>${q.prompt}</p>${q.formula ? `<div class="b-formel">${tex(q.formula, true)}</div>` : ''}${q.graph ? `<canvas class="b-graph" data-i="${i}" aria-label="Graph zu Aufgabe ${i + 1}"></canvas>` : ''}

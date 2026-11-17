@@ -172,7 +172,7 @@ for (const lv of LV) {
       if (q.formula) { const m = q.formula.match(/^n=(\d+),\\quad p=([\d{},]+)$/); N = +m[1]; p = +m[2].replace('{,}', '.');
         const pk = fs.map((t) => t.match(/^P\(X=(\d+)\)$/)).find(Boolean); k = pk ? +pk[1] : /keinen Treffer/.test(text) ? 0 : +text.match(/für (\d+) Treffer/)[1]; }
       else { p = +text.match(/von ([\d,]+) %/)[1].replace(',', '.') / 100; N = +text.match(/(\d+) (Freiwürfe|Pfeile|Elfmeter)/)[1];
-        if (mind) { if (/mindestens einen Fehlversuch/.test(text)) p = 1 - p; } else { const m = text.match(/genau (\d+) (Fehlversuche|Treffer)/); k = +m[1]; if (m[2] === 'Fehlversuche') p = 1 - p; } }
+        if (mind) { if (/mindestens einen Fehlversuch/.test(text)) p = 1 - p; } else { const m = text.match(/genau (\d+) (Fehlversuche?|Treffer)/); k = +m[1]; if (m[2].startsWith('Fehlversuch')) p = 1 - p; } }
       let vert = [1]; for (let j = 0; j < N; j++) { const neu = Array(vert.length + 1).fill(0); vert.forEach((x, t) => { neu[t] += x * (1 - p); neu[t + 1] += x * p; }); vert = neu; }
       const soll = mind ? 1 - vert[0] : vert[k];
       ok(N === q.n && nah(p, q.p, 1e-9) && (mind ? q.kind === 'min1' : q.kind === 'eq' && q.k === k), `${tag}: Felder n, p, k passen zum Text`);

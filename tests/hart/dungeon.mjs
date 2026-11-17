@@ -77,7 +77,7 @@ for (let stock = 1; stock <= 5; stock++) {
     const jg = JG[k % JG.length], a = aufgabe(stock, jg, k % 5 === 0);
     ok(!!a, `Stockwerk ${stock}: keine Aufgabe`); if (!a) continue;
     pruefe(a, `Stockwerk ${stock} (${jg})`);
-    if ((jg === '5' || jg === '6') && stock <= 2) ok(a.x0 > 0 && [a, ...a.weg].every((z) => !/(^|=|\(|\{)\s*-/.test(gleichungTex(z.l, z.r))), `Klasse ${jg}: negative Zahl in ${gleichungTex(a.l, a.r)}`);
+    if ((jg === '5' || jg === '6') && (stock <= 2 || (stock <= 4 && !a.th))) ok(a.x0 > 0 && [a, ...a.weg].every((z) => !/(^|=|\(|\{)\s*-/.test(gleichungTex(z.l, z.r))), `Klasse ${jg}: negative Zahl in ${gleichungTex(a.l, a.r)}`);
   }
   // Fallen-Raum
   for (let k = 0; k < Math.ceil(N / 3); k++) {

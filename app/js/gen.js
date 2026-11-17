@@ -59,7 +59,7 @@ const termeInt = (ts) => ts.map(([z, n, e]) => [...kuerze(z, n * (e + 1)), e + 1
 /** Wert an einer ganzen Stelle als gekürzter Bruch. */
 const termeBruch = (ts, x) => ts.reduce((s, [z, n, e]) => rAdd(s, e >= 0 ? kuerze(z * x ** e, n) : kuerze(z, n * x ** -e)), [0, 1]);
 /** Zwischenschritt der Potenzregel: „3·2x²−2·4x“ (Hochzahl mal Vorfaktor, Hochzahl um 1 kleiner). */
-const potenzSchritt = (ts) => ts.filter((t) => t[2] !== 0).map(([z, n, e], i) => {
+const potenzSchritt = (ts) => ts.filter((t) => t[2] !== 0 && t[0] !== 0).map(([z, n, e], i) => {
   const k = n === 1 ? Math.abs(z) : `\\frac{${Math.abs(z)}}{${n}}`, E = e < 0 ? `(${e})` : e;
   return `${z < 0 ? '-' : i ? '+' : ''}${e === 1 ? k : k === 1 ? `${E}${xp(e - 1)}` : `${E}\\cdot ${k}${xp(e - 1)}`}`;
 }).join('');
@@ -125,7 +125,7 @@ export function genScheitel(lv = 3) {
 
 /* ───────────── Analysis: Ableiten ───────────── */
 
-/** Lücken-Aufgabe: Potenzregel für einen einzelnen Term (ab „schwer" auch negative Exponenten). */
+/** Lücken-Aufgabe: Potenzregel für einen einzelnen Term (ab „schwer“ auch negative Exponenten). */
 export function genPotenzLuecke(lv = 3) {
   // Fünf Stufen an derselben Aufgaben-Form: 1 reine Potenz · 2 mit Vorfaktor · 3 auch negative Vorfaktoren, höherer Grad ·
   // 4 Bruch mit Potenz im Nenner (erst umschreiben) · 5 Bruch-Vorfaktor und Potenz im Nenner.
@@ -140,7 +140,7 @@ export function genPotenzLuecke(lv = 3) {
   const formula = `f(x)=${n < 0 ? bruch : `${A}x^{${n}}`}`;
   const hints = L === 1 ? ['Potenzregel: Der Exponent kommt als Faktor nach vorn und wird dann um 1 kleiner.']
     : L <= 3 ? ['Potenzregel: Der Exponent kommt als Faktor nach vorn.', `Vorfaktor: ${tex(`${ft(a)}\\cdot ${par(n)}`)}. Danach wird der Exponent um 1 kleiner.`, ...(L === 3 ? [`Rechne mit Vorzeichen: ${tex(`${ft(a)}\\cdot ${par(n)}=${ft(a * n)}`)}; neuer Exponent ${tex(`${n}-1=${n - 1}`)}.`] : [])]
-      : [`Erst umschreiben: Eine Potenz im Nenner ist eine Potenz mit negativem Exponenten. ${tex(`${formula}=${A}x^{${n}}`)}${nn > 1 ? ` (denn ${tex(`\\tfrac{${z}}{${nn}}=${ft(Math.abs(a))}`)})` : ''}.`, 'Potenzregel: Der Exponent kommt als Faktor nach vorn – mit seinem Minuszeichen.', `Vorfaktor: ${tex(`${ft(a)}\\cdot ${par(n)}=${ft(a * n)}`)}.`, `Der Exponent wird um 1 kleiner: ${tex(`${n}-1=${n - 1}`)} – bei negativen Exponenten wächst also der Betrag.`, ...(L === 5 ? [`Kontrolle als Bruch: ${tex(`f'(x)=${ft(a * n)}\\,x^{${n - 1}}=${a * n < 0 ? '-' : ''}\\dfrac{${ft(Math.abs(a * n))}}{x^{${1 - n}}}`)}.`] : [])];
+      : [`Erst umschreiben: Eine Potenz im Nenner ist eine Potenz mit negativem Exponenten. ${tex(`${formula}=${A}x^{${n}}`)}${nn > 1 ? ` (denn ${tex(`\\tfrac{${z}}{${nn}}=${ft(Math.abs(a))}`)})` : ''}.`, 'Potenzregel: Der Exponent kommt als Faktor nach vorn – mit seinem Minuszeichen.', `Vorfaktor: ${tex(`${ft(a)}\\cdot ${par(n)}=${ft(a * n)}`)}.`, `Der Exponent wird um 1 kleiner: ${tex(`${n}-1=${n - 1}`)} – bei negativen Exponenten wächst also der Betrag.`, ...(L === 5 ? [`Kontrolle als Bruch: ${tex(`f'(x)=${VF(a * n)}x^{${n - 1}}=${a * n < 0 ? '-' : ''}\\dfrac{${ft(Math.abs(a * n))}}{x^{${1 - n}}}`)}.`] : [])];
   return {
     type: 'gap',
     prompt: 'Leite ab. Wähle Vorfaktor und Exponent.',
@@ -152,7 +152,7 @@ export function genPotenzLuecke(lv = 3) {
     show: (c, e) => `f'(x)=${c === null ? '\\square' : ft(c)}\\,x^{${e === null ? '\\square' : e}}`,
     hints,
     explain: L === 1 ? `${tex(`f'(x)=${n}x^{${n - 1}}`)}.`
-      : n < 0 ? `Umschreiben: ${tex(`f(x)=${A}x^{${n}}`)}. Potenzregel: ${tex(`f'(x)=${ft(a)}\\cdot ${par(n)}\\,x^{${n}-1}=${ft(a * n)}x^{${n - 1}}`)}.`
+      : n < 0 ? `Umschreiben: ${tex(`f(x)=${A}x^{${n}}`)}. Potenzregel: ${tex(`f'(x)=${ft(a)}\\cdot ${par(n)}\\,x^{${n}-1}=${VF(a * n)}x^{${n - 1}}`)}.`
         : `Potenzregel: ${tex("(x^n)'=n\\,x^{n-1}")}, also ${tex(`f'(x)=${ft(a)}\\cdot ${par(n)}\\,x^{${n}-1}=${ft(a * n)}x^{${n - 1}}`)}.`,
     f: (x) => a * x ** n, val: (x) => a * n * x ** (n - 1),
   };
@@ -192,7 +192,7 @@ export function genPolynom(lv = 3) {
       formula = `f(x)=(${U})(${V})`;
       opts = [mk(right, true),
         mk([[4 * a * c, 1, 2], [2 * a * d, 1, 1]], false, `Das ist ${tex("u'\\cdot v'")} – so darf man ein Produkt nicht ableiten. Erst ausmultiplizieren (oder die Produktregel nehmen).`),
-        mk([[4 * a * c, 1, 3], [3 * a * d, 1, 2], [2 * a * e, 1, 1], [b * d, 1, 0]], false, `Beim Ausmultiplizieren fehlt ein Produkt: Auch ${tex(`${par(b)}\\cdot ${VF(c)}x^2`)} gehört zu den Gliedern mit ${tex('x^2')}.`),
+        mk([[4 * a * c, 1, 3], [3 * a * d, 1, 2], [2 * a * e, 1, 1], [b * d, 1, 0]], false, `Beim Ausmultiplizieren fehlt ein Produkt: Auch ${tex(`${par(b)}\\cdot ${c < 0 ? `(${VF(c)}x^2)` : `${VF(c)}x^2`}`)} gehört zu den Gliedern mit ${tex('x^2')}.`),
         mk([...right.filter((t) => t[2] !== 0), [b * d + b * e, 1, 0]], false, `Die Zahl ${tex(ft(b * e))} ohne ${tex('x')} fällt beim Ableiten weg.`)];
       hints = ['Multipliziere zuerst aus: jeder Summand der ersten Klammer mal jeder Summand der zweiten – das gibt sechs Produkte.', `Glieder mit gleicher Hochzahl zusammenfassen: ${tex(`${termeTex([[a * e, 1, 2]])}${b * c < 0 ? '-' : '+'}${termeTex([[Math.abs(b * c), 1, 2]])}=${termeTex([[a * e + b * c, 1, 2]])}`)}.`, `${tex(`f(x)=${termeTex(ts)}`)}.`,
         `Jetzt jeden Summanden einzeln ableiten (Summenregel) – mit der Potenzregel ${POT}.`, `Die Zahl ${tex(ft(b * e))} ohne ${tex('x')} fällt weg.`];
@@ -251,7 +251,7 @@ export function genKette(lv = 3) {
         mk(c * a, n - 1, false, 'Der alte Exponent fehlt als Faktor: äußere Ableitung mal innere Ableitung.')];
       formula = `f(x)=${VF(c)}${inner}^{${n}}`;
       hints = L === 1 ? [`Außen steht „hoch ${n}“, innen die Klammer – das ist eine Verkettung.`, `Kettenregel: äußere Ableitung mal innere Ableitung. Die innere Ableitung ist ${tex(ft(a))}.`]
-        : ['Hier steckt eine Funktion in einer anderen: außen „hoch n", innen die Klammer.', 'Kettenregel: äußere Ableitung mal innere Ableitung.', `Innere Ableitung: ${tex(`(${polyTex([b, a])})'=${ft(a)}`)}.`];
+        : ['Hier steckt eine Funktion in einer anderen: außen „hoch n“, innen die Klammer.', 'Kettenregel: äußere Ableitung mal innere Ableitung.', `Innere Ableitung: ${tex(`(${polyTex([b, a])})'=${ft(a)}`)}.`];
       if (L === 3) hints.push(`Der Vorfaktor ${tex(ft(c))} bleibt stehen (Faktorregel): ${tex(`${par(c)}\\cdot ${n}\\cdot ${par(a)}=${ft(c * n * a)}`)}.`);
       explain = `Kettenregel: ${tex(`f'(x)=${c === 1 ? '' : `${par(c)}\\cdot`}${n}\\cdot ${inner}${hoch(n - 1)}\\cdot ${par(a)}=${VF(c * n * a)}${inner}${hoch(n - 1)}`)}.`;
       f = (x) => c * (a * x + b) ** n;
@@ -736,7 +736,7 @@ export function genErwartung(lv = 3) {
     if (L === 2) prompt = `Bei einer Tombola gewinnt jedes Los mit einer Wahrscheinlichkeit von ${pct(p)} %. Jemand kauft ${n} Lose, ${tex('X')} zählt die Gewinnlose. Wie groß ist der Erwartungswert von ${tex('X')}?`;
     else if (L === 4) prompt = `Eine Saatgut-Sorte keimt mit einer Wahrscheinlichkeit von ${pct(p)} %. Es werden ${n} Samen ausgesät, ${tex('X')} zählt die gekeimten Samen. Wie groß ist die Standardabweichung von ${tex('X')} (auf zwei Nachkommastellen)?`;
     else if (L === 1) prompt = `Ein Glücksrad wird ${n}-mal gedreht. Bei jeder Drehung gewinnt man mit der Wahrscheinlichkeit ${fmt(p)}. Wie viele Gewinne sind zu erwarten (Erwartungswert)?`;
-    else if (L !== 5) { prompt = `Ein Glücksrad zeigt mit Wahrscheinlichkeit ${tex('p')} „Gewinn". Es wird ${tex('n')}-mal gedreht, ${tex('X')} zählt die Gewinne. Wie groß ist ${askSigma ? 'die Standardabweichung' : 'der Erwartungswert'}?`; formula = `n=${n},\\quad p=${ft(p)}`; }
+    else if (L !== 5) { prompt = `Ein Glücksrad zeigt mit Wahrscheinlichkeit ${tex('p')} „Gewinn“. Es wird ${tex('n')}-mal gedreht, ${tex('X')} zählt die Gewinne. Wie groß ist ${askSigma ? 'die Standardabweichung' : 'der Erwartungswert'}?`; formula = `n=${n},\\quad p=${ft(p)}`; }
     const proz = L === 2 || L === 4 ? [`Schreibe die Prozentangabe als Dezimalzahl: ${tex(`p=${P}`)}.`] : [];
     const hints = askSigma ? [...vorab, ...proz, `${tex('X')} ist binomialverteilt${L >= 4 ? ` mit ${tex(`n=${n}`)} und ${tex(`p=${P}`)}` : ''}: ${tex('\\sigma=\\sqrt{n\\,p\\,(1-p)}')}.`,
       `${L >= 4 ? `Varianz: ${tex(`n\\,p\\,(1-p)=${n}\\cdot ${P}\\cdot ${Q}${gl(vr, pB ? 2 : 4)}`)}` : `${tex(`n\\,p\\,(1-p)=${ft(vr)}`)}`} – jetzt die Wurzel ziehen.`]
@@ -789,7 +789,7 @@ export function genBinomial(lv = 3) {
       if (val < 0.02 || !fern(opts, 0.011)) continue;
       const B = `\\binom{${n}}{${k}}`, P = ft(p), Q = ft(q);
       return {
-        prompt: `${S[0]} ${fmt(pT * 100)} %. ${S[1]} ${n} ${S[2]}. Wie groß ist die Wahrscheinlichkeit für <b>genau ${k} ${fehl ? 'Fehlversuche' : 'Treffer'}</b> (auf vier Nachkommastellen)?`,
+        prompt: `${S[0]} ${fmt(pT * 100)} %. ${S[1]} ${n} ${S[2]}. Wie groß ist die Wahrscheinlichkeit für <b>genau ${k} ${fehl ? (k === 1 ? 'Fehlversuch' : 'Fehlversuche') : 'Treffer'}</b> (auf vier Nachkommastellen)?`,
         options: shuffle(opts),
         hints: [fehl ? `${tex('X')} zählt die Fehlversuche. Deren Wahrscheinlichkeit ist die Gegenwahrscheinlichkeit: ${tex(`p=1-${ft(pT)}=${P}`)}.` : `${tex('X')} zählt die Treffer: ${tex(`p=${P}`)} und ${tex(`1-p=${Q}`)}.`,
           `${BF} Hier: ${tex(`n=${n}`)}, ${tex(`k=${k}`)}.`, `Anzahl der Pfade: ${tex(`${B}=\\dfrac{${n}!}{${k}!\\cdot ${n - k}!}=${C}`)}.`,
@@ -803,7 +803,7 @@ export function genBinomial(lv = 3) {
       const was = fehl ? 'Fehlversuch' : 'Treffer', gegen = fehl ? 'kein Fehlversuch, also nur Treffer' : 'kein Treffer';
       const N = (num, correct, why) => ({ tex: rundTex(num, 4), num, correct, why });
       const opts = [N(1 - q ** n, true), N(p ** n, false, `Das ist die Wahrscheinlichkeit für <b>nur</b> ${fehl ? 'Fehlversuche' : 'Treffer'}: ${tex(hochZ(P, n))}.`),
-        N(1 - p ** n, false, `Das Gegenereignis zu „mindestens ein ${was}" ist „${gegen}", also ${tex(hochZ(Q, n))} – nicht ${tex(hochZ(P, n))}.`),
+        N(1 - p ** n, false, `Das Gegenereignis zu „mindestens ein ${was}“ ist „${gegen}“, also ${tex(hochZ(Q, n))} – nicht ${tex(hochZ(P, n))}.`),
         N(n * p * q ** (n - 1), false, `Das ist die Wahrscheinlichkeit für <b>genau</b> einen ${was}: ${tex(`${n}\\cdot ${P}\\cdot ${hochZ(Q, n - 1)}`)}.`)];
       if (opts.some((o) => o.num < 0.001 || o.num > 0.999) || !fern(opts, 0.011)) continue;
       return {
@@ -828,11 +828,11 @@ export function genBinomial(lv = 3) {
     ];
     const out = {
       prompt: L === 2 ? `${tex('X')} ist binomialverteilt. Welche Rechnung liefert ${tex(`P(X=${k})`)}?`
-        : `${S[0]} ${fmt(pT * 100)} %. ${S[1]} ${n} ${S[2]}. Welche Rechnung liefert die Wahrscheinlichkeit für <b>genau ${k} ${fehl ? 'Fehlversuche' : 'Treffer'}</b>?`,
+        : `${S[0]} ${fmt(pT * 100)} %. ${S[1]} ${n} ${S[2]}. Welche Rechnung liefert die Wahrscheinlichkeit für <b>genau ${k} ${fehl ? (k === 1 ? 'Fehlversuch' : 'Fehlversuche') : 'Treffer'}</b>?`,
       options: shuffle(opts),
       hints: L === 2 ? [BF, `${k} Treffer und ${n - k} Nicht-Treffer – und alle Reihenfolgen zählen.`]
         : [fehl ? `${tex('X')} zählt die Fehlversuche. Deren Wahrscheinlichkeit ist die Gegenwahrscheinlichkeit: ${tex(`p=1-${ft(pT)}=${P}`)}.` : `Lies ab: ${tex(`n=${n}`)}, ${tex(`k=${k}`)}, ${tex(`p=${P}`)} und ${tex(`1-p=${Q}`)}.`,
-          BF, `${k} ${fehl ? 'Fehlversuche' : 'Treffer'} mit ${tex(P)}, ${n - k} ${fehl ? 'Treffer' : 'Nicht-Treffer'} mit ${tex(Q)} – und alle ${tex(`${B}=\\dfrac{${n}!}{${k}!\\cdot ${n - k}!}=${C}`)} Reihenfolgen zählen.`],
+          BF, `${k} ${fehl ? (k === 1 ? 'Fehlversuch' : 'Fehlversuche') : 'Treffer'} mit ${tex(P)}, ${n - k} ${fehl ? 'Treffer' : 'Nicht-Treffer'} mit ${tex(Q)} – und alle ${tex(`${B}=\\dfrac{${n}!}{${k}!\\cdot ${n - k}!}=${C}`)} Reihenfolgen zählen.`],
       explain: `${fehl ? `Gegenwahrscheinlichkeit: ${tex(`p=1-${ft(pT)}=${P}`)}. ` : ''}${tex(`P(X=${k})=${B}\\cdot ${hochZ(P, k)}\\cdot ${hochZ(Q, n - k)}`)}.`, n, p, k, kind: 'eq',
     };
     if (L === 2) out.formula = `n=${n},\\quad p=${P}`;

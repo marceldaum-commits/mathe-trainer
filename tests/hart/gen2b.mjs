@@ -265,11 +265,11 @@ const P = {
   genOperator(q, r, lv, tag) {
     ok(r.key === q.expect && new Set(q.options.map((o) => o.key)).size === 4, `${tag}: Schlüssel stimmt`);
     const OP = Object.fromEntries(H.OPERATOREN);
-    if (lv <= 2) { const name = q.prompt.match(/„(.*?)"/)[1]; ok(OP[name] === r.tex, `${tag}: Beschreibung gehört zum Operator`); for (const o of falsche(q)) ok(OP[o.key] === o.tex && o.key !== name, `${tag}: Ablenker beschreibt einen anderen Operator`); }
+    if (lv <= 2) { const name = q.prompt.match(/„(.*?)[“"]/)[1]; ok(OP[name] === r.tex, `${tag}: Beschreibung gehört zum Operator`); for (const o of falsche(q)) ok(OP[o.key] === o.tex && o.key !== name, `${tag}: Ablenker beschreibt einen anderen Operator`); }
     else if (lv === 3) { const stamm = { 'Angeben / Nennen': /Geben Sie .* an\./, Berechnen: /Berechnen Sie/, 'Bestimmen / Ermitteln': /Bestimmen Sie/, 'Zeigen / Nachweisen': /Zeigen Sie/, Begründen: /Begründen Sie/, Skizzieren: /Skizzieren Sie/, Zeichnen: /Zeichnen Sie/, Untersuchen: /Untersuchen Sie/, 'Interpretieren / Deuten': /Interpretieren Sie/, Beurteilen: /Beurteilen Sie/, Beschreiben: /Beschreiben Sie/, Entscheiden: /Entscheiden Sie/ };
       ok(stamm[r.key].test(q.prompt) && OP[r.key] === r.tex, `${tag}: Beispiel enthält den Operator ${r.key}`);
       ok(Object.entries(stamm).filter(([, re]) => re.test(q.prompt)).length === 1, `${tag}: genau ein Operator im Beispiel`); }
-    else if (lv === 4) { const [a, b] = [...q.prompt.matchAll(/„(.*?)"/g)].map((m) => m[1]); ok(OP[a] && OP[b] && a !== b && r.tex.includes(a.split(' / ')[0]) && r.tex.includes(b.split(' / ')[0]), `${tag}: Aussage nennt beide Operatoren`); }
+    else if (lv === 4) { const [a, b] = [...q.prompt.matchAll(/„(.*?)[“"]/g)].map((m) => m[1]); ok(OP[a] && OP[b] && a !== b && r.tex.includes(a.split(' / ')[0]) && r.tex.includes(b.split(' / ')[0]), `${tag}: Aussage nennt beide Operatoren`); }
     else ok(/Was fehlt/.test(q.prompt) && q.hints.length >= 4, `${tag}: Fall mit Lösungsweg`);
   },
 };

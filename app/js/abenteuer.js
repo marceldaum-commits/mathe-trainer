@@ -113,7 +113,7 @@ export function abenteuerView(after) {
         <h2>Die Reise zum Abi-Drachen</h2>
         <p>Jede richtige Antwort ist ein Treffer. Nach jedem Raum wählst du eine Belohnung und eine Tür. Jede Reise ist anders.</p></section>
       <section class="card stack"><h3>Welches Gebiet?</h3>
-        <div class="picks ab-geb" role="radiogroup" aria-label="Gebiet">${Object.entries(GEBIETE).map(([k, v]) => `<button type="button" role="radio" class="pick" data-g="${k}" style="font-size:15px">${esc(v)}</button>`).join('')}</div>
+        <div class="picks ab-geb" role="radiogroup" aria-label="Gebiet">${Object.entries(GEBIETE).map(([k, v]) => `<button type="button" role="radio" class="pick" data-g="${k}" style="font-size:calc(15px*var(--fs,1))">${esc(v)}</button>`).join('')}</div>
         <small class="muted">Schwierigkeit: ${LEVELS[store.level - 1]}${store.ruhig ? ' · Ruhiger Modus: Fehler kosten kein Leben.' : ` · Du startest mit ${START_LEBEN} Leben.`}</small></section>
       ${rek ? `<div class="note tip"><b>Dein Rekord: ${rek} Punkte.</b> ${siege ? `${siege} ${siege === 1 ? 'Mal' : 'Mal'} den Drachen besiegt.` : 'Der Drache ist noch unbesiegt.'}</div>` : ''}
       <div class="row"><button class="btn block" id="ab-start" type="button">Reise starten</button></div></div></div>`;

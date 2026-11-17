@@ -238,16 +238,16 @@ export function genMonotonie(lv = 3) {
 const A2_SYM4 = [
   ['odd', (a) => ({ t: `x\\cdot(x^{2}-${a})^{2}`, f: (x) => x * (x * x - a) ** 2, neg: `(-x)\\cdot((-x)^{2}-${a})^{2}=-x\\cdot(x^{2}-${a})^{2}` })],
   ['odd', (a) => ({ t: `x\\cdot(x-${a})\\cdot(x+${a})`, f: (x) => x * (x - a) * (x + a), neg: `(-x)\\cdot(-x-${a})\\cdot(-x+${a})=-x\\cdot(x+${a})\\cdot(x-${a})` })],
-  ['odd', (a, b) => ({ t: `\\dfrac{x^{3}-${a}x}{x^{2}+${b}}`, f: (x) => (x ** 3 - a * x) / (x * x + b), neg: `\\dfrac{(-x)^{3}-${a}\\cdot(-x)}{(-x)^{2}+${b}}=\\dfrac{-x^{3}+${a}x}{x^{2}+${b}}` })],
+  ['odd', (a, b) => ({ t: `\\dfrac{x^{3}-${a === 1 ? '' : a}x}{x^{2}+${b}}`, f: (x) => (x ** 3 - a * x) / (x * x + b), neg: `\\dfrac{(-x)^{3}-${a}\\cdot(-x)}{(-x)^{2}+${b}}=\\dfrac{-x^{3}+${a === 1 ? '' : a}x}{x^{2}+${b}}` })],
   ['odd', (a) => ({ t: `(x+${a})^{3}+(x-${a})^{3}`, f: (x) => (x + a) ** 3 + (x - a) ** 3, neg: `(-x+${a})^{3}+(-x-${a})^{3}=-(x-${a})^{3}-(x+${a})^{3}` })],
   ['even', (a, b) => ({ t: `(x^{2}-${a})\\cdot(x^{2}+${b})`, f: (x) => (x * x - a) * (x * x + b), neg: `((-x)^{2}-${a})\\cdot((-x)^{2}+${b})=(x^{2}-${a})\\cdot(x^{2}+${b})` })],
   ['even', (a, b) => ({ t: `\\dfrac{x^{2}+${a}}{x^{4}+${b}}`, f: (x) => (x * x + a) / (x ** 4 + b), neg: `\\dfrac{(-x)^{2}+${a}}{(-x)^{4}+${b}}=\\dfrac{x^{2}+${a}}{x^{4}+${b}}` })],
   ['even', (a) => ({ t: `(x+${a})^{3}-(x-${a})^{3}`, f: (x) => (x + a) ** 3 - (x - a) ** 3, neg: `(-x+${a})^{3}-(-x-${a})^{3}=-(x-${a})^{3}+(x+${a})^{3}` })],
-  ['even', (a, b) => ({ t: `x\\cdot(x^{3}-${a}x)+${b}`, f: (x) => x * (x ** 3 - a * x) + b, neg: `(-x)\\cdot((-x)^{3}+${a}x)+${b}=x\\cdot(x^{3}-${a}x)+${b}` })],
+  ['even', (a, b) => ({ t: `x\\cdot(x^{3}-${a === 1 ? '' : a}x)+${b}`, f: (x) => x * (x ** 3 - a * x) + b, neg: `(-x)\\cdot((-x)^{3}+${a === 1 ? '' : a}x)+${b}=x\\cdot(x^{3}-${a === 1 ? '' : a}x)+${b}` })],
   ['none', (a) => ({ t: `x^{2}\\cdot(x-${a})`, f: (x) => x * x * (x - a), neg: `(-x)^{2}\\cdot(-x-${a})=-x^{2}\\cdot(x+${a})` })],
   ['none', (a, b) => ({ t: `\\dfrac{x+${a}}{x^{2}+${b}}`, f: (x) => (x + a) / (x * x + b), neg: `\\dfrac{-x+${a}}{(-x)^{2}+${b}}=\\dfrac{-x+${a}}{x^{2}+${b}}` })],
   ['none', (a) => ({ t: `x\\cdot(x-${a})^{2}`, f: (x) => x * (x - a) ** 2, neg: `(-x)\\cdot(-x-${a})^{2}=-x\\cdot(x+${a})^{2}` })],
-  ['none', (a, b) => ({ t: `(x^{3}-${a}x)\\cdot(x^{2}+${b})+${b}`, f: (x) => (x ** 3 - a * x) * (x * x + b) + b, neg: `(-x^{3}+${a}x)\\cdot(x^{2}+${b})+${b}=-(x^{3}-${a}x)\\cdot(x^{2}+${b})+${b}` })],
+  ['none', (a, b) => ({ t: `(x^{3}-${a === 1 ? '' : a}x)\\cdot(x^{2}+${b})+${b}`, f: (x) => (x ** 3 - a * x) * (x * x + b) + b, neg: `(-x^{3}+${a === 1 ? '' : a}x)\\cdot(x^{2}+${b})+${b}=-(x^{3}-${a === 1 ? '' : a}x)\\cdot(x^{2}+${b})+${b}` })],
 ];
 const A2_SYM5 = [
   ['even', (a, b) => ({ t: `e^{${b}x}+e^{-${b}x}`, f: (x) => Math.exp(b * x) + Math.exp(-b * x), neg: `e^{${b}\\cdot(-x)}+e^{-${b}\\cdot(-x)}=e^{-${b}x}+e^{${b}x}` })],
@@ -375,7 +375,7 @@ export function genGrenzwert(lv = 3) {
       } else {
         r = fertig({ formula: `f(x)=\\dfrac{(${lineTex(a, b)})(${polyTex([d, 0, c])})}{${polyTex([g, 0, e])}}`, kind: art, f: (x) => ((a * x + b) * (c * x * x + d)) / (e * x * x + g),
           hints: [`Multipliziere den Zähler aus – wichtig ist nur die höchste Potenz: ${tex(`${par(a)}x\\cdot${par(c)}x^{2}=${ft(a * c)}x^{3}`)}.`, 'Der Zähler hat den Grad 3, der Nenner nur den Grad 2: Der Bruch wächst über alle Grenzen.', `Das Vorzeichen: Ausklammern von ${tex('x^{2}')} zeigt ${tex(`f(x)\\approx\\dfrac{${ft(a * c)}}{${ft(e)}}\\,x`)}.`],
-          explain: `Zählergrad 3, Nennergrad 2: ${tex(`f(x)\\approx\\dfrac{${ft(a * c)}x^{3}}{${ft(e)}x^{2}}=${a2Bruch(a * c, e)}\\,x\\to${a * c * e > 0 ? '' : '-'}\\infty`)}.` },
+          explain: `Zählergrad 3, Nennergrad 2: ${tex(`f(x)\\approx\\dfrac{${ft(a * c)}x^{3}}{${ft(e)}x^{2}}=${{ 1: '', '-1': '-' }[a2Bruch(a * c, e)] ?? `${a2Bruch(a * c, e)}\\,`}x\\to${a * c * e > 0 ? '' : '-'}\\infty`)}.` },
         [{ ...inf(a * c * e), correct: true }, inf(-a * c * e, `Achte auf die Vorzeichen: ${tex(`\\dfrac{${ft(a * c)}}{${ft(e)}}`)} ist ${a * c * e > 0 ? 'positiv' : 'negativ'}.`), Z(a * c, e, 'Das Verhältnis der Leitkoeffizienten gilt nur bei gleichem Grad – der Zähler hat ausmultipliziert den Grad 3.'), Z(0, 1, 'Der Zähler hat ausmultipliziert den höheren Grad und wächst schneller.')]);
       }
     } else {
@@ -441,7 +441,7 @@ function a2TangenteSchwer() {
         O(`${a2Koef(M)}x${a2Mit(S, 'e')}`, (x) => M * x + S * e, false, `Der y-Achsenabschnitt ist nicht ${tex('f(e)')}: Rechne ${tex('b=f(e)-m\\cdot e')}.`),
         O(`${a2Koef(S)}x`, (x) => S * x, false, `Produktregel: ${tex("(x\\cdot\\ln(x))'=\\ln(x)+x\\cdot\\tfrac1x=\\ln(x)+1")} – der Summand 1 fehlt in der Steigung.`),
         O(`${a2Koef(M)}x${a2Mit(a, 'e')}`, (x) => M * x + a * e, false, `Vorzeichen: ${tex(`b=${a2Koef(S)}e-${par(M)}\\cdot e=${a2Koef(-a)}e`)}.`)],
-      hints: [`Produktregel: ${tex(`f'(x)=${ft(a)}\\cdot\\ln(x)+${par(a)}x\\cdot\\tfrac1x${a2Pm(c)}=${a2Koef(a)}\\ln(x)${a2Pm(S)}`)}.`,
+      hints: [`Produktregel: ${tex(`f'(x)=${ft(a)}\\cdot\\ln(x)+${a === 1 ? '' : par(a)}x\\cdot\\tfrac1x${a2Pm(c)}=${a2Koef(a)}\\ln(x)${a2Pm(S)}`)}.`,
         `Steigung an der Stelle e (mit ${tex('\\ln(e)=1')}): ${tex(`m=f'(e)=${ft(a)}${a2Pm(S)}=${ft(M)}`)}.`,
         `Berührpunkt: ${tex(`f(e)=${a2Koef(a)}e\\cdot1${a2Mit(c, 'e')}=${a2Koef(S)}e`)}.`,
         `Achsenabschnitt: ${tex(`b=f(e)-m\\cdot e=${a2Koef(S)}e-${par(M)}\\cdot e=${a2Koef(-a)}e`)}.`],
@@ -488,8 +488,8 @@ function a2TangenteSchwer() {
         O(L(A2, A3), V(A2, A3), false, `Vorzeichen: ${tex(`b=f_k(${xt})-m\\cdot ${xt}=0-${A3 === 1 ? '' : A3}k^{3}`)}.`),
         O(L(A2, 0), V(A2, 0), false, `Der y-Achsenabschnitt ist nicht ${tex(`f_k(${xt})=0`)}: Rechne ${tex('b=f_k(x_0)-m\\cdot x_0')}.`)],
       hints: [`Leite nach x ab – k ist eine feste Zahl: ${tex(`f_k'(x)=3x^{2}-${2 * a}k\\,x`)}.`,
-        `Steigung: ${tex(`m=f_k'(${xt})=3\\cdot${A2}k^{2}-${2 * a}k\\cdot ${xt}=${3 * A2}k^{2}-${2 * A2}k^{2}=${a2Koef(A2)}k^{2}`)}.`,
-        `Berührpunkt: ${tex(`f_k(${xt})=${a2Koef(A3)}k^{3}-${a2Koef(a)}k\\cdot${a2Koef(A2)}k^{2}=0`)}.`,
+        `Steigung: ${tex(`m=f_k'(${xt})=3\\cdot ${a2Koef(A2)}k^{2}-${2 * a}k\\cdot ${xt}=${3 * A2}k^{2}-${2 * A2}k^{2}=${a2Koef(A2)}k^{2}`)}.`,
+        `Berührpunkt: ${tex(`f_k(${xt})=${a2Koef(A3)}k^{3}-${a2Koef(a)}k\\cdot ${a2Koef(A2)}k^{2}=0`)}.`,
         `Achsenabschnitt: ${tex(`b=0-${a2Koef(A2)}k^{2}\\cdot ${xt}=-${a2Koef(A3)}k^{3}`)}.`],
       explain: `${tex(`f_k'(x)=3x^{2}-${2 * a}k\\,x`)}, also ${tex(`m=f_k'(${xt})=${a2Koef(A2)}k^{2}`)}. Mit ${tex(`f_k(${xt})=0`)} folgt ${tex(`b=-${a2Koef(A3)}k^{3}`)} und ${tex(`t(x)=${L(A2, -A3)}`)}.` };
   }
@@ -663,14 +663,14 @@ export function genSteckbrief(lv = 3) {
       text = `Der Graph von ${tex('f')} hat den ${hoch ? 'Hochpunkt' : 'Tiefpunkt'} ${tex(pt(hoch ? 'H' : 'T', [x0, y0]))}.`;
       opts = [O([['f', x0, y0], ['f1', x0, 0]], true),
         O([['f', x0, y0], ['f2', x0, 0]], false, `${tex("f''(x_0)=0")} gehört zu einer Wendestelle. Am Extrempunkt ist die <b>erste</b> Ableitung 0.`),
-        O([['f', y0, x0], ['f1', x0, 0]], false, 'x- und y-Wert sind vertauscht: Der Punkt liegt bei x = ' + x0 + '.'),
+        O([['f', y0, x0], ['f1', x0, 0]], false, `x- und y-Wert sind vertauscht: Der Punkt liegt bei ${tex(`x=${x0}`)}.`),
         O([['f1', x0, y0], ['f', x0, 0]], false, `Der Punkt liegt auf dem Graphen, also ${tex(`f(${x0})=${y0}`)}. Die Steigung dort ist 0.`)];
       hints = ['Jeder Punkt auf dem Graphen liefert eine Gleichung für f.', 'Extrempunkt: f′ = 0. Wendepunkt: f″ = 0. Steigung: Wert von f′.'];
     } else if (kind === 'wende') {
       text = `Der Graph von ${tex('f')} hat den Wendepunkt ${tex(pt('W', [x0, y0]))}.`;
       opts = [O([['f', x0, y0], ['f2', x0, 0]], true),
         O([['f', x0, y0], ['f1', x0, 0]], false, `${tex("f'(x_0)=0")} gehört zu einem Extrempunkt. Am Wendepunkt ist die <b>zweite</b> Ableitung 0.`),
-        O([['f', y0, x0], ['f2', x0, 0]], false, 'x- und y-Wert sind vertauscht: Der Punkt liegt bei x = ' + x0 + '.'),
+        O([['f', y0, x0], ['f2', x0, 0]], false, `x- und y-Wert sind vertauscht: Der Punkt liegt bei ${tex(`x=${x0}`)}.`),
         O([['f2', x0, y0], ['f', x0, 0]], false, `Der Punkt liegt auf dem Graphen, also ${tex(`f(${x0})=${y0}`)}. Die zweite Ableitung ist dort 0.`)];
       hints = ['Jeder Punkt auf dem Graphen liefert eine Gleichung für f.', 'Extrempunkt: f′ = 0. Wendepunkt: f″ = 0. Steigung: Wert von f′.'];
     } else {
@@ -807,7 +807,7 @@ export function genSchar(lv = 3) {
         O(`${2 * b}k`, ck, (k) => [2 * b * k, c * k], false, `Beim Auflösen von ${tex(`${2 * a}x=${2 * a * b}k`)} muss durch ${2 * a} geteilt werden.`),
         O(`${B}k`, `${ck}+${q}k^2`, (k) => [b * k, c * k + q * k * k], false, `y-Wert: Einsetzen ergibt ${tex(`${q}k^2-${2 * q}k^2=-${q}k^2`)}.`),
       ]),
-      hints: [`Leite nach ${tex('x')} ab – ${tex('k')} ist dabei eine feste Zahl: ${tex(`f_k'(x)=${2 * a}x-${2 * a * b}k`)}.`, `Null setzen: ${tex(`${2 * a}x=${2 * a * b}k`)}, also ${tex(`x=${B}k`)}. Die Parabel ist nach oben geöffnet – es ist ein Tiefpunkt.`, `Einsetzen: ${tex(`f_k(${B}k)=${a}\\cdot${b * b}k^2-${2 * a * b}k\\cdot ${B}k${a2Mit(c, 'k')}=${ck}-${q}k^2`)}.`],
+      hints: [`Leite nach ${tex('x')} ab – ${tex('k')} ist dabei eine feste Zahl: ${tex(`f_k'(x)=${2 * a}x-${2 * a * b}k`)}.`, `Null setzen: ${tex(`${2 * a}x=${2 * a * b}k`)}, also ${tex(`x=${B}k`)}. Die Parabel ist nach oben geöffnet – es ist ein Tiefpunkt.`, `Einsetzen: ${tex(`f_k(${B}k)=${a}\\cdot ${a2Koef(b * b)}k^2-${2 * a * b}k\\cdot ${B}k${a2Mit(c, 'k')}=${ck}-${q}k^2`)}.`],
       explain: `${tex(`f_k'(x)=${2 * a}x-${2 * a * b}k=0`)} bei ${tex(`x=${B}k`)}; einsetzen ergibt ${tex(`f_k(${B}k)=${q}k^2-${2 * q}k^2${a2Mit(c, 'k')}`)}, also ${tex(`T(${B}k\\mid ${ck}-${q}k^2)`)}.`,
       f, min: true, kind: 'parabel3',
     };
@@ -979,7 +979,7 @@ function a2LnSchwer() {
       r: [`${E}\\cdot\\left(${A}\\ln(x)+\\dfrac{1}{x}\\right)`, (x) => ex(a * x) * (a * ln(x) + 1 / x)],
       w: [[`\\dfrac{${A}${E}}{x}`, (x) => (a * ex(a * x)) / x, `Das ist ${tex("u'\\cdot v'")}. Produktregel: ${tex("u'v+uv'")}.`],
         [`${E}\\cdot\\left(\\ln(x)+\\dfrac{1}{x}\\right)`, (x) => ex(a * x) * (ln(x) + 1 / x), `Kettenregel: ${tex(`(${E})'=${A}${E}`)} – der Faktor ${tex(ft(a))} fehlt.`],
-        [`${E}\\cdot\\left(${A}\\ln(x)+1\\right)`, (x) => ex(a * x) * (a * ln(x) + 1), `${tex("(\\ln x)'=\\tfrac1x")} – hier wurde mit x multipliziert, das kommt aber nicht vor.`]],
+        [`${E}\\cdot\\left(${A}\\ln(x)+1\\right)`, (x) => ex(a * x) * (a * ln(x) + 1), `${tex("(\\ln x)'=\\tfrac1x")}, nicht 1: Im zweiten Summanden muss ${tex(`${E}\\cdot\\tfrac1x`)} stehen.`]],
       hints: [`Produktregel mit ${tex(`u=${E}`)} und ${tex('v=\\ln(x)')}.`, `Kettenregel: ${tex(`u'=${A}${E}`)}. Außerdem ${tex("v'=\\tfrac1x")}.`, `Zusammensetzen: ${tex(`f'(x)=${A}${E}\\cdot\\ln(x)+${E}\\cdot\\dfrac1x`)}, dann ${tex(E)} ausklammern (Ausklammern).`],
       explain: `Produktregel und Kettenregel: ${tex(`f'(x)=${A}${E}\\cdot\\ln(x)+${E}\\cdot\\dfrac1x=${E}\\cdot\\left(${A}\\ln(x)+\\dfrac{1}{x}\\right)`)}.` };
   }
@@ -1070,7 +1070,7 @@ export function genWachstum(lv = 3) {
           explain: `Mit dem Wachstumsfaktor ${tex(`a=${ft(a, 4)}`)} gilt ${tex(`${ft(a, 4)}^{t}=${ft(m)}`)}. Logarithmieren: ${tex(`t=\\dfrac{${lnT(m)}}{${lnT(a)}}\\approx${ft(t, 1)}`)} Jahre.`, k: K, factor: m };
       } else if (art === 'doppelt') {
         const T = pick([3, 4.5, 6, 20, 2.5, 35]), m = pick([5, 10, 20, 50, 100, 3]), K = Math.log(2) / T, t = Math.log(m) / K;
-        opts = [O(t, true), O((T * m) / 2, false, 'Das wäre lineares Wachstum. Tatsächlich verdoppelt sich in jeder Verdopplungszeit der aktuelle Bestand.'), O(T * Math.log(m), false, `Die Wachstumskonstante ist ${tex(`k=\\tfrac{\\ln(2)}{${ft(T)}}`)} – der Faktor ${tex('\\ln(2)')} fehlt.`), O((T * Math.log(2)) / Math.log(m), false, `Zähler und Nenner sind vertauscht: ${tex(`t=\\tfrac{${lnT(m)}}{k}`)}.`)];
+        opts = [O(t, true), O(T * (m - 1), false, 'Das wäre lineares Wachstum. Tatsächlich verdoppelt sich in jeder Verdopplungszeit der aktuelle Bestand.'), O(T * Math.log(m), false, `Die Wachstumskonstante ist ${tex(`k=\\tfrac{\\ln(2)}{${ft(T)}}`)} – der Faktor ${tex('\\ln(2)')} fehlt.`), O((T * Math.log(2)) / Math.log(m), false, `Zähler und Nenner sind vertauscht: ${tex(`t=\\tfrac{${lnT(m)}}{k}`)}.`)];
         q = { prompt: `Eine Algenfläche verdoppelt sich alle ${fmt(T)} Tage. Nach welcher Zeit ist sie auf das ${m}-Fache angewachsen?`,
           hints: [`Ansatz: ${tex('N(t)=N_0\\cdot e^{k\\,t}')}. Verdopplungszeit: ${tex(`e^{k\\cdot${ft(T)}}=2`)}.`, `Logarithmieren: ${tex(`k=\\dfrac{\\ln(2)}{${ft(T)}}\\approx${ft(K, 4)}`)}.`, `Jetzt die gesuchte Zeit: ${tex(`e^{k\\,t}=${m}`)}.`, `Logarithmieren: ${tex(`k\\,t=${lnT(m)}`)}, also ${tex(`t=\\dfrac{${lnT(m)}}{k}`)}.`, `Einsetzen: ${tex(`t=\\dfrac{${lnT(m)}\\cdot${ft(T)}}{\\ln(2)}\\approx${ft(t, 1)}`)}.`],
           explain: `Aus der Verdopplungszeit: ${tex(`k=\\dfrac{\\ln(2)}{${ft(T)}}\\approx${ft(K, 4)}`)}. Dann ${tex(`e^{k\\,t}=${m}`)}, durch Logarithmieren ${tex(`t=\\dfrac{${lnT(m)}}{k}\\approx${ft(t, 1)}`)} Tage.`, k: K, factor: m };
@@ -1093,7 +1093,7 @@ export function genWachstum(lv = 3) {
     if (lv === 3 && rand() < 0.5) {
       const k = pick([0.02, 0.05, 0.1, 0.25, 0.04]), halb = rand() < 0.5, K = halb ? -k : k;
       const O = (t, num, correct, why) => ({ tex: `t=${t}`, num, correct, why });
-      const opts = [O(dfrac('\\ln(2)', ft(k)), Math.log(2) / k, true), O(dfrac(2, ft(k)), 2 / k, false, `Aus ${tex(`e^{${ft(k)}t}=2`)} wird durch Logarithmieren ${tex(`${ft(k)}t=\\ln(2)`)}.`), O(`\\ln(2)\\cdot ${ft(k)}`, Math.log(2) * k, false, `Es wird durch ${tex(ft(k))} geteilt, nicht multipliziert.`), O(dfrac(ft(k), '\\ln(2)'), k / Math.log(2), false, 'Zähler und Nenner sind vertauscht.')];
+      const opts = [O(dfrac('\\ln(2)', ft(k)), Math.log(2) / k, true), O(dfrac(2, ft(k)), 2 / k, false, `Aus ${tex(`e^{${ft(K)}t}=${halb ? '\\tfrac12' : '2'}`)} wird durch Logarithmieren ${tex(`${ft(K)}t=\\ln(${halb ? '\\tfrac12' : '2'})`)}.`), O(`\\ln(2)\\cdot ${ft(k)}`, Math.log(2) * k, false, `Es wird durch ${tex(ft(k))} geteilt, nicht multipliziert.`), O(dfrac(ft(k), '\\ln(2)'), k / Math.log(2), false, 'Zähler und Nenner sind vertauscht.')];
       return { prompt: `Nach welcher Zeit hat sich der Bestand ${halb ? 'halbiert' : 'verdoppelt'}?`, formula: `N(t)=N_0\\cdot e^{${ft(K)}t}`, options: shuffle(opts),
         hints: [`Setze ${tex(`N(t)=${halb ? '\\tfrac12' : '2'}N_0`)} und kürze ${tex('N_0')}.`, `Logarithmiere beide Seiten: ${tex(`${ft(K)}t=\\ln(${halb ? '\\tfrac12' : '2'})`)}.`],
         explain: `${tex(`e^{${ft(K)}t}=${halb ? '\\tfrac12' : '2'}`)} liefert durch Logarithmieren ${tex(`t=${dfrac(halb ? '\\ln(\\tfrac12)' : '\\ln(2)', ft(K))}=${dfrac('\\ln(2)', ft(k))}\\approx${ft(Math.log(2) / k, 1)}`)}.`,
@@ -1185,7 +1185,7 @@ export function genFlaecheZwischen(lv = 3) {
     const opts = [O(Z(A), A, true)];
     for (const [v, why] of kand) if (opts.length < 4 && (wurzel || a2Ganz(v, lv === 3 ? 6 : 48)) && opts.every((o) => Math.abs(o.num - v) > 0.02)) opts.push(O(Z(v), v, false, why));
     if (opts.length < 4 || !uniq(opts)) continue;
-    const qu = polyTex([pr, -su, 1]), x1 = wurzel ? `${d === 0 ? '' : ft(d)}-\\sqrt{${wurzel}}` : ft(r1), x2 = wurzel ? `${d === 0 ? '' : ft(d)}+\\sqrt{${wurzel}}` : ft(r2);
+    const qu = polyTex([pr, -su, 1]), x1 = wurzel ? `${d === 0 ? '' : ft(d)}-\\sqrt{${wurzel}}` : ft(r1), x2 = wurzel ? `${d === 0 ? '' : `${ft(d)}+`}\\sqrt{${wurzel}}` : ft(r2);
     const ST = `-\\tfrac13x^{3}${su === 0 ? '' : a2Mit(su / 2, 'x^{2}')}${a2Mit(-pr, 'x')}`;
     const pq = `x_{1,2}=${ft(su / 2)}\\pm\\sqrt{${ft((su * su) / 4, 4)}${a2Pm(-pr, 4)}}`;
     return { prompt: `Die Graphen von ${tex('f')} und ${tex('g')} schließen eine Fläche ein. Berechne ihren Inhalt.`,
@@ -1275,7 +1275,7 @@ export function genVierfelder(lv = 3) {
 }
 
 /**
- * Bedingte Wahrscheinlichkeit „rückwärts". Stufe 1–2: natürliche Häufigkeiten · 3: Prozentangaben (Baum, Satz von Bayes) ·
+ * Bedingte Wahrscheinlichkeit „rückwärts“. Stufe 1–2: natürliche Häufigkeiten · 3: Prozentangaben (Baum, Satz von Bayes) ·
  * 4: Sensitivität und Spezifität, seltene Krankheit · 5: drei Maschinen (totale Wahrscheinlichkeit und Bayes).
  */
 export function genBedingt(lv = 3) {
@@ -1288,7 +1288,7 @@ export function genBedingt(lv = 3) {
       const O = (z, n, correct, why) => ({ tex: dfrac(z, n), num: z / n, correct, why });
       const opts = [O(TP, TP + FP, true),
         O(TP, S, false, 'Bedingung vertauscht: Das ist die Wahrscheinlichkeit, dass ein Kranker positiv getestet wird.'),
-        O(TP, T, false, 'Das ist der Anteil „krank und positiv" an allen. Gefragt ist der Anteil unter den positiv Getesteten.'),
+        O(TP, T, false, 'Das ist der Anteil „krank und positiv“ an allen. Gefragt ist der Anteil unter den positiv Getesteten.'),
         O(FP, TP + FP, false, 'Das ist die Wahrscheinlichkeit, trotz positivem Test gesund zu sein.')];
       if (!uniqNum(opts) || !b2fern(opts)) continue;
       return { prompt: `Von ${T} Personen sind ${S} krank. Der Test fällt bei ${TP} der Kranken positiv aus – und fälschlich auch bei ${FP} der ${T - S} Gesunden. Eine Person wird positiv getestet. Mit welcher Wahrscheinlichkeit ist sie krank?`,
@@ -1301,7 +1301,7 @@ export function genBedingt(lv = 3) {
     if (lv >= 5) {
       const ant = pick([[0.5, 0.3, 0.2], [0.45, 0.35, 0.2], [0.4, 0.35, 0.25], [0.55, 0.25, 0.2], [0.6, 0.25, 0.15]]), aus = shuffle([0.01, 0.015, 0.02, 0.025, 0.03, 0.04, 0.045]).slice(0, 3), i = ri(0, 2);
       const pf = ant.map((x, j) => b2runde(x * aus[j])), ges = b2runde(pf[0] + pf[1] + pf[2]), TP = pf[i], FP = b2runde(ges - TP);
-      const opts = [O(TP / ges, true), O(ant[i], false, `Das ist der Anteil von ${tex(`M_${i + 1}`)} an der ganzen Produktion. Die Information „Ausschuss" verändert die Wahrscheinlichkeit.`),
+      const opts = [O(TP / ges, true), O(ant[i], false, `Das ist der Anteil von ${tex(`M_${i + 1}`)} an der ganzen Produktion. Die Information „Ausschuss“ verändert die Wahrscheinlichkeit.`),
         O(aus[i] / b2runde(aus[0] + aus[1] + aus[2]), false, 'Hier wurden nur die Ausschussquoten verglichen. Die Maschinen fertigen aber unterschiedlich viel – jede Quote muss mit dem Produktionsanteil gewichtet werden.'),
         O(TP, false, `Das ist ${tex(`P(M_${i + 1}\\cap A)`)}: Anteil an <b>allen</b> Bauteilen. Gefragt ist der Anteil unter den Ausschuss-Teilen.`)];
       if (!b2fern(opts) || !uniq(opts)) continue;
@@ -1319,7 +1319,7 @@ export function genBedingt(lv = 3) {
     const spez = pick([0.96, 0.985, 0.94, 0.975]), fp = lv <= 3 ? pick([0.05, 0.1, 0.02]) : b2runde(1 - spez);
     const TP = b2runde(p * se, 8), FP = b2runde((1 - p) * fp, 8), pos = b2runde(TP + FP, 8), r = TP / pos;
     const opts = [O(r, true), O(se, false, 'Bedingung vertauscht: Das ist die Wahrscheinlichkeit, dass ein Kranker positiv getestet wird.'),
-      lv <= 3 ? O(TP, false, 'Das ist die Wahrscheinlichkeit für „krank und positiv" unter allen. Gefragt ist der Anteil unter den positiv Getesteten.')
+      lv <= 3 ? O(TP, false, 'Das ist die Wahrscheinlichkeit für „krank und positiv“ unter allen. Gefragt ist der Anteil unter den positiv Getesteten.')
         : O(TP / (TP + (1 - p) * spez), false, `Die Spezifität ${tex(b2pct(spez))} ist der Anteil der Gesunden mit <b>negativem</b> Test. Falsch positiv sind nur ${tex(b2pct(fp))} (Gegenereignis).`),
       O(1 - r, false, 'Das ist die Wahrscheinlichkeit, trotz positivem Test gesund zu sein.')];
     if (!b2fern(opts) || !uniq(opts)) continue;
@@ -1334,7 +1334,7 @@ export function genBedingt(lv = 3) {
 }
 
 /**
- * „Mindestens", „höchstens", „mehr als" in kumulierte Wahrscheinlichkeiten übersetzen.
+ * „Mindestens“, „höchstens“, „mehr als“ in kumulierte Wahrscheinlichkeiten übersetzen.
  * Stufe 1: höchstens / weniger als · 2: mindestens / mehr als (Gegenereignis) · 3: Bereich zwischen zwei Grenzen ·
  * 4: Sachaufgabe, Bereich mit Tabellenwerten ausrechnen · 5: Abweichung vom Erwartungswert in Standardabweichungen, Wert ausrechnen.
  */
@@ -1353,28 +1353,28 @@ function kumuliert(lv) {
     const opts = inkl ? [O(`${P(b)}-${P(a - 1)}`, F(b) - F(a - 1), true),
       O(`${P(b)}-${P(a)}`, F(b) - F(a), false, `${a} gehört dazu: Abgezogen wird alles <b>unter</b> ${a}, also bis ${a - 1}.`),
       O(`${P(b - 1)}-${P(a - 1)}`, F(b - 1) - F(a - 1), false, `${b} gehört dazu: Die obere Grenze ist ${b}.`),
-      O(`1-${P(a - 1)}`, 1 - F(a - 1), false, `Das ist „mindestens ${a}" – die obere Grenze ${b} fehlt.`)]
+      O(`1-${P(a - 1)}`, 1 - F(a - 1), false, `Das ist „mindestens ${a}“ – die obere Grenze ${b} fehlt.`)]
       : [O(`${P(b - 1)}-${P(a)}`, F(b - 1) - F(a), true),
-        O(`${P(b)}-${P(a - 1)}`, F(b) - F(a - 1), false, `Weder ${a} noch ${b} gehören dazu: „mehr als ${a}" beginnt bei ${a + 1}, „weniger als ${b}" endet bei ${b - 1}.`),
-        O(`${P(b)}-${P(a)}`, F(b) - F(a), false, `${b} gehört nicht dazu: „weniger als ${b}" endet bei ${b - 1}.`),
+        O(`${P(b)}-${P(a - 1)}`, F(b) - F(a - 1), false, `Weder ${a} noch ${b} gehören dazu: „mehr als ${a}“ beginnt bei ${a + 1}, „weniger als ${b}“ endet bei ${b - 1}.`),
+        O(`${P(b)}-${P(a)}`, F(b) - F(a), false, `${b} gehört nicht dazu: „weniger als ${b}“ endet bei ${b - 1}.`),
         O(`${P(b - 1)}-${P(a - 1)}`, F(b - 1) - F(a - 1), false, `${a} gehört nicht dazu: Abgezogen wird alles bis einschließlich ${a}.`)];
     const wort = inkl ? `mindestens ${a} und höchstens ${b}` : `mehr als ${a} und weniger als ${b}`;
     return { prompt: `${tex('X')} ist binomialverteilt. Welcher Ausdruck liefert die Wahrscheinlichkeit für <b>${wort}</b> Treffer?`, formula: `n=${n},\\quad p=${ft(p)}`, options: shuffle(opts),
-      hints: [inkl ? `Untere Grenze: „mindestens ${a}" heißt ${tex(`X\\ge ${a}`)}. Obere Grenze: „höchstens ${b}" heißt ${tex(`X\\le ${b}`)}.` : `Untere Grenze: „mehr als ${a}" heißt ${tex(`X\\ge ${a + 1}`)}. Obere Grenze: „weniger als ${b}" heißt ${tex(`X\\le ${b - 1}`)}.`,
+      hints: [inkl ? `Untere Grenze: „mindestens ${a}“ heißt ${tex(`X\\ge ${a}`)}. Obere Grenze: „höchstens ${b}“ heißt ${tex(`X\\le ${b}`)}.` : `Untere Grenze: „mehr als ${a}“ heißt ${tex(`X\\ge ${a + 1}`)}. Obere Grenze: „weniger als ${b}“ heißt ${tex(`X\\le ${b - 1}`)}.`,
         `Zusammen: ${tex(`${lo}\\le X\\le ${hi}`)}.`, 'Alles bis zur oberen Grenze, minus alles unterhalb der unteren Grenze.', `Unterhalb von ${lo} heißt: ${tex(`X\\le ${lo - 1}`)}.`],
-      explain: `„${wort[0].toUpperCase()}${wort.slice(1)}" bedeutet ${tex(`X\\ge ${lo}`)} und ${tex(`X\\le ${hi}`)}, zusammen ${tex(`${lo}\\le X\\le ${hi}`)}. Von allem bis ${hi} wird alles bis ${lo - 1} abgezogen: ${tex(`P(${lo}\\le X\\le ${hi})=${P(hi)}-${P(lo - 1)}`)}.`, n, p, lo, hi };
+      explain: `„${wort[0].toUpperCase()}${wort.slice(1)}“ bedeutet ${tex(`X\\ge ${lo}`)} und ${tex(`X\\le ${hi}`)}, zusammen ${tex(`${lo}\\le X\\le ${hi}`)}. Von allem bis ${hi} wird alles bis ${lo - 1} abgezogen: ${tex(`P(${lo}\\le X\\le ${hi})=${P(hi)}-${P(lo - 1)}`)}.`, n, p, lo, hi };
   }
   const k = Math.min(n - 2, Math.max(2, mu + ri(-2, 2)));
   const kinds = { hoechstens: [`höchstens ${k}`, P(k), 0, k], weniger: [`weniger als ${k}`, P(k - 1), 0, k - 1], mehr: [`mehr als ${k}`, `1-${P(k)}`, k + 1, n], mindestens: [`mindestens ${k}`, `1-${P(k - 1)}`, k, n] };
   const kind = pick(lv <= 1 ? ['hoechstens', 'weniger'] : ['mehr', 'mindestens']);
   const numOf = { hoechstens: F(k), weniger: F(k - 1), mehr: 1 - F(k), mindestens: 1 - F(k - 1) };
-  const opts = Object.keys(kinds).map((key) => O(kinds[key][1], numOf[key], key === kind, `Das ist „${kinds[key][0]}".`));
+  const opts = Object.keys(kinds).map((key) => O(kinds[key][1], numOf[key], key === kind, `Das ist „${kinds[key][0]}“.`));
   const [wort, ausdruck, lo, hi] = kinds[kind];
   return { prompt: `${tex('X')} ist binomialverteilt. Welcher Ausdruck liefert die Wahrscheinlichkeit für <b>${wort}</b> Treffer?`, formula: `n=${n},\\quad p=${ft(p)}`, options: shuffle(opts),
     hints: lv <= 1 ? [`Schreibe es als Ungleichung: ${tex(`X\\le\\dots`)} Gehört ${k} dazu?`, `Tabellen liefern genau solche Werte ${tex('P(X\\le k)')}.`]
-      : [`Schreibe es als Ungleichung: ${tex(`X\\ge\\dots`)} Gehört ${k} dazu?`, `Tabellen liefern nur ${tex('P(X\\le k)')}. Für „mindestens" und „mehr als" brauchst du das Gegenereignis.`, `Das Gegenereignis zu ${tex(`X\\ge ${lo}`)} ist ${tex(`X\\le ${lo - 1}`)}.`],
-    explain: lv <= 1 ? `„${wort[0].toUpperCase()}${wort.slice(1)}" bedeutet ${tex(`X\\le ${hi}`)}, also ${tex(ausdruck)}.`
-      : `„${wort[0].toUpperCase()}${wort.slice(1)}" bedeutet ${tex(`X\\ge ${lo}`)}. Über das Gegenereignis: ${tex(`P(X\\ge ${lo})=1-P(X\\le ${lo - 1})`)}.`, n, p, lo, hi };
+      : [`Schreibe es als Ungleichung: ${tex(`X\\ge\\dots`)} Gehört ${k} dazu?`, `Tabellen liefern nur ${tex('P(X\\le k)')}. Für „mindestens“ und „mehr als“ brauchst du das Gegenereignis.`, `Das Gegenereignis zu ${tex(`X\\ge ${lo}`)} ist ${tex(`X\\le ${lo - 1}`)}.`],
+    explain: lv <= 1 ? `„${wort[0].toUpperCase()}${wort.slice(1)}“ bedeutet ${tex(`X\\le ${hi}`)}, also ${tex(ausdruck)}.`
+      : `„${wort[0].toUpperCase()}${wort.slice(1)}“ bedeutet ${tex(`X\\ge ${lo}`)}. Über das Gegenereignis: ${tex(`P(X\\ge ${lo})=1-P(X\\le ${lo - 1})`)}.`, n, p, lo, hi };
 }
 const KUM_TEXT = [
   [(n, p) => `Ein Onlinehändler verschickt ${n} Pakete; jedes kommt unabhängig von den anderen mit der Wahrscheinlichkeit ${p} schon am nächsten Tag an.`, 'kommen', 'Pakete am nächsten Tag an', 'der pünktlichen Pakete'],
@@ -1389,13 +1389,13 @@ function kumuliertZahl(lv) {
     const a = mu - ri(3, 6), b = mu + ri(2, 6), inkl = rand() < 0.5, [lo, hi] = inkl ? [a, b] : [a + 1, b - 1];
     const O = (o, u, correct, why) => ({ tex: b2vier(Fr(o) - Fr(u)), num: F(o) - F(u), correct, why });
     const opts = inkl ? [O(b, a - 1, true), O(b, a, false, `${a} gehört dazu: Abgezogen wird nur alles bis ${a - 1}.`), O(b - 1, a - 1, false, `${b} gehört dazu: Die obere Grenze ist ${b}.`), O(b - 1, a, false, `${a} und ${b} gehören beide dazu: Der Bereich ist ${tex(`${a}\\le X\\le ${b}`)}.`)]
-      : [O(b - 1, a, true), O(b, a - 1, false, `Weder ${a} noch ${b} gehören dazu: Der Bereich ist ${tex(`${a + 1}\\le X\\le ${b - 1}`)}.`), O(b, a, false, `${b} gehört nicht dazu: „weniger als ${b}" endet bei ${b - 1}.`), O(b - 1, a - 1, false, `${a} gehört nicht dazu: Abgezogen wird alles bis einschließlich ${a}.`)];
+      : [O(b - 1, a, true), O(b, a - 1, false, `Weder ${a} noch ${b} gehören dazu: Der Bereich ist ${tex(`${a + 1}\\le X\\le ${b - 1}`)}.`), O(b, a, false, `${b} gehört nicht dazu: „weniger als ${b}“ endet bei ${b - 1}.`), O(b - 1, a - 1, false, `${a} gehört nicht dazu: Abgezogen wird alles bis einschließlich ${a}.`)];
     if (!b2versch(opts, 0.001)) return null;
     const wort = inkl ? `mindestens ${a} und höchstens ${b}` : `mehr als ${a}, aber weniger als ${b}`;
     return { prompt: `${intro(n, fmt(p))} Mit welcher Wahrscheinlichkeit ${verb} <b>${wort}</b> ${objekt}?`,
       formula: `\\def\\arraystretch{1.3}\\begin{array}{l}${P(a - 1)}\\approx${b2vier(Fr(a - 1))}\\\\${P(a)}\\approx${b2vier(Fr(a))}\\\\${P(b - 1)}\\approx${b2vier(Fr(b - 1))}\\\\${P(b)}\\approx${b2vier(Fr(b))}\\end{array}`, options: shuffle(opts),
       hints: [`${tex('X')}: Anzahl ${anzahl}, binomialverteilt mit ${tex(`n=${n}`)} und ${tex(`p=${ft(p)}`)}.`, `Bereich als Ungleichung: ${tex(`${lo}\\le X\\le ${hi}`)}.`, `${tex(`P(${lo}\\le X\\le ${hi})=${P(hi)}-${P(lo - 1)}`)}: alles bis ${hi}, minus alles bis ${lo - 1}.`, `Tabellenwerte einsetzen: ${tex(`${b2vier(Fr(hi))}-${b2vier(Fr(lo - 1))}`)}.`],
-      explain: `„${wort[0].toUpperCase()}${wort.slice(1)}" bedeutet ${tex(`${lo}\\le X\\le ${hi}`)}. ${tex(`P(${lo}\\le X\\le ${hi})=${P(hi)}-${P(lo - 1)}\\approx${b2vier(Fr(hi))}-${b2vier(Fr(lo - 1))}=${b2vier(Fr(hi) - Fr(lo - 1))}`)}.`, n, p, lo, hi, kind: 'zahl' };
+      explain: `„${wort[0].toUpperCase()}${wort.slice(1)}“ bedeutet ${tex(`${lo}\\le X\\le ${hi}`)}. ${tex(`P(${lo}\\le X\\le ${hi})=${P(hi)}-${P(lo - 1)}\\approx${b2vier(Fr(hi))}-${b2vier(Fr(lo - 1))}=${b2vier(Fr(hi) - Fr(lo - 1))}`)}.`, n, p, lo, hi, kind: 'zahl' };
   }
   const n = pick([120, 150, 180, 200]), p = pick([0.15, 0.25, 0.35, 0.45, 0.65]), c = pick([1.5, 2, 2.5]);
   const mu = b2runde(n * p), s2 = b2runde(n * p * (1 - p)), sg = Math.sqrt(s2), U = mu - c * sg, V = mu + c * sg, lo = Math.ceil(U), hi = Math.floor(V);
@@ -1420,7 +1420,7 @@ const SIG_TEXT = [
 ];
 
 /**
- * Sigma-Regeln. Stufe 1: μ und σ gegeben, 1σ-Umgebung · 2: μ und σ aus n und p (glatt) · 3: alle drei Regeln, auch „außerhalb" ·
+ * Sigma-Regeln. Stufe 1: μ und σ gegeben, 1σ-Umgebung · 2: μ und σ aus n und p (glatt) · 3: alle drei Regeln, auch „außerhalb“ ·
  * 4: krumme Standardabweichung · 5: Sachaufgabe mit den 90-/95-/99-%-Umgebungen (1,64σ; 1,96σ; 2,58σ).
  */
 export function genSigma(lv = 3) {
@@ -1500,7 +1500,7 @@ export function genHypothese(lv = 3) {
     const S = pick(HYP_FALL), key = pick(['a1', 'a2']), art = key === 'a1' ? '1. Art' : '2. Art';
     const why = { a1: 'Hier stimmt die Nullhypothese und wird trotzdem abgelehnt – das ist der Fehler 1. Art.', a2: 'Hier ist die Nullhypothese falsch und wird trotzdem beibehalten – das ist der Fehler 2. Art.', x1: 'Das ist ein mögliches Ergebnis der Stichprobe, aber keine Fehlentscheidung.', x2: 'Das betrifft die Durchführung, nicht die Entscheidung über die Nullhypothese.' };
     return { prompt: `${S.t} Was wäre hier ein <b>Fehler ${art}</b>?`, options: shuffle(['a1', 'a2', 'x1', 'x2']).map((k) => ({ tex: S[k], html: S[k], key: k, correct: k === key, why: why[k] })),
-      hints: ['Kläre zuerst: Was genau behauptet die Nullhypothese in dieser Situation?', `Fehler ${art}: Die Nullhypothese ${key === 'a1' ? 'stimmt, wird aber abgelehnt' : 'ist falsch, wird aber beibehalten'}.`, 'Übersetze „ablehnen" und „beibehalten" in die Handlung aus dem Text.'],
+      hints: ['Kläre zuerst: Was genau behauptet die Nullhypothese in dieser Situation?', `Fehler ${art}: Die Nullhypothese ${key === 'a1' ? 'stimmt, wird aber abgelehnt' : 'ist falsch, wird aber beibehalten'}.`, 'Übersetze „ablehnen“ und „beibehalten“ in die Handlung aus dem Text.'],
       explain: `Fehler ${art} heißt: Die Nullhypothese ${key === 'a1' ? 'stimmt, wird aber abgelehnt' : 'ist falsch, wird aber beibehalten'}. In dieser Situation: ${S[key]}`, kind: 'begriff', expect: key };
   }
   for (;;) {
@@ -1558,7 +1558,7 @@ const PHI_TAB = { 0.25: 0.5987, 0.5: 0.6915, 0.75: 0.7734, 1: 0.8413, 1.25: 0.89
 const NV_TEXT = [['Die Körpergröße (in cm) der Spielerinnen eines Verbandes', 172.4, 6.8], ['Die Füllmenge (in ml) der Flaschen einer Abfüllanlage', 503.2, 4.6], ['Die Fahrzeit (in min) einer Buslinie', 37.5, 2.4], ['Das Gewicht (in g) der Brötchen einer Bäckerei', 58.6, 3.2]];
 const NV_BINOM = [[150, 0.4, 6], [225, 0.2, 6], [144, 0.5, 6], [150, 0.6, 6], [225, 0.8, 6], [400, 0.5, 10], [625, 0.2, 10]];
 const NV_UMFRAGE = [
-  (n, p, k) => `Bei einer Umfrage antwortet jede der ${n} befragten Personen unabhängig von den anderen mit der Wahrscheinlichkeit ${p} mit „Ja". Berechne mit der Normalverteilung näherungsweise die Wahrscheinlichkeit für <b>höchstens ${k}</b> Ja-Antworten.`,
+  (n, p, k) => `Bei einer Umfrage antwortet jede der ${n} befragten Personen unabhängig von den anderen mit der Wahrscheinlichkeit ${p} mit „Ja“. Berechne mit der Normalverteilung näherungsweise die Wahrscheinlichkeit für <b>höchstens ${k}</b> Ja-Antworten.`,
   (n, p, k) => `Ein Bauteil besteht die Endkontrolle mit der Wahrscheinlichkeit ${p}. Geprüft werden ${n} Bauteile. Berechne mit der Normalverteilung näherungsweise die Wahrscheinlichkeit, dass <b>höchstens ${k}</b> Bauteile die Kontrolle bestehen.`,
 ];
 
@@ -1573,7 +1573,7 @@ export function genNormal(lv = 3) {
       const [n, p, sg] = pick(NV_BINOM), mu = b2runde(n * p), za = pick(sg === 6 ? [0.25, 0.75, 1.25] : [0.25, 0.75]), z = rand() < 0.5 ? za : -za, k = Math.round(mu + z * sg - 0.5), x = k + 0.5;
       const ph = PHI_TAB[za], r = z > 0 ? ph : b2runde(1 - ph), z0 = (k - mu) / sg;
       const opts = [P2(r, true), P2(b2runde(1 - r), false, z > 0 ? `Das ist die Gegenwahrscheinlichkeit ${tex(`P(X>${k})`)}.` : `Symmetrie vergessen: Für negatives ${tex('z')} gilt ${tex('\\Phi(-z)=1-\\Phi(z)')}.`),
-        P2(b2runde(b2Phi(z0), 4), false, `Ohne Stetigkeitskorrektur gerechnet (${tex(`z\\approx${ft(z0)}`)}). Weil ${tex('X')} nur ganze Werte annimmt, reicht „höchstens ${k}" bis ${tex(ft(x))}.`),
+        P2(b2runde(b2Phi(z0), 4), false, `Ohne Stetigkeitskorrektur gerechnet (${tex(`z\\approx${ft(z0)}`)}). Weil ${tex('X')} nur ganze Werte annimmt, reicht „höchstens ${k}“ bis ${tex(ft(x))}.`),
         P2(b2runde(2 * ph - 1), false, `Das ist die Wahrscheinlichkeit für die beidseitige Umgebung ${tex(`|Z|\\le ${ft(za)}`)} – hier ist nur eine Seite begrenzt.`)];
       if (!b2versch(opts, 0.011) || !uniq(opts)) continue;
       const tab = Object.keys(PHI_TAB).filter((t) => [0.25, 0.75, 1.25].includes(+t)).map((t) => `\\Phi(${ft(+t)})\\approx${ft(PHI_TAB[t], 4)}`);
@@ -1621,9 +1621,9 @@ function kombiVerkleidet() {
   if (form === 0) {
     const o = ri(3, 7), no = ri(2, 5), n = o + no, k = no;
     return { kind: 'komb', n, k, text: `In einem rechtwinkligen Straßennetz muss ein Kurier ${o} Blöcke nach Osten und ${no} Blöcke nach Norden fahren. Wie viele verschiedene kürzeste Wege gibt es?`,
-      falsch: [[o * no, 'Das Produkt zählt die Kreuzungen im Rechteck, nicht die Wege.'], [fact(n) / fact(n - k), `Die ${k} Nord-Schritte sind untereinander nicht unterscheidbar – ihre Reihenfolge darf nicht mitgezählt werden.`], [2 ** n, 'Das wären alle Folgen aus Ost und Nord – erlaubt sind nur die mit genau der richtigen Anzahl von Nord-Schritten.']],
+      falsch: [[o * no, 'Das Produkt zählt die Häuserblöcke im Rechteck, nicht die Wege.'], [fact(n) / fact(n - k), `Die ${k} Nord-Schritte sind untereinander nicht unterscheidbar – ihre Reihenfolge darf nicht mitgezählt werden.`], [2 ** n, 'Das wären alle Folgen aus Ost und Nord – erlaubt sind nur die mit genau der richtigen Anzahl von Nord-Schritten.']],
       hints: [`Jeder kürzeste Weg besteht aus ${tex(`${o}+${no}=${n}`)} Schritten.`, `Ein Weg ist festgelegt, sobald feststeht, welche ${k} der ${n} Schritte nach Norden gehen.`, 'Reihenfolge egal, keine Wiederholung: Binomialkoeffizient.'],
-      explain: `Jeder Weg hat ${tex(`${o}+${no}=${n}`)} Schritte; gewählt werden die ${k} Plätze für „Nord": ${tex(`\\binom{${n}}{${k}}=\\dfrac{${b2reihe(n, k)}}{${k}!}=${binom(n, k)}`)}.` };
+      explain: `Jeder Weg hat ${tex(`${o}+${no}=${n}`)} Schritte; gewählt werden die ${k} Plätze für „Nord“: ${tex(`\\binom{${n}}{${k}}=\\dfrac{${b2reihe(n, k)}}{${k}!}=${binom(n, k)}`)}.` };
   }
   if (form === 1) {
     const n = ri(8, 18), k = 2;
@@ -2046,7 +2046,7 @@ export function genKreuz(lv = 3) {
     if (lv >= 5 && ![u, v].every((w) => w.some((x) => !Number.isInteger(x)))) continue;
     const drei = lv >= 4, A = lv >= 5 ? [halb(), ri(-3, 3), halb()] : rv(3), B = add(A, u), C = add(A, v);
     const O = (vec, correct, why) => ({ tex: vecTex(vec), vec, correct, why });
-    const opts = [O(c, true), O([c[0], -c[1], c[2]], false, `Mittlere Zeile: ${tex('u_3v_1-u_1v_3')} – hier ist die Reihenfolge anders als oben und unten.`), O(u.map((x, i) => x * v[i]), false, 'Zeilenweise multiplizieren gehört zum Skalarprodukt. Das Kreuzprodukt wird „über Kreuz" gebildet.'), O(c.map((x) => -x), false, `Reihenfolge vertauscht: Das ist ${tex(drei ? '\\overrightarrow{AC}\\times\\overrightarrow{AB}' : '\\vec v\\times\\vec u')}.`)];
+    const opts = [O(c, true), O([c[0], -c[1], c[2]], false, `Mittlere Zeile: ${tex('u_3v_1-u_1v_3')} – hier ist die Reihenfolge anders als oben und unten.`), O(u.map((x, i) => x * v[i]), false, 'Zeilenweise multiplizieren gehört zum Skalarprodukt. Das Kreuzprodukt wird „über Kreuz“ gebildet.'), O(c.map((x) => -x), false, `Reihenfolge vertauscht: Das ist ${tex(drei ? '\\overrightarrow{AC}\\times\\overrightarrow{AB}' : '\\vec v\\times\\vec u')}.`)];
     if (opts.some((a, i) => opts.some((b, j) => i < j && same(a.vec, b.vec))) || !uniq(opts)) continue;
     const formel = `${tex('\\vec u\\times\\vec v=\\begin{pmatrix}u_2v_3-u_3v_2\\\\u_3v_1-u_1v_3\\\\u_1v_2-u_2v_1\\end{pmatrix}')}.`;
     const rechnung = `${drei ? '\\overrightarrow{AB}\\times\\overrightarrow{AC}' : '\\vec u\\times\\vec v'}=${b2kreuz(u, v)}=${vecTex(c)}`;
@@ -2092,7 +2092,7 @@ const OP_BEISPIEL = [
   'Zeichnen Sie den Graphen von f im Bereich von −2 bis 4 (1 Längeneinheit = 1 cm).',
   'Untersuchen Sie die gegenseitige Lage der Geraden g und h.',
   'Die Ableitung der Wasserstandsfunktion hat nach 3 Stunden den Wert −0,4. Interpretieren Sie diesen Wert im Sachzusammenhang.',
-  'Lena behauptet: „Wo die Ableitung null ist, liegt immer ein Extrempunkt." Beurteilen Sie diese Aussage.',
+  'Lena behauptet: ‚Wo die Ableitung null ist, liegt immer ein Extrempunkt.‘ Beurteilen Sie diese Aussage.',
   'Beschreiben Sie, wie man den Abstand eines Punktes von einer Ebene ermitteln kann.',
   'Entscheiden Sie, welcher der drei abgebildeten Graphen zur Funktion f gehört.',
 ];
@@ -2103,10 +2103,10 @@ const OP_PAAR = [
     'Beide verlangen eine maßstabsgetreue Darstellung; beim Skizzieren darf nur die Achsenbeschriftung fehlen.', 'Beim Skizzieren ist eine Wertetabelle Pflicht, beim Zeichnen nicht.'],
   [0, 1, 'Beim Angeben genügt das Ergebnis ohne Rechenweg und Begründung; beim Berechnen muss der Rechenweg erkennbar sein.',
     'Beim Berechnen genügt das Ergebnis; beim Angeben muss der Rechenweg erkennbar sein.',
-    'Beide verlangen nur das Ergebnis; „Berechnen" steht bei Zahlen, „Angeben" bei Texten.', 'Beim Angeben wird zusätzlich eine Begründung in Worten erwartet, beim Berechnen nicht.'],
+    'Beide verlangen nur das Ergebnis; „Berechnen“ steht bei Zahlen, „Angeben“ bei Texten.', 'Beim Angeben wird zusätzlich eine Begründung in Worten erwartet, beim Berechnen nicht.'],
   [1, 2, 'Beim Berechnen ist der rechnerische Weg vorgeschrieben; beim Bestimmen ist die Methode frei (auch grafisch), der Lösungsweg muss aber dargestellt werden.',
     'Beim Bestimmen ist der rechnerische Weg vorgeschrieben; beim Berechnen ist die Methode frei.',
-    'Beim Bestimmen genügt das Ergebnis ohne Lösungsweg; beim Berechnen muss der Weg erkennbar sein.', 'Beide verlangen dasselbe; „Bestimmen" wird nur bei Aufgaben mit Sachzusammenhang verwendet.'],
+    'Beim Bestimmen genügt das Ergebnis ohne Lösungsweg; beim Berechnen muss der Weg erkennbar sein.', 'Beide verlangen dasselbe; „Bestimmen“ wird nur bei Aufgaben mit Sachzusammenhang verwendet.'],
   [3, 4, 'Beim Zeigen wird eine vorgegebene Aussage lückenlos durch Rechnung oder logische Schritte bestätigt; beim Begründen wird ein Sachverhalt auf Regeln, Sätze oder Zusammenhänge zurückgeführt.',
     'Beim Begründen wird eine Aussage lückenlos durch Rechnung bestätigt; beim Zeigen genügt der Verweis auf eine Regel.',
     'Beim Zeigen genügt ein passendes Zahlenbeispiel; beim Begründen ist ein allgemeiner Nachweis nötig.', 'Beim Zeigen ist das Ergebnis offen und muss erst gefunden werden; beim Begründen ist es vorgegeben.'],
@@ -2115,35 +2115,35 @@ const OP_PAAR = [
     'Beim Beurteilen ist die eigene Meinung gefragt, Fachwissen spielt keine Rolle; beim Entscheiden zählt nur die Rechnung.', 'Beim Entscheiden reicht es, die gewählte Möglichkeit zu nennen; eine Begründung wird nur beim Beurteilen erwartet.'],
   [10, 8, 'Beim Beschreiben wird ein Sachverhalt oder Verfahren mit Fachsprache wiedergegeben; beim Interpretieren wird ein Ergebnis im Sachzusammenhang der Aufgabe erklärt.',
     'Beim Interpretieren wird ein Verfahren wiedergegeben; beim Beschreiben wird ein Ergebnis im Sachzusammenhang erklärt.',
-    'Beim Beschreiben wird eine Rechnung verlangt; beim Interpretieren genügt es, das Ergebnis abzuschreiben.', 'Beide verlangen dasselbe; „Interpretieren" steht nur bei Aufgaben zur Stochastik.'],
+    'Beim Beschreiben wird eine Rechnung verlangt; beim Interpretieren genügt es, das Ergebnis abzuschreiben.', 'Beide verlangen dasselbe; „Interpretieren“ steht nur bei Aufgaben zur Stochastik.'],
 ];
 /** Prüfungs-Situationen für Stufe 5: Aufgabe mit zwei Operatoren, eine Schülerlösung – was fehlt für die volle Punktzahl? */
 const OP_FALL = [
   { aufgabe: 'Bestimmen Sie die Stückzahl, bei der der Gewinn am größten ist, und interpretieren Sie das Ergebnis im Sachzusammenhang.',
-    loesung: 'Im Heft stehen die Ableitung der Gewinnfunktion, die Nullstelle x = 40 der Ableitung und der Nachweis über die zweite Ableitung. Der letzte Satz lautet: „Also Hochpunkt bei x = 40."',
+    loesung: 'Im Heft stehen die Ableitung der Gewinnfunktion, die Nullstelle x = 40 der Ableitung und der Nachweis über die zweite Ableitung. Der letzte Satz lautet: „Also Hochpunkt bei x = 40.“',
     r: 'Die Deutung fehlt: Bei 40 Stück ist der Gewinn am größten – das Ergebnis muss in die Sprache der Aufgabe übersetzt werden.',
-    f: [['Eine maßstabsgetreue Zeichnung der Gewinnfunktion fehlt.', 'Weder „Bestimmen" noch „Interpretieren" verlangt eine Zeichnung.'], ['Nichts – mit dem Hochpunkt ist die Aufgabe vollständig gelöst.', '„Interpretieren" ist ein eigener Auftrag: Das Ergebnis muss im Sachzusammenhang erklärt werden.'], ['Der Rechenweg ist überflüssig; bei „Bestimmen" zählt nur das Ergebnis.', 'Bei „Bestimmen" muss der Lösungsweg dargestellt werden – nur die Methode ist frei.']],
-    kern: ['„Bestimmen": Lösungsweg darstellen, Ergebnis formulieren – das ist erfüllt.', '„Interpretieren": das Ergebnis im Sachzusammenhang erklären – „Hochpunkt bei x = 40" ist noch reine Mathematik.'] },
+    f: [['Eine maßstabsgetreue Zeichnung der Gewinnfunktion fehlt.', 'Weder „Bestimmen“ noch „Interpretieren“ verlangt eine Zeichnung.'], ['Nichts – mit dem Hochpunkt ist die Aufgabe vollständig gelöst.', '„Interpretieren“ ist ein eigener Auftrag: Das Ergebnis muss im Sachzusammenhang erklärt werden.'], ['Der Rechenweg ist überflüssig; bei „Bestimmen“ zählt nur das Ergebnis.', 'Bei „Bestimmen“ muss der Lösungsweg dargestellt werden – nur die Methode ist frei.']],
+    kern: ['„Bestimmen“: Lösungsweg darstellen, Ergebnis formulieren – das ist erfüllt.', '„Interpretieren“: das Ergebnis im Sachzusammenhang erklären – „Hochpunkt bei x = 40“ ist noch reine Mathematik.'] },
   { aufgabe: 'Zeigen Sie, dass die Geraden g und h windschief sind, und geben Sie einen Punkt an, der auf g liegt.',
-    loesung: 'Im Heft steht: „Die Richtungsvektoren sind keine Vielfachen voneinander, also sind g und h windschief. Ein Punkt auf g ist der Stützpunkt P."',
+    loesung: 'Im Heft steht: „Die Richtungsvektoren sind keine Vielfachen voneinander, also sind g und h windschief. Ein Punkt auf g ist der Stützpunkt P.“',
     r: 'Der Nachweis ist lückenhaft: Es muss noch gezeigt werden, dass die Geraden keinen gemeinsamen Punkt haben (Gleichsetzen führt zum Widerspruch).',
-    f: [['Für den Punkt P fehlt die Rechnung, mit der er gefunden wurde.', 'Bei „Angeben" genügt das Ergebnis – ohne Rechenweg und ohne Begründung.'], ['Nichts – nicht parallele Geraden im Raum sind immer windschief.', 'Nicht parallele Geraden können sich auch schneiden. Genau das muss ausgeschlossen werden.'], ['Es fehlt eine Skizze der beiden Geraden im Koordinatensystem.', 'Eine Skizze ist nicht verlangt und würde den Nachweis auch nicht ersetzen.']],
-    kern: ['„Zeigen": lückenlos bestätigen. Windschief heißt: nicht parallel <b>und</b> kein Schnittpunkt – der zweite Teil fehlt.', '„Angeben": Der Punkt darf ohne jede Rechnung genannt werden – das ist erfüllt.'] },
-  { aufgabe: 'Berechnen Sie die Wahrscheinlichkeit für höchstens 3 Treffer und beurteilen Sie die Aussage: „Mehr als 3 Treffer sind praktisch ausgeschlossen."',
-    loesung: 'Im Heft steht nur: „Die Wahrscheinlichkeit beträgt etwa 0,65. Die Aussage ist falsch."',
+    f: [['Für den Punkt P fehlt die Rechnung, mit der er gefunden wurde.', 'Bei „Angeben“ genügt das Ergebnis – ohne Rechenweg und ohne Begründung.'], ['Nichts – nicht parallele Geraden im Raum sind immer windschief.', 'Nicht parallele Geraden können sich auch schneiden. Genau das muss ausgeschlossen werden.'], ['Es fehlt eine Skizze der beiden Geraden im Koordinatensystem.', 'Eine Skizze ist nicht verlangt und würde den Nachweis auch nicht ersetzen.']],
+    kern: ['„Zeigen“: lückenlos bestätigen. Windschief heißt: nicht parallel <b>und</b> kein Schnittpunkt – der zweite Teil fehlt.', '„Angeben“: Der Punkt darf ohne jede Rechnung genannt werden – das ist erfüllt.'] },
+  { aufgabe: 'Berechnen Sie die Wahrscheinlichkeit für höchstens 3 Treffer und beurteilen Sie die Aussage: ‚Mehr als 3 Treffer sind praktisch ausgeschlossen.‘',
+    loesung: 'Im Heft steht nur: „Die Wahrscheinlichkeit beträgt etwa 0,65. Die Aussage ist falsch.“',
     r: 'Es fehlen der Ansatz der Rechnung und die Begründung des Urteils (zum Beispiel: Die Gegenwahrscheinlichkeit von etwa 0,35 ist nicht klein).',
-    f: [['Es fehlt nur die Begründung des Urteils – bei „Berechnen" genügt das Ergebnis.', 'Bei „Berechnen" muss der Rechenweg erkennbar sein, mindestens der Ansatz.'], ['Es fehlt nur der Ansatz der Rechnung – ein Urteil braucht keine Begründung.', '„Beurteilen" verlangt ein <b>begründetes</b> Urteil auf Grundlage von Fachwissen.'], ['Nichts – Ergebnis und Urteil sind richtig, das genügt.', 'Richtig allein genügt nicht: Beide Operatoren verlangen mehr als das bloße Ergebnis.']],
-    kern: ['„Berechnen": Der Rechenweg muss erkennbar sein – hier steht nur das Ergebnis.', '„Beurteilen": ein begründetes Urteil – hier steht nur das Urteil.'] },
+    f: [['Es fehlt nur die Begründung des Urteils – bei „Berechnen“ genügt das Ergebnis.', 'Bei „Berechnen“ muss der Rechenweg erkennbar sein, mindestens der Ansatz.'], ['Es fehlt nur der Ansatz der Rechnung – ein Urteil braucht keine Begründung.', '„Beurteilen“ verlangt ein <b>begründetes</b> Urteil auf Grundlage von Fachwissen.'], ['Nichts – Ergebnis und Urteil sind richtig, das genügt.', 'Richtig allein genügt nicht: Beide Operatoren verlangen mehr als das bloße Ergebnis.']],
+    kern: ['„Berechnen“: Der Rechenweg muss erkennbar sein – hier steht nur das Ergebnis.', '„Beurteilen“: ein begründetes Urteil – hier steht nur das Urteil.'] },
   { aufgabe: 'Skizzieren Sie den Graphen von f und begründen Sie, dass f genau zwei Nullstellen hat.',
-    loesung: 'Im Heft ist der Graph mit einer Wertetabelle millimetergenau gezeichnet. Darunter steht: „Man sieht in der Zeichnung zwei Nullstellen."',
+    loesung: 'Im Heft ist der Graph mit einer Wertetabelle millimetergenau gezeichnet. Darunter steht: „Man sieht in der Zeichnung zwei Nullstellen.“',
     r: 'Die Begründung fehlt: Ablesen aus der Zeichnung ist kein Zurückführen auf Eigenschaften der Funktion (zum Beispiel Vorzeichen, Monotonie, Extrempunkte).',
-    f: [['Die Zeichnung ist zu genau – für eine Skizze gibt es deshalb Punktabzug.', 'Mehr Genauigkeit als verlangt kostet Zeit, aber keine Punkte.'], ['Nichts – die Zeichnung belegt die zwei Nullstellen.', 'Eine Zeichnung zeigt nur einen Ausschnitt; „Begründen" verlangt ein Argument, das für die ganze Funktion gilt.'], ['Die Nullstellen müssen noch auf zwei Nachkommastellen berechnet werden.', 'Gefragt ist die Anzahl der Nullstellen, nicht ihr Wert.']],
-    kern: ['„Skizzieren": qualitativ richtig genügt – die genaue Zeichnung erfüllt das erst recht.', '„Begründen": auf Regeln oder Zusammenhänge zurückführen – „man sieht es" ist kein Argument.'] },
+    f: [['Die Zeichnung ist zu genau – für eine Skizze gibt es deshalb Punktabzug.', 'Mehr Genauigkeit als verlangt kostet Zeit, aber keine Punkte.'], ['Nichts – die Zeichnung belegt die zwei Nullstellen.', 'Eine Zeichnung zeigt nur einen Ausschnitt; „Begründen“ verlangt ein Argument, das für die ganze Funktion gilt.'], ['Die Nullstellen müssen noch auf zwei Nachkommastellen berechnet werden.', 'Gefragt ist die Anzahl der Nullstellen, nicht ihr Wert.']],
+    kern: ['„Skizzieren“: qualitativ richtig genügt – die genaue Zeichnung erfüllt das erst recht.', '„Begründen“: auf Regeln oder Zusammenhänge zurückführen – „man sieht es“ ist kein Argument.'] },
   { aufgabe: 'Untersuchen Sie die Funktion f auf Symmetrie und geben Sie ihren Grenzwert für x gegen unendlich an.',
-    loesung: 'Im Heft steht: „f ist achsensymmetrisch zur y-Achse. Der Grenzwert ist 2."',
+    loesung: 'Im Heft steht: „f ist achsensymmetrisch zur y-Achse. Der Grenzwert ist 2.“',
     r: 'Die Untersuchung fehlt: Das Kriterium für die Symmetrie (f(−x) mit f(x) vergleichen) muss sichtbar angewendet werden.',
-    f: [['Die Herleitung des Grenzwerts fehlt.', 'Bei „Angeben" genügt das Ergebnis ohne Herleitung.'], ['Nichts – beide Ergebnisse stehen da.', '„Untersuchen" verlangt, die Eigenschaft nach einem Kriterium herauszuarbeiten – nicht nur das Ergebnis.'], ['Beides fehlt: die Symmetrie-Rechnung und die Herleitung des Grenzwerts.', 'Nur die Symmetrie muss nachvollziehbar untersucht werden; der Grenzwert darf einfach angegeben werden.']],
-    kern: ['„Untersuchen": nach einem Kriterium herausarbeiten – hier steht nur die Behauptung.', '„Angeben": Ergebnis ohne Rechenweg – der Grenzwert ist damit vollständig.'] },
+    f: [['Die Herleitung des Grenzwerts fehlt.', 'Bei „Angeben“ genügt das Ergebnis ohne Herleitung.'], ['Nichts – beide Ergebnisse stehen da.', '„Untersuchen“ verlangt, die Eigenschaft nach einem Kriterium herauszuarbeiten – nicht nur das Ergebnis.'], ['Beides fehlt: die Symmetrie-Rechnung und die Herleitung des Grenzwerts.', 'Nur die Symmetrie muss nachvollziehbar untersucht werden; der Grenzwert darf einfach angegeben werden.']],
+    kern: ['„Untersuchen“: nach einem Kriterium herausarbeiten – hier steht nur die Behauptung.', '„Angeben“: Ergebnis ohne Rechenweg – der Grenzwert ist damit vollständig.'] },
 ];
 
 /**
@@ -2155,33 +2155,33 @@ export function genOperator(lv = 3) {
   if (lv >= 5) {
     const F = pick(OP_FALL);
     const opts = [{ tex: F.r, html: F.r, key: 'richtig', correct: true }, ...F.f.map(([t, why], i) => ({ tex: t, html: t, key: `falsch${i + 1}`, correct: false, why }))];
-    return { prompt: `In der Prüfung steht: <b>„${F.aufgabe}"</b> ${F.loesung} Was fehlt für die volle Punktzahl?`, options: shuffle(opts),
+    return { prompt: `In der Prüfung steht: <b>„${F.aufgabe}“</b> ${F.loesung} Was fehlt für die volle Punktzahl?`, options: shuffle(opts),
       hints: ['Die Aufgabe enthält zwei Operatoren. Kläre für jeden einzeln, was er verlangt.', F.kern[0], F.kern[1], 'Vergleiche erst danach mit dem, was im Heft steht.'],
       explain: `${F.kern[0]} ${F.kern[1]} Deshalb: ${F.r}`, expect: 'richtig', kind: 'fall' };
   }
   if (lv === 4) {
     const [a, b, recht, tausch, f1, f2] = pick(OP_PAAR), A = OPERATOREN[a][0], B = OPERATOREN[b][0];
-    const opts = [{ tex: recht, html: recht, key: 'richtig', correct: true }, { tex: tausch, html: tausch, key: 'vertauscht', correct: false, why: `Genau umgekehrt: „${A}" – ${OPERATOREN[a][1]}` },
-      { tex: f1, html: f1, key: 'falsch1', correct: false, why: `Das trifft auf keinen der beiden zu. „${B}": ${OPERATOREN[b][1]}` }, { tex: f2, html: f2, key: 'falsch2', correct: false, why: `Das trifft auf keinen der beiden zu. „${A}": ${OPERATOREN[a][1]}` }];
-    return { prompt: `In einer Prüfung steht in Teil a) der Operator <b>„${A}"</b> und in Teil b) <b>„${B}"</b>. Worin liegt der Unterschied?`, options: shuffle(opts),
-      hints: [`Kläre jeden Operator für sich. „${A}": Was muss am Ende auf dem Blatt stehen?`, `Und bei „${B}"?`, 'Achte auf die Zuordnung: In mehreren Antworten stehen dieselben Bausteine, aber beim falschen Operator.'],
-      explain: `„${A}": ${OPERATOREN[a][1]} „${B}": ${OPERATOREN[b][1]} Der Unterschied: ${recht}`, expect: 'richtig', kind: 'paar' };
+    const opts = [{ tex: recht, html: recht, key: 'richtig', correct: true }, { tex: tausch, html: tausch, key: 'vertauscht', correct: false, why: `Genau umgekehrt: „${A}“ – ${OPERATOREN[a][1]}` },
+      { tex: f1, html: f1, key: 'falsch1', correct: false, why: `Das trifft auf keinen der beiden zu. „${B}“: ${OPERATOREN[b][1]}` }, { tex: f2, html: f2, key: 'falsch2', correct: false, why: `Das trifft auf keinen der beiden zu. „${A}“: ${OPERATOREN[a][1]}` }];
+    return { prompt: `In einer Prüfung steht in Teil a) der Operator <b>„${A}“</b> und in Teil b) <b>„${B}“</b>. Worin liegt der Unterschied?`, options: shuffle(opts),
+      hints: [`Kläre jeden Operator für sich. „${A}“: Was muss am Ende auf dem Blatt stehen?`, `Und bei „${B}“?`, 'Achte auf die Zuordnung: In mehreren Antworten stehen dieselben Bausteine, aber beim falschen Operator.'],
+      explain: `„${A}“: ${OPERATOREN[a][1]} „${B}“: ${OPERATOREN[b][1]} Der Unterschied: ${recht}`, expect: 'richtig', kind: 'paar' };
   }
   const pool = OPERATOREN.slice(0, lv <= 1 ? 7 : 12);
   const right = ri(0, pool.length - 1), nah = OP_NACHBAR[right];
   const rest = shuffle(pool.map((_, i) => i).filter((i) => i !== right && !(lv >= 2 && i === nah)));
   const idx = lv <= 1 ? [right, ...rest.slice(0, 3)] : [right, nah, ...rest.slice(0, 2)];
-  const options = shuffle(idx).map((i) => ({ tex: pool[i][1], html: pool[i][1], key: pool[i][0], correct: i === right, why: `Das beschreibt „${pool[i][0]}".` }));
-  if (lv <= 1) return { prompt: `Was verlangt der Operator <b>„${pool[right][0]}"</b>?`, options,
+  const options = shuffle(idx).map((i) => ({ tex: pool[i][1], html: pool[i][1], key: pool[i][0], correct: i === right, why: `Das beschreibt „${pool[i][0]}“.` }));
+  if (lv <= 1) return { prompt: `Was verlangt der Operator <b>„${pool[right][0]}“</b>?`, options,
     hints: ['Achte darauf, ob ein Rechenweg, eine Begründung oder nur das Ergebnis verlangt ist.', 'Vergleiche mit ähnlichen Operatoren: Wo liegt der Unterschied?'],
-    explain: `„${pool[right][0]}": ${pool[right][1]}`, expect: pool[right][0] };
-  const abgrenzung = `Leicht zu verwechseln mit „${pool[nah][0]}": ${pool[nah][1]}`;
-  if (lv === 2) return { prompt: `Was verlangt der Operator <b>„${pool[right][0]}"</b>?`, options,
-    hints: ['Achte darauf, ob ein Rechenweg, eine Begründung oder nur das Ergebnis verlangt ist.', `Zwei Antworten klingen ähnlich. Eine davon gehört zu „${pool[nah][0]}".`, 'Suche das Wort, in dem sich die beiden ähnlichen Antworten unterscheiden.'],
-    explain: `„${pool[right][0]}": ${pool[right][1]} ${abgrenzung}`, expect: pool[right][0] };
-  return { prompt: `In einer Prüfung steht: <b>„${OP_BEISPIEL[right]}"</b> Was wird damit verlangt?`, options,
-    hints: ['Suche zuerst den Operator: das Verb, das sagt, was zu tun ist.', `Der Operator ist „${pool[right][0].split(' / ')[0]}".`, `Zwei Antworten klingen ähnlich. Eine davon gehört zu „${pool[nah][0]}".`, 'Überlege, was am Ende auf dem Blatt stehen muss: nur ein Ergebnis, ein Rechenweg, eine Zeichnung, ein Text?'],
-    explain: `Der Operator ist „${pool[right][0]}": ${pool[right][1]} ${abgrenzung}`, expect: pool[right][0], kind: 'beispiel' };
+    explain: `„${pool[right][0]}“: ${pool[right][1]}`, expect: pool[right][0] };
+  const abgrenzung = `Leicht zu verwechseln mit „${pool[nah][0]}“: ${pool[nah][1]}`;
+  if (lv === 2) return { prompt: `Was verlangt der Operator <b>„${pool[right][0]}“</b>?`, options,
+    hints: ['Achte darauf, ob ein Rechenweg, eine Begründung oder nur das Ergebnis verlangt ist.', `Zwei Antworten klingen ähnlich. Eine davon gehört zu „${pool[nah][0]}“.`, 'Suche das Wort, in dem sich die beiden ähnlichen Antworten unterscheiden.'],
+    explain: `„${pool[right][0]}“: ${pool[right][1]} ${abgrenzung}`, expect: pool[right][0] };
+  return { prompt: `In einer Prüfung steht: <b>„${OP_BEISPIEL[right]}“</b> Was wird damit verlangt?`, options,
+    hints: ['Suche zuerst den Operator: das Verb, das sagt, was zu tun ist.', `Der Operator ist „${pool[right][0].split(' / ')[0]}“.`, `Zwei Antworten klingen ähnlich. Eine davon gehört zu „${pool[nah][0]}“.`, 'Überlege, was am Ende auf dem Blatt stehen muss: nur ein Ergebnis, ein Rechenweg, eine Zeichnung, ein Text?'],
+    explain: `Der Operator ist „${pool[right][0]}“: ${pool[right][1]} ${abgrenzung}`, expect: pool[right][0], kind: 'beispiel' };
 }
 
 /* ───────────── Themen-Namen ───────────── */

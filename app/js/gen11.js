@@ -8,7 +8,7 @@ import { uniq } from './gen.js';
 
 const EB = ['x_2x_3', 'x_1x_3', 'x_1x_2'];   // Koordinatenebene, in der die i-te Koordinate 0 ist
 const AX = ['x_1', 'x_2', 'x_3'];
-const T = (t, correct, why) => ({ tex: t, correct, why });
+const T = (t, correct, why) => ({ tex: t, correct, why: correct ? undefined : why });   // Diagnosen nur für Ablenker
 const K = (v) => `(${v.map((c) => (typeof c === 'string' ? c : ft(c))).join('\\mid ')})`;
 const P = (n, v) => `${n}${K(v)}`;
 const V = (v) => `\\begin{pmatrix}${v.map((c) => (typeof c === 'string' ? c : ft(c))).join('\\\\')}\\end{pmatrix}`;
@@ -30,7 +30,7 @@ const bau = (formen) => (lv = 3) => { const liste = formen[stufe(lv) - 1]; for (
 const kp1 = () => { const i = ri(0, 2), p = [nz(6), nz(6), nz(6)]; p[i] = 0;
   const opts = [0, 1, 2].map((j) => T(`\\text{in der }${EB[j]}\\text{-Ebene}`, j === i, `In der ${tex(EB[j])}-Ebene ist ${tex(`${AX[j]}=0`)} – hier ist aber ${tex(`${AX[j]}=${p[j]}`)}.`));
   opts.push(T('\\text{in keiner Koordinatenebene}', false, `Eine Koordinate ist 0 – der Punkt liegt in einer Koordinatenebene.`));
-  return A(`In welcher Koordinatenebene liegt der Punkt ${tex(P('P', p))}?`, undefined, opts, ['Welche Koordinate ist 0? Die Ebene heißt nach den beiden anderen Koordinaten.'], `Wegen ${tex(`${AX[i]}=0`)} liegt ${tex('P')} in der ${tex(EB[i])}-Ebene.`, 'ebene', { p, i }); };
+  return A(`In welcher Koordinatenebene liegt der Punkt ${tex(P('P', p))}?`, undefined, opts, ['Welche Koordinate ist 0? Die Ebene heißt nach den beiden anderen Koordinaten.', `Zum Beispiel liegt jeder Punkt mit ${tex('x_3=0')} in der ${tex('x_1x_2')}-Ebene.`], `Wegen ${tex(`${AX[i]}=0`)} liegt ${tex('P')} in der ${tex(EB[i])}-Ebene.`, 'ebene', { p, i }); };
 const kp2 = () => { const k = ri(0, 2), [i, j] = [0, 1, 2].filter((x) => x !== k), c = nz(7), r = [0, 0, 0]; r[k] = c;
   const e = [nz(6), nz(6), nz(6)]; e[i] = 0; e[k] = c; const f = [0, 0, 0]; f[i] = c; const g = [nz(6), nz(6), nz(6)]; g[k] = c;
   return A(`Welcher Punkt liegt auf der ${tex(AX[k])}-Achse?`, undefined, [T(K(r), true), T(K(e), false, `Hier ist nur ${tex(`${AX[i]}=0`)}. Der Punkt liegt in der ${tex(EB[i])}-Ebene, aber nicht auf der Achse.`), T(K(f), false, `Dieser Punkt liegt auf der ${tex(AX[i])}-Achse.`), T(K(g), false, `Auf der ${tex(AX[k])}-Achse müssen die beiden anderen Koordinaten 0 sein.`)],
@@ -204,7 +204,7 @@ const ko4 = () => { const Ap = [ri(-4, 4), ri(-4, 4), ri(-4, 4)], u = mal(2, [nz
     `Faktor ${tex(`${ft(k)}`)} aus den ersten beiden Zeilen; dritte Zeile: ${tex(`c=${Ap[2]}+${kl(k)}\\cdot ${kl(u[2])}=${ft(c)}`)}.`, 'fehlt', { A: Ap, B, C, c }); };
 const ko5 = () => { const Ap = [ri(-4, 4), ri(-4, 4), ri(-4, 4)], u = mal(2, [nz(3), nz(3), nz(3)]), k = pick([2.5, -1.5, 1.5, -0.5, 3.5, -2.5]), B = add(Ap, u), C = add(Ap, mal(k, u)), a = C[1], b = C[2];
   const o = [[a, b, true], [a, Ap[2] - k * u[2], false, `Derselbe Faktor ${tex(`${ft(k)}`)} gilt auch in der dritten Zeile – mit demselben Vorzeichen.`], [k * u[1], k * u[2], false, `Das sind die Koordinaten von ${tex(vek('AC'))}. Die Koordinaten von ${tex('A')} kommen noch dazu.`], [Ap[1] + (k + 1) * u[1], Ap[2] + (k + 1) * u[2], false, `Gerechnet wird von ${tex('A')} aus, nicht von ${tex('B')} aus.`]];
-  return A(`Bestimme ${tex('a')} und ${tex('b')} so, dass ${tex('A')}, ${tex('B')} und ${tex('C')} auf einer Geraden liegen. In welchem Verhältnis stehen dann ${tex(vek('AC'))} und ${tex(vek('AB'))}?`, zeilen(`${P('A', Ap)},\\quad ${P('B', B)}`, P('C', [C[0], 'a', 'b'])), o.map(([x, y, r, w]) => T(`a=${ft(x)},\\ b=${ft(y)}`, r, w)),
+  return A(`Bestimme ${tex('a')} und ${tex('b')} so, dass ${tex('A')}, ${tex('B')} und ${tex('C')} auf einer Geraden liegen.`, zeilen(`${P('A', Ap)},\\quad ${P('B', B)}`, P('C', [C[0], 'a', 'b'])), o.map(([x, y, r, w]) => T(`a=${ft(x)},\\ b=${ft(y)}`, r, w)),
     [`${tex(vek('AC'))} muss ein Vielfaches von ${tex(vek('AB'))} sein: ${tex(`${vek('AB')}=${V(u)}`)}, ${tex(`${vek('AC')}=${V([C[0] - Ap[0], `a${pm(-Ap[1])}`, `b${pm(-Ap[2])}`])}`)}.`, `Zeile 1 liefert den Faktor: ${tex(`k=${kl(C[0] - Ap[0])}:${kl(u[0])}=${ft(k)}`)}.`, `Zeile 2: ${tex(`a${pm(-Ap[1])}=${ft(k)}\\cdot ${kl(u[1])}=${ft(k * u[1])}`)}, also ${tex(`a=${ft(a)}`)}.`, `Zeile 3: ${tex(`b${pm(-Ap[2])}=${ft(k)}\\cdot ${kl(u[2])}=${ft(k * u[2])}`)}, also ${tex(`b=${ft(b)}`)}.`, `Probe: ${tex(`${vek('AC')}=${V(sub(C, Ap))}=${ft(k)}\\cdot ${V(u)}`)}${k < 0 ? ` – ${tex('C')} liegt von ${tex('A')} aus auf der anderen Seite als ${tex('B')}` : ` – ${tex('C')} liegt hinter ${tex('B')}`}.`],
     `Faktor ${tex(`k=${ft(k)}`)} aus Zeile 1; damit ${tex(`a=${Ap[1]}+${kl(k)}\\cdot ${kl(u[1])}=${ft(a)}`)} und ${tex(`b=${Ap[2]}+${kl(k)}\\cdot ${kl(u[2])}=${ft(b)}`)}.`, 'zweifehlen', { A: Ap, B, C, a, b, k }); };
 export const genKollinear = bau([[ko(2, [2, 3], false)], [ko(3, [2, 3, -1, -2], false)], [ko(3, [1.5, -0.5, 2.5, 0.5, -1.5], true)], [ko4], [ko5]]);
