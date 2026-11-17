@@ -1,6 +1,6 @@
 // Theorie zur Übung: öffnet das passende Kapitel als Fenster über der Aufgabe.
 // Die Runde bleibt darunter stehen – nach dem Schließen geht es genau dort weiter (kein Seitenwechsel, kein verlorener Fortschritt).
-import { h, esc, sfx, formelnEinpassen } from './ui.js';
+import { h, esc, sfx, formelnEinpassen, vorleseKnoepfe, vorleseStopp } from './ui.js';
 import { UNITS } from './units.js';
 import { premiumBereit } from './api.js';
 import { merkbilderEinsetzen } from './merkbild.js';
@@ -36,14 +36,14 @@ export async function theorieOeffnen(id, zurueck = null) {
   const text = fenster.querySelector('#tf-text'), pro = fenster.querySelector('#tf-pro');
   const zeige = (lang) => {
     fenster.querySelectorAll('#tf-art .pick').forEach((b) => { const an = (b.dataset.l === '1') === lang; b.classList.toggle('sel', an); b.setAttribute('aria-checked', an); });
-    text.innerHTML = T.kapitelHtml(u, lang); merkbilderEinsetzen(text); formelnEinpassen();
+    text.innerHTML = T.kapitelHtml(u, lang); merkbilderEinsetzen(text); vorleseKnoepfe(text); formelnEinpassen();
   };
   fenster.querySelectorAll('#tf-art .pick').forEach((b) => { b.onclick = async () => {
     const will = b.dataset.l === '1'; pro.innerHTML = '';
     if (will) { await premiumBereit(); if (!T.proOffen()) { pro.innerHTML = '<div class="note tip"><b>Die ausführliche Fassung gehört zur Pro-Fassung.</b> Die kurze Fassung enthält schon alles Wichtige.</div>'; return; } }
     zeige(will);
   }; });
-  const zu = () => { fenster.remove(); removeEventListener('hashchange', zu); removeEventListener('keydown', taste); if (zurueck?.isConnected) zurueck.focus(); };
+  const zu = () => { vorleseStopp(); fenster.remove(); removeEventListener('hashchange', zu); removeEventListener('keydown', taste); if (zurueck?.isConnected) zurueck.focus(); };
   const taste = (ev) => { if (ev.key === 'Escape') zu(); };
   fenster.querySelector('#tf-zu').onclick = zu;
   addEventListener('hashchange', zu); addEventListener('keydown', taste);

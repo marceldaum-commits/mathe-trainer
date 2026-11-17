@@ -19,6 +19,7 @@ const STUECKE = [
 ];
 const PENTA = [62, 64, 66, 69, 71, 74, 76, 78];   // D-Dur-Pentatonik für die Melodie (klingt über allen Akkorden ruhig)
 
+let geduckt = false;   // solange vorgelesen wird, spielt die Musik leiser
 let a = null, laeuft = false, timer = 0, stueck = null, takt = 0, naechster = 0, pauseBis = 0, runde = 0;
 
 function flaeche(t0, dauer, toene) {
@@ -60,8 +61,9 @@ function planen() {
 function lautstaerke(an) {
   const g = a.musik.gain, t = a.ac.currentTime;
   g.cancelScheduledValues(t); g.setValueAtTime(g.value, t);
-  g.linearRampToValueAtTime(an ? klang.musikVol * 1.6 : 0, t + (an ? 2.5 : 0.8));
+  g.linearRampToValueAtTime(an ? klang.musikVol * 1.6 * (geduckt ? 0.25 : 1) : 0, t + (an ? (geduckt ? 0.4 : 2.5) : 0.8));
 }
+if (typeof window !== 'undefined') addEventListener('mt-spricht', (e) => { geduckt = !!e.detail; if (laeuft) lautstaerke(true); });
 /** Musik an oder aus – je nach Einstellung, Stummschaltung, Prüfung und ob die App sichtbar ist. */
 export function musikStimmen() {
   const soll = klang.musik && !klang.stumm && document.visibilityState !== 'hidden';

@@ -36,12 +36,18 @@ export function codeNorm(s) {
 export const kaufLinks = () => `${premiumOn() ? ' <a href="#/einstellungen">Zugangscode eingeben</a>' : ''}${typeof window !== 'undefined' && window.MTApp ? '' : ` <a href="${CONFIG.shop}" target="_blank" rel="noopener">Pro holen</a>`}`;
 export const ZUGANG_ART = { pass: 'Abi-Pass', tage30: '30-Tage-Pass', frei: 'Freier Zugang' };
 
+/** Übrige KI-Punkte von heute: der letzte Stand, den der Server gemeldet hat (null = heute noch keiner gemeldet). */
+const REST_KEY = 'mt.kirest', heute = () => new Date().toLocaleDateString('sv-SE');
+function kiRestMerken(rest) { try { localStorage.setItem(REST_KEY, JSON.stringify({ tag: heute(), rest })); } catch { /* egal */ } }
+export function kiRestHeute() { try { const r = JSON.parse(localStorage.getItem(REST_KEY) || 'null'); return r && r.tag === heute() && Number.isInteger(r.rest) ? r.rest : null; } catch { return null; } }
+
 async function call(path, body) {
   if (!serverOn()) return { ok: false, off: true };
   try {
     const res = await fetch(`${CONFIG.api}${path}`, body === undefined ? { headers: { Accept: 'application/json' } }
       : { method: 'POST', headers: { 'Content-Type': 'application/json', Accept: 'application/json' }, body: JSON.stringify(body) });
     const data = await res.json().catch(() => ({}));
+    if (path.startsWith('/ki/')) { if (res.ok && Number.isInteger(data.rest) && data.rest >= 0 && data.art !== 'probe') kiRestMerken(data.rest); else if (res.status === 429) kiRestMerken(0); }
     return res.ok ? { ok: true, ...data } : { ok: false, status: res.status, error: data.error || 'Der Server hat die Anfrage abgelehnt.' };
   } catch { return { ok: false, error: 'Keine Verbindung zum Server.' }; }
 }

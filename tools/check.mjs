@@ -26,7 +26,8 @@ function walk(dir) {
 }
 const files = walk(APP).filter((f) => f !== 'sw.js' && f !== 'stand.json' && !/LICENSE/.test(f)).sort();
 // Bilder für den Installations-Dialog (img/shots) braucht die App offline nicht.
-const assets = ['./', ...files.filter((f) => f !== 'index.html' && !f.startsWith('img/shots/') && !GEBUENDELT.has(f))];
+// Die Rechen-Bausteine und das Wörterbuch der Stimme „Thorsten“ (vendor/ort, 12 MB; stimme/) lädt die App erst, wenn jemand die Stimme holt – nicht vorab in den Offline-Speicher.
+const assets = ['./', ...files.filter((f) => f !== 'index.html' && !f.startsWith('img/shots/') && !f.startsWith('vendor/ort/') && !f.startsWith('stimme/') && !GEBUENDELT.has(f))];
 
 const swPath = join(APP, 'sw.js');
 let sw = readFileSync(swPath, 'utf8');

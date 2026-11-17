@@ -12,7 +12,8 @@ import { quiz } from './quiz.js';
 import { store, LEVELS, LAENDER, KARTEI_TAGE } from './store.js';
 import { UNITS, AREAS, istOber, jgName } from './units.js';
 import { pi, HUETE, BRILLEN, outfitFrei, outfitJetzt } from './figuren.js';
-import { $, h, esc, ICON, sfx, sound, klang, toast, confetti, drucken } from './ui.js';
+import { kiPunkteText } from './pro.js';
+import { $, h, esc, ICON, sfx, sound, klang, vorlese, toast, confetti, drucken } from './ui.js';
 import { CONFIG, VERSION, STAND } from './config.js';
 import { updateStand, updateSuchen } from './update.js';
 import { merkbilderEinsetzen, hatMerkbild } from './merkbild.js';
@@ -63,6 +64,15 @@ export function settingsView() {
       <button class="schalter" id="st-pruef" type="button" role="switch" aria-checked="false"><span class="knopf" aria-hidden="true"></span><span>Klang auch in Prüfungen</span></button>
       <button class="btn ghost small" id="st-klang-probe" type="button">Probe hören</button>
       <small class="muted" id="st-klang-note">Leises Piano, eigens für den Mathe-Trainer komponiert. Die Musik startet erst, wenn du die App berührst, und macht nach jedem Stück eine Pause. Im Abi-Modus und bei der Probeklausur ist alles still, außer du schaltest „Klang auch in Prüfungen“ ein. Alles, was ein Ton meldet, siehst du auch auf dem Bildschirm.</small></section>
+    <section class="card stack" id="st-vorlesen"><h3>Vorlesen</h3>
+      <button class="schalter" id="st-vl" type="button" role="switch" aria-checked="false"><span class="knopf" aria-hidden="true"></span><span>Aufgaben und Theorie vorlesen</span></button>
+      <div class="stack" id="st-vl-mehr">
+        <div class="picks col" id="st-vl-stimme" role="radiogroup" aria-label="Stimme"></div>
+        <div id="st-vl-thorsten"></div>
+        <label class="regler"><span id="st-vl-tempo-text">Sprechtempo</span><input type="range" id="st-vl-tempo" min="70" max="130" step="5" aria-label="Sprechtempo"></label>
+        <button class="btn ghost small" id="st-vl-probe" type="button">Probe hören</button>
+      </div>
+      <small class="muted">Ein Knopf „Vorlesen“ erscheint bei jeder Aufgabe und bei jedem Theorie-Abschnitt. Vorgelesen werden Aufgabe, Antworten, der offene Tipp oder Lösungsweg – Formeln werden in Worten gesprochen. Es wird kein Text gesendet: Gerätestimmen nur, wenn sie auf dem Gerät eingebaut sind. Die Stimme „Thorsten“ kommt einmal vom Server von Mathenachhilfe Online (er sieht dabei nur die IP-Adresse) und liest danach ohne Internet.</small></section>
     <section class="card stack"><h3>Schriftgröße</h3>
       <div class="umschalt drei" id="st-schrift" role="radiogroup" aria-label="Schriftgröße"><button class="pick" type="button" role="radio" data-s="klein">Klein</button><button class="pick" type="button" role="radio" data-s="normal">Normal</button><button class="pick" type="button" role="radio" data-s="gross">Groß</button></div>
       <small class="muted">Gilt für die ganze App. Ausdrucke bleiben in normaler Größe.</small></section>
@@ -148,7 +158,7 @@ export function settingsView() {
     const box = $('#st-pro', el), stand = $('#st-pro-stand', el), pn = $('#st-pro-note', el), feld = $('#st-pro-code', el), go = $('#st-pro-go', el), zeile = $('#st-pro-zeile', el);
     const datum = (d) => d.split('-').reverse().join('.');
     const paintZ = () => { const z = store.zugang;
-      stand.innerHTML = z ? `<div class="note ${store.zugangGilt() ? 'ok' : 'tip'}"><b>${esc(ZUGANG_ART[z.art] || 'Zugang')} · ${z.ki === false ? 'Pro' : 'Pro + KI'}</b> – ${z.bis >= '9999' ? 'unbefristet gültig' : store.zugangGilt() ? `gültig bis ${esc(datum(z.bis))}` : `abgelaufen am ${esc(datum(z.bis))}`}. <button class="linkbtn" id="st-pro-weg" type="button">Code entfernen</button></div>` : '';
+      stand.innerHTML = z ? `<div class="note ${store.zugangGilt() ? 'ok' : 'tip'}"><b>${z.ki === false ? 'Pro' : 'Pro + KI'}${store.zugangGilt() ? ' aktiv ✓' : ''}</b> · ${esc(ZUGANG_ART[z.art] || 'Zugang')} – ${z.bis >= '9999' ? 'unbefristet gültig' : store.zugangGilt() ? `gültig bis ${esc(datum(z.bis))}` : `abgelaufen am ${esc(datum(z.bis))}`}${store.zugangGilt() && z.ki !== false ? `, ${kiPunkteText()}` : ''}. <button class="linkbtn" id="st-pro-weg" type="button">Code entfernen</button></div>` : '';
       zeile.hidden = !!z && store.zugangGilt();
       $('#st-pro-weg', el)?.addEventListener('click', () => { store.zugang = null; pn.innerHTML = ''; paintZ(); window.dispatchEvent(new Event('mt-ruhig')); }); };
     go.onclick = async () => {
@@ -171,6 +181,31 @@ export function settingsView() {
     if (!window.MTApp) { ub.hidden = true; un.hidden = true; }   // Web-App: aktualisiert sich von selbst, kein Knopf
     ub.onclick = () => { ub.disabled = true; un.textContent = 'Suche …';
       updateSuchen().then((r) => { ub.disabled = false; un.textContent = r.text; if (r.art === 'neu') window.dispatchEvent(new Event('mt-update')); }); }; }
+  { // Vorlesen: an/aus, Stimme (Gerät oder Thorsten), Tempo, Probe – die Wahl wird gemerkt
+    const sw = $('#st-vl', el), mehr = $('#st-vl-mehr', el), wahl = $('#st-vl-stimme', el), th = $('#st-vl-thorsten', el), tempo = $('#st-vl-tempo', el);
+    let V = null; const holen = async () => (V ||= await import('./vorlesen.js'));
+    const zeichne = async () => {
+      sw.setAttribute('aria-checked', vorlese.an); sw.classList.toggle('an', vorlese.an); mehr.hidden = !vorlese.an; tempo.value = Math.round(vorlese.tempo * 100);
+      $('#st-vl-tempo-text', el).textContent = `Sprechtempo ${Math.round(vorlese.tempo * 100)} %`;
+      if (!vorlese.an) return;
+      const M = await holen(), z = M.thorsten.zustand === 'laedt' ? 'laedt' : await M.thorsten.pruefen(), geraete = M.geraeteStimmen();
+      const opt = [['thorsten', 'Thorsten – natürliche Stimme'], ...geraete.map((v) => [`geraet:${v.voiceURI}`, `${v.name} (Gerät)`])];
+      const aktiv = vorlese.stimme && opt.some(([k]) => k === vorlese.stimme) ? vorlese.stimme : (z === 'bereit' || !geraete.length ? 'thorsten' : opt[1]?.[0]);
+      wahl.innerHTML = opt.map(([k, n]) => `<button class="pick${k === aktiv ? ' sel' : ''}" type="button" role="radio" aria-checked="${k === aktiv}" data-k="${esc(k)}">${esc(n)}</button>`).join('');
+      wahl.querySelectorAll('button').forEach((b) => { b.onclick = () => { vorlese.setze({ stimme: b.dataset.k }); sfx('tap'); zeichne(); }; });
+      th.innerHTML = z === 'bereit' ? '<div class="note ok"><b>Thorsten ist geladen</b> und liest auch ohne Internet. <button class="linkbtn" id="st-vl-weg" type="button">Stimme entfernen</button></div>'
+        : z === 'laedt' ? `<div class="note tip" role="status">Thorsten wird geladen … ${M.thorsten.prozent} % <button class="linkbtn" id="st-vl-stopp" type="button">Abbrechen</button></div>`
+        : z === 'geht-nicht' ? '<small class="muted">Thorsten läuft in diesem Browser nicht. Es liest die Stimme des Geräts.</small>'
+        : `${z === 'fehler' ? `<div class="note tip">${esc(M.thorsten.grund)}</div>` : ''}<button class="btn small" id="st-vl-laden" type="button">Thorsten laden (ca. 75 MB)</button><small class="muted"> Am besten im WLAN. Danach liest er ohne Internet.</small>${geraete.length ? '' : '<div class="note tip">Auf diesem Gerät gibt es keine eingebaute deutsche Stimme – zum Vorlesen bitte Thorsten laden.</div>'}`;
+      $('#st-vl-laden', th)?.addEventListener('click', () => { M.thorsten.laden(() => { if (el.isConnected) zeichne(); }); zeichne(); });
+      $('#st-vl-stopp', th)?.addEventListener('click', () => M.thorsten.abbrechen());
+      $('#st-vl-weg', th)?.addEventListener('click', async () => { await M.thorsten.entfernen(); zeichne(); });
+    };
+    sw.onclick = () => { vorlese.setze({ an: !vorlese.an }); sfx('tap'); zeichne(); };
+    tempo.oninput = () => { vorlese.setze({ tempo: tempo.value / 100 }); $('#st-vl-tempo-text', el).textContent = `Sprechtempo ${tempo.value} %`; };
+    $('#st-vl-probe', el).onclick = async () => { const M = await holen(); const wer = await M.sprich('Hallo! So klinge ich. Die Ableitung von f von x gleich x Quadrat ist 2 x.'); if (!wer) toast('Keine Stimme verfügbar – bitte Thorsten laden.'); };
+    if ('speechSynthesis' in window) speechSynthesis.addEventListener?.('voiceschanged', () => { if (el.isConnected) zeichne(); });
+    zeichne(); }
   { // Klang: Effekte und Lernmusik getrennt, eigene Lautstärke, gemerkt; der Lautsprecher oben schaltet alles stumm
     const sch = [['#st-fx', 'fx'], ['#st-musik', 'musik'], ['#st-pruef', 'pruefung']], note = $('#st-klang-note', el), fv = $('#st-fx-vol', el), mv = $('#st-musik-vol', el);
     const paintK = () => { sch.forEach(([id, k]) => { const b = $(id, el); b.setAttribute('aria-checked', klang[k]); b.classList.toggle('an', klang[k]); });

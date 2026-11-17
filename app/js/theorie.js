@@ -1,7 +1,7 @@
 // Theorie zum Nachlesen: jede Einheit als Kapitel in zwei Längen.
 // „Kurz“ entsteht aus den Erklär-Karten und Formeln der Einheit (immer aktuell, für alle).
 // „Ausführlich“ ist eigens geschriebener Text mit Herleitung und durchgerechnetem Beispiel (Pro) – wächst Thema für Thema.
-import { $, h, tex, esc, ICON, sfx, drucken } from './ui.js';
+import { $, h, tex, esc, ICON, sfx, drucken, vorleseKnoepfe } from './ui.js';
 import { MEHR } from './theorie-mehr.js';
 import { store } from './store.js';
 import { UNITS, AREAS, unitExtra, NICHT_TEXT } from './units.js';
@@ -381,6 +381,7 @@ function kapitelView(u, startLang) {
     el.querySelectorAll('#t-art .pick').forEach((b) => { const on = (b.dataset.l === '1') === lang; b.classList.toggle('sel', on); b.setAttribute('aria-checked', on); });
     $('#t-text', el).innerHTML = kapitelHtml(u, lang);
     merkbilderEinsetzen($('#t-text', el));   // bewegte Merkbilder unter die passenden Formeln
+    vorleseKnoepfe($('#t-text', el));
   };
   el.querySelectorAll('#t-art .pick').forEach((b) => { b.onclick = async () => {
     const will = b.dataset.l === '1'; sfx('tap'); pro.innerHTML = '';

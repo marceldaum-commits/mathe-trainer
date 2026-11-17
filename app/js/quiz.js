@@ -1,6 +1,6 @@
 // Aufgaben-Runde: Auswahl- und Lücken-Aufgaben mit gestuften Tipps und Fehler-Diagnose.
 import { Plot } from './plot.js';
-import { h, tex, cssVar, buzz, sfx, funken } from './ui.js';
+import { h, tex, cssVar, buzz, sfx, funken, vorleseKnopf, vorlies, vorleseStopp } from './ui.js';
 import { store } from './store.js';
 import { CONFIG } from './config.js';
 import { ft } from './math.js';
@@ -88,11 +88,12 @@ export function quiz(sequence, opts = {}) {
           ${q.formula ? `<div class="formula" id="q-f">${tex(q.formula, true)}</div>` : ''}
           <div id="q-body"></div>
           <div id="q-note"></div>
-          <div class="row"><button class="btn ghost small" id="q-tip" type="button" ${lv >= 5 ? 'hidden' : ''}>Tipp</button>${opts.theorie === false || ctx.mitTheorie ? '' : theorieKnopf(einheitZu(q.gen))}<span class="grow"></span>
+          <div class="row"><button class="btn ghost small" id="q-tip" type="button" ${lv >= 5 ? 'hidden' : ''}>Tipp</button>${opts.theorie === false || ctx.mitTheorie ? '' : theorieKnopf(einheitZu(q.gen))}${vorleseKnopf('Aufgabe vorlesen')}<span class="grow"></span>
             <button class="btn" id="q-next" type="button" hidden>Weiter</button></div>
         </div>`;
       const body = el.querySelector('#q-body'), note = el.querySelector('#q-note'), next = el.querySelector('#q-next'), tip = el.querySelector('#q-tip');
       theorieKnoepfe(el);   // Theorie zur Aufgabe als Fenster – die Runde bleibt stehen
+      vorleseStopp(); { const vk = el.querySelector('.q .vl-knopf'); if (vk) vk.onclick = () => vorlies(el.querySelector('.q'), vk); }   // liest Aufgabe, Antworten und den gerade offenen Tipp bzw. Lösungsweg
 
       if (q.graph) {
         plot = new Plot(el.querySelector('canvas'), q.graph.view);

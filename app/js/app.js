@@ -4,7 +4,7 @@ import { quiz } from './quiz.js';
 import { initMelden } from './melden.js';
 import { abenteuerView } from './abenteuer.js';
 import { blattView } from './blatt.js';
-import { proView } from './pro.js';
+import { proView, proAbzeichen } from './pro.js';
 import { kiAufgabeView } from './kiaufgabe.js';
 import { kartenView, faellig } from './karten.js';
 import { karteView } from './karte.js';
@@ -136,6 +136,7 @@ function home() {
     <section class="hero ${started ? 'klein' : ''}">
       <span class="eyebrow">${istOber() ? 'Oberstufen-Mathe zum Anfassen' : jung() ? `${jgName(store.jahrgang)} · Los geht's!` : 'Mathe zum Anfassen'}</span>
       <h1>${jung() ? 'Mathe zum <br><span class="orange">Ausprobieren.</span>' : 'Verstehen <br>schafft <span class="orange">Sicherheit.</span>'}</h1>
+      ${proAbzeichen()}
       ${store.jahrgangGewaehlt ? `<a class="jg-chip" id="jg-chip" href="#/stufe" aria-label="Klassenstufe wechseln">${esc(jgName(store.jahrgang))} <span aria-hidden="true">▾</span></a>` : ''}
       ${started || (jung() && store.jahrgangGewaehlt) ? `<div class="pi-gruss" id="pi-gruss"><span class="pi-fig">${pi()}</span><p class="blase">${esc(started ? piSagt(spot) : 'Hallo, ich bin Pi! Ich zeig dir, wie Mathe funktioniert. Probier einfach aus – falsch machen kannst du nichts.')}</p></div>` : ''}
     </section>

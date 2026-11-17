@@ -2,7 +2,7 @@
 import { h, esc, ICON } from './ui.js';
 import { store } from './store.js';
 import { CONFIG } from './config.js';
-import { premiumOn, premiumBereit, ZUGANG_ART } from './api.js';
+import { premiumOn, premiumBereit, ZUGANG_ART, kiRestHeute } from './api.js';
 
 /** Alle Funktionen mit ihrer Stufe. wo = Sprungziel in der App (leer: erscheint direkt bei den Aufgaben). */
 export const FUNKTIONEN = [
@@ -33,6 +33,14 @@ const preisTabelle = () => `<section class="card stack pro-preise nur-web" id="p
 export const hat = (stufe) => stufe === 'frei' || (stufe === 'pro' && store.stufe !== '') || (stufe === 'ki' && store.stufe === 'proki');
 /** Kleine Marke für Knöpfe und Karten: zeigt die Stufe und – mit Haken – dass sie freigeschaltet ist. */
 export const marke = (stufe) => (stufe === 'frei' ? '' : `<span class="marke ${stufe}${hat(stufe) ? ' an' : ''}" title="${hat(stufe) ? 'freigeschaltet' : `gehört zu ${STUFEN[stufe]}`}">${stufe === 'ki' ? 'KI' : 'PRO'}${hat(stufe) ? ' ✓' : ''}</span>`);
+/** Heute noch freie KI-Punkte (zuletzt vom Server gemeldet; ohne Meldung heute das volle Tagesguthaben). */
+export const kiPunkteText = () => { const r = kiRestHeute() ?? KI_PRO_TAG; return `heute noch ${r} ${r === 1 ? 'KI-Punkt' : 'KI-Punkte'}`; };
+/** Abzeichen „Pro aktiv“ bzw. „Pro + KI aktiv“ mit Ablaufdatum (Startseite) – leer ohne gültigen Zugang. */
+export function proAbzeichen() {
+  if (!store.zugangGilt()) return '';
+  const ki = store.stufe === 'proki';
+  return `<a class="pro-aktiv ${ki ? 'ki' : ''}" id="pro-aktiv" href="#/pro"><b>${ki ? 'Pro + KI aktiv' : 'Pro aktiv'} ✓</b><small>${esc(gueltig())}${ki ? ` · ${kiPunkteText()}` : ''}</small></a>`;
+}
 /** Gültigkeit in Worten. */
 export const gueltig = (z = store.zugang) => (!z ? '' : z.bis >= '9999' ? 'unbefristet gültig' : `gültig bis ${z.bis.split('-').reverse().join('.')}`);
 
@@ -42,7 +50,7 @@ export function proView() {
     <a class="back" href="#/mehr">${ICON.left} Mehr</a>
     <section class="board pro-stand"><div class="board-top"><span>DEINE STUFE</span><b>● ${st === 'proki' ? 'PRO + KI' : st === 'pro' ? 'PRO' : 'FREI'}</b></div>
       <h2 id="pro-stufe">${st === 'proki' ? 'Pro + KI' : st === 'pro' ? 'Pro' : 'Frei'}</h2>
-      <p>${st ? `${esc(ZUGANG_ART[z.art] || 'Zugang')} · ${esc(gueltig(z))}` : 'Alles zum Lernen und Spielen ist frei. Pro nimmt dir Arbeit ab, Pro + KI erklärt und prüft persönlich.'}</p>
+      <p>${st ? `${esc(ZUGANG_ART[z.art] || 'Zugang')} · ${esc(gueltig(z))}${st === 'proki' ? ` · ${kiPunkteText()}` : ''}` : 'Alles zum Lernen und Spielen ist frei. Pro nimmt dir Arbeit ab, Pro + KI erklärt und prüft persönlich.'}</p>
       <div id="pro-aktion"></div></section>
     ${window.MTApp ? '' : preisTabelle()}
     ${['frei', 'pro', 'ki'].map((s) => `<div class="sect"><h2>${STUFEN[s]}</h2></div><section class="stack">${FUNKTIONEN.filter((f) => f[0] === s).map(([, name, text, wo]) =>

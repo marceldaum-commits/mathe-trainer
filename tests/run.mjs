@@ -1193,6 +1193,30 @@ ok(nextStreak({ n: 3, last: '2026-11-10' }, D('2026-11-12')).n === 1, 'Serie: au
   for (const id of ['k7-terme', 'k7-gleichungen', 'k8-lgs', 'k9-quadrat']) { const L = Th.LANG[id] || [];
     ok(L.length >= 5 && ['Worum es geht', 'Durchgerechnetes Beispiel', 'Typische Fehler'].every((t) => L.some((x) => x[0] === t)), `Theorie ausführlich: Kapitel ${id} unvollständig`); } }
 
+// Vorlesen 17.11.2026: Formeln in Worten, Wörterbuch der Stimme „Thorsten“ deckt die Aufgaben ab, keine GPL-Bausteine
+{ const { texSprech, textSprech } = await import('../app/js/sprech.js'); const fs = await import('node:fs');
+  const F = [["f'(x)=6x-2", 'f Strich von x gleich 6 x minus 2'], ['\\dfrac{3}{4}', '3 durch 4'], ['\\sqrt[3]{27}', 'dritte Wurzel aus 27'], ['x^2', 'x Quadrat'], ['e^{2x}', 'e hoch 2 x'],
+    ['A(2\\mid3\\mid0)', 'A mit den Koordinaten 2, 3 und 0'], ['\\overrightarrow{AB}', 'Vektor A B'], ['\\alpha=30^\\circ', 'Alpha gleich 30 Grad'], ['\\sin(x)', 'Sinus von x'],
+    ['\\int_0^2 x\\,dx', 'Integral von 0 bis 2 über x d x'], ['\\binom{n}{k}', 'n über k'], ['60\\,\\%', '60 Prozent'], ['-3\\cdot(-2)=6', 'minus 3 mal minus 2 gleich 6'], ["f''(x)", 'f zwei Strich von x']];
+  for (const [t, w] of F) ok(texSprech(t) === w, `Vorlesen: ${t} → „${texSprech(t)}“ statt „${w}“`);
+  ok(textSprech('Beide: ⟦\\dfrac{2}{5}⟧ – fertig, <b>40 %</b>.') === 'Beide: 2 durch 5, fertig, 40 Prozent.', 'Vorlesen: Text mit Formel und HTML');
+  const lex = new Set(fs.readFileSync(new URL('../app/stimme/woerter.txt', import.meta.url), 'utf8').split('\n').map((z) => z.split('\t')[0]));
+  const laute = JSON.parse(fs.readFileSync(new URL('../app/stimme/laute.json', import.meta.url), 'utf8'));
+  ok(['^', '$', '_', ' ', ',', '.'].every((k) => Array.isArray(laute[k])), 'Vorlesen: Zeichenliste der Stimme vollständig');
+  ok([...Array(1000).keys()].every((n) => lex.has(String(n))), 'Vorlesen: Zahlen 0–999 im Wörterbuch');
+  const ui = fs.readFileSync(new URL('../app/js/vorlesen.js', import.meta.url), 'utf8').replace(/^\s*\/\/.*$/gm, '').replace(/\/\/[^'\n]*$/gm, '');
+  ok(!/espeak|piper_phonemize/i.test(ui) && /7e64762d8e5118bb578f2eea6207e1a35a8e0c30595010b666f983fc87bb7819/.test(ui), 'Vorlesen: kein espeak in der App, Prüfsumme der Stimmdatei gesetzt');
+  // Stichprobe: Wörter aus Aufgaben (anderer Startwert als beim Erzeugen des Wörterbuchs) müssen im Wörterbuch stehen
+  const { seedRandom } = await import('../app/js/math.js'); const tex = null; let alle = 0; const fehlt = new Map();
+  const altK = window.katex.renderToString; window.katex.renderToString = (x) => `⟦${x}⟧`;   // wie in der App: Formeln kommen aus ihrer TeX-Quelle
+  for (const d of fs.readdirSync(new URL('../app/js/', import.meta.url)).filter((f) => /^gen\d*\.js$/.test(f))) { const M = await import(`../app/js/${d}`);
+    for (const [name, fn] of Object.entries(M)) { if (typeof fn !== 'function' || !/^gen/.test(name)) continue;
+      for (let lv = 1; lv <= 5; lv += 2) { seedRandom(4242 + lv); for (let i = 0; i < 4; i++) { let q; try { q = fn(lv); } catch { break; } if (!q) continue;
+        const txt = [q.prompt, q.explain, ...(q.hints || [])].filter((x) => typeof x === 'string').map(textSprech).join(' ') + ' ' + (typeof q.formula === 'string' ? texSprech(q.formula) : '');
+        for (const w of txt.match(/[A-Za-zÄÖÜäöüß]+/g) || []) { alle++; const k = w.length >= 2 && w === w.toUpperCase() ? w : w.toLowerCase(); if (!lex.has(k) && !lex.has(w.toLowerCase())) fehlt.set(k, name); } } }
+      seedRandom(null); } }
+  ok(fehlt.size <= 15, `Vorlesen: ${fehlt.size} Wörter aus Aufgaben fehlen im Wörterbuch (tools/stimme/README.md): ${[...fehlt].slice(0, 15).map(([w, g]) => `${w} (${g})`).join(', ')}`);
+  window.katex.renderToString = altK; void tex; void alle; }
 // Klang 17.11.2026: eigene Effekte und Lernmusik, ohne Math.random, ohne Dateien
 { const fs = await import('node:fs'); const ui = fs.readFileSync(new URL('../app/js/ui.js', import.meta.url), 'utf8'), mu = fs.readFileSync(new URL('../app/js/musik.js', import.meta.url), 'utf8');
   for (const n of ['tap', 'ok', 'bad', 'roll', 'win', 'tag', 'duell', 'abi', 'serie', 'start']) ok(new RegExp(`\\b${n}: \\(a, z, t\\)`).test(ui), `Klang: Effekt „${n}“ vorhanden`);
