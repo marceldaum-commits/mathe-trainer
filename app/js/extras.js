@@ -70,6 +70,7 @@ export function settingsView() {
         <div class="picks col" role="radiogroup" aria-label="Stimme"><button class="pick sel" type="button" role="radio" aria-checked="true" id="st-vl-nova">Nova – KI-generierte Stimme</button></div>
         <label class="regler"><span id="st-vl-tempo-text">Sprechtempo</span><input type="range" id="st-vl-tempo" min="0" max="5" step="1" aria-label="Sprechtempo"></label>
         <button class="btn ghost small" id="st-vl-probe" type="button">Probe hören</button>
+        <div class="stack" id="st-vl-offline" aria-live="polite"></div>
       </div>
       <small class="muted" id="st-vl-info">Ein Knopf „Vorlesen“ erscheint bei jeder Aufgabe und bei jedem Theorie-Abschnitt. Formeln werden in Worten gesprochen.<br><br>Vorgelesen wird mit der Stimme Nova, einer mit KI (OpenAI) erzeugten Stimme. Feste Texte vertonen wir vorab. Texte, die erst in der Aufgabe entstehen (z.&nbsp;B. Rechenaufgaben), schickt die App ohne Angaben zu dir an unseren Server stimmen.mathenachhilfe-online.com; dieser lässt sie einmalig von OpenAI vertonen und speichert die Audiodatei. Es werden keine Namen, Konten oder Geräte-Kennungen übertragen, und unser Server speichert keine Zugriffsprotokolle.</small></section>
     <section class="card stack"><h3>Schriftgröße</h3>
@@ -184,7 +185,25 @@ export function settingsView() {
     const sw = $('#st-vl', el), mehr = $('#st-vl-mehr', el);
     const tp = $('#st-vl-tempo', el), tpText = () => { const t = String(vorlese.tempo).replace('.', ','); $('#st-vl-tempo-text', el).textContent = `Sprechtempo ${t}${vorlese.tempo === 1 ? ' (Standard)' : ''}`; tp.setAttribute('aria-valuetext', `${t}-fach`); };
     tp.oninput = () => { vorlese.setze({ tempo: TEMPI[+tp.value] }); tpText(); };
-    const zeichne = () => { sw.setAttribute('aria-checked', vorlese.an); sw.classList.toggle('an', vorlese.an); mehr.hidden = !vorlese.an; tp.value = TEMPI.indexOf(vorlese.tempo); tpText(); };
+    // Alle Nova-Texte offline: Größe vom Server, abzüglich dessen, was schon auf dem Gerät liegt
+    const off = $('#st-vl-offline', el), mb = (b) => Math.max(1, Math.round(b / 1e6));
+    const offZeichne = async (lauf = null) => {
+      const V = await import('./vorlesen.js');
+      if (lauf || V.offlineLaedt()) {   // nur die Zahl ändert sich – der Knopf „Abbrechen“ bleibt stehen
+        if (!$('#st-vl-off-zahl', off)) { off.innerHTML = '<div class="note tip">Nova-Texte werden geladen … <span id="st-vl-off-zahl" role="status"></span> <button class="linkbtn" id="st-vl-off-stopp" type="button">Abbrechen</button></div>'; $('#st-vl-off-stopp', off).onclick = () => V.offlineAbbrechen(); }
+        if (lauf) $('#st-vl-off-zahl', off).textContent = `${lauf.fertig} von ${lauf.gesamt}`; return; }
+      const [stand, lokal] = await Promise.all([V.offlineStand(), V.offlineLokal()]);
+      if (!el.isConnected) return;
+      // fertig, wenn alles da ist, was der Server hat (einzelne fehlende Dateien lassen den Knopf nicht ewig stehen)
+      const rest = !stand || (Number.isFinite(stand.vorhanden) && lokal.anzahl >= stand.vorhanden) ? 0 : Math.max(0, stand.bytes - lokal.bytes);
+      off.innerHTML = (stand && rest > 5e5 ? `<button class="btn small" id="st-vl-off-laden" type="button">Alle Nova-Texte offline laden (ca. ${mb(rest)} MB)</button><small class="muted">Am besten im WLAN. Danach liest Nova die Theorie auch ohne Internet.</small>` : '')
+        + (stand && rest <= 5e5 && lokal.anzahl ? '<small class="muted">Alle Nova-Texte liegen auf diesem Gerät.</small>' : '')
+        + (!stand && !lokal.anzahl ? '<small class="muted">Zum Offline-Laden der Nova-Texte braucht es eine Internet-Verbindung.</small>' : '')
+        + (lokal.anzahl ? `<button class="btn ghost small" id="st-vl-off-weg" type="button">Offline-Stimme löschen (${mb(lokal.bytes)} MB)</button>` : '');
+      $('#st-vl-off-laden', off)?.addEventListener('click', async () => { const e = await V.offlineLaden((x) => { if (el.isConnected) offZeichne(x); }); if (el.isConnected) { offZeichne(); if (e === 'fehler') toast('Das Laden hat nicht geklappt – bitte später noch einmal versuchen.'); } });
+      $('#st-vl-off-weg', off)?.addEventListener('click', async () => { await V.offlineLoeschen(); offZeichne(); });
+    };
+    const zeichne = () => { sw.setAttribute('aria-checked', vorlese.an); sw.classList.toggle('an', vorlese.an); mehr.hidden = !vorlese.an; tp.value = TEMPI.indexOf(vorlese.tempo); tpText(); if (vorlese.an) offZeichne(); };
     sw.onclick = () => { vorlese.setze({ an: !vorlese.an }); sfx('tap'); zeichne(); };
     $('#st-vl-probe', el).onclick = async () => { const V = await import('./vorlesen.js'); const ok = await V.sprich('Hallo! So klinge ich. Ich lese dir Aufgaben und Theorie vor, auch Formeln wie f von x gleich x Quadrat.', 'fest'); if (!ok) toast('Vorlesen geht gerade nicht – bitte mit Internet noch einmal versuchen.'); };
     zeichne(); }

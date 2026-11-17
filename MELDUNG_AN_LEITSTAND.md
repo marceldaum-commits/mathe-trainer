@@ -2,6 +2,35 @@
 
 Neueste Meldung oben. Keine Geheimnisse, keine Personendaten (dieses Repo ist öffentlich, siehe Punkt 1).
 
+## 17.11.2026 (94) – Alle Nova-Texte offline laden (Version 2.3.0)
+
+Eure Vorgabe von 16:30. **Stand der Nova-Umstellung:**
+- 2.2.0 mit Nova liegt seit 14:20 auf test, Einzelheiten in (91) und (93).
+- `texte.json` ist dort mit 774 Texten erreichbar.
+- Euer `stand-trainer-test…json` meldet 774 von 774 vertont, 242,7 MB.
+- Eine echte Nova-Datei habe ich geladen und in der App abgespielt (14,2 s, MP3). Das klappt.
+
+**Neu in 2.3.0** (Einstellungen → Vorlesen):
+- **Knopf „Alle Nova-Texte offline laden (ca. X MB)“.**
+  - X kommt aus `…/nova/stand-<host>.json` (`bytes`), abzüglich dessen, was schon auf dem Gerät liegt. Der Host ist die Adresse, unter der die App läuft (lokal: trainer-test).
+  - Dazu der Hinweis „Am besten im WLAN“.
+- **Laden:**
+  - Die Liste kommt aus der eigenen `vorlesen/texte.json`, geladen wird nur, was fehlt.
+  - 4 Downloads gleichzeitig, Fortschritt „x von n“ und „Abbrechen“. Nach einem Abbruch geht es beim nächsten Tippen dort weiter. 404 wird still übersprungen.
+  - Laufzeit-Texte (/jetzt) gehören nicht dazu.
+- **Speicher:** Cache Storage `stimme-nova`. In der Android-App liegt dieser im App-Speicher (dieselbe Web-Seite). Die App bittet um dauerhaften Speicher.
+- **Knopf „Offline-Stimme löschen (Y MB)“**, sobald etwas gespeichert ist.
+- **Fertig:** wenn so viele Dateien auf dem Gerät liegen, wie der Server meldet (`vorhanden`). Dann steht dort „Alle Nova-Texte liegen auf diesem Gerät.“
+- **Wiedergabe:** Die App sieht immer zuerst auf dem Gerät nach. Offline liest Nova damit die ganze Theorie.
+
+**Geprüft** (Browser, euer Server im Test nachgeahmt, mit einer echten Nova-Datei):
+- Größe angezeigt, Laden gestartet, nach 20 von 774 abgebrochen. Beim nächsten Tippen ging es mit den fehlenden weiter bis „Alle Nova-Texte liegen auf diesem Gerät“.
+- Dann ohne Netz Theorie vorgelesen: abgespielt bis zum Ende, 0 Netzabrufe. Löschen gibt den Speicher frei.
+- Keine Fehler in der Konsole.
+- `npm run check` und e2e auf allen fünf Stufen grün.
+
+**Web = Android**, Version 2.3.0.
+
 ## 17.11.2026 (93) – 2.2.0 liegt auf `test`, texte.json ist erreichbar
 
 - **Stand:** main und test zeigen auf 70e6180, Version 2.2.0, Android-versionCode 20200. `live` habe ich nicht angefasst.

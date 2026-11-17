@@ -100,3 +100,44 @@ export async function sprich(text, art = 'aufgabe') {
   return gehoert;
 }
 if (typeof window !== 'undefined') addEventListener('hashchange', stopp);
+
+/* ───────────── Alle Nova-Texte offline (Marcel, 17.11.2026) ───────────── */
+// Nur die festen Texte aus vorlesen/texte.json – Laufzeit-Texte (/jetzt) gehören nicht dazu. Gespeichert im Cache Storage
+// (in der Android-App liegt der im App-Speicher). Fehlende Dateien (404) werden still übersprungen; nach einem Abbruch geht es dort weiter.
+const standHost = () => (/^(localhost|127\.)/.test(location.hostname) ? 'trainer-test.mathenachhilfe-online.com' : location.hostname);
+/** Was der Server für diese Adresse vorhält: { bytes, texte } – oder null (offline). */
+export async function offlineStand() {
+  try { const r = await fetch(`${STIMMEN}/nova/stand-${standHost()}.json`, { ...AUS, cache: 'no-store' }); if (!r.ok) return null; const d = await r.json(); return Number.isFinite(d.bytes) ? d : null; } catch { return null; }
+}
+/** Was schon auf dem Gerät liegt: { anzahl, bytes }. */
+export async function offlineLokal() {
+  try {
+    const c = await caches.open(SPEICHER), keys = await c.keys(); let bytes = 0;
+    for (const k of keys) { const r = await c.match(k); const n = +r?.headers.get('content-length'); bytes += Number.isFinite(n) && n > 0 ? n : (await r.clone().blob()).size; }
+    return { anzahl: keys.length, bytes };
+  } catch { return { anzahl: 0, bytes: 0 }; }
+}
+let ladeStopp = null;
+/** Alle fehlenden Dateien laden, 4 gleichzeitig. melde({ fertig, gesamt }) nach jeder Datei. Liefert 'fertig' | 'abgebrochen' | 'fehler'. */
+export async function offlineLaden(melde = () => {}) {
+  const ctl = new AbortController(); ladeStopp = ctl;
+  try {
+    const liste = (await (await fetch('vorlesen/texte.json')).json()).texte.map((t) => t.text);
+    const c = await caches.open(SPEICHER), offen = [];
+    for (const t of liste) { const u = adresse(await kennung(t)); if (!(await c.match(u))) offen.push(u); }
+    let fertig = 0; const gesamt = offen.length; melde({ fertig, gesamt });
+    try { await navigator.storage?.persist?.(); } catch { /* nicht überall */ }
+    const arbeiter = async () => {
+      while (offen.length && !ctl.signal.aborted) {
+        const u = offen.shift();
+        try { const r = await fetch(u, { ...AUS, signal: ctl.signal }); if (r.ok) await c.put(u, r); } catch { if (ctl.signal.aborted) return; }   // 404 und Netzfehler: still weiter
+        fertig++; melde({ fertig, gesamt });
+      }
+    };
+    await Promise.all([arbeiter(), arbeiter(), arbeiter(), arbeiter()]);
+    return ctl.signal.aborted ? 'abgebrochen' : 'fertig';
+  } catch { return ctl.signal.aborted ? 'abgebrochen' : 'fehler'; } finally { ladeStopp = null; }
+}
+export const offlineAbbrechen = () => ladeStopp?.abort();
+export const offlineLaedt = () => !!ladeStopp;
+export async function offlineLoeschen() { offlineAbbrechen(); try { await caches.delete(SPEICHER); } catch { /* egal */ } }
