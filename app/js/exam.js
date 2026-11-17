@@ -34,6 +34,8 @@ export function makeTasks(n, lv, seed = null, land = '') {
 }
 
 /** Notenpunkte (0–15) aus dem Anteil richtiger Antworten – übliche Oberstufen-Schwellen. */
+/** Ergebnis einer Abi-Prüfung in Worten – auch für Einträge aus sehr alten Versionen ohne „richtig von gesamt“. */
+export const examText = (e) => (Number.isFinite(e?.correct) && Number.isFinite(e?.total) ? `${e.correct}/${e.total} richtig` : Number.isFinite(e?.pct) ? `${e.pct} % richtig` : Number.isFinite(e?.score) ? `${e.score} %` : '');
 export function notenpunkte(pct) {
   const T = [95, 90, 85, 80, 75, 70, 65, 60, 55, 50, 45, 40, 33, 27, 20];
   const i = T.findIndex((t) => pct >= t);
@@ -111,7 +113,7 @@ export function abiView(part, opts_onEnd) {
       <div><span class="eyebrow">Prüfung</span><h1 style="margin-top:8px">Abi-Modus</h1><p class="lead" style="margin-top:8px">Gemischte Aufgaben auf Zeit, eine Antwort je Aufgabe, keine Tipps. Am Ende gibt es eine Punkte-Prognose.</p></div>
       <small class="muted">Einstellung: ${esc(LAENDER[store.land])} · ${store.land ? '' : '<a href="#/einstellungen">Bundesland wählen</a> · '}Schwierigkeit ${LEVELS[store.level - 1]}</small>
       ${['A', 'B'].map((p) => { const pl = abiPlan(p); return `<a class="card unit" href="#/abi/${p}"><span class="num">${p}</span><span><h3>${pl.title}</h3><small>${pl.n} Aufgaben · ${store.ruhig ? 'ohne Uhr (ruhiger Modus)' : `${pl.seconds / 60} Minuten`} · ${p === 'A' ? 'Zahlen, die im Kopf gehen' : 'größere Zahlen und mehr Regeln gemischt'}</small></span><span class="go">${ICON.right}</span></a>`; }).join('')}
-      ${last.length ? `<h3>Letzte Ergebnisse</h3>${last.map((e) => `<div class="card row"><span class="grow">Teil ${esc(e.part)} · ${esc(e.date)}<br><small class="muted">${e.correct}/${e.total} richtig</small></span><b class="np">${e.np}</b></div>`).join('')}` : ''}
+      ${last.length ? `<h3>Letzte Ergebnisse</h3>${last.map((e) => `<div class="card row"><span class="grow">Teil ${esc(e.part)} · ${esc(e.date)}<br><small class="muted">${examText(e)}</small></span><b class="np">${e.np}</b></div>`).join('')}` : ''}
       <small class="muted">Die Prognose ist eine Orientierung aus Auswahl-Aufgaben. Im echten Abitur zählen auch Rechenweg und Begründung.</small>`;
     return { el };
   }

@@ -12,8 +12,9 @@ import { quiz } from './quiz.js';
 import { store, LEVELS, LAENDER, KARTEI_TAGE } from './store.js';
 import { UNITS, AREAS, istOber, jgName } from './units.js';
 import { pi, HUETE, BRILLEN, outfitFrei, outfitJetzt } from './figuren.js';
+import { examText } from './exam.js';
 import { kiPunkteText } from './pro.js';
-import { $, h, esc, ICON, sfx, sound, klang, vorlese, TEMPI, toast, confetti, drucken } from './ui.js';
+import { $, h, esc, ICON, sfx, sound, klang, vorlese, vorleseFreigeben, TEMPI, toast, confetti, drucken } from './ui.js';
 import { CONFIG, VERSION, STAND } from './config.js';
 import { updateStand, updateSuchen } from './update.js';
 import { merkbilderEinsetzen, hatMerkbild } from './merkbild.js';
@@ -208,7 +209,7 @@ export function settingsView() {
     };
     const zeichne = () => { sw.setAttribute('aria-checked', vorlese.an); sw.classList.toggle('an', vorlese.an); mehr.hidden = !vorlese.an; tp.value = TEMPI.indexOf(vorlese.tempo); tpText(); if (vorlese.an) offZeichne(); };
     sw.onclick = () => { vorlese.setze({ an: !vorlese.an }); sfx('tap'); zeichne(); };
-    $('#st-vl-probe', el).onclick = async () => { const V = await import('./vorlesen.js'); const ok = await V.sprich('Hallo! So klinge ich. Ich lese dir Aufgaben und Theorie vor, auch Formeln wie f von x gleich x Quadrat.', 'fest'); if (!ok) toast('Vorlesen geht gerade nicht – bitte mit Internet noch einmal versuchen.'); };
+    $('#st-vl-probe', el).onclick = async () => { vorleseFreigeben(); const V = await import('./vorlesen.js'); const ok = await V.sprich('Hallo! So klinge ich. Ich lese dir Aufgaben und Theorie vor, auch Formeln wie f von x gleich x Quadrat.', 'fest'); if (!ok) toast('Vorlesen geht gerade nicht – bitte mit Internet noch einmal versuchen.'); };
     zeichne(); }
   { // Klang: Effekte und Lernmusik getrennt, eigene Lautstärke, gemerkt; der Lautsprecher oben schaltet alles stumm
     const sch = [['#st-fx', 'fx'], ['#st-musik', 'musik'], ['#st-pruef', 'pruefung']], note = $('#st-klang-note', el), fv = $('#st-fx-vol', el), mv = $('#st-musik-vol', el);
@@ -277,7 +278,7 @@ export function berichtView() {
     <section class="card stack"><h3>Das sitzt</h3>${strong.length ? `<ul class="rep-list">${strong.map((s) => `<li>${esc(s.topic)} <small class="muted">${s.ok} von ${s.n} richtig</small></li>`).join('')}</ul>` : '<small class="muted">Noch zu wenige Aufgaben für eine Aussage (mindestens drei je Thema).</small>'}</section>
     <section class="card stack"><h3>Hier hakt es noch</h3>${weak.length ? `<ul class="rep-list">${weak.map((s) => `<li>${esc(s.topic)} <small class="muted">${s.bad} von ${s.ok + s.bad} nicht auf Anhieb</small></li>`).join('')}</ul>` : '<small class="muted">Bisher keine auffälligen Themen.</small>'}
       <small class="muted">In der Fehler-Kartei zum Wiederholen: ${store.karteCount} Aufgabenart${store.karteCount === 1 ? '' : 'en'}.</small></section>
-    ${exams.length ? `<section class="card stack"><h3>Abi-Modus</h3>${exams.map((e) => `<div class="rep-row"><span>Teil ${esc(e.part)} · ${esc(e.date)}</span><small class="muted">${e.correct}/${e.total} richtig</small><b>${e.np} NP</b></div>`).join('')}<small class="muted">Prognose aus Auswahl-Aufgaben – eine Orientierung, kein Notenersatz.</small></section>` : ''}
+    ${exams.length ? `<section class="card stack"><h3>Abi-Modus</h3>${exams.map((e) => `<div class="rep-row"><span>Teil ${esc(e.part)} · ${esc(e.date)}</span><small class="muted">${examText(e)}</small><b>${e.np} NP</b></div>`).join('')}<small class="muted">Prognose aus Auswahl-Aufgaben – eine Orientierung, kein Notenersatz.</small></section>` : ''}
     <section class="cta nur-web"><h2>Gemeinsam geht es schneller.</h2><p>${weak.length ? `Bei ${esc(weak.slice(0, 2).map((s) => s.topic).join(' und '))} unterstützen wir gezielt.` : 'Wir zeigen in einer Probestunde, wie persönliche Nachhilfe den nächsten Schritt leichter macht.'} Die erste Stunde ist kostenlos.</p>
       <a class="btn" href="${CONFIG.probestunde}" target="_blank" rel="noopener">Gratis Probestunde ${ICON.right}</a><small>${esc(CONFIG.website.replace(/^https?:\/\/|\/$/g, ''))}</small></section>
     <div class="row noprint"><button class="btn ghost grow" id="rp-print" type="button">Drucken / PDF</button><button class="btn grow" id="rp-share" type="button">Teilen</button></div>
@@ -335,7 +336,7 @@ export function readiness() {
   const steps = UNITS.reduce((s, u) => s + u.steps.length, 0), done = UNITS.reduce((s, u) => s + store.unitProgress(u).n, 0);
   const st = Object.values(store.stats), n = st.reduce((s, x) => s + x.ok + x.bad, 0), ok = st.reduce((s, x) => s + x.ok, 0);
   const rate = n >= 20 ? ok / n : (ok / Math.max(1, n)) * (n / 20);
-  const np = store.exams.reduce((m, e) => Math.max(m, e.np), 0) / 15;
+  const np = store.exams.reduce((m, e) => Math.max(m, Number.isFinite(e.np) ? e.np : 0), 0) / 15;
   return Math.round(100 * (0.55 * (steps ? done / steps : 0) + 0.25 * rate + 0.2 * np));
 }
 

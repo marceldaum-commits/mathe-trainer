@@ -122,6 +122,18 @@ export const vorlese = {
 /** Knopf „Vorlesen“ – nur, wenn Vorlesen eingeschaltet ist. */
 export const vorleseKnopf = (was = 'Vorlesen') => (vorlese.an ? `<button class="btn ghost small vl-knopf" type="button" aria-label="${esc(was)}">${ICON.speaker || ''}<span>Vorlesen</span></button>` : '');
 let vorleseGeladen = false;
+/** Den Player fürs Vorlesen noch während des Antippens freigeben: In der Android-App (WebView) darf Ton nur nach einem Tippen starten –
+ *  Nova kommt aber erst Sekunden später aus dem Netz. Einmal still angespielt, darf derselbe Player danach weiterspielen. */
+export function vorleseFreigeben() {
+  try {
+    let el = window.__mtVorleser; if (!el) { el = window.__mtVorleser = new Audio(); el.preservesPitch = true; }
+    if (el.dataset.frei) return;
+    const n = 800, buf = new ArrayBuffer(44 + n), v = new DataView(buf), w = (o, s) => [...s].forEach((c, i) => v.setUint8(o + i, c.charCodeAt(0)));
+    w(0, 'RIFF'); v.setUint32(4, 36 + n, true); w(8, 'WAVEfmt '); v.setUint32(16, 16, true); v.setUint16(20, 1, true); v.setUint16(22, 1, true); v.setUint32(24, 8000, true); v.setUint32(28, 8000, true); v.setUint16(32, 1, true); v.setUint16(34, 8, true); w(36, 'data'); v.setUint32(40, n, true);
+    for (let i = 0; i < n; i++) v.setUint8(44 + i, 128);   // 0,1 s Stille
+    el.src = URL.createObjectURL(new Blob([buf], { type: 'audio/wav' })); el.play().then(() => { el.dataset.frei = '1'; }).catch(() => {});
+  } catch { /* ohne Freigabe weiter */ }
+}
 /** Vorlesen anhalten (z. B. bei der nächsten Aufgabe). */
 export const vorleseStopp = () => { if (vorleseGeladen) import('./vorlesen.js').then((V) => V.stopp()).catch(() => {}); };
 /** Theorie: neben jede Abschnitts-Überschrift einen Knopf „Vorlesen“ (nicht im Ausdruck). Diese Texte sind vorab vertont. */
@@ -133,6 +145,7 @@ export function vorleseKnoepfe(root) {
 /** Liest einen Bereich der Seite vor (lädt den Baustein beim ersten Mal nach). Noch einmal tippen hält an.
  *  art: 'fest' (vorab vertont) · 'aufgabe' (erst in der Aufgabe entstanden). */
 export async function vorlies(el, knopf = null, art = 'aufgabe') {
+  vorleseFreigeben();   // noch im Antippen – vor allem, was wartet
   const V = await import('./vorlesen.js'); vorleseGeladen = true;
   if (knopf?.classList.contains('spricht')) { V.stopp(); return; }
   document.querySelectorAll('.vl-knopf.spricht').forEach((b) => b.classList.remove('spricht'));

@@ -89,7 +89,8 @@ export async function sprich(text, art = 'aufgabe') {
       // Abspielen mit eingestelltem Tempo bei gleicher Tonhöhe (1,0 = Tempo des Servers)
       const url = URL.createObjectURL(new Blob([roh], { type: 'audio/mpeg' }));
       try {
-        const el = new Audio(url); el.preservesPitch = true; el.mozPreservesPitch = true; el.webkitPreservesPitch = true;
+        // derselbe Player, der beim Antippen freigegeben wurde (siehe vorleseFreigeben in ui.js) – sonst ein neuer
+        const el = window.__mtVorleser || new Audio(); el.src = url; el.preservesPitch = true; el.mozPreservesPitch = true; el.webkitPreservesPitch = true;
         el.defaultPlaybackRate = vorlese.tempo; el.playbackRate = vorlese.tempo; quellen.push(el);
         ok = await new Promise((fertig) => { el.onended = () => fertig(true); el.onerror = () => fertig(false); el.onpause = () => { if (!el.ended) fertig(true); }; el.play().catch(() => fertig(false)); });
       } catch { ok = false; }
