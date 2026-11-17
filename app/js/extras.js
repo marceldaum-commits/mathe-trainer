@@ -229,7 +229,7 @@ export function berichtView() {
   $('#rp-print', el).onclick = () => drucken();
   $('#rp-share', el).onclick = async () => {
     const text = `Mathe-Trainer – Lernstand vom ${today}: ${total} Aufgaben, ${total ? Math.round((right / total) * 100) : 0} % beim ersten Versuch richtig.${weak.length ? ` Übungsbedarf: ${weak.map((s) => s.topic).join(', ')}.` : ''}`;
-    try { if (navigator.share) await navigator.share({ title: 'Mathe-Trainer – Lernstand', text }); else { await navigator.clipboard.writeText(text); toast('Text kopiert.'); } } catch { toast('Teilen nicht möglich – nutze „Drucken".'); }
+    try { if (navigator.share) await navigator.share({ title: 'Mathe-Trainer – Lernstand', text }); else { await navigator.clipboard.writeText(text); toast('Text kopiert.'); } } catch { toast('Teilen nicht möglich – nutze „Drucken“.'); }
   };
   return { el };
 }
@@ -301,7 +301,7 @@ export function erfolgeView() {
     <a class="back" href="#/mehr">${ICON.left} Mehr</a>
     <div><span class="eyebrow">Erfolge</span><h1 style="margin-top:8px">${esc(t.title)}</h1><p class="lead" style="margin-top:8px">Stufe ${t.level} von ${TITLES.length} · ${store.xp} Punkte</p></div>
     <section class="card stack"><div class="bar big"><i style="width:${Math.round(t.pct * 100)}%"></i></div>
-      <small class="muted">${t.next ? `Noch ${t.need} Punkte bis „${esc(t.next)}".` : 'Höchster Titel erreicht.'}</small></section>
+      <small class="muted">${t.next ? `Noch ${t.need} Punkte bis „${esc(t.next)}“.` : 'Höchster Titel erreicht.'}</small></section>
     <div class="sect"><h2>Abzeichen</h2><small class="muted" id="bd-count">${got}/${BADGES.length}</small></div>
     <section class="badges">${BADGES.map((b) => `<div class="badge ${have[b.id] ? 'on' : ''}" title="${esc(b.text)}"><b>${esc(b.icon)}</b><span>${esc(b.name)}</span><small>${esc(b.text)}</small></div>`).join('')}</section>
     <small class="muted">Abzeichen gibt es für Können – richtige Antworten beim ersten Versuch, Serien und Abschlüsse –, nicht für bloße Spielzeit.</small>

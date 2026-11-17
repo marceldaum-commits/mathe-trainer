@@ -22,7 +22,7 @@ export function waage(el, ctx) {
     <div class="stack kind-spiel">
       <div class="mission"><b class="tag" id="wg-n"></b><p><span id="wg-t"></span><small id="wg-s"></small></p>${piKlein()}</div>
       <div class="stage kind-buehne wg-buehne"><div class="wg-gl" id="wg-f"></div><div class="wg-waage" id="wg"><div class="wg-schale" id="wg-l"></div><div class="wg-mitte">=</div><div class="wg-schale" id="wg-r"></div></div></div>
-      <div class="wg-knoepfe"><button class="pick" id="wg-e" type="button">1 Gewicht<br>wegnehmen</button><button class="pick" id="wg-x" type="button">1 Kiste<br>wegnehmen</button><button class="pick" id="wg-t2" type="button">gerecht<br>teilen</button></div>
+      <div class="wg-knoepfe"><button class="pick" id="wg-e" type="button" aria-label="Auf beiden Seiten 1 Gewicht wegnehmen">Gewicht weg</button><button class="pick" id="wg-x" type="button" aria-label="Auf beiden Seiten 1 Kiste wegnehmen">Kiste weg</button><button class="pick" id="wg-t2" type="button" aria-label="Gerecht teilen">Teilen</button></div>
       <div id="wg-note"></div>
       <div class="row"><button class="btn block" id="wg-go" type="button" hidden>Weiter</button></div>
     </div>`;

@@ -1,6 +1,6 @@
-// Zufalls-Labor: Viele Versuchsreihen laufen lassen und sehen, wo der „Berg" der Verteilung liegt.
+// Zufalls-Labor: Viele Versuchsreihen laufen lassen und sehen, wo der „Berg“ der Verteilung liegt.
 import { h, tex, cssVar, buzz, sfx, onLook } from '../ui.js';
-import { fmt, ft } from '../math.js';
+import { fmt, ft, rand, shuffle } from '../math.js';
 import { store } from '../store.js';
 
 export const MISSIONS = [
@@ -18,7 +18,7 @@ export function solved(M, n, p) {
 
 function simulate(n, p) {
   const counts = Array(n + 1).fill(0);
-  for (let r = 0; r < RUNS; r++) { let k = 0; for (let i = 0; i < n; i++) if (Math.random() < p) k++; counts[k]++; }
+  for (let r = 0; r < RUNS; r++) { let k = 0; for (let i = 0; i < n; i++) if (rand() < p) k++; counts[k]++; }
   return counts;
 }
 
@@ -156,7 +156,7 @@ export function labor(el, ctx) {
     el.querySelector('#lb-t').textContent = 'Du hast es gemerkt: Wo liegt der Berg?';
     el.querySelector('#lb-s').textContent = 'Wähle die passende Formel.';
     el.querySelector('#lb-sl').hidden = true; go.hidden = true; note.innerHTML = '';
-    const opts = [['n\\cdot p', true, ''], ['n+p', false, `Probier es an einem Beispiel: n = ${LS[0].sol.n} und p = ${ft(LS[0].sol.p)} ergab den Berg bei ${LS[0].target}.`], ['\\dfrac{n}{p}', false, 'Dann läge der Berg bei mehr Treffern, als es Drehungen gibt.'], ['n\\cdot(1-p)', false, 'Das ist die erwartete Zahl der Nicht-Treffer.']].sort(() => Math.random() - 0.5);
+    const opts = shuffle([['n\\cdot p', true, ''], ['n+p', false, `Probier es an einem Beispiel: n = ${LS[0].sol.n} und p = ${ft(LS[0].sol.p)} ergab den Berg bei ${LS[0].target}.`], ['\\dfrac{n}{p}', false, 'Dann läge der Berg bei mehr Treffern, als es Drehungen gibt.'], ['n\\cdot(1-p)', false, 'Das ist die erwartete Zahl der Nicht-Treffer.']]);
     const box = h('<div class="opts"></div>');
     opts.forEach(([t, ok, why], i) => {
       const b = h(`<button class="opt" type="button" data-ok="${ok ? 1 : 0}"><span class="k">${'ABCD'[i]}</span><span>${tex(t)}</span></button>`);

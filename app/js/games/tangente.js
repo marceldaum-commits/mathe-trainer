@@ -52,7 +52,7 @@ const LEICHT = [
     view: { x0: -2.6, x1: 4.6, y0: -3.6, y1: 2.8 }, dview: { x0: -2.6, x1: 4.6, y0: -2, y1: 3 }, start: -1.8,
     missions: [
       { text: 'Finde den höchsten Punkt.', sub: 'Dort liegt die Tangente waagerecht.', type: 'zero', xs: [2] },
-      { text: 'Finde die Stelle mit der Steigung 2.', sub: 'Links vom Hochpunkt ist der Graph am steilsten.', type: 'slope', m: 2 },
+      { text: 'Finde die Stelle mit der Steigung 2.', sub: 'Links vom Hochpunkt steigt der Graph – je weiter links, desto steiler.', type: 'slope', m: 2 },
       { text: 'Finde die Stelle mit der Steigung −1.', sub: 'Rechts vom Hochpunkt fällt der Graph.', type: 'slope', m: -1 },
     ],
   },

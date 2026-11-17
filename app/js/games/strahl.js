@@ -17,7 +17,7 @@ const L5 = [R('Wo liegt die 2 470?', 2000, 3000, 10, 100, 10, 2470, HU), R('Wo l
 export const levelsFor = (lv) => [L1, L2, L3, L4, L5][Math.min(5, Math.max(1, lv | 0 || 3)) - 1];
 
 const F = (text, start, ziel, min = -10, max = 10) => ({ text, min, max, schritt: 1, grob: 5, tol: 0, start, ziel, grad: true });
-const F1 = [F('Es sind 3 Grad. In der Nacht wird es 5 Grad kälter. Wie kalt ist es dann?', 3, -2), F('Es sind 1 Grad. Es wird 6 Grad kälter.', 1, -5), F('Es sind 4 Grad. Es wird 4 Grad kälter.', 4, 0)];
+const F1 = [F('Es sind 3 Grad. In der Nacht wird es 5 Grad kälter. Wie kalt ist es dann?', 3, -2), F('Es ist 1 Grad. Es wird 6 Grad kälter.', 1, -5), F('Es sind 4 Grad. Es wird 4 Grad kälter.', 4, 0)];
 const F2 = [F('Es sind −2 Grad. Es wird noch 4 Grad kälter.', -2, -6), F('Es sind 5 Grad. Es wird 9 Grad kälter.', 5, -4), F('Es sind −1 Grad. Es wird 7 Grad kälter.', -1, -8)];
 const F3 = [F('Es sind −6 Grad. Am Mittag ist es 4 Grad wärmer.', -6, -2), F('Es sind −3 Grad. Es wird 8 Grad wärmer.', -3, 5), F('Es sind −9 Grad. Es wird 9 Grad wärmer.', -9, 0)];
 const F4 = [F('Es sind −12 Grad. Es wird 7 Grad wärmer.', -12, -5, -20, 20), F('Es sind 6 Grad. Es wird 19 Grad kälter.', 6, -13, -20, 20), F('Es sind −15 Grad. Es wird 18 Grad wärmer.', -15, 3, -20, 20)];
@@ -84,7 +84,7 @@ function spiel(levels, kennung) {
       const m = M(), v = +inp.value;
       if (gesetzt(m, v)) { inp.disabled = true; zeichne(true); sfx('ok');
         if (m.runde) { note.innerHTML = `<div class="note ok"><b>Gefunden!</b> Dort liegt die ${z(m.ziel)}.</div>`; runden(); }
-        else { phase = 'fertig'; buzz(); funken(go); note.innerHTML = `<div class="note ok"><b>Richtig:</b> ${z(m.ziel)} Grad.${m.ziel < 0 && m.start > 0 ? ` Bis zur Null waren es ${m.start} Schritte, dann ging es noch ${-m.ziel} weiter.` : ''}</div>`; weiter(); } }
+        else { phase = 'fertig'; buzz(); funken(go); note.innerHTML = `<div class="note ok"><b>Richtig:</b> ${z(m.ziel)} Grad.${m.ziel < 0 && m.start > 0 ? ` Bis zur Null ${m.start === 1 ? 'war es 1 Schritt' : `waren es ${m.start} Schritte`}, dann ging es noch ${-m.ziel} weiter.` : ''}</div>`; weiter(); } }
       else { fehler++; sfx('bad'); note.innerHTML = `<div class="note tip">${m.grad ? (v > m.ziel ? 'Noch nicht – es ist kälter. Zähl die Schritte nach links.' : 'Fast – so kalt wird es nicht. Zähl die Schritte noch einmal.') : (v > m.ziel ? 'Fast! Die Zahl liegt weiter links.' : 'Fast! Die Zahl liegt weiter rechts.')}</div>`; }
     };
     lade(); ctx.progress(0);

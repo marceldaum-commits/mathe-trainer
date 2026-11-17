@@ -66,7 +66,7 @@ export async function pushAn(zeit) {
   }
   if (!pushOn() || !pushCan()) return { ok: false, grund: 'Auf diesem Gerät nicht möglich.' };
   if (!zeitOk(zeit)) return { ok: false, grund: 'Bitte eine Uhrzeit wählen.' };
-  if (pushGesperrt() || (await Notification.requestPermission()) !== 'granted') return pushGesperrt() ? { ok: false, gesperrt: true, grund: SPERR_HILFE } : { ok: false, grund: 'Ohne deine Erlaubnis kann die App keine Mitteilung schicken. Tippe noch einmal auf „Erinnern“ und wähle „Zulassen“.' };
+  if (pushGesperrt() || (await Notification.requestPermission()) !== 'granted') return pushGesperrt() ? { ok: false, gesperrt: true, grund: SPERR_HILFE } : { ok: false, grund: 'Ohne deine Erlaubnis kann die App keine Mitteilung schicken. Schalte die Erinnerung noch einmal ein und wähle „Zulassen“.' };
   try {
     const reg = await bereit();
     let abo = await reg.pushManager.getSubscription();

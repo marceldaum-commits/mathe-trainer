@@ -23,7 +23,7 @@ export function alignment(u, yaw, pitch) {
 }
 
 const LEICHT = [
-  { type: 'look', lines: [{ P: [0, 0, 1], u: [1, 1, 0] }], text: 'Dreh den Raum so, dass du genau entlang der Geraden schaust.', sub: 'Die Gerade liegt waagerecht. Schau ihr „in den Lauf" – dann schrumpft sie zu einem Punkt.' },
+  { type: 'look', lines: [{ P: [0, 0, 1], u: [1, 1, 0] }], text: 'Dreh den Raum so, dass du genau entlang der Geraden schaust.', sub: 'Die Gerade liegt waagerecht. Schau ihr „in den Lauf“ – dann schrumpft sie zu einem Punkt.' },
   { type: 'ask', lines: [{ P: [-2, -2, 0], u: [1, 1, 1] }, { P: [2, -2, 0], u: [-1, 1, 1] }], answer: 'schnitt', text: 'Schneiden sich die beiden Geraden?', sub: 'Dreh den Raum und sieh von mehreren Seiten hin.' },
   { type: 'ask', lines: [{ P: [-3, 0, 0], u: [1, 0, 0] }, { P: [0, -3, 2], u: [0, 1, 0] }], answer: 'windschief', text: 'Und diese beiden?', sub: 'Die eine liegt am Boden, die andere zwei Einheiten darüber.' },
 ];

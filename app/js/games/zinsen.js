@@ -12,8 +12,8 @@ const Z = (text, n, ziel, sol) => ({ text, n, ziel, art: 'zins', sol });
 const L1 = [J('1000 € wachsen jedes Jahr um 50 %. Nach wie vielen Jahren sind es mindestens doppelt so viel?', 50, 2), J('1000 € wachsen jedes Jahr um 25 %. Wann sind es mindestens 2000 €?', 25, 2), J('1000 € wachsen jedes Jahr um 20 %. Wann sind es mindestens 2000 €?', 20, 2)];
 const L2 = [J('1000 € wachsen jedes Jahr um 10 %. Wann haben sie sich verdoppelt?', 10, 2), J('1000 € wachsen jedes Jahr um 15 %. Wann haben sie sich verdoppelt?', 15, 2), J('1000 € wachsen jedes Jahr um 10 %. Wann sind es mindestens 1500 €?', 10, 1.5)];
 const L3 = [J('1000 € wachsen jedes Jahr um 20 %. Wann haben sie sich verdreifacht?', 20, 3), J('1000 € wachsen jedes Jahr um 8 %. Wann haben sie sich verdoppelt?', 8, 2), J('1000 € wachsen jedes Jahr um 12 %. Wann sind es mindestens 2500 €?', 12, 2.5)];
-const L4 = [Z('Welcher Zinssatz verdoppelt 1000 € in 5 Jahren? Such den kleinsten, der reicht.', 5, 2, 15), Z('Welcher Zinssatz verdoppelt 1000 € in 10 Jahren?', 10, 2, 8), Z('Welcher Zinssatz macht in 4 Jahren aus 1000 € mindestens 1500 €?', 4, 1.5, 11)];
-const L5 = [J('Ein Auto für 10 000 € verliert jedes Jahr 10 % an Wert. Wann ist es höchstens noch die Hälfte wert?', -10, 0.5), J('Ein Wert sinkt jedes Jahr um 20 %. Wann ist er höchstens halb so groß?', -20, 0.5), J('Ein Wert sinkt jedes Jahr um 5 %. Wann ist er höchstens halb so groß?', -5, 0.5), Z('Welcher Zinssatz verdreifacht 1000 € in 10 Jahren?', 10, 3, 12)];
+const L4 = [Z('Welcher Zinssatz verdoppelt 1000 € in 5 Jahren? Such den kleinsten, der reicht.', 5, 2, 15), Z('Welcher Zinssatz verdoppelt 1000 € in 10 Jahren? Such den kleinsten, der reicht.', 10, 2, 8), Z('Welcher Zinssatz macht in 4 Jahren aus 1000 € mindestens 1500 €? Such den kleinsten, der reicht.', 4, 1.5, 11)];
+const L5 = [J('Ein Auto für 10 000 € verliert jedes Jahr 10 % an Wert. Wann ist es höchstens noch die Hälfte wert?', -10, 0.5), J('Ein Wert sinkt jedes Jahr um 20 %. Wann ist er höchstens halb so groß?', -20, 0.5), J('Ein Wert sinkt jedes Jahr um 5 %. Wann ist er höchstens halb so groß?', -5, 0.5), Z('Welcher Zinssatz verdreifacht 1000 € in 10 Jahren? Such den kleinsten, der reicht.', 10, 3, 12)];
 /** Eigene Level für jede der fünf Schwierigkeiten. */
 export const levelsFor = (lv) => [L1, L2, L3, L4, L5][Math.min(5, Math.max(1, lv | 0 || 3)) - 1];
 /** Kleinster ganzzahliger Zinssatz, der in n Jahren das Ziel erreicht. */
@@ -53,7 +53,7 @@ export function zinsen(el, ctx) {
       const q = 1 + (m.art === 'jahre' ? m.p : v) / 100, n = m.art === 'jahre' ? v : m.n;
       note.innerHTML = `<div class="note ok"><b>Richtig!</b> ${tex(`${ft(q)}^{${n}}\\approx${ft(q ** n, 2)}`)} – ${m.art === 'jahre' ? `nach ${n} Jahren ist das Ziel zum ersten Mal erreicht` : `${v} % ist der kleinste Zinssatz, der reicht`}. Jedes Jahr wächst auch das mit, was schon dazugekommen ist.</div>`;
       go.dataset.next = '1'; go.textContent = mi < LS.length - 1 ? 'Weiter' : 'Fertig'; ctx.progress((mi + 1) / LS.length); }
-    else { fehler++; sfx('bad'); note.innerHTML = `<div class="note tip">${v < m.sol ? 'Die letzte Säule erreicht die gestrichelte Linie noch nicht.' : 'Das Ziel war schon früher erreicht – gesucht ist das erste Mal.'}</div>`; }
+    else { fehler++; sfx('bad'); note.innerHTML = `<div class="note tip">${v < m.sol ? 'Die letzte Säule erreicht die gestrichelte Linie noch nicht.' : (m.art === 'jahre' ? 'Das Ziel war schon früher erreicht – gesucht ist das erste Mal.' : 'Ein kleinerer Zinssatz reicht auch schon – gesucht ist der kleinste.')}</div>`; }
   };
   lade(); ctx.progress(0);
   return () => {};

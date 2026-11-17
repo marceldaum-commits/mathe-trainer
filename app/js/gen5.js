@@ -26,7 +26,7 @@ const SACHE = [
   ['Eine Pflanze wächst.', 'die Höhe in cm', 'Wochen'],
   ['Jemand lernt Vokabeln.', 'die Zahl der gelernten Vokabeln', 'Tagen'],
   ['Ein Medikament wird als Tropf gegeben.', 'die Menge des Wirkstoffs im Blut in mg', 'Stunden'],
-  ['Ein Gerücht verbreitet sich in einem Ort.', 'die Zahl der Personen, die es kennen', 'Tagen'],
+  ['Ein Gerücht verbreitet sich in einem Ort.', 'die Zahl der Personen, die es kennen,', 'Tagen'],
   ['Ein heißes Getränk kühlt ab.', 'die Temperatur in °C', 'Minuten'],
 ];
 
@@ -96,7 +96,7 @@ export function genBegrenzt(lv = 3) {
     if (!uniqNum(opts) || opts.some((o) => o.num < 0)) continue;
     const ausm = klammer ? `Ausmultipliziert: ${tex(`f(t)=${S}-${ft(a)}\\,${ek}`)}. ` : '', rech = fallend ? `${S}+${a}\\cdot 1` : `${S}-${ft(a)}\\cdot 1`;
     return {
-      prompt: `${satz} ${tex('f(t)')} ist ${was} nach ${tex('t')} ${zeit}. ${ask === 'grenze' ? 'Welchem Wert nähert sich f auf lange Sicht?' : `Wie groß ist der Anfangswert ${tex('f(0)')}?`}`,
+      prompt: `${satz} ${tex('f(t)')} ist ${was} nach ${tex('t')} ${zeit}. ${ask === 'grenze' ? `Welchem Wert nähert sich ${tex('f')} auf lange Sicht?` : `Wie groß ist der Anfangswert ${tex('f(0)')}?`}`,
       formula, options: shuffle(opts),
       hints: ask === 'grenze' ? [...(klammer ? [`Multipliziere die Klammer aus: ${tex(`f(t)=${S}-${ft(a)}\\,${ek}`)}.`] : []), `Was passiert mit ${tex(ek)}, wenn ${tex('t')} sehr groß wird?`, `${eInf}. Was bleibt übrig?`]
         : [`Setze ${tex('t=0')} ein.`, `${e0}. Jetzt nur noch ausrechnen${lv >= 3 ? `: ${tex(klammer ? `${S}\\cdot(1-${ft(a / S)})` : rech)}` : ''}.`],
@@ -311,7 +311,7 @@ export function genSpurpunkt(lv = 3) {
         hints: [`Auf der ${tex(`x_${ax + 1}`)}-Achse sind die anderen beiden Koordinaten 0. Am schnellsten geht es mit der Koordinatengleichung – dafür braucht man einen Normalenvektor.`,
           `Kreuzprodukt der Richtungsvektoren: ${kreuzWeg(u, v)}${g > 1 ? ` – gekürzt durch ${g}: ${tex(`\\vec n=${vecTex(n)}`)}` : `, also ${tex(`\\vec n=${vecTex(n)}`)}`}.`,
           `Rechte Seite mit dem Stützpunkt (Skalarprodukt): ${tex(`d=${skal(n, A)}=${d}`)}. Also ${tex(`E:\\ ${eq(n, d)}`)}.`, `Die anderen Koordinaten 0 setzen: ${tex(`${kx}=${d}`)}.`],
-        explain: `Normalenvektor über das Kreuzprodukt: ${tex(`\\vec n=${vecTex(n)}`)}. Punktprobe mit dem Stützpunkt: ${tex(`E:\\ ${eq(n, d)}`)}. Auf der ${tex(`x_${ax + 1}`)}-Achse: ${tex(`${kx}=${d}\\ \\Rightarrow\\ x_${ax + 1}=${vt}`)}${Number.isInteger(val) ? '' : ` ${tex(`\\approx${ft(val, 2)}`)}`}, also ${tex(`S(${onS(vt, ax).join('\\mid ')})`)}.`, n, d, ax, art: 'ebene', A, u, v };
+        explain: `Normalenvektor über das Kreuzprodukt: ${tex(`\\vec n=${vecTex(n)}`)}. Rechte Seite mit dem Stützpunkt: ${tex(`E:\\ ${eq(n, d)}`)}. Auf der ${tex(`x_${ax + 1}`)}-Achse: ${tex(`${kx}=${d}\\ \\Rightarrow\\ x_${ax + 1}=${vt}`)}${Number.isInteger(val) ? '' : ` ${tex(`\\approx${ft(val, 2)}`)}`}, also ${tex(`S(${onS(vt, ax).join('\\mid ')})`)}.`, n, d, ax, art: 'ebene', A, u, v };
     }
     const co = shuffle(tier(lv, pick([[1, 2, 3], [1, 2, 4], [1, 3, 5], [2, 3, 5]]), [2, 3, 4], pick([[2, -4, 5], [-2, 4, 5], [4, -5, 2]]))), d = tier(lv, pick([6, 12, 30]), 12, pick([6, 10, -10, 15, 3, -7, 9]));
     const ax = lv <= 1 ? 0 : ri(0, 2), val = d / co[ax], other = (ax + 1) % 3;
@@ -395,7 +395,7 @@ export function genParamPunkt(lv = 3) {
     let schritt2;
     if (v[i] === 0) schritt2 = `Zeile ${rom[i]} enthält nur ${tex('r')}: ${tex(`r=${dfrac(ft(b[i]), ft(u[i]))}=${ft(r)}`)}.`;
     else if (v[j] === 0) schritt2 = `Zeile ${rom[j]} enthält nur ${tex('r')}: ${tex(`r=${dfrac(ft(b[j]), ft(u[j]))}=${ft(r)}`)}.`;
-    else schritt2 = `${tex('s')} beseitigen (Additionsverfahren): Zeile ${rom[i]} mal ${tex(par(v[j]))} minus Zeile ${rom[j]} mal ${tex(par(v[i]))} ergibt ${tex(`${K(det)}r=${ft(b[i] * v[j] - b[j] * v[i])}`)}, also ${tex(`r=${ft(r)}`)}.`;
+    else schritt2 = `${tex('s')} beseitigen (Additionsverfahren): Zeile ${rom[i]} mal ${tex(par(v[j]))} minus Zeile ${rom[j]} mal ${tex(par(v[i]))} ergibt ${tex(`${K(det)}r=${ft(b[i] * v[j] - b[j] * v[i])}`)}${det === 1 ? '' : `, also ${tex(`r=${ft(r)}`)}`}.`;
     const x = v[i] !== 0 ? i : j, schritt3 = `${tex(`r=${ft(r)}`)} in Zeile ${rom[x]} einsetzen: ${tex(`${ft(u[x] * r)}${v[x] < 0 ? '-' : '+'}${K(Math.abs(v[x]))}s=${ft(b[x])}`)}, also ${tex(`s=${ft(s)}`)}.`;
     const dritte = `${A[l]}+${par(r)}\\cdot${par(u[l])}+${par(s)}\\cdot${par(v[l])}=${ft(Q[l])}`;
     if (lv >= 5) {

@@ -12,7 +12,7 @@ export const MISSIONS = [
   { type: 'vec', A: [3, 4], B: [-2, -1], sol: [-5, -5], text: 'Und jetzt in die andere Richtung.', sub: 'Nach links und nach unten sind die Koordinaten negativ.' },
   { type: 'combo', A: [-4, -4], u: [2, 1], v: [1, 3], sol: [2, 1], text: 'Du darfst nur in zwei Richtungen fahren.', sub: 'Wie oft brauchst du jeden der beiden Vektoren?' },
   { type: 'combo', A: [0, -4], u: [2, 1], v: [-1, 2], sol: [1, 2], text: 'Neue Richtungen, neues Ziel.', sub: 'Probier aus, wie sich der Weg mit r und s verändert.' },
-  { type: 'combo', A: [4, 3], u: [1, 2], v: [3, -1], sol: [-2, -1], text: 'Diesmal liegt der Stern „hinter" dir.', sub: 'Negative Faktoren drehen einen Vektor um.' },
+  { type: 'combo', A: [4, 3], u: [1, 2], v: [3, -1], sol: [-2, -1], text: 'Diesmal liegt der Stern „hinter“ dir.', sub: 'Negative Faktoren drehen einen Vektor um.' },
 ];
 
 /** Zielpunkt einer Mission. */
@@ -35,7 +35,7 @@ const LEICHT = [
 const SCHWER = [
   { type: 'combo', A: [-3, 2], u: [2, 1], v: [1, -2], sol: [2, 3], text: 'Steuere das Schiff mit den beiden Vektoren zum Stern.', sub: 'Überlege erst, dann stell r und s ein.' },
   { type: 'combo', A: [3, -4], u: [-1, 2], v: [2, 1], sol: [3, -1], text: 'Ein Vektor muss rückwärts gefahren werden.', sub: 'Negative Faktoren drehen einen Vektor um.' },
-  { type: 'combo', A: [5, 4], u: [3, 1], v: [1, 2], sol: [-2, -2], text: 'Der Stern liegt „hinter" dir.', sub: 'Beide Faktoren sind negativ.' },
+  { type: 'combo', A: [5, 4], u: [3, 1], v: [1, 2], sol: [-2, -2], text: 'Der Stern liegt „hinter“ dir.', sub: 'Beide Faktoren sind negativ.' },
   { type: 'combo', A: [-5, -1], u: [1, 3], v: [3, -1], sol: [1, 3], text: 'Die Vektoren stehen senkrecht aufeinander.', sub: 'Das macht es übersichtlicher – nutze es.' },
   { type: 'combo', A: [0, 5], u: [2, -1], v: [-1, -2], sol: [-1, 3], text: 'Letzte Fahrt.', sub: 'Stelle zwei Gleichungen für r und s auf.' },
 ];
@@ -47,7 +47,7 @@ const SEHR_LEICHT = [
 const ANSPRUCH = [
   { type: 'combo', A: [-4, 1], u: [2, 1], v: [1, -1], sol: [3, 2], text: 'Du darfst nur in zwei Richtungen fahren.', sub: 'Wie oft brauchst du jeden der beiden Vektoren?' },
   { type: 'combo', A: [2, -4], u: [1, 2], v: [-2, 1], sol: [2, 1], text: 'Die Richtungen stehen senkrecht aufeinander.', sub: 'Erst die eine Richtung ganz, dann die andere.' },
-  { type: 'combo', A: [4, 4], u: [2, 1], v: [1, 3], sol: [-3, -1], text: 'Der Stern liegt „hinter" dir.', sub: 'Negative Faktoren drehen einen Vektor um.' },
+  { type: 'combo', A: [4, 4], u: [2, 1], v: [1, 3], sol: [-3, -1], text: 'Der Stern liegt „hinter“ dir.', sub: 'Negative Faktoren drehen einen Vektor um.' },
   { type: 'combo', A: [-2, -5], u: [1, 2], v: [2, -1], sol: [3, -2], text: 'Ein Faktor positiv, einer negativ.', sub: 'Überlege, welcher Vektor zurückgefahren werden muss.' },
 ];
 /** Eigene Level für jede der fünf Schwierigkeiten. */
@@ -132,7 +132,7 @@ export function lotse(el, ctx) {
       solved = true; buzz(20);
       total += tries <= 1 ? 3 : tries <= 3 ? 2 : 1;
       note.innerHTML = m.type === 'vec'
-        ? `<div class="note ok"><b>Angekommen.</b> ${tex(`\\overrightarrow{AB}=${V([a, b])}`)} – das ist „Ziel minus Start".</div>`
+        ? `<div class="note ok"><b>Angekommen.</b> ${tex(`\\overrightarrow{AB}=${V([a, b])}`)} – das ist „Ziel minus Start“.</div>`
         : `<div class="note ok"><b>Angekommen.</b> Der Weg ist eine Linearkombination: ${tex(`${ft(a)}\\cdot\\vec u+${b < 0 ? `(${ft(b)})` : ft(b)}\\cdot\\vec v`)}.</div>`;
       go.textContent = mi < LS.length - 1 ? 'Nächstes Ziel' : 'Fertig';
       ctx.progress((mi + 1) / LS.length);

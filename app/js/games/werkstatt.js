@@ -1,7 +1,7 @@
 // Extremwert-Werkstatt: Eine Größe verändern, die Zielgröße wächst und fällt – das Maximum finden.
 import { Plot } from '../plot.js';
 import { tex, cssVar, buzz, sfx, onLook } from '../ui.js';
-import { fmt } from '../math.js';
+import { fmt, ft } from '../math.js';
 import { store } from '../store.js';
 
 const zaun = (len, step, init) => ({ id: 'zaun', len, text: `Mit ${len} m Zaun wird an einer Mauer ein Beet abgegrenzt. Wie breit muss es sein, damit die Fläche am größten ist?`, sub: 'Schieb den Regler und beobachte die Fläche.',
@@ -98,7 +98,7 @@ export function werkstatt(el, ctx) {
     const lv = L(), v = lv.obj(x), best = Math.max(...trace.values());
     if (x === lv.sol) {
       solved = true; buzz(20); total += tries <= 1 ? 3 : tries <= 3 ? 2 : 1;
-      note.innerHTML = `<div class="note ok"><b>Genau.</b> Die grüne Kurve ist die Zielfunktion ${tex(lv.term)}. Ihr Hochpunkt liegt bei ${tex(`x=${lv.sol}`)} – dort ist die Ableitung 0.</div>`;
+      note.innerHTML = `<div class="note ok"><b>Genau.</b> Die grüne Kurve ist die Zielfunktion ${tex(lv.term)}. Ihr Hochpunkt liegt bei ${tex(`x=${ft(lv.sol)}`)} – dort ist die Ableitung 0.</div>`;
       go.textContent = li < LS.length - 1 ? 'Nächste Aufgabe' : 'Fertig';
     } else {
       sfx('bad');

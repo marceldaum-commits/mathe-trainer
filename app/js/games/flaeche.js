@@ -1,7 +1,7 @@
 // Fläche füllen: Die Fläche unter der Kurve mit Streifen annähern – so entsteht das Integral.
 import { Plot } from '../plot.js';
 import { h, tex, cssVar, buzz, sfx } from '../ui.js';
-import { fmt, ft } from '../math.js';
+import { fmt, ft, shuffle } from '../math.js';
 import { store } from '../store.js';
 
 export const LEVELS = [
@@ -87,7 +87,7 @@ export function flaeche(el, ctx) {
     const lv = L(), rough = sums(lv, 3);
     el.querySelector('#fl-t').textContent = 'Wie groß ist die Fläche unter der Kurve genau?';
     el.querySelector('#fl-s').textContent = 'Sie liegt zwischen Unter- und Obersumme.';
-    const opts = [[lv.area, true], [rough.lo, false], [rough.hi, false]].sort(() => Math.random() - 0.5);
+    const opts = shuffle([[lv.area, true], [rough.lo, false], [rough.hi, false]]);
     const box = h('<div class="opts"></div>');
     opts.forEach(([v, ok], i) => {
       const b = h(`<button class="opt" type="button" data-ok="${ok ? 1 : 0}"><span class="k">${'ABC'[i]}</span><span>${tex(ft(v))}</span></button>`);
@@ -95,7 +95,7 @@ export function flaeche(el, ctx) {
         if (!nextRow.hidden) return;
         if (ok) {
           b.classList.add('right'); nextRow.hidden = false; sfx('ok');
-          note.innerHTML = `<div class="note ok"><b>Genau.</b> Diese Zahl ist das Integral ${tex(`\\int_{${lv.a}}^{${lv.b}}f(x)\\,dx=${ft(lv.area)}`)}.</div>`;
+          note.innerHTML = `<div class="note ok"><b>Genau.</b> Diese Zahl ist das Integral ${tex(`\\int_{${lv.a}}^{${lv.b}}f(x)\\,dx${Math.abs(lv.area - +lv.area.toFixed(2)) < 1e-9 ? '=' : '\\approx'}${ft(lv.area)}`)}.</div>`;
           ctx.progress((li + 1) / LS.length);
         } else {
           wrong++; sfx('bad'); b.classList.add('wrong');

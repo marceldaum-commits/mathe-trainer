@@ -79,7 +79,8 @@ Vollbild; vorher zeigt sie oben eine Adressleiste.
 
 - Installierbare Web-App: `manifest.webmanifest` mit Name, Farben, Symbolen 192/512 und „maskable“-Symbol.
 - Service Worker mit Offline-Betrieb und Updates.
-- Läuft vollständig über HTTPS auf eigener Adresse, keine fremden Dienste, kein Tracking, keine Werbung Dritter.
+- Läuft vollständig über HTTPS auf eigener Adresse, kein Tracking, keine Werbung Dritter. Die App spricht nur mit dem
+  eigenen Server; für die KI-Funktionen gibt dieser die Anfrage (ohne Namen, ohne Lernstand) an einen KI-Dienst weiter.
 - Bedienung auf kleinen Bildschirmen geprüft (360 × 640), Hell/Dunkel, Hochformat.
 
 ## Erinnerungen in der Play-Store-App (Marcel, 13.11.2026: „erst Schalter, dann Play Store“)
@@ -141,7 +142,9 @@ Signier-Schlüssel selbst schon):
 4. **Store-Eintrag:** Titel, Kurz- und Langbeschreibung, Bildschirmfotos (liegen als Testbilder vor), Symbol
    512 × 512, Titelbild 1024 × 500, Kategorie „Lernen“.
 5. **Pflichtangaben:** Datenschutzerklärung (vorhanden, Abschnitt Mathe-Trainer), Formular „Datensicherheit“
-   (die App erhebt ohne Zutun nichts; freiwillig: Spitzname für die Rangliste, Text einer Fehlermeldung),
+   (die App erhebt ohne Zutun nichts; freiwillig: Klassen-Code und Spitzname für die Rangliste, Text einer
+   Fehlermeldung, Zugangscode; bei KI-Funktionen: Aufgabe, gewählte Antwort, Rückfragen bzw. Foto oder Text des
+   Rechenwegs – laut App nicht gespeichert – und eine zufällige Geräte-Kennung zum Zählen von Proben und Tageslimit),
    Altersfreigabe-Fragebogen, Zielgruppe (Jugendliche – Googles Familien-Richtlinien beachten).
 
 ## Was der Trainer-Raum beisteuern kann, sobald es losgeht
@@ -213,7 +216,8 @@ Die App besteht aus der **Hülle** (Android-Teil: Fenster, Widget, Erinnerung) u
   gibt es diesen Hinweis nicht – dort kommt die App über den Store (Store-Regel).
 - **Regel für neue Brücken-Funktionen:** Die Inhalte können neuer sein als die Hülle. Jede Funktion von `window.MTApp` deshalb
   immer mit `typeof … === 'function'` absichern.
-- **Datenschutz:** Die Android-App fragt beim Start den eigenen Server nach neuen Dateien – derselbe Server wie bei der
-  Web-App, kein weiterer Dienst. Dabei wird nichts über den Nutzer gesendet.
+- **Datenschutz:** Die Test-App fragt beim Start zuerst GitHub, sonst den eigenen Server nach neuen Dateien (die
+  IP-Adresse wird dort sichtbar); die Store-Fassung (`MT_KANAL=aus`) fragt nirgends nach. Dabei wird nichts über den
+  Nutzer gesendet.
 - **Prüfen am Rechner:** `bash tests/android/pruefen.sh` (26 Prüfungen: Laden, Prüfsummen, unerlaubte Pfade, kein Rückschritt,
   Netz weg).

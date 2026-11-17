@@ -26,9 +26,11 @@ export function inputSpec(q) {
   return null;
 }
 export const canInput = (q) => !!inputSpec(q);
-/** Liest eine Eingabe: „3,5", „-2", „7/4", „25 %". Liefert eine Zahl oder null. */
+/** Liest eine Eingabe: „3,5“, „-2“, „7/4“, „1 1/2“, „25 %“. Liefert eine Zahl oder null. */
 export function parseInput(text) {
-  const s = String(text).trim().replace(/\s+/g, '').replace(/%$/, '').replace(/^x=/i, '').replace(/−/g, '-').replace(/,/g, '.');
+  const gm = String(text).trim().replace(/[−–]/g, '-').match(/^(-?)(\d+)\s+(\d+)\s*\/\s*(\d+)$/);   // gemischte Zahl „1 1/2“ (nicht als 11/2 lesen)
+  if (gm && +gm[3] < +gm[4]) return (gm[1] ? -1 : 1) * (+gm[2] + +gm[3] / +gm[4]);
+  const s = String(text).trim().replace(/\s+/g, '').replace(/%$/, '').replace(/^x=/i, '').replace(/[−–]/g, '-').replace(/,/g, '.');
   let m = s.match(/^(-?\d+(?:\.\d+)?)\/(\d+(?:\.\d+)?)$/);
   if (m) return +m[2] === 0 ? null : +m[1] / +m[2];
   m = s.match(/^-?(?:\d+(?:\.\d*)?|\.\d+)$/);

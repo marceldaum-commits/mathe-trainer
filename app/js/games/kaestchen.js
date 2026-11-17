@@ -52,7 +52,7 @@ export function kaestchen(el, ctx) {
     if (go.dataset.next) { if (mi < LS.length - 1) { mi++; lade(); return; } ctx.done({ stars: fehler === 0 ? 3 : fehler <= 2 ? 2 : 1, mistakes: fehler }); return; }
     const m = M(), b = +ib.value, h = +ih.value, A = b * h, U = 2 * (b + h);
     if (gebaut(m, b, h)) { fertig = true; ib.disabled = ih.disabled = true; zeichne(); sfx('ok'); buzz(); funken(svg);
-      note.innerHTML = `<div class="note ok"><b>Gebaut!</b> ${b} mal ${h} sind ${A} Kästchen. Der Rand: ${b} + ${h} + ${b} + ${h} = ${U}.${m.ziel ? ` Ein Quadrat oder fast ein Quadrat hat bei gleicher Fläche den kürzesten Rand.` : ''}</div>`;
+      note.innerHTML = `<div class="note ok"><b>Gebaut!</b> ${b} mal ${h} sind ${A} Kästchen. Der Rand: ${b} + ${h} + ${b} + ${h} = ${U}.${m.ziel ? (m.ziel === 'kleinster Umfang' ? ' Ein Quadrat oder fast ein Quadrat hat bei gleicher Fläche den kürzesten Rand.' : ' Ein Quadrat hat bei gleichem Rand die größte Fläche.') : ''}</div>`;
       go.dataset.next = '1'; go.textContent = mi < LS.length - 1 ? 'Weiter' : 'Fertig'; ctx.progress((mi + 1) / LS.length); }
     else { fehler++; sfx('bad');
       const teile = [];

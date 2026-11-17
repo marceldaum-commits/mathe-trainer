@@ -45,7 +45,7 @@ export function felder(el, ctx) {
         note.innerHTML = `<div class="note ok"><b>Alle gefunden!</b> Die Teiler von ${n} sind ${M().sol.join(', ')}.${M().sol.length === 2 ? ` Nur 1 und ${n} – so eine Zahl heißt <b>Primzahl</b>.` : ''}</div>`;
         go.dataset.next = '1'; go.textContent = mi < LS.length - 1 ? 'Weiter' : 'Fertig'; ctx.progress((mi + 1) / LS.length); }
       else note.innerHTML = `<div class="note ok">${neu ? `<b>Geht auf:</b> ${n / r} ${n / r === 1 ? 'Reihe' : 'Reihen'} mit je ${r}. Also ist ${r} ein Teiler von ${n}.` : `Die ${r} hast du schon gefunden.`} Es fehlen noch ${M().sol.length - gefunden.size}.</div>`;
-    } else { fehler++; sfx('bad'); note.innerHTML = `<div class="note tip">Das geht nicht auf: In der letzten Reihe liegen nur ${n % r}. Probier eine andere Reihenlänge.</div>`; }
+    } else { fehler++; sfx('bad'); note.innerHTML = `<div class="note tip">Das geht nicht auf: In der letzten Reihe ${n % r === 1 ? 'liegt nur 1' : `liegen nur ${n % r}`}. Probier eine andere Reihenlänge.</div>`; }
   };
   lade(); ctx.progress(0);
   return () => {};
