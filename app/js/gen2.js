@@ -86,7 +86,7 @@ export function genWendestelle(lv = 3) {
         mk(w, true),
         mk(-p - 1 / b, false, `Das ist die Nullstelle von ${tex("f'")} (Extremstelle). Für die Wendestelle muss ${tex("f''(x)=0")} gelten.`),
         mk(-p, false, `Das ist die Nullstelle von ${tex('f')} selbst – gesucht ist die Nullstelle von ${tex("f''")}.`),
-        mk(-p + 2 / b, false, `Vorzeichenfehler beim Auflösen von ${tex(`${lineTex(b * b, b * (b * p + 2))}=0`)}.`),
+        mk(-p + 2 / b, false, `Setze ein: ${tex(`f''(${ft(-p + 2 / b)})\\neq0`)}. Aus ${tex(`${lineTex(b * b, b * (b * p + 2))}=0`)} folgt ${tex(`x=${ft(w)}`)}.`),
       ];
       if (!opts.every((o) => Math.abs(b * o.x) <= 3.5 && (o.correct || Math.abs(f2(o.x)) > 0.7))) continue;
       const k1 = lineTex(b, b * p + 1), k2 = lineTex(b * b, b * (b * p + 2));
@@ -218,7 +218,7 @@ export function genMonotonie(lv = 3) {
       `Zusammenfassen${Math.abs(s) === 1 ? '' : ` und ${tex(ft(s))} ausklammern (Ausklammern)`}: ${tex(`f'(x)=${V}(${qu})\\cdot ${E}`)}.`,
       `${tex(`${E}>0`)} – das Vorzeichen hängt nur an ${tex(`${V}(${qu})`)}. pq-Formel: ${tex(`x=${ft(mid)}\\pm\\sqrt{${ft(mid * mid)}${a2Pm(-r1 * r2)}}`)}, also ${tex(`x=${r1}`)} und ${tex(`x=${r2}`)}.`,
       `Die Parabel ${tex(qu)} ist nach oben geöffnet: zwischen den Nullstellen negativ.${s < 0 ? ' Der negative Faktor davor dreht das Vorzeichen um.' : ''}`,
-      `Probe mit Testwerten: ${[r1 - 1, mid, r2 + 1].map((x) => tex(`f'(${ft(x)})\\approx${ft(s * (x - r1) * (x - r2) * Math.exp(s * x))}`)).join(', ')}.`];
+      `Probe mit Testwerten: ${[r1 - 1, mid, r2 + 1].map((x) => { const v = s * (x - r1) * (x - r2) * Math.exp(s * x); let dg = 2; while (dg < 8 && +v.toFixed(dg) === 0) dg++; return tex(`f'(${ft(x)})${v > 0 ? '>' : '<'}0\\ (\\approx${ft(v, dg)})`); }).join(', ')}.`];
     explain = `${tex(`f'(x)=${V}(${qu})\\cdot ${E}`)} (Produktregel, Kettenregel). Wegen ${tex(`${E}>0`)} ist ${tex("f'(x)")} zwischen ${tex(`x=${r1}`)} und ${tex(`x=${r2}`)} ${s < 0 ? 'positiv' : 'negativ'}, außerhalb ${s < 0 ? 'negativ' : 'positiv'}.`;
   }
   const mid = (r1 + r2) / 2, wort = steigt ? 'steigt' : 'fällt', gegen = steigt ? 'fällt' : 'steigt', gz = steigt ? '<' : '>';
@@ -272,7 +272,7 @@ const A2_SYM5 = [
 export function genSymmetrie(lv = 3) {
   const L = { even: 'achsensymmetrisch zur y-Achse', odd: 'punktsymmetrisch zum Ursprung', none: 'keine dieser beiden Symmetrien' };
   const G = { even: 'f(-x)=f(x)', odd: 'f(-x)=-f(x)' };
-  const opt = (kind, why) => shuffle(['even', 'odd', 'none'].map((k) => ({ tex: L[k], html: L[k], key: k, correct: k === kind, why: why[k] })));
+  const opt = (kind, why) => shuffle(['even', 'odd', 'none'].map((k) => ({ tex: L[k], html: L[k], key: k, correct: k === kind, why: k === kind ? undefined : why[k] })));
   if (lv >= 4) {
     const kind = pick(['even', 'odd', 'none']), V = (lv >= 5 ? A2_SYM5 : A2_SYM4).filter((v) => v[0] === kind);
     const a = ri(1, 5), b = ri(2, 4), v = pick(V)[1](a, b);
@@ -850,7 +850,7 @@ export function genExtremwert(lv = 3) {
       const U = pick([12, 16, 20, 24, 40]);
       q = { prompt: `Ein Rechteck hat den Umfang ${U} cm. ${tex('x')} ist eine Seitenlänge. Für welches ${tex('x')} wird der Flächeninhalt am größten?`,
         formula: `A(x)=x\\cdot(${ft(U / 2)}-x)`, obj: (x) => x * (U / 2 - x), lo: 0, hi: U / 2,
-        options: [mk(U / 4, true), mk(U / 2, false, 'Der halbe Umfang ist Länge plus Breite – dann bliebe für die andere Seite nichts übrig.'), mk(U / 3, false, `Leite ${tex(`A(x)=${ft(U / 2)}x-x^2`)} ab und setze null.`), mk(U / 8, false, `${tex(`A'(x)=${ft(U / 2)}-2x=0`)} – teile nur durch 2.`)],
+        options: [mk(U / 4, true), mk(U / 2, false, 'Der halbe Umfang ist Länge plus Breite – dann bliebe für die andere Seite nichts übrig.'), mk(U / 3, false, `Ein Drittel des Umfangs passt nicht – das Rechteck hat vier Seiten: ${tex(`A'(x)=${ft(U / 2)}-2x=0`)} liefert ${tex(`x=${ft(U / 4)}`)}.`), mk(U / 8, false, `Aus ${tex(`${ft(U / 2)}-2x=0`)} folgt ${tex(`x=${ft(U / 4)}`)} – hier wurde durch 4 statt durch 2 geteilt.`)],
         hints: ['Leite die Zielfunktion ab.', 'Setze die Ableitung null.'],
         explain: `${tex(`A'(x)=${ft(U / 2)}-2x=0`)} liefert ${tex(`x=${ft(U / 4)}`)}: ein Quadrat.` };
     } else if (kind === 'schachtel') {
@@ -1094,9 +1094,9 @@ export function genWachstum(lv = 3) {
       const k = pick([0.02, 0.05, 0.1, 0.25, 0.04]), halb = rand() < 0.5, K = halb ? -k : k;
       const O = (t, num, correct, why) => ({ tex: `t=${t}`, num, correct, why });
       const opts = [O(dfrac('\\ln(2)', ft(k)), Math.log(2) / k, true), O(dfrac(2, ft(k)), 2 / k, false, `Aus ${tex(`e^{${ft(K)}t}=${halb ? '\\tfrac12' : '2'}`)} wird durch Logarithmieren ${tex(`${ft(K)}t=\\ln(${halb ? '\\tfrac12' : '2'})`)}.`), O(`\\ln(2)\\cdot ${ft(k)}`, Math.log(2) * k, false, `Es wird durch ${tex(ft(k))} geteilt, nicht multipliziert.`), O(dfrac(ft(k), '\\ln(2)'), k / Math.log(2), false, 'Zähler und Nenner sind vertauscht.')];
-      return { prompt: `Nach welcher Zeit hat sich der Bestand ${halb ? 'halbiert' : 'verdoppelt'}?`, formula: `N(t)=N_0\\cdot e^{${ft(K)}t}`, options: shuffle(opts),
+      return { prompt: `Nach wie vielen Jahren hat sich der Bestand ${halb ? 'halbiert' : 'verdoppelt'} (${tex('t')} in Jahren)?`, formula: `N(t)=N_0\\cdot e^{${ft(K)}t}`, options: shuffle(opts),
         hints: [`Setze ${tex(`N(t)=${halb ? '\\tfrac12' : '2'}N_0`)} und kürze ${tex('N_0')}.`, `Logarithmiere beide Seiten: ${tex(`${ft(K)}t=\\ln(${halb ? '\\tfrac12' : '2'})`)}.`],
-        explain: `${tex(`e^{${ft(K)}t}=${halb ? '\\tfrac12' : '2'}`)} liefert durch Logarithmieren ${tex(`t=${dfrac(halb ? '\\ln(\\tfrac12)' : '\\ln(2)', ft(K))}=${dfrac('\\ln(2)', ft(k))}\\approx${ft(Math.log(2) / k, 1)}`)}.`,
+        explain: `${tex(`e^{${ft(K)}t}=${halb ? '\\tfrac12' : '2'}`)} liefert durch Logarithmieren ${tex(`t=${halb ? `${dfrac('\\ln(\\tfrac12)', ft(K))}=` : ''}${dfrac('\\ln(2)', ft(k))}\\approx${ft(Math.log(2) / k, 1)}`)} Jahre.`,
         kind: 'zeit', k: K, factor: halb ? 0.5 : 2 };
     }
     const O = (t, val, correct, why) => ({ tex: `N(t)=${t}`, val, correct, why });
@@ -1117,11 +1117,11 @@ export function genWachstum(lv = 3) {
     const lin = (N0 * p) / 100;
     const opts = [O(`${N0}\\cdot ${ft(a, 4)}^{t}`, (t) => N0 * a ** t, true),
       O(`${N0}\\cdot ${ft(p / 100, 4)}^{t}`, (t) => N0 * (p / 100) ** t, false, `Der Wachstumsfaktor ist ${tex(`1${ab ? '-' : '+'}\\tfrac{p}{100}`)}, nicht ${tex('\\tfrac{p}{100}')}.`),
-      O(`${N0}${ab ? '-' : '+'}${ft(lin)}\\,t`, (t) => N0 + (ab ? -lin : lin) * t, false, 'Das wäre lineares Wachstum: jedes Jahr derselbe Betrag. Bei Prozenten wächst der Betrag mit.'),
+      O(`${N0}${ab ? '-' : '+'}${ft(lin)}\\,t`, (t) => N0 + (ab ? -lin : lin) * t, false, 'Das wäre lineares Wachstum: jedes Jahr derselbe Betrag. Bei Prozenten ändert sich der Betrag mit.'),
       O(`${N0}\\cdot ${ft(wrongDir, 4)}^{t}`, (t) => N0 * wrongDir ** t, false, `Zunahme und Abnahme verwechselt: Der Bestand ${ab ? 'nimmt ab' : 'wächst'}.`)];
     if (!uniq(opts)) continue;
     return { prompt: `Ein Bestand von ${N0} ${ab ? 'nimmt pro Jahr um' : 'wächst pro Jahr um'} ${fmt(p)} % ${ab ? 'ab' : ''}. Welche Funktion beschreibt den Bestand nach ${tex('t')} Jahren?`.replace(' .', '.'), options: shuffle(opts),
-      hints: lv <= 1 ? ['Jedes Jahr wird mit demselben Faktor multipliziert.', `Faktor: ${tex(`1+${ft(p / 100, 4)}=${ft(a, 4)}`)}.`] : ['Jedes Jahr wird mit demselben Faktor multipliziert.', `${ab ? 'Abnahme' : 'Zunahme'} um ${fmt(p)} %: Es bleiben ${fmt(100 + (ab ? -p : p))} % des Vorjahres.`, `Faktor: ${tex(`a=1${ab ? '-' : '+'}${ft(p / 100, 4)}=${ft(a, 4)}`)}.`],
+      hints: lv <= 1 ? ['Jedes Jahr wird mit demselben Faktor multipliziert.', `Faktor: ${tex(`1+${ft(p / 100, 4)}=${ft(a, 4)}`)}.`] : ['Jedes Jahr wird mit demselben Faktor multipliziert.', `${ab ? 'Abnahme' : 'Zunahme'} um ${fmt(p)} %: Es ${ab ? 'bleiben' : 'werden'} ${fmt(100 + (ab ? -p : p))} % des Vorjahres.`, `Faktor: ${tex(`a=1${ab ? '-' : '+'}${ft(p / 100, 4)}=${ft(a, 4)}`)}.`],
       explain: `Wachstumsfaktor ${tex(`a=${ft(a, 4)}`)}, also ${tex(`N(t)=${N0}\\cdot ${ft(a, 4)}^{t}`)}.`, kind: 'formel', N0, a };
   }
 }
@@ -1180,10 +1180,10 @@ export function genFlaecheZwischen(lv = 3) {
     const Z = (v) => (wurzel ? `\\approx ${ft(v)}` : lv === 3 ? `=${a2Bruch(Math.round(v * 6), 6)}` : `=${a2Bruch(Math.round(v * 48), 48)}`);
     const kand = [[-A, 'Ein Flächeninhalt ist nicht negativ: obere minus untere Funktion, also ' + tex('g(x)-f(x)') + '.'],
       [Math.abs(D(r2) + D(r1)), `Hauptsatz: Die Werte der Stammfunktion werden abgezogen, ${tex('D(x_2)-D(x_1)')} – nicht addiert.`],
-      [wurzel ? (2 * wurzel) ** 3 / 6 : simpson(g, r1, r2), wurzel ? `Die Wurzel fehlt: Die Schnittstellen sind ${tex(`${ft(d)}\\pm\\sqrt{${wurzel}}`)}, nicht ${tex(`${ft(d)}\\pm${wurzel}`)}.` : `Das ist nur das Integral über ${tex('g')} – der Teil unter ${tex('f')} muss abgezogen werden.`],
+      [wurzel ? Math.abs(D(d + wurzel) - D(d - wurzel)) : simpson(g, r1, r2), wurzel ? `Die Wurzel fehlt: Die Schnittstellen sind ${tex(`${ft(d)}\\pm\\sqrt{${wurzel}}`)}, nicht ${tex(`${ft(d)}\\pm${wurzel}`)}.` : `Das ist nur das Integral über ${tex('g')} – der Teil unter ${tex('f')} muss abgezogen werden.`],
       [2 * A, `Beim Zusammenfassen der Brüche verrechnet: Es bleibt ${tex(`\\tfrac16\\cdot(x_2-x_1)^{3}`)}.`], [A / 2, `Beim Zusammenfassen der Brüche verrechnet: Es bleibt ${tex(`\\tfrac16\\cdot(x_2-x_1)^{3}`)}.`]];
     const opts = [O(Z(A), A, true)];
-    for (const [v, why] of kand) if (opts.length < 4 && (wurzel || a2Ganz(v, lv === 3 ? 6 : 48)) && opts.every((o) => Math.abs(o.num - v) > 0.02)) opts.push(O(Z(v), v, false, why));
+    for (const [v, why] of kand) if (opts.length < 4 && Math.abs(v) > 0.05 && (wurzel || a2Ganz(v, lv === 3 ? 6 : 48)) && opts.every((o) => Math.abs(o.num - v) > 0.02)) opts.push(O(Z(v), v, false, why));
     if (opts.length < 4 || !uniq(opts)) continue;
     const qu = polyTex([pr, -su, 1]), x1 = wurzel ? `${d === 0 ? '' : ft(d)}-\\sqrt{${wurzel}}` : ft(r1), x2 = wurzel ? `${d === 0 ? '' : `${ft(d)}+`}\\sqrt{${wurzel}}` : ft(r2);
     const ST = `-\\tfrac13x^{3}${su === 0 ? '' : a2Mit(su / 2, 'x^{2}')}${a2Mit(-pr, 'x')}`;
@@ -1255,7 +1255,7 @@ export function genVierfelder(lv = 3) {
       const weg = [`Gegenereignis: ${tex(`P(A\\cup B)=1-${D(d)}=${D(N - d)}`)}.`, `Additionssatz: ${tex(`P(A\\cap B)=${D(a + b)}+${D(a + c)}-${D(N - d)}=${D(a)}`)}.`];
       if (kind === 'bedingtA') weg.push(`Nur ${tex('A')}, nicht ${tex('B')}: ${tex(`P(A\\cap\\overline{B})=${D(a + b)}-${D(a)}=${D(b)}`)}.`);
       const ende = kind === 'bedingtA' ? `P_A(\\overline{B})=\\dfrac{P(A\\cap\\overline{B})}{P(A)}=\\dfrac{${D(b)}}{${D(a + b)}}\\approx${b2pct(r.num)}` : `P_B(A)=\\dfrac{P(A\\cap B)}{P(B)}=\\dfrac{${D(a)}}{${D(a + c)}}\\approx${b2pct(r.num)}`;
-      return { prompt: `${T.intro(N, P(a + b), P(a + c), P(d))} ${T[kind]}`,
+      return { prompt: `${T.intro(N, P(a + b), P(a + c), P(d))} ${T[kind].replace(/\?$/, ' (in Prozent, auf eine Nachkommastelle gerundet)?')}`,
         formula: b2zeilen(`P(A)=${D(a + b)},\\quad P(B)=${D(a + c)}`, `P(\\overline{A}\\cap\\overline{B})=${D(d)}`), options: shuffle(opts),
         hints: [`Gesucht ist ${tex(all[0])}. Dafür brauchst du zuerst ${tex(kind === 'bedingtA' ? 'P(A\\cap\\overline{B})' : 'P(A\\cap B)')} – das steht nicht im Text.`, ...weg, `Bedingte Wahrscheinlichkeit: durch die Wahrscheinlichkeit der Bedingung teilen.`],
         explain: `${weg.join(' ')} Damit ${tex(ende)}. Zur Kontrolle als Vierfeldertafel mit Anzahlen: ${tex(wert)}.`, kind, a, b, c, d, N };
@@ -1308,7 +1308,7 @@ export function genBedingt(lv = 3) {
       const pr = (x) => `${ft(x * 100, 1)}\\,\\%`;
       const pfade = pf.map((x, j) => `Pfadregel für ${tex(`M_${j + 1}`)}: ${tex(`P(M_${j + 1}\\cap A)=P(M_${j + 1})\\cdot P_{M_${j + 1}}(A)=${ft(ant[j])}\\cdot${ft(aus[j], 3)}=${ft(x, 5)}`)}.`);
       const gegen = `Gegenereignis: Die Ausschussquoten sind ${tex(aus.map((x) => `1-${ft(1 - x, 3)}=${ft(x, 3)}`).join(',\\ '))}.`;
-      return { prompt: `Drei Maschinen fertigen dasselbe Bauteil; die Tabelle zeigt ihren Anteil an der Produktion und den Anteil ihrer einwandfreien Teile. Ein zufällig entnommenes Bauteil ist Ausschuss (${tex('A')}). Mit welcher Wahrscheinlichkeit stammt es von ${tex(`M_${i + 1}`)}?`,
+      return { prompt: `Drei Maschinen fertigen dasselbe Bauteil; die Tabelle zeigt ihren Anteil an der Produktion und den Anteil ihrer einwandfreien Teile. Ein zufällig entnommenes Bauteil ist Ausschuss (${tex('A')}). Mit welcher Wahrscheinlichkeit stammt es von ${tex(`M_${i + 1}`)} (in Prozent, auf eine Nachkommastelle gerundet)?`,
         formula: `\\def\\arraystretch{1.35}\\begin{array}{l|ccc}&M_1&M_2&M_3\\\\\\hline\\text{Anteil}&${ant.map(pr).join('&')}\\\\\\text{einwandfrei}&${aus.map((x) => pr(1 - x)).join('&')}\\end{array}`,
         options: shuffle(opts),
         hints: ['Baumdiagramm: erste Stufe Maschine, zweite Stufe Ausschuss oder einwandfrei.', gegen, ...pfade,
@@ -1324,8 +1324,8 @@ export function genBedingt(lv = 3) {
       O(1 - r, false, 'Das ist die Wahrscheinlichkeit, trotz positivem Test gesund zu sein.')];
     if (!b2fern(opts) || !uniq(opts)) continue;
     const baum = [`Pfadregel: ${tex(`P(K\\cap +)=${ft(p, 3)}\\cdot${ft(se, 3)}=${ft(TP, 5)}`)}.`, `Pfadregel: ${tex(`P(\\overline{K}\\cap +)=${ft(1 - p, 3)}\\cdot${ft(fp, 3)}=${ft(FP, 5)}`)}.`, `Beide Pfade zusammen: ${tex(`P(+)=${ft(TP, 5)}+${ft(FP, 5)}=${ft(pos, 5)}`)}.`];
-    return { prompt: lv <= 3 ? `${fmt(p * 100)} % einer Bevölkerung haben eine bestimmte Krankheit. Ein Test erkennt ${fmt(se * 100)} % der Kranken; bei Gesunden schlägt er fälschlich in ${fmt(fp * 100)} % der Fälle an. Eine Person wird positiv getestet. Mit welcher Wahrscheinlichkeit ist sie krank?`
-      : `Bei einer Reihenuntersuchung sind ${fmt(p * 100)} % der Teilnehmenden erkrankt. Der Test hat eine Sensitivität von ${fmt(se * 100)} % (Kranke werden erkannt) und eine Spezifität von ${fmt(spez * 100)} % (Gesunde werden als gesund erkannt). Eine Person wird positiv getestet. Mit welcher Wahrscheinlichkeit ist sie wirklich krank?`,
+    return { prompt: lv <= 3 ? `${fmt(p * 100)} % einer Bevölkerung haben eine bestimmte Krankheit. Ein Test erkennt ${fmt(se * 100)} % der Kranken; bei Gesunden schlägt er fälschlich in ${fmt(fp * 100)} % der Fälle an. Eine Person wird positiv getestet. Mit welcher Wahrscheinlichkeit ist sie krank (in Prozent, auf eine Nachkommastelle gerundet)?`
+      : `Bei einer Reihenuntersuchung sind ${fmt(p * 100)} % der Teilnehmenden erkrankt. Der Test hat eine Sensitivität von ${fmt(se * 100)} % (Kranke werden erkannt) und eine Spezifität von ${fmt(spez * 100)} % (Gesunde werden als gesund erkannt). Eine Person wird positiv getestet. Mit welcher Wahrscheinlichkeit ist sie wirklich krank (in Prozent, auf eine Nachkommastelle gerundet)?`,
       formula: lv <= 3 ? undefined : b2zeilen(`P(K)=${ft(p, 3)},\\quad P_K(+)=${ft(se, 3)}`, `P_{\\overline{K}}(-)=${ft(spez, 3)}`),
       options: shuffle(opts),
       hints: [lv <= 3 ? 'Zeichne ein Baumdiagramm: erste Stufe krank oder gesund, zweite Stufe Test positiv oder negativ.' : `Gegenereignis: Falsch positiv sind ${tex(`P_{\\overline{K}}(+)=1-${ft(spez, 3)}=${ft(fp, 3)}`)} der Gesunden.`, ...baum, `Satz von Bayes: ${tex('P_+(K)=\\dfrac{P(K\\cap +)}{P(+)}')}.`],
@@ -1387,30 +1387,30 @@ function kumuliertZahl(lv) {
   if (lv <= 4) {
     const n = pick([50, 80, 100]), p = pick([0.2, 0.3, 0.4, 0.5, 0.6]), mu = Math.round(n * p), F = (j) => cdf(n, p, j), Fr = (j) => +F(j).toFixed(4);
     const a = mu - ri(3, 6), b = mu + ri(2, 6), inkl = rand() < 0.5, [lo, hi] = inkl ? [a, b] : [a + 1, b - 1];
-    const O = (o, u, correct, why) => ({ tex: b2vier(Fr(o) - Fr(u)), num: F(o) - F(u), correct, why });
+    const O = (o, u, correct, why) => ({ tex: b2vier(F(o) - F(u)), num: F(o) - F(u), correct, why });
     const opts = inkl ? [O(b, a - 1, true), O(b, a, false, `${a} gehört dazu: Abgezogen wird nur alles bis ${a - 1}.`), O(b - 1, a - 1, false, `${b} gehört dazu: Die obere Grenze ist ${b}.`), O(b - 1, a, false, `${a} und ${b} gehören beide dazu: Der Bereich ist ${tex(`${a}\\le X\\le ${b}`)}.`)]
       : [O(b - 1, a, true), O(b, a - 1, false, `Weder ${a} noch ${b} gehören dazu: Der Bereich ist ${tex(`${a + 1}\\le X\\le ${b - 1}`)}.`), O(b, a, false, `${b} gehört nicht dazu: „weniger als ${b}“ endet bei ${b - 1}.`), O(b - 1, a - 1, false, `${a} gehört nicht dazu: Abgezogen wird alles bis einschließlich ${a}.`)];
     if (!b2versch(opts, 0.001)) return null;
     const wort = inkl ? `mindestens ${a} und höchstens ${b}` : `mehr als ${a}, aber weniger als ${b}`;
-    return { prompt: `${intro(n, fmt(p))} Mit welcher Wahrscheinlichkeit ${verb} <b>${wort}</b> ${objekt}?`,
+    return { prompt: `${intro(n, fmt(p))} Mit welcher Wahrscheinlichkeit ${verb} <b>${wort}</b> ${objekt} (auf vier Nachkommastellen gerundet)?`,
       formula: `\\def\\arraystretch{1.3}\\begin{array}{l}${P(a - 1)}\\approx${b2vier(Fr(a - 1))}\\\\${P(a)}\\approx${b2vier(Fr(a))}\\\\${P(b - 1)}\\approx${b2vier(Fr(b - 1))}\\\\${P(b)}\\approx${b2vier(Fr(b))}\\end{array}`, options: shuffle(opts),
       hints: [`${tex('X')}: Anzahl ${anzahl}, binomialverteilt mit ${tex(`n=${n}`)} und ${tex(`p=${ft(p)}`)}.`, `Bereich als Ungleichung: ${tex(`${lo}\\le X\\le ${hi}`)}.`, `${tex(`P(${lo}\\le X\\le ${hi})=${P(hi)}-${P(lo - 1)}`)}: alles bis ${hi}, minus alles bis ${lo - 1}.`, `Tabellenwerte einsetzen: ${tex(`${b2vier(Fr(hi))}-${b2vier(Fr(lo - 1))}`)}.`],
-      explain: `„${wort[0].toUpperCase()}${wort.slice(1)}“ bedeutet ${tex(`${lo}\\le X\\le ${hi}`)}. ${tex(`P(${lo}\\le X\\le ${hi})=${P(hi)}-${P(lo - 1)}\\approx${b2vier(Fr(hi))}-${b2vier(Fr(lo - 1))}=${b2vier(Fr(hi) - Fr(lo - 1))}`)}.`, n, p, lo, hi, kind: 'zahl' };
+      explain: `„${wort[0].toUpperCase()}${wort.slice(1)}“ bedeutet ${tex(`${lo}\\le X\\le ${hi}`)}. ${tex(`P(${lo}\\le X\\le ${hi})=${P(hi)}-${P(lo - 1)}\\approx${b2vier(Fr(hi))}-${b2vier(Fr(lo - 1))}\\approx${b2vier(F(hi) - F(lo - 1))}`)}.`, n, p, lo, hi, kind: 'zahl' };
   }
   const n = pick([120, 150, 180, 200]), p = pick([0.15, 0.25, 0.35, 0.45, 0.65]), c = pick([1.5, 2, 2.5]);
   const mu = b2runde(n * p), s2 = b2runde(n * p * (1 - p)), sg = Math.sqrt(s2), U = mu - c * sg, V = mu + c * sg, lo = Math.ceil(U), hi = Math.floor(V);
   if ([U, V].some((x) => Math.abs(x - Math.round(x)) < 0.04) || lo < 2) return null;
   const F = (j) => cdf(n, p, j), Fr = (j) => +F(j).toFixed(4);
-  const O = (o, u, correct, why) => ({ tex: b2vier(Fr(o) - Fr(u)), num: F(o) - F(u), correct, why });
+  const O = (o, u, correct, why) => ({ tex: b2vier(F(o) - F(u)), num: F(o) - F(u), correct, why });
   const opts = [O(hi, lo - 1, true), O(hi, lo, false, `${lo} gehört zum Bereich: Abgezogen wird nur alles bis ${lo - 1}.`),
     O(hi + 1, lo - 2, false, `Die Grenzen ${tex(ft(U))} und ${tex(ft(V))} wurden nach außen gerundet. ${lo - 1} und ${hi + 1} liegen aber schon außerhalb.`),
     O(hi + 1, lo - 1, false, `${hi + 1} liegt schon über ${tex(`\\mu+${ft(c)}\\sigma\\approx${ft(V)}`)}.`)];
   if (!b2versch(opts, 0.001)) return null;
-  return { prompt: `${intro(n, fmt(p))} Mit welcher Wahrscheinlichkeit weicht die Anzahl ${anzahl} um <b>höchstens ${fmt(c)} Standardabweichungen</b> vom Erwartungswert ab?`,
+  return { prompt: `${intro(n, fmt(p))} Mit welcher Wahrscheinlichkeit weicht die Anzahl ${anzahl} um <b>höchstens ${fmt(c)} Standardabweichungen</b> vom Erwartungswert ab (auf vier Nachkommastellen gerundet)?`,
     formula: `\\def\\arraystretch{1.3}\\begin{array}{l}${P(lo - 2)}\\approx${b2vier(Fr(lo - 2))}\\\\${P(lo - 1)}\\approx${b2vier(Fr(lo - 1))}\\\\${P(lo)}\\approx${b2vier(Fr(lo))}\\\\${P(hi)}\\approx${b2vier(Fr(hi))}\\\\${P(hi + 1)}\\approx${b2vier(Fr(hi + 1))}\\end{array}`, options: shuffle(opts),
     hints: [`Erwartungswert: ${tex(`\\mu=n\\cdot p=${n}\\cdot${ft(p)}=${ft(mu)}`)}.`, `Standardabweichung: ${tex(`\\sigma=\\sqrt{n\\cdot p\\cdot(1-p)}=\\sqrt{${ft(s2, 3)}}\\approx${ft(sg)}`)}.`,
       `Grenzen: ${tex(`\\mu-${ft(c)}\\sigma\\approx${ft(U)}`)} und ${tex(`\\mu+${ft(c)}\\sigma\\approx${ft(V)}`)}.`, `Nur ganze Trefferzahlen zählen – nach innen runden: ${tex(`${lo}\\le X\\le ${hi}`)}.`, `${tex(`P(${lo}\\le X\\le ${hi})=${P(hi)}-${P(lo - 1)}`)}.`],
-    explain: `${tex(`\\mu=${n}\\cdot${ft(p)}=${ft(mu)}`)}, ${tex(`\\sigma=\\sqrt{${n}\\cdot${ft(p)}\\cdot${ft(1 - p)}}=\\sqrt{${ft(s2, 3)}}\\approx${ft(sg)}`)}. Der Bereich ${tex(`[${ft(mu)}-${ft(c)}\\cdot${ft(sg)};\\ ${ft(mu)}+${ft(c)}\\cdot${ft(sg)}]\\approx[${ft(U)};\\ ${ft(V)}]`)} enthält die Trefferzahlen ${lo} bis ${hi}. ${tex(`P(${lo}\\le X\\le ${hi})=${P(hi)}-${P(lo - 1)}\\approx${b2vier(Fr(hi))}-${b2vier(Fr(lo - 1))}=${b2vier(Fr(hi) - Fr(lo - 1))}`)}.`, n, p, lo, hi, kind: 'sigma' };
+    explain: `${tex(`\\mu=${n}\\cdot${ft(p)}=${ft(mu)}`)}, ${tex(`\\sigma=\\sqrt{${n}\\cdot${ft(p)}\\cdot${ft(1 - p)}}=\\sqrt{${ft(s2, 3)}}\\approx${ft(sg)}`)}. Der Bereich ${tex(`[${ft(mu)}-${ft(c)}\\cdot${ft(sg)};\\ ${ft(mu)}+${ft(c)}\\cdot${ft(sg)}]\\approx[${ft(U)};\\ ${ft(V)}]`)} enthält die Trefferzahlen ${lo} bis ${hi}. ${tex(`P(${lo}\\le X\\le ${hi})=${P(hi)}-${P(lo - 1)}\\approx${b2vier(Fr(hi))}-${b2vier(Fr(lo - 1))}\\approx${b2vier(F(hi) - F(lo - 1))}`)}.`, n, p, lo, hi, kind: 'sigma' };
 }
 
 const SIG_TEXT = [
@@ -1426,7 +1426,7 @@ const SIG_TEXT = [
 export function genSigma(lv = 3) {
   for (;;) {
     const glatt = lv <= 3;
-    const [n, p] = glatt ? pick(SIGMA_OK.filter(([N, P]) => Number.isInteger(+(N * P).toFixed(6)))) : [pick(lv <= 4 ? [80, 120, 150, 250, 300] : [240, 350, 420, 560, 750]), pick(lv <= 4 ? [0.3, 0.4, 0.6, 0.15, 0.35] : [0.35, 0.15, 0.45, 0.125, 0.65])];
+    const [n, p] = glatt ? pick(SIGMA_OK.filter(([N, P]) => Number.isInteger(+(N * P).toFixed(6)) && Math.sqrt(N * P * (1 - P)) > 3)) : [pick(lv <= 4 ? [80, 120, 150, 250, 300] : [240, 350, 420, 560, 750]), pick(lv <= 4 ? [0.3, 0.4, 0.6, 0.15, 0.35] : [0.35, 0.15, 0.45, 0.125, 0.65])];
     const mu = b2runde(n * p), s2 = b2runde(n * p * (1 - p)), sg = glatt ? Math.round(Math.sqrt(s2)) : Math.sqrt(s2);
     if (!glatt && (sg <= 3 || Math.abs(sg - Math.round(sg)) < 0.05)) continue;
     const ks = lv >= 5 ? [1.64, 1.96, 2.58] : [1, 2, 3], k = lv <= 1 ? 1 : lv === 2 ? pick([1, 2]) : pick(ks);
@@ -1438,7 +1438,7 @@ export function genSigma(lv = 3) {
     else opts.push(O(k * s2, false, `Hier wurde mit der Varianz ${tex(`\\sigma^2=${ft(s2)}`)} gerechnet. Der Radius ist ${tex(`${ft(k)}\\cdot\\sigma`)} – erst die Wurzel ziehen.`));
     if (!uniq(opts)) continue;
     const out = lv >= 4 ? rand() < 0.5 : lv === 3 && rand() < 0.3;
-    const frage = out ? `Nur mit etwa <b>${OUT[k]} %</b> Wahrscheinlichkeit liegt die Trefferzahl <b>außerhalb</b> eines dieser Intervalle. Außerhalb von welchem?` : `In welchem Intervall liegt die Trefferzahl mit etwa <b>${PCT[k]} %</b> Wahrscheinlichkeit?`;
+    const frage = out ? `Bei welchem der Intervalle liegt die Trefferzahl nur mit etwa <b>${OUT[k]} %</b> Wahrscheinlichkeit <b>außerhalb</b>?` : `In welchem Intervall liegt die Trefferzahl mit etwa <b>${PCT[k]} %</b> Wahrscheinlichkeit?`;
     const regel = lv >= 5 ? `Zu 90 % gehört der Radius 1,64σ, zu 95 % der Radius 1,96σ, zu 99 % der Radius 2,58σ.` : 'Sigma-Regeln: 1σ ≈ 68,3 %, 2σ ≈ 95,4 %, 3σ ≈ 99,7 %.';
     const aussen = `Außerhalb heißt: 100 % minus die Wahrscheinlichkeit innerhalb. ${OUT[k]} % außerhalb bedeutet ${PCT[k]} % innerhalb.`;
     const intervall = `[${ft(mu)}-${ft(k)}\\cdot${ft(sg)};\\ ${ft(mu)}+${ft(k)}\\cdot${ft(sg)}]${glatt ? '=' : '\\approx'}[${ft(mu - k * sg)};\\ ${ft(mu + k * sg)}]`;
@@ -1674,7 +1674,7 @@ export function genKombinatorik(lv = 3) {
       opts = [O(`${n}!`, fact(n), true), O(`${n}^{${n}}`, n ** n, false, 'Das gilt, wenn jede Person mehrfach vorkommen dürfte. Hier steht jede genau einmal.'), O(`\\binom{${n}}{2}`, binom(n, 2), false, 'Das zählt Zweiergruppen, keine Reihenfolgen.'), O(`${n}\\cdot${n - 1}`, n * (n - 1), false, 'Das zählt nur die ersten beiden Plätze.')];
     } else {
       const E = { mitW: [`${n}^{${k}}`, n ** k, 'Das gilt mit Wiederholung: Jede der Stellen kann jeden Wert annehmen.'], var: [`\\dfrac{${n}!}{${n - k}!}`, fact(n) / fact(n - k), 'Das gilt, wenn die Reihenfolge wichtig ist und nichts doppelt vorkommt.'], komb: [`\\binom{${n}}{${k}}`, binom(n, k), 'Das gilt, wenn die Reihenfolge egal ist.'], vert: [`${k}^{${n}}`, k ** n, 'Basis und Exponent sind vertauscht.'] };
-      text = { mitW: `Ein Zahlenschloss hat ${k} Stellen, jede kann ${n} verschiedene Zeichen zeigen. Wie viele Einstellungen gibt es?`, var: `Bei einem Rennen starten ${n} Läufer. Wie viele Möglichkeiten gibt es für die Plätze 1 bis ${k}?`, komb: `Aus ${n} Schülern wird ein Team von ${k} gewählt. Wie viele Teams sind möglich?` }[kind];
+      text = { mitW: `Ein Zahlenschloss hat ${k} Stellen, jede kann ${n} verschiedene Zeichen zeigen. Wie viele Einstellungen gibt es?`, var: `Bei einem Rennen starten ${n} Läufer. Wie viele Möglichkeiten gibt es für ${k === 2 ? 'die Plätze 1 und 2 (Sieger und Zweiter)' : `die Plätze 1 bis ${k}`}?`, komb: `Aus ${n} Schülern wird ein Team von ${k} gewählt. Wie viele Teams sind möglich?` }[kind];
       opts = Object.keys(E).map((key) => O(lv >= 4 ? ft(E[key][1]) : E[key][0], E[key][1], key === kind, E[key][2]));
     }
     if (!uniqNum(opts) || !uniq(opts) || !b2fern(opts)) continue;
@@ -1710,7 +1710,7 @@ export function genGeradePunkt(lv = 3) {
     if (lv >= 5) {
       const kons = rand() < 0.7, Q = add(P, u, t0);
       if (!kons) Q[1] += pick([1, -1, 2]);
-      const O = (t, correct, why) => ({ tex: t === null ? 'Für kein a' : `a=${ft(P[2] + t * u[2])},\\ t=${ft(t)}`, html: t === null ? `Für keinen Wert von ${tex('a')}.` : undefined, t, correct, why });
+      const O = (t, correct, why) => ({ tex: t === null ? 'Für kein a' : `a=${ft(P[2] + t * u[2])},\\ t=${ft(t)}`, html: t === null ? `Für keinen Wert von ${tex('a')}.` : undefined, t, correct, why: correct ? undefined : why });
       const zeile2 = `${tex(zl(1, t0))}${kons ? ' – passt' : `, verlangt ist aber ${tex(ft(Q[1]))}`}`;
       const opts = [O(t0, kons, `Zweite Zeile prüfen: ${zeile2}. Die ersten beiden Zeilen widersprechen sich – dann hilft kein ${tex('a')}.`),
         O(-t0, false, `Vorzeichen: Aus der ersten Zeile folgt ${tex(`t=${ft(t0)}`)}.`),
@@ -1723,7 +1723,7 @@ export function genGeradePunkt(lv = 3) {
     }
     const on = rand() < tier(lv, 0.7, 0.55, 0.55, 0.5), j = lv >= 3 ? pick([1, 2]) : 2;
     const Q = add(P, u, t0); if (!on) Q[j] += pick([1, -1, 2]);
-    const O = (t, correct, why) => ({ tex: t === null ? 'Nein' : `Ja, für t = ${ft(t)}`, html: t === null ? 'Nein, der Punkt liegt nicht auf der Geraden.' : `Ja, für ${tex(`t=${ft(t)}`)}.`, t, correct, why });
+    const O = (t, correct, why) => ({ tex: t === null ? 'Nein' : `Ja, für t = ${ft(t)}`, html: t === null ? 'Nein, der Punkt liegt nicht auf der Geraden.' : `Ja, für ${tex(`t=${ft(t)}`)}.`, t, correct, why: correct ? undefined : why });
     const opts = [O(t0, on, `Die erste Zeile passt für ${tex(`t=${ft(t0)}`)}, die ${j === 1 ? 'zweite' : 'dritte'} aber nicht: Alle drei Zeilen müssen mit demselben ${tex('t')} stimmen.`),
       O(-t0, false, `Vorzeichen: Aus der ersten Zeile folgt ${tex(`t=${ft(t0)}`)}.`),
       O(t0 + 1, false, `Aus der ersten Zeile folgt ${tex(`t=${ft(t0)}`)}.`),
@@ -1905,9 +1905,9 @@ export function genSchnittpunkt(lv = 3) {
 }
 
 const ABST_TEXT = [
-  ['Ein Sonnensegel ist zwischen den Punkten', 'gespannt (Einheit: Meter). Eine Lampe hängt im Punkt', 'Wie weit ist die Lampe von der Ebene des Segels entfernt?'],
-  ['Eine schräge Dachfläche liegt in der Ebene durch die Punkte', '(Einheit: Meter). Die Spitze einer Antenne befindet sich im Punkt', 'Wie groß ist der Abstand der Antennenspitze von der Dachebene?'],
-  ['Ein Hang wird durch die Ebene durch die Punkte', 'beschrieben (Einheit: 10 Meter). Eine Drohne schwebt im Punkt', 'Wie groß ist ihr Abstand von der Hangebene?'],
+  ['Ein Sonnensegel ist zwischen den Punkten', 'gespannt (Einheit: Meter). Eine Lampe hängt im Punkt', 'Wie weit ist die Lampe von der Ebene des Segels entfernt (in Metern)?', () => ' Meter'],
+  ['Eine schräge Dachfläche liegt in der Ebene durch die Punkte', '(Einheit: Meter). Die Spitze einer Antenne befindet sich im Punkt', 'Wie groß ist der Abstand der Antennenspitze von der Dachebene (in Metern)?', () => ' Meter'],
+  ['Ein Hang wird durch die Ebene durch die Punkte', 'beschrieben (1 Längeneinheit = 10 m). Eine Drohne schwebt im Punkt', 'Wie groß ist ihr Abstand von der Hangebene (in Längeneinheiten)?', (v) => ` LE, also etwa ${fmt(10 * v, 1)} m`],
 ];
 
 /**
@@ -1960,7 +1960,7 @@ export function genAbstand(lv = 3) {
     const rechts = `Koordinatenform mit ${tex('A')}: ${tex(`${b2skalar(n, A)}=${ft(d)}`)}, also ${tex(koord)}.`;
     return { prompt: `${T[0]} ${tex('A')}, ${tex('B')} und ${tex('C')} ${T[1]} ${tex('P')}. ${T[2]}`, formula: b2zeilen(`${pt('A', A)},\\quad ${pt('B', B)}`, `${pt('C', C)},\\quad ${pt('P', P)}`), options: shuffle(opts),
       hints: [spann, normal, rechts, `Hesse-Formel: ${tex('d(P;E)=\\dfrac{|\\vec n\\cdot\\vec p-d|}{|\\vec n|}')} mit ${laenge}.`, `Zähler: ${zaehler}.`],
-      explain: `${spann} ${normal} ${rechts} Hesse-Formel: ${laenge}, Zähler ${zaehler}. Also ${ende} (in der Einheit der Aufgabe).`, kind: 'ebene', n, d, P };
+      explain: `${spann} ${normal} ${rechts} Hesse-Formel: ${laenge}, Zähler ${zaehler}. Also ${ende}${T[3](num / L)}.`, kind: 'ebene', n, d, P };
   }
 }
 

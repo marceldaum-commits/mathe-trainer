@@ -167,7 +167,7 @@ export function genQuotient(lv = 3) {
       const opts = [Q2(`${a}-${a * n}\\ln(x)`, (x) => a - a * n * l(x), xp(n + 1), (x) => x ** (n + 1), true),
         Q2(`${a}+${a * n}\\ln(x)`, (x) => a + a * n * l(x), xp(n + 1), (x) => x ** (n + 1), false, `In der Quotientenregel steht ein Minus: ${tex("u'v-uv'")}.`),
         Q2(`${a * n}\\ln(x)-${a}`, (x) => a * n * l(x) - a, xp(n + 1), (x) => x ** (n + 1), false, `Reihenfolge im Zähler: ${tex("u'v-uv'")}, nicht ${tex("uv'-u'v")}.`),
-        Q2(`${a}`, () => a, `${n}${xp(n)}`, (x) => n * x ** n, false, 'Zähler und Nenner einzeln abzuleiten ist bei Brüchen falsch – hier gilt die Quotientenregel.')];
+        Q2(`${a / ggt(a, n)}`, () => a, `${K(n / ggt(a, n))}${xp(n)}`, (x) => n * x ** n, false, 'Zähler und Nenner einzeln abzuleiten ist bei Brüchen falsch – hier gilt die Quotientenregel.')];
       if (!uniq(opts)) continue;
       return { prompt: 'Welche Ableitung ist richtig (vollständig gekürzt)?', formula: `f(x)=${dfrac(`${K(a)}\\ln(x)`, xp(n))}`, domain: 'pos', options: shuffle(opts),
         hints: [regel, `${tex(`u=${K(a)}\\ln(x)`)} mit ${tex(`u'=${dfrac(a, 'x')}`)} und ${tex(`v=${xp(n)}`)} mit ${tex(`v'=${n}${xp(n - 1)}`)}.`,
@@ -397,6 +397,7 @@ export function genUneigentlich(lv = 3) {
     const erst = `Erst bis zu einer Grenze ${tex('b')} integrieren, dann ${tex('b')} gegen unendlich laufen lassen.`, vzw = 'Achte auf die Vorzeichen: Der Flächeninhalt unter dieser Kurve ist positiv.';
     const form = tier(lv, 'potenz', pick(['potenz', 'e0']), pick(['potenz', 'ea']), 'wurzel', pick(['part', 'part2', 'subst']));
     const [p, q] = pick(lv <= 2 ? [[2, 1], [3, 1], [1, 2], [4, 1]] : [[2, 1], [3, 1], [1, 2], [3, 2], [4, 1], [1, 4], [5, 2]]), c = p / q, k = pick(lv <= 1 ? [1] : lv === 2 ? [2, 3, 5, 6] : [1, 2, 3, 6]), ex = `e^{-${K(c)}x}`;
+    const wert3 = (v) => (Number.isInteger(v) ? '' : ` ${tex(`${Math.abs(v * 1000 - Math.round(v * 1000)) < 1e-9 ? '=' : '\\approx'}${ft(v, 3)}`)}`);
     const ein = (v) => (v === '1' ? '' : v), zuNah = (opts) => !uniq(opts) || !weit(opts, 0.03) || opts[0].num < 0.05;
     if (form === 'potenz') {
       const a = pick(tier(lv, [2, 3, 4, 5, 6, 7, 8, 9, 10], [2, 3, 4, 5], [1, 2, 3])), n = lv >= 3 ? pick([3, 4]) : 2, zn = [k, (n - 1) * a ** (n - 1)];
@@ -436,7 +437,7 @@ export function genUneigentlich(lv = 3) {
         hints: [erst, `Schreibe den Bruch als Potenz (Potenzgesetz): ${tex(`${xm}\\cdot\\sqrt{x}=x^{${bx(2 * m + 1)}}`)}, also ${tex(`f(x)=${K(k)}x^{-${bx(2 * m + 1)}}`)}.`,
           `Potenzregel beim Aufleiten – Exponent um 1 erhöhen und durch den neuen Exponenten ${tex(`-${bx(e2)}`)} teilen: ${tex(`F(x)=${FT}`)}.`,
           `${tex(`F(b)\\to 0`)} für ${tex('b\\to\\infty')}; es bleibt ${tex(`-F(${a})`)} mit ${tex(`${a}^{${bx(e2)}}=${a ** (m - 1) * w}`)}.`],
-        explain: `${tex(`f(x)=${K(k)}x^{-${bx(2 * m + 1)}}`)}, ${tex(`F(x)=${FT}`)}. ${tex(`\\left[${FT}\\right]_{${a}}^{b}\\to 0+${dfrac(2 * k, `${e2}\\cdot ${a ** (m - 1) * w}`)}=${fracTex(2 * k, nen)}`)} für ${tex('b\\to\\infty')}${Number.isInteger((2 * k) / nen) ? '' : ` ${tex(`\\approx${ft((2 * k) / nen, 3)}`)}`}.`, f: (x) => k / (x ** m * Math.sqrt(x)), a, form };
+        explain: `${tex(`f(x)=${K(k)}x^{-${bx(2 * m + 1)}}`)}, ${tex(`F(x)=${FT}`)}. ${tex(`\\left[${FT}\\right]_{${a}}^{b}\\to 0-F(${a})=${fracTex(2 * k, nen)}`)}${wert3((2 * k) / nen)} für ${tex('b\\to\\infty')}.`, f: (x) => k / (x ** m * Math.sqrt(x)), a, form };
     }
     if (form === 'part2') {
       const opts = [F(2 * k * q ** 3, p ** 3, true), F(k * q ** 3, p ** 3, false, `Aus ${tex(`u=${K(k)}x^2`)} wird ${tex(`u'=${2 * k}x`)} – der Faktor 2 fehlt.`), F(2 * k * q * q, p * p, false, `Auch im letzten Restintegral wird noch einmal durch ${tex(ft(c))} geteilt.`), UN(`${tex('x^2')} wächst zwar, aber ${tex(ex)} fällt viel schneller – die Fläche bleibt endlich.`)];
@@ -447,7 +448,7 @@ export function genUneigentlich(lv = 3) {
           `Erster Schritt: ${tex(`u=${K(k)}x^2`)}, ${tex(`u'=${2 * k}x`)}, ${tex(`v'=${ex}`)}, ${tex(`v=-${ein(v1)}${ex}`)}. Also ${tex(`\\left[-${ein(kc)}x^2\\,${ex}\\right]_0^b+${k2}\\int_0^b x\\,${ex}\\,dx`)}.`,
           `Zweiter Schritt (wieder partiell): ${tex(`\\int_0^b x\\,${ex}\\,dx=\\left[-${ein(v1)}x\\,${ex}\\right]_0^b+${v1}\\int_0^b ${ex}\\,dx`)}.`,
           `Für ${tex('b\\to\\infty')} gehen ${tex(`b^2e^{-${K(c)}b}`)} und ${tex(`b\\,e^{-${K(c)}b}`)} gegen 0 (die e-Funktion gewinnt); ${tex(`\\int_0^{\\infty}${ex}\\,dx=${v1}`)}.`, `Zusammensetzen: ${tex(`${k2}\\cdot${v1}\\cdot${v1}`)}.`],
-        explain: `Zweimal partielle Integration: Die Randterme ${tex(`\\left[-${ein(kc)}x^2\\,${ex}\\right]_0^b`)} und ${tex(`\\left[-${ein(v1)}x\\,${ex}\\right]_0^b`)} gehen gegen 0. Es bleibt ${tex(`${k2}\\cdot${v1}\\int_0^{\\infty}${ex}\\,dx=${k3}\\cdot${v1}=${wert}`)}${Number.isInteger((2 * k * q ** 3) / p ** 3) ? '' : ` ${tex(`\\approx${ft((2 * k * q ** 3) / p ** 3, 3)}`)}`}.`, f: (x) => k * x * x * Math.exp(-c * x), a: 0, form };
+        explain: `Zweimal partielle Integration: Die Randterme ${tex(`\\left[-${ein(kc)}x^2\\,${ex}\\right]_0^b`)} und ${tex(`\\left[-${ein(v1)}x\\,${ex}\\right]_0^b`)} gehen gegen 0. Es bleibt ${tex(`${k2}\\cdot${v1}\\int_0^{\\infty}${ex}\\,dx=${k3}\\cdot${v1}=${wert}`)}${wert3((2 * k * q ** 3) / p ** 3)}.`, f: (x) => k * x * x * Math.exp(-c * x), a: 0, form };
     }
     if (form === 'part') {
       const opts = [F(k * q * q, p * p, true), F(k * q, p, false, `Auch im Restintegral wird noch einmal durch ${tex(ft(c))} geteilt.`), F(-k * q * q, p * p, false, vzw), UN(`${tex('x')} wächst zwar, aber ${tex(ex)} fällt viel schneller – die Fläche bleibt endlich.`)];
@@ -456,7 +457,7 @@ export function genUneigentlich(lv = 3) {
       return { prompt: 'Berechne das uneigentliche Integral.', formula: `\\int_{0}^{\\infty}${K(k)}x\\cdot ${ex}\\,dx`, options: shuffle(opts),
         hints: [`Ein Produkt aus ${tex('x')} und einer e-Funktion: partielle Integration ${tex("\\int u\\,v'\\,dx=u\\,v-\\int u'\\,v\\,dx")}.`, `Wähle ${tex(`u=${K(k)}x`)} mit ${tex(`u'=${k}`)} und ${tex(`v'=${ex}`)} mit ${tex(`v=-${ein(v1)}${ex}`)}.`,
           `${tex(`\\int_0^b ${K(k)}x\\,${ex}\\,dx=\\left[-${ein(kc)}x\\,${ex}\\right]_0^b+${kc}\\int_0^b ${ex}\\,dx`)}.`, `Für ${tex('b\\to\\infty')} geht ${tex(`b\\cdot e^{-${K(c)}b}`)} gegen 0 (die e-Funktion gewinnt): Der Randterm verschwindet.`, `Restintegral: ${tex(`\\int_0^{\\infty}${ex}\\,dx=\\left[-${ein(v1)}${ex}\\right]_0^{\\infty}=${v1}`)}, zusammen ${tex(`${kc}\\cdot${v1}`)}.`],
-        explain: `Partielle Integration: ${tex(`\\left[-${ein(kc)}x\\,${ex}\\right]_0^b\\to 0`)} und ${tex(`${kc}\\int_0^{\\infty}${ex}\\,dx=${kc}\\cdot${v1}=${kcc}`)}. Das Integral hat den Wert ${tex(`${kcc}${Number.isInteger((k * q * q) / (p * p)) ? '' : `\\approx${ft((k * q * q) / (p * p), 3)}`}`)}.`, f: (x) => k * x * Math.exp(-c * x), a: 0, form };
+        explain: `Partielle Integration: ${tex(`\\left[-${ein(kc)}x\\,${ex}\\right]_0^b\\to 0`)} und ${tex(`${kc}\\int_0^{\\infty}${ex}\\,dx=${kc}\\cdot${v1}=${kcc}`)}. Das Integral hat den Wert ${tex(`${kcc}${Number.isInteger((k * q * q) / (p * p)) ? '' : `${Math.abs(((k * q * q) / (p * p)) * 1000 - Math.round(((k * q * q) / (p * p)) * 1000)) < 1e-9 ? '=' : '\\approx'}${ft((k * q * q) / (p * p), 3)}`}`)}.`, f: (x) => k * x * Math.exp(-c * x), a: 0, form };
     }
     const opts = [F(k * q, 2 * p, true), F(k * q, p, false, `Aus ${tex('du=\\dots x\\,dx')} kommt der Faktor ${tex('\\tfrac12')} dazu – er fehlt hier.`), F(-k * q, 2 * p, false, vzw), UN(`${tex('x')} wächst zwar, aber ${tex(`e^{-${K(c)}x^2}`)} fällt viel schneller – die Fläche bleibt endlich.`)];
     if (zuNah(opts)) continue;
@@ -464,15 +465,15 @@ export function genUneigentlich(lv = 3) {
     return { prompt: 'Berechne das uneigentliche Integral.', formula: `\\int_{0}^{\\infty}${K(k)}x\\cdot ${ex2}\\,dx`, options: shuffle(opts),
       hints: [`Im Exponenten steht ${tex('x^2')}, davor (bis auf einen Faktor) dessen Ableitung: Substitution ${tex(`u=${K(c)}x^2`)}.`, `${tex(`\\dfrac{du}{dx}=${K(2 * c)}x`)}, also ${tex(`x\\,dx=${2 * c === 1 ? 'du' : dfrac('du', ft(2 * c))}`)}. Die Grenzen 0 und ${tex('\\infty')} bleiben.`,
         `${tex(`\\int_0^{\\infty}${K(k)}x\\,${ex2}\\,dx=${vor}\\int_0^{\\infty}e^{-u}\\,du`)}.`, `${tex('\\int_0^{b}e^{-u}\\,du=\\left[-e^{-u}\\right]_0^b=1-e^{-b}')} geht für ${tex('b\\to\\infty')} gegen 1.`, `Es bleibt der Vorfaktor ${tex(vor)}.`],
-      explain: `Substitution ${tex(`u=${K(c)}x^2`)}: ${tex(`${vor}\\int_0^{\\infty}e^{-u}\\,du=${vor}\\cdot\\left[-e^{-u}\\right]_0^{\\infty}=${vor}\\cdot 1=${vor}`)}${Number.isInteger((k * q) / (2 * p)) ? '' : ` ${tex(`\\approx${ft((k * q) / (2 * p), 3)}`)}`}.`, f: (x) => k * x * Math.exp(-c * x * x), a: 0, form };
+      explain: `Substitution ${tex(`u=${K(c)}x^2`)}: ${tex(`${vor}\\int_0^{\\infty}e^{-u}\\,du=${vor}\\cdot\\left[-e^{-u}\\right]_0^{\\infty}=${vor}\\cdot 1=${vor}`)}${wert3((k * q) / (2 * p))}.`, f: (x) => k * x * Math.exp(-c * x * x), a: 0, form };
   }
 }
 
 /* ───────────── Zufallsgrößen und Unabhängigkeit ───────────── */
 
-const EINKL = [['der Gäste eines Freizeitparks sind Kinder', 'Von den Kindern haben', 'eine Jahreskarte', 'aller Gäste sind weder Kinder noch haben sie eine Jahreskarte'],
-  ['der Kunden eines Online-Händlers bestellen per App', 'Von den App-Kunden zahlen', 'per Lastschrift', 'aller Kunden bestellen weder per App noch zahlen sie per Lastschrift'],
-  ['der Fahrgäste einer Buslinie sind Schüler', 'Von den Schülern besitzen', 'ein Fahrrad', 'aller Fahrgäste sind weder Schüler noch besitzen sie ein Fahrrad']];
+const EINKL = [['der Gäste eines Freizeitparks sind Kinder', 'Von den Kindern haben', 'eine Jahreskarte', 'aller Gäste sind weder Kinder noch haben sie eine Jahreskarte', 'Ein zufällig gewählter Gast hat eine Jahreskarte.'],
+  ['der Kunden eines Online-Händlers bestellen per App', 'Von den App-Kunden zahlen', 'per Lastschrift', 'aller Kunden bestellen weder per App noch zahlen sie per Lastschrift', 'Ein zufällig gewählter Kunde zahlt per Lastschrift.'],
+  ['der Fahrgäste einer Buslinie sind Schüler', 'Von den Schülern besitzen', 'ein Fahrrad', 'aller Fahrgäste sind weder Schüler noch besitzen sie ein Fahrrad', 'Ein zufällig gewählter Fahrgast besitzt ein Fahrrad.']];
 
 /** Stochastische Unabhängigkeit prüfen: Stufe 1 fertige Wahrscheinlichkeiten, 2 Anzahlen, 3 über den Additionssatz, 4 Vierfeldertafel mit Lücke, 5 bedingte Wahrscheinlichkeit und Gegenereignis in einer Einkleidung. */
 export function genUnabhaengig(lv = 3) {
@@ -507,7 +508,7 @@ export function genUnabhaengig(lv = 3) {
       explain = `${tex(`|A\\cap B|=${AB}`)}, ${tex(`|A|=${A}`)}, ${tex(`|B|=${B}`)}. ${tex(`P(A)\\cdot P(B)=\\tfrac{${A}}{${N0}}\\cdot\\tfrac{${B}}{${N0}}${gl(prod)}${z(prod)}`)} und ${tex(`P(A\\cap B)=\\tfrac{${AB}}{${N0}}${gl(pAB)}${z(pAB)}`)}: ${schluss}.`; daten = { n: N0, nurA: nur[0], nurB: nur[1], kein: nur[2] };
     } else {
       const e = pick(EINKL);
-      prompt = `${pz(pA)} ${e[0]} (Ereignis ${tex('A')}). ${e[1]} ${pz(pBA)} ${e[2]} (Ereignis ${tex('B')}). ${pz(pKein)} ${e[3]}. Sind ${tex('A')} und ${tex('B')} stochastisch unabhängig?`;
+      prompt = `${pz(pA)} ${e[0]} (Ereignis ${tex('A')}). Ereignis ${tex('B')}: ${e[4]} ${e[1]} ${pz(pBA)} ${e[2]}. ${pz(pKein)} ${e[3]}. Sind ${tex('A')} und ${tex('B')} stochastisch unabhängig?`;
       const pAqB = (1 - pA) - pKein;
       hints = [regel, `Pfadregel: ${tex(`P(A\\cap B)=P(A)\\cdot P_A(B)=${z(pA)}\\cdot${z(pBA)}=${z(pAB)}`)}.`, `Gegenereignis: ${tex(`P(\\overline{A})=1-${z(pA)}=${z(1 - pA)}`)}. Davon ohne ${tex('B')}: ${tex(z(pKein))}, also ${tex(`P(\\overline{A}\\cap B)=${z(1 - pA)}-${z(pKein)}=${z(pAqB)}`)}.`,
         `${tex(`P(B)=P(A\\cap B)+P(\\overline{A}\\cap B)=${z(pAB)}+${z(pAqB)}=${z(pB)}`)}.`, `Jetzt das Produkt ${tex(`${z(pA)}\\cdot${z(pB)}`)} ausrechnen und mit ${tex(`P(A\\cap B)=${z(pAB)}`)} vergleichen.`];
@@ -541,11 +542,12 @@ export function genVarianz(lv = 3) {
     const rMu = `${tex(`\\mu=${sMu}=${z(mu)}`)}`, rE2 = `${tex(`E(X^2)=${sE2}=${z(ex2)}`)}`, rVa = `${tex(`V(X)=E(X^2)-\\mu^2=${z(ex2)}-${par(mu)}^2=${z(va)}`)}`, rSi = `${tex(`\\sigma=\\sqrt{${z(va)}}\\approx${ft(si, 2)}`)}`;
     const pFehlt = j < 0 ? '' : `${tex(`p=1-(${P.filter((_, i) => i !== j).map((p) => ft(p)).join('+')})=${ft(P[j])}`)}`;
     const hints = ask === 'mu' ? [`Erwartungswert: ${tex('\\mu=\\sum x_i\\cdot p_i')} – jeden Wert mit seiner Wahrscheinlichkeit multiplizieren, dann addieren.`, lv <= 1 ? `${tex(`\\mu=${sMu}`)}.` : `${rMu}.`]
-      : [...(j < 0 ? [] : [`Alle Wahrscheinlichkeiten ergeben zusammen 1 (Gegenwahrscheinlichkeit): ${pFehlt}.`]), `Erwartungswert: ${rMu}.`, `Mittelwert der Quadrate: ${rE2}.`, `Verschiebungssatz: ${rVa}.`, ...(ask === 'sigma' ? [`Standardabweichung: ${tex('\\sigma=\\sqrt{V(X)}')}.`] : [])];
+      : [...(j < 0 ? [] : [`Alle Wahrscheinlichkeiten der Tabelle ergeben zusammen 1: ${pFehlt}.`]), `Erwartungswert: ${rMu}.`, `Mittelwert der Quadrate: ${rE2}.`, `Verschiebungssatz: ${rVa}.`, ...(ask === 'sigma' ? [`Standardabweichung: ${tex('\\sigma=\\sqrt{V(X)}')}.`] : [])];
     const explain = ask === 'mu' ? `${rMu}.` : `${j < 0 ? '' : `Fehlende Wahrscheinlichkeit: ${pFehlt}. `}${rMu}, ${rE2}, ${rVa}${ask === 'sigma' ? `, ${rSi}` : ''}.`;
     const kopf = n >= 5 ? 'p_i' : 'P(X=x_i)';
-    return { prompt: lv >= 5 ? `Bei einem Glücksspiel gibt ${tex('X')} den Gewinn in Euro an (negativ heißt Verlust). In der Tabelle fehlt eine Wahrscheinlichkeit ${tex('p')}. Wie groß ist die Standardabweichung von ${tex('X')}?`
-      : `Die Zufallsgröße ${tex('X')} hat diese Verteilung. Wie groß ist ${{ mu: 'der Erwartungswert', var: 'die Varianz', sigma: 'die Standardabweichung' }[ask]}?`,
+    const runde = opts.some((o) => Math.abs(o.num * 100 - Math.round(o.num * 100)) > 1e-7) ? ' Runde auf zwei Nachkommastellen.' : '';
+    return { prompt: (lv >= 5 ? `Bei einem Glücksspiel gibt ${tex('X')} den Gewinn in Euro an (negativ heißt Verlust). In der Tabelle fehlt eine Wahrscheinlichkeit ${tex('p')}. Wie groß ist die Standardabweichung von ${tex('X')}?`
+      : `Die Zufallsgröße ${tex('X')} hat diese Verteilung. Wie groß ist ${{ mu: 'der Erwartungswert', var: 'die Varianz', sigma: 'die Standardabweichung' }[ask]}?`) + runde,
       formula: `\\begin{array}{c|${'c'.repeat(n)}}x_i&${xs.map((x) => ft(x)).join('&')}\\\\\\hline ${kopf}&${P.map((p, i) => (i === j ? 'p' : ft(p))).join('&')}\\end{array}`, options: shuffle(opts), hints, explain, xs, P, ask, fehlt: j };
   }
 }
@@ -591,7 +593,8 @@ export function genHyper(lv = 3) {
         : `${tief[2]} Mit welcher Wahrscheinlichkeit sind <b>genau ${n - k} davon ${tief[1]}</b>?`;
     const hints = [...(lv >= 5 ? [`Erst die Anzahlen klären: ${pct} % von ${Nn} sind ${tex(`${ft(pct / 100)}\\cdot ${Nn}=${Kk}`)} (${tief[0]}), die übrigen ${Nn - Kk} sind ${tief[1]}.`, `„Genau ${n - k} ${tief[1]}“ heißt bei ${n} gezogenen: genau ${k} ${tief[0]}.`] : []),
       `Ohne Zurücklegen: günstige durch mögliche Auswahlen, ${tex(`P=${term}`)}.`, `${tex(binWeg(Kk, k))} und ${tex(binWeg(Nn - Kk, n - k))}.`, `${tex(binWeg(Nn, n))}. Jetzt ${tex(dfrac(`${c1}\\cdot ${c2}`, c3))} ausrechnen.`];
-    return { prompt, options: shuffle(opts), hints,
+    const runde = opts.some((o) => Math.abs(o.num * 1e4 - Math.round(o.num * 1e4)) > 1e-7) ? ' Gib das Ergebnis in Prozent an, auf zwei Nachkommastellen gerundet.' : '';
+    return { prompt: prompt + runde, options: shuffle(opts), hints,
       explain: `${lv >= 5 ? `${Kk} sind ${tief[0]}, ${Nn - Kk} ${tief[1]}; gesucht sind genau ${k} ${tief[0]} unter den ${n} gezogenen. ` : ''}${tex(`P=${term}=${dfrac(`${c1}\\cdot ${c2}`, c3)}`)} ${tex(`=${dfrac(c1 * c2, c3)}\\approx${ft(hyp, 4)}=${ft(hyp * 100, 2)}\\,\\%`)}.`, N: Nn, K: Kk, n, k };
   }
 }
@@ -687,8 +690,8 @@ export function genAbstandPG(lv = 3) {
     const h3 = `Einsetzen in ${tex('g')}: ${tex(`\\overrightarrow{OF}=${Number.isInteger(t) ? vecTex(F) : FS}`)}.`;
     const h4 = `${tex(`\\overrightarrow{FP}=${Number.isInteger(t) ? vecTex(Pp.map((c, i) => c - F[i])) : FPS}`)}, also ${tex(`d=|\\overrightarrow{FP}|=\\sqrt{${Number.isInteger(t) ? quadrate(Pp.map((c, i) => c - F[i])) : ddT}}${Number.isInteger(t) && Number.isInteger(d) ? '' : (Number.isInteger(t) ? `=\\sqrt{${Math.round(dd)}}` : '')}${dT}`)}.`;
     const kontrolle = `Kontrolle mit dem Satz des Pythagoras im Dreieck ${tex('AFP')}: ${tex(`d^2=|\\overrightarrow{AP}|^2-t^2\\cdot|\\vec u|^2=${ap2}-${fracTex(zz * zz, nn)}=${ddT}`)}.`;
-    const kontext = lv >= 5 ? pick([`Eine Drohne fliegt geradlinig entlang ${tex('g')} (Koordinaten in 100 m). An der Stelle ${tex(PT('P', Pp))} steht ein Funkmast. Wie nah kommt die Drohne dem Mast (in Einheiten, auf zwei Nachkommastellen)?`,
-      `Ein Lichtstrahl verläuft entlang ${tex('g')}. Im Punkt ${tex(PT('P', Pp))} sitzt ein Sensor. Welchen kleinsten Abstand hat der Strahl vom Sensor (auf zwei Nachkommastellen)?`]) : null;
+    const kontext = lv >= 5 ? pick([`Eine Drohne fliegt geradlinig entlang ${tex('g')} (Koordinaten in Längeneinheiten). An der Stelle ${tex(PT('P', Pp))} steht ein Funkmast. Wie nah kommt die Drohne dem Mast (in Längeneinheiten, auf zwei Nachkommastellen gerundet)?`,
+      `Ein Lichtstrahl verläuft entlang ${tex('g')}. Im Punkt ${tex(PT('P', Pp))} sitzt ein Sensor. Welchen kleinsten Abstand hat der Strahl vom Sensor (auf zwei Nachkommastellen gerundet)?`]) : null;
     return { prompt: kontext || (lv === 4 ? `${frage} Runde auf zwei Nachkommastellen.` : frage), formula, options: shuffle(opts), hints: lv >= 5 ? [h1, h2, h3, h4, kontrolle] : [h1, h2, h3, h4],
       explain: `${tex(`t=${dfrac(zz, nn)}${Number.isInteger(t) ? `=${ft(t)}` : tK}`)} liefert den Lotfußpunkt ${Number.isInteger(t) ? tex(PT('F', F)) : `mit ${tex(`\\overrightarrow{OF}=${FS}`)}`}. ${h4.replace(/, also /, ' und ')}${lv >= 5 ? ` ${kontrolle}` : ''}`, A, u, P: Pp };
   }
