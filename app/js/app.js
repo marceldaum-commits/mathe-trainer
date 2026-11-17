@@ -19,7 +19,7 @@ import { abiView, rundeView, blitzView } from './exam.js';
 import { kopfView, knobelHeuteGeloest } from './kopf.js';
 import { arbeitView, arbeitPlan } from './arbeit.js';
 import { checkBadges, titleOf } from './badges.js';
-import { api, serverOn, kiBereit, kiArt } from './api.js';
+import { api, serverOn, kiBereit, kiArt, kiNachpruefen } from './api.js';
 import { updateLeiste } from './update.js';
 import { theorieKnopf, theorieKnoepfe, hatTheorie } from './theoriefenster.js';
 import { settingsView, berichtView, karteiView, dailyGoal, openSteps, levelCard, erfolgeView, formelnView, klasseView, weekCard, readiness, applySkin, applySchrift, lehrplanView } from './extras.js';
@@ -514,6 +514,8 @@ window.addEventListener('mt-ruhig', () => chips());
 new MutationObserver(() => { $('#nav').hidden = !!view.querySelector('.stephead'); }).observe(view, { childList: true, subtree: true });
 look.follow(); applySkin(); applySchrift(); initMelden();
 window.addEventListener('hashchange', route);
+// Zurück aus dem Shop (KI dazugebucht): beim Wiederkommen den Code neu prüfen und KI sofort freischalten.
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') kiNachpruefen().then((neu) => { if (neu) { toast('KI ist freigeschaltet.'); route(); } }).catch(() => {}); });
 window.addEventListener('beforeinstallprompt', (ev) => { ev.preventDefault(); installEvent = ev; window.__mtInstall = ev; if (['#/mehr', '', '#/'].includes(location.hash)) route(); });
 window.addEventListener('appinstalled', () => { installEvent = null; window.__mtInstall = null; toast('Installiert. Der Mathe-Trainer liegt jetzt bei deinen Apps.'); });
 route();

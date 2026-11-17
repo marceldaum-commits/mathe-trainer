@@ -1255,5 +1255,18 @@ ok(nextStreak({ n: 3, last: '2026-11-10' }, D('2026-11-12')).n === 1, 'Serie: au
   } finally { globalThis.fetch = altFetch; if (altLS) Object.defineProperty(globalThis, 'localStorage', altLS); else delete globalThis.localStorage; }
 }
 
+// Leitstand 17.11.2026: KI dazubuchen – Knopf nur bei gültigem Pro ohne KI und nur im Web; nach dem Kauf schaltet die Prüfung KI frei
+{ const A = await import('../app/js/api.js'); const { store: st } = await import('../app/js/store.js'); const alt = st.zugang, altFetch = globalThis.fetch, altApp = globalThis.window.MTApp;
+  try {
+    st.zugang = { code: 'MT-AAAA-BBBB-CCCC', art: 'pass', bis: '2099-07-31', ki: false };
+    ok(A.proOhneKi() && A.kiDazuKnopf().includes(`${A.KI_UPGRADE}?code=MT-AAAA-BBBB-CCCC`) && /KI dazubuchen/.test(A.kaufLinks()), 'KI dazubuchen: Knopf mit eigenem Code bei Pro ohne KI');
+    globalThis.window.MTApp = {}; ok(A.kiDazuKnopf() === '' && !/http/.test(A.kaufLinks()), 'KI dazubuchen: in der Android-App kein Kauflink'); delete globalThis.window.MTApp;
+    const rufe = []; globalThis.fetch = async (url, o) => { rufe.push({ url, body: JSON.parse(o?.body || 'null') }); return { ok: true, status: 200, json: async () => ({ ok: true, ki: true, bis: '2099-07-31', art: 'pass' }) }; };
+    ok(await A.kiNachpruefen() === true && st.zugang.ki === true && st.zugang.code === 'MT-AAAA-BBBB-CCCC' && rufe[0]?.url === '/api/zugang' && rufe[0].body.code === 'MT-AAAA-BBBB-CCCC', 'KI dazubuchen: Prüfung über POST /zugang schaltet KI frei');
+    ok(A.kiDazuKnopf() === '' && await A.kiNachpruefen() === false && rufe.length === 1, 'KI dazubuchen: danach kein Knopf und keine weitere Abfrage');
+    st.zugang = { code: 'MT-AAAA-BBBB-CCCC', art: 'pass', bis: '2000-01-01', ki: false }; ok(A.kiDazuKnopf() === '', 'KI dazubuchen: abgelaufener Code bekommt keinen Knopf');
+  } finally { st.zugang = alt; globalThis.fetch = altFetch; if (altApp) globalThis.window.MTApp = altApp; else delete globalThis.window.MTApp; }
+}
+
 console.log(fails ? `${fails} verschiedene Fehler bei ${n} Prüfungen` : `tests: alle ${n} Prüfungen bestanden`);
 process.exit(fails ? 1 : 0);

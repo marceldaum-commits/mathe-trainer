@@ -2,6 +2,7 @@
 // CONFIG.api ist dann leer, und die App zeigt die Server-Funktionen gar nicht erst an.
 // Vertrag (Adressen, Felder, Regeln): docs/SERVER.md und docs/KI.md.
 import { CONFIG } from './config.js';
+import { store } from './store.js';
 
 export const serverOn = () => typeof CONFIG.api === 'string' && CONFIG.api.length > 0;
 let stufe = '', kiServer = false, premium = false, arten = [];   // was der Server über sich sagt
@@ -33,7 +34,28 @@ export function codeNorm(s) {
   return /^MT[A-Z0-9]{12}$/.test(t) ? `MT-${t.slice(2, 6)}-${t.slice(6, 10)}-${t.slice(10, 14)}` : '';
 }
 /** Verweise nach einem „gehört zu Pro“-Hinweis: Code-Feld (sobald es Zugänge gibt) und – außer in der Android-App – die Website. */
-export const kaufLinks = () => `${premiumOn() ? ' <a href="#/einstellungen">Zugangscode eingeben</a>' : ''}${typeof window !== 'undefined' && window.MTApp ? '' : ` <a href="${CONFIG.shop}" target="_blank" rel="noopener">Pro holen</a>`}`;
+/* KI dazubuchen (Leitstand, 17.11.2026): Pro ohne KI zahlt die Differenz, derselbe Code bekommt KI dazu – gleiche Laufzeit.
+   Nur in der Web-App: In der Android-App gibt es keinen Kauf außerhalb des Stores (Marcel/Play-Richtlinie). */
+export const KI_UPGRADE = 'https://www.mathenachhilfe-online.com/produkt/mathe-trainer-ki-upgrade/';
+const inApp = () => typeof window !== 'undefined' && !!window.MTApp;
+/** Gültiges „Pro“ ohne KI – hier kann KI dazugebucht werden. */
+export const proOhneKi = () => store.zugangGilt() && store.zugang?.ki === false;
+/** Knopf „KI dazubuchen“ (leer in der Android-App und ohne gültiges Pro ohne KI). */
+export const kiDazuKnopf = (klasse = 'btn small') => (proOhneKi() && !inApp() && codeNorm(store.zugang.code)
+  ? `<a class="${klasse} ki-dazu" href="${KI_UPGRADE}?code=${encodeURIComponent(codeNorm(store.zugang.code))}" target="_blank" rel="noopener">KI dazubuchen ↗</a>` : '');
+let zuletztGeprueft = 0;
+/** Hat der Shop KI für den eigenen Code freigeschaltet? Fragt POST /zugang erneut (höchstens alle 20 s, nur bei Pro ohne KI).
+ *  Liefert true, wenn KI eben freigeschaltet wurde (dann ist store.zugang schon aktualisiert). */
+export async function kiNachpruefen() {
+  if (!proOhneKi() || !serverOn() || Date.now() - zuletztGeprueft < 20000) return false;
+  zuletztGeprueft = Date.now();
+  const z = store.zugang, r = await call('/zugang', { code: z.code });
+  if (!r.ok || r.ki === false || store.zugang?.code !== z.code) return false;
+  store.zugang = { ...z, ki: true, ...(/^\d{4}-\d{2}-\d{2}$/.test(r.bis || '') ? { bis: r.bis } : {}), ...(r.art ? { art: String(r.art) } : {}) };
+  try { window.dispatchEvent(new Event('mt-ruhig')); } catch { /* ohne Fenster */ }
+  return true;
+}
+export const kaufLinks = () => (proOhneKi() ? (inApp() ? '' : ` ${kiDazuKnopf('btn small line')}`) : `${premiumOn() ? ' <a href="#/einstellungen">Zugangscode eingeben</a>' : ''}${typeof window !== 'undefined' && window.MTApp ? '' : ` <a href="${CONFIG.shop}" target="_blank" rel="noopener">Pro holen</a>`}`);
 export const ZUGANG_ART = { pass: 'Abi-Pass', tage30: '30-Tage-Pass', frei: 'Freier Zugang' };
 
 /** Übrige KI-Punkte von heute: der letzte Stand, den der Server gemeldet hat (null = heute noch keiner gemeldet). */

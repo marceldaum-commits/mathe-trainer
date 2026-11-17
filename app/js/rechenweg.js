@@ -3,7 +3,7 @@
 import { h, esc } from './ui.js';
 import { store } from './store.js';
 import { CONFIG } from './config.js';
-import { api, premiumOn } from './api.js';
+import { api, premiumOn, proOhneKi, kaufLinks } from './api.js';
 import { marke } from './pro.js';
 
 export const BILD_MAX_KANTE = 1600;
@@ -59,7 +59,7 @@ export function rechenwegFeld(q, richtigTex) {
     if (r.ok && r.text) {
       div.textContent = String(r.text).replace(/<[^>]*>/g, '').slice(0, 1200);
       if (Number.isInteger(r.zeile) && r.zeile > 0) div.prepend(h(`<b class="rw-zeile">Erster Fehler in Zeile ${r.zeile}. </b>`));
-    } else if (r.status === 402) div.innerHTML = `<b>Der Rechenweg-Prüfer gehört zur Stufe „Pro + KI“.</b>${premiumOn() ? ' <a href="#/einstellungen">Zugangscode eingeben</a>' : ''}${window.MTApp ? '' : ` <a href="${CONFIG.website}" target="_blank" rel="noopener">Zur Website</a>`}`;
+    } else if (r.status === 402) div.innerHTML = `<b>Der Rechenweg-Prüfer gehört zur Stufe „Pro + KI“.</b>${proOhneKi() ? kaufLinks() : `${premiumOn() ? ' <a href="#/einstellungen">Zugangscode eingeben</a>' : ''}${window.MTApp ? '' : ` <a href="${CONFIG.website}" target="_blank" rel="noopener">Zur Website</a>`}`}`;
     else div.textContent = r.status === 429 ? 'Dein KI-Guthaben für heute reicht dafür nicht mehr. Morgen geht es weiter.' : r.status === 413 ? 'Das Bild ist zu groß. Bitte näher herangehen oder den Rechenweg abtippen.' : (r.error || 'Der Prüfer ist gerade nicht erreichbar.');
     out.replaceChildren(div);
     if (r.ok && Number.isInteger(r.rest)) out.append(h(`<small class="muted ki-rest">Heute noch ${r.rest} ${r.rest === 1 ? 'KI-Punkt' : 'KI-Punkte'}.</small>`));

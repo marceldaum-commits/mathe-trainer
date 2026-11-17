@@ -20,7 +20,7 @@ import { updateStand, updateSuchen } from './update.js';
 import { merkbilderEinsetzen, hatMerkbild } from './merkbild.js';
 import { BADGES, TITLES, SKINS, titleOf, skinOpen, checkBadges } from './badges.js';
 import { tex } from './ui.js';
-import { api, serverOn, nameOk, codeOk, codeNorm, premiumBereit, ZUGANG_ART } from './api.js';
+import { api, serverOn, nameOk, codeOk, codeNorm, premiumBereit, ZUGANG_ART, kiDazuKnopf, kiNachpruefen } from './api.js';
 import { pushOn, pushCan, pushAn, pushAus, pushStand, pushGesperrt, zeitOk, installiert, SPERR_HILFE, SPERR_SCHRITTE, SPERR_SCHRITTE_APP, nativ } from './erinnern.js';
 import { WOCHEN_ZIEL, WOCHEN_BONUS } from './store.js';
 
@@ -159,7 +159,7 @@ export function settingsView() {
     const box = $('#st-pro', el), stand = $('#st-pro-stand', el), pn = $('#st-pro-note', el), feld = $('#st-pro-code', el), go = $('#st-pro-go', el), zeile = $('#st-pro-zeile', el);
     const datum = (d) => d.split('-').reverse().join('.');
     const paintZ = () => { const z = store.zugang;
-      stand.innerHTML = z ? `<div class="note ${store.zugangGilt() ? 'ok' : 'tip'}"><b>${z.ki === false ? 'Pro' : 'Pro + KI'}${store.zugangGilt() ? ' aktiv ✓' : ''}</b> · ${esc(ZUGANG_ART[z.art] || 'Zugang')} – ${z.bis >= '9999' ? 'unbefristet gültig' : store.zugangGilt() ? `gültig bis ${esc(datum(z.bis))}` : `abgelaufen am ${esc(datum(z.bis))}`}${store.zugangGilt() && z.ki !== false ? `, ${kiPunkteText()}` : ''}. <button class="linkbtn" id="st-pro-weg" type="button">Code entfernen</button></div>` : '';
+      stand.innerHTML = z ? `<div class="note ${store.zugangGilt() ? 'ok' : 'tip'}"><b>${z.ki === false ? 'Pro' : 'Pro + KI'}${store.zugangGilt() ? ' aktiv ✓' : ''}</b> · ${esc(ZUGANG_ART[z.art] || 'Zugang')} – ${z.bis >= '9999' ? 'unbefristet gültig' : store.zugangGilt() ? `gültig bis ${esc(datum(z.bis))}` : `abgelaufen am ${esc(datum(z.bis))}`}${store.zugangGilt() && z.ki !== false ? `, ${kiPunkteText()}` : ''}. <button class="linkbtn" id="st-pro-weg" type="button">Code entfernen</button>${kiDazuKnopf() ? `<div style="margin-top:8px">${kiDazuKnopf()}</div>` : ''}</div>` : '';
       zeile.hidden = !!z && store.zugangGilt();
       $('#st-pro-weg', el)?.addEventListener('click', () => { store.zugang = null; pn.innerHTML = ''; paintZ(); window.dispatchEvent(new Event('mt-ruhig')); }); };
     go.onclick = async () => {
@@ -170,6 +170,7 @@ export function settingsView() {
       else pn.innerHTML = `<div class="note bad">${r.status === 404 ? 'Diesen Code kennen wir nicht, oder er ist abgelaufen.' : esc(r.error || 'Der Code konnte gerade nicht geprüft werden.')}</div>`;
     };
     paintZ(); if (store.zugang) box.hidden = false;
+    kiNachpruefen().then((neu) => { if (neu && el.isConnected) { paintZ(); toast('KI ist freigeschaltet.'); } }).catch(() => {});
     premiumBereit().then((an) => { if (an && el.isConnected) box.hidden = false; }); }
   { const paintS = () => el.querySelectorAll('#st-schrift .pick').forEach((b) => { const on = b.dataset.s === store.schrift; b.classList.toggle('sel', on); b.setAttribute('aria-checked', on); });
     el.querySelectorAll('#st-schrift .pick').forEach((b) => { b.onclick = () => { store.schrift = b.dataset.s; applySchrift(); paintS(); sfx('tap'); }; }); paintS(); }

@@ -1,8 +1,8 @@
 // Stufen der App auf einen Blick: Was ist frei, was gehört zu „Pro“, was zu „Pro + KI“ – und was ist auf diesem Gerät freigeschaltet.
-import { h, esc, ICON } from './ui.js';
+import { h, esc, ICON, toast } from './ui.js';
 import { store } from './store.js';
 import { CONFIG } from './config.js';
-import { premiumOn, premiumBereit, ZUGANG_ART, kiRestHeute, kiLimitHeute, kiRestHolen } from './api.js';
+import { premiumOn, premiumBereit, ZUGANG_ART, kiRestHeute, kiLimitHeute, kiRestHolen, kiDazuKnopf, kiNachpruefen } from './api.js';
 
 /** Alle Funktionen mit ihrer Stufe. wo = Sprungziel in der App (leer: erscheint direkt bei den Aufgaben). */
 export const FUNKTIONEN = [
@@ -65,8 +65,10 @@ export function proView() {
   const ak = el.querySelector('#pro-aktion');
   premiumBereit().then((an) => {
     if (!el.isConnected) return;
-    if (an || z) ak.innerHTML = `<a class="btn small" href="#/einstellungen">${z ? 'Zugangscode ändern' : 'Zugangscode eingeben'}</a>${!st && !window.MTApp ? ` <a class="btn small line" href="${CONFIG.shop}" target="_blank" rel="noopener">Pro holen ↗</a>` : ''}`;
+    if (an || z) ak.innerHTML = `<a class="btn small" href="#/einstellungen">${z ? 'Zugangscode ändern' : 'Zugangscode eingeben'}</a>${!st && !window.MTApp ? ` <a class="btn small line" href="${CONFIG.shop}" target="_blank" rel="noopener">Pro holen ↗</a>` : ''}${kiDazuKnopf() ? ` ${kiDazuKnopf()}` : ''}`;
     else ak.innerHTML = '<small>Die Pro-Fassung startet bald. Bis dahin sind die Pro-Funktionen hier zum Ausprobieren frei.</small>';
   });
+  // Nach dem Dazubuchen im Shop: Code neu prüfen, KI sofort freischalten
+  kiNachpruefen().then((neu) => { if (neu && el.isConnected) { toast('KI ist freigeschaltet.'); window.dispatchEvent(new HashChangeEvent('hashchange')); } }).catch(() => {});
   return { el };
 }

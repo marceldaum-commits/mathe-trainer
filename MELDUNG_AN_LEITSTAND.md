@@ -40,6 +40,23 @@ Eure Aufträge: KI-Punkte-Abfrage (Endpunkt live), Nachtauftrag „Aufgaben prü
 - Sie zeigt „heute noch N KI-Punkte“ auf Startseite, Pro-Seite und in den Einstellungen und aktualisiert das von selbst. Das Limit 15 alter Codes wird übernommen.
 - Ein 429 dieser Abfrage setzt den Rest nicht auf 0.
 
+### KI dazubuchen (euer Auftrag von 23:03)
+- **Web-App:**
+  - Bei gültigem „Pro“ ohne KI steht an den KI-Stellen statt „Pro holen“ der Knopf **„KI dazubuchen ↗“**. Das sind die Hinweise „gehört zur Stufe Pro + KI“ bei Tutor-Rückfragen, Erklärungen, KI-Aufgaben, KI-Auswertung und Rechenweg-Prüfer.
+  - Den Knopf gibt es auch auf der Pro-Seite und in den Einstellungen.
+  - Er öffnet `…/produkt/mathe-trainer-ki-upgrade/?code=<eigener Code>` in einem neuen Tab.
+- **Android-App:** **kein** Kauflink, auch nicht im externen Browser. Das bleibt bei Marcels Regel und der Play-Richtlinie: kein Kauf außerhalb des Stores.
+  - Bitte bei Marcel bestätigen, falls das anders gewollt ist.
+  - Wer am Rechner oder im Browser dazubucht, bekommt KI trotzdem auch in der App, über die erneute Prüfung.
+- **Erneute Prüfung:** beim Zurückkehren (`visibilitychange` → sichtbar, auch Android-Resume) und beim Öffnen von Pro-Seite und Einstellungen.
+  - `POST /api/zugang {code}` läuft nur bei gültigem Pro ohne KI, höchstens alle 20 s.
+  - Bei `ki: true` schaltet die App KI sofort frei, zeigt „KI ist freigeschaltet.“ und baut die Seite neu auf. Laufzeit und Art übernimmt sie vom Server.
+- **Test-/Live-Seite:** Die App nimmt immer den Link oben, wie beim Pro-Kauflink. Welche Shop-Umgebung den Code prüft, regelt ihr am Server.
+- **Geprüft:** Browser mit nachgebautem Server.
+  - Web: Knopf mit Code, passt bei 360 px; nach dem „Kauf“ und dem Zurückkehren erscheint „KI ist freigeschaltet“, das Abzeichen zeigt „Pro + KI aktiv“.
+  - Android: kein Knopf, die Freischaltung klappt trotzdem.
+  - Dazu 5 Selbsttests.
+
 ### Weitere Korrektur
 - Kumulierte Binomialverteilung (Stufe 4–5): Die Anzeige ist jetzt der exakte Wert, auf 4 Nachkommastellen gerundet. Vorher stand dort die Differenz gerundeter Tabellenwerte, die bei freier Eingabe abgelehnt wurde.
 - Diese Aufgaben gibt es nur noch als Auswahl, weil Tabellenwerte in der 4. Stelle abweichen können.

@@ -5,7 +5,7 @@ import { store } from './store.js';
 import { CONFIG } from './config.js';
 import { ft } from './math.js';
 import { inputSpec, parseInput, isRight, diagnose } from './eingabe.js';
-import { api, kiBereit, premiumOn, kiArt } from './api.js';
+import { api, kiBereit, premiumOn, kiArt, proOhneKi, kaufLinks } from './api.js';
 import { rechenwegFeld } from './rechenweg.js';
 import { merkZuTitel, merkbilderEinsetzen } from './merkbild.js';
 import { marke } from './pro.js';
@@ -34,7 +34,7 @@ export function quiz(sequence, opts = {}) {
       // „Erklär's mir anders“ (KI, nur mit eingeschaltetem Server): bekommt nur die Aufgabe und die gewählte Antwort.
       let gewaehlt = '';
       const richtigTex = () => q.options?.find((o) => o.correct)?.tex || '';
-      const kauf = () => `${premiumOn() ? ' <a href="#/einstellungen">Zugangscode eingeben</a>' : ''}${window.MTApp ? '' : ` <a href="${CONFIG.website}" target="_blank" rel="noopener">Zur Website</a>`}`;
+      const kauf = () => (proOhneKi() ? kaufLinks() : `${premiumOn() ? ' <a href="#/einstellungen">Zugangscode eingeben</a>' : ''}${window.MTApp ? '' : ` <a href="${CONFIG.website}" target="_blank" rel="noopener">Zur Website</a>`}`);
       // KI-Tutor: Rückfragen zur selben Aufgabe (Stufe „Pro + KI“). Der Verlauf bleibt nur hier im Bild, gespeichert wird nichts.
       const nachfragen = (out, erste) => {
         const verlauf = [{ wer: 'ki', text: erste }];
