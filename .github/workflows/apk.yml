@@ -5,10 +5,12 @@
 #   MT_KEYSTORE_PASS = das Passwort dazu
 name: Mathe-Trainer – Android-App bauen
 run-name: Mathe-Trainer – Android-App bauen (${{ github.ref_name }})
+# RUHT (Marcel, 18.11.2026): Für die nächsten 1–2 Monate nur die Web-App (PWA) – keine APK, kein Play.
+# Der Android-Code bleibt im Repo, wird aber nicht gebaut. Der einzige Schritt, der noch läuft: veröffentlichte APKs entfernen.
 on:
   push:
     branches: [test]
-    paths: ['app/stand.json', 'android/huelle.json', '.github/workflows/apk.yml']
+    paths: ['.github/workflows/apk.yml']
   workflow_dispatch:
     inputs:
       kanal:
@@ -19,7 +21,18 @@ on:
 permissions:
   contents: write   # nur für die Test-APK unter der festen Adresse (Release apk-test), siehe letzter Schritt
 jobs:
+  apk-entfernen:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Veröffentlichte Test-APK entfernen (Release apk-test samt Marke)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if gh release view apk-test >/dev/null 2>&1; then gh release delete apk-test --cleanup-tag --yes; echo "Release apk-test entfernt"; else echo "kein Release apk-test (schon weg)"; fi
+          git ls-remote --tags origin apk-test | grep -q . && git push origin :refs/tags/apk-test || true
   bauen:
+    if: ${{ false }}   # ruht – zum Wiederaufnehmen diese Zeile entfernen und die Auslöser oben zurückstellen
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:

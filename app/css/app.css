@@ -103,7 +103,10 @@ main{width:min(100%,560px);margin:0 auto;padding:18px 16px calc(40px + env(safe-
 .cta p{font-size:calc(14.5px*var(--fs,1));line-height:1.55}
 .cta .btn{background:#fff;color:#bb5000;border-color:#fff;box-shadow:none}
 .foot{display:flex;flex-wrap:wrap;gap:6px 16px;justify-content:center;color:var(--muted);font-size:calc(12.5px*var(--fs,1));padding-top:6px}
-.install{display:flex;gap:12px;align-items:center}
+.install{border:2px solid var(--orange);}
+.install h3{margin:0 0 2px}
+.install-ios{margin:0;padding-left:calc(20px*var(--fs,1));display:grid;gap:4px;font-size:calc(15px*var(--fs,1))}
+.install #install-los{white-space:nowrap}
 
 /* Einheit */
 .back{display:inline-flex;align-items:center;gap:6px;color:var(--muted);font-weight:700;font-size:calc(14px*var(--fs,1));text-decoration:none;

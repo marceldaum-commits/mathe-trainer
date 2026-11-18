@@ -20,6 +20,7 @@ import { updateStand, updateSuchen } from './update.js';
 import { merkbilderEinsetzen, hatMerkbild } from './merkbild.js';
 import { BADGES, TITLES, SKINS, titleOf, skinOpen, checkBadges } from './badges.js';
 import { tex } from './ui.js';
+import { installKarte, installAngebot } from './install.js';
 import { api, serverOn, nameOk, codeOk, codeNorm, premiumBereit, ZUGANG_ART, kiDazuKnopf, kiNachpruefen } from './api.js';
 import { pushOn, pushCan, pushAn, pushAus, pushStand, pushGesperrt, zeitOk, installiert, SPERR_HILFE, SPERR_SCHRITTE, SPERR_SCHRITTE_APP, nativ } from './erinnern.js';
 import { WOCHEN_ZIEL, WOCHEN_BONUS } from './store.js';
@@ -74,6 +75,7 @@ export function settingsView() {
         <div class="stack" id="st-vl-offline" aria-live="polite"></div>
       </div>
       <small class="muted" id="st-vl-info">Ein Knopf „Vorlesen“ erscheint bei jeder Aufgabe und bei jedem Theorie-Abschnitt. Formeln werden in Worten gesprochen.<br><br>Vorgelesen wird mit der Stimme Nova, einer mit KI (OpenAI) erzeugten Stimme. Feste Texte vertonen wir vorab. Texte, die erst in der Aufgabe entstehen (z.&nbsp;B. Rechenaufgaben), schickt die App ohne Angaben zu dir an unseren Server stimmen.mathenachhilfe-online.com; dieser lässt sie einmalig von OpenAI vertonen und speichert die Audiodatei. Es werden keine Namen, Konten oder Geräte-Kennungen übertragen, und unser Server speichert keine Zugriffsprotokolle.</small></section>` : ''}
+    <div id="st-install"></div>
     <section class="card stack"><h3>Schriftgröße</h3>
       <div class="umschalt drei" id="st-schrift" role="radiogroup" aria-label="Schriftgröße"><button class="pick" type="button" role="radio" data-s="klein">Klein</button><button class="pick" type="button" role="radio" data-s="normal">Normal</button><button class="pick" type="button" role="radio" data-s="gross">Groß</button></div>
       <small class="muted">Gilt für die ganze App. Ausdrucke bleiben in normaler Größe.</small></section>
@@ -90,7 +92,7 @@ export function settingsView() {
         <button class="btn small" id="st-push-an" type="button">Speichern</button></div>
       <div id="st-push-note"></div><div id="st-push-install"></div></section>` : ''}
     <section class="card stack" id="st-pro" hidden><h3>Pro-Fassung</h3>
-      <small class="muted">Mit einem Zugangscode schaltest du die Pro-Funktionen frei: Drucken und PDF, ausführliche Theorie – und mit „Pro + KI“ auch die KI-Funktionen. Der Code liegt nur in diesem Gerät, es gibt kein Konto.</small>
+      <small class="muted">Mit einem Zugangscode schaltest du die Pro-Funktionen frei: Drucken und PDF, ausführliche Theorie – und mit „Pro + KI“ auch die KI-Funktionen. Der Code gilt in der Web-App (im Browser oder als installierte App) und liegt nur in diesem Gerät, es gibt kein Konto.</small>
       <div id="st-pro-stand"></div>
       <div class="row push-row" id="st-pro-zeile"><input class="field" id="st-pro-code" type="text" autocomplete="off" autocapitalize="characters" spellcheck="false" maxlength="24" placeholder="MT-XXXX-XXXX-XXXX" aria-label="Zugangscode">
         <button class="btn small" id="st-pro-go" type="button">Einlösen</button></div>
@@ -149,7 +151,7 @@ export function settingsView() {
     save.onclick = () => { if (!zeitOk(tf.value)) { pn.innerHTML = '<div class="note bad">Bitte eine Uhrzeit wählen.</div>'; return; } schalten(tf.value); };
     // Nicht installiert: dezenter Hinweis – als App kommt die Erinnerung wie bei jeder App.
     if (!installiert()) {
-      inst.innerHTML = `<small class="muted">Am besten als App installieren – dann kommt die Erinnerung wie bei jeder App.</small>${window.__mtInstall ? ' <button class="btn ghost small" id="st-push-inst" type="button">App installieren</button>' : ''}`;
+      inst.innerHTML = `<small class="muted">Am besten als App installieren – dann kommt die Erinnerung wie bei jeder App.</small>${installAngebot() ? ' <button class="btn ghost small" id="st-push-inst" type="button">App installieren</button>' : ''}`;
       $('#st-push-inst', el)?.addEventListener('click', async () => { const ev = window.__mtInstall; if (!ev) return; ev.prompt(); await ev.userChoice; window.__mtInstall = null; inst.innerHTML = ''; });
     }
     if (nativ()) { const neu = () => { if (el.isConnected) sync(); else window.removeEventListener('mt-erinnerung', neu); }; window.addEventListener('mt-erinnerung', neu); }
@@ -183,6 +185,7 @@ export function settingsView() {
     if (!window.MTApp) { ub.hidden = true; un.hidden = true; }   // Web-App: aktualisiert sich von selbst, kein Knopf
     ub.onclick = () => { ub.disabled = true; un.textContent = 'Suche …';
       updateSuchen().then((r) => { ub.disabled = false; un.textContent = r.text; if (r.art === 'neu') window.dispatchEvent(new Event('mt-update')); }); }; }
+  { const k = installKarte('einstellungen'); if (k) $('#st-install', el).append(k); }
   if (VORLESEN) { // Vorlesen: an/aus (Stimme Nova, KI-generiert – Pflicht-Kennzeichnung), Probe; die Wahl wird gemerkt
     const sw = $('#st-vl', el), mehr = $('#st-vl-mehr', el);
     const tp = $('#st-vl-tempo', el), tpText = () => { const t = String(vorlese.tempo).replace('.', ','); $('#st-vl-tempo-text', el).textContent = `Sprechtempo ${t}${vorlese.tempo === 1 ? ' (Standard)' : ''}`; tp.setAttribute('aria-valuetext', `${t}-fach`); };

@@ -28,7 +28,7 @@ export const PREISE = [['Pro', '4,99 €', '19,99 €'], ['Pro + KI', '9,99 €'
 export const KI_PRO_TAG = 10;
 const preisTabelle = () => `<section class="card stack pro-preise nur-web" id="pro-preise"><h3>Preise</h3>
   <table class="pro-tab"><thead><tr><th></th><th>30 Tage</th><th>Abi-Pass</th></tr></thead><tbody>${PREISE.map(([n, a, b]) => `<tr><th>${esc(n)}</th><td>${a}</td><td>${b}</td></tr>`).join('')}</tbody></table>
-  <small class="muted">Alle Preise inkl. 19 % MwSt. Der Abi-Pass gilt bis zum 31.07. deines Abi-Jahres. „Pro + KI“ enthält ${KI_PRO_TAG} KI-Punkte pro Tag.</small></section>`;
+  <small class="muted">Alle Preise inkl. 19 % MwSt. Alle Zugänge gelten in der Web-App (im Browser oder als installierte App). Der Abi-Pass gilt bis zum 31.07. deines Abi-Jahres. „Pro + KI“ enthält ${KI_PRO_TAG} KI-Punkte pro Tag.</small></section>`;
 /** Ist eine Funktion dieser Stufe auf diesem Gerät freigeschaltet? */
 export const hat = (stufe) => stufe === 'frei' || (stufe === 'pro' && store.stufe !== '') || (stufe === 'ki' && store.stufe === 'proki');
 /** Kleine Marke für Knöpfe und Karten: zeigt die Stufe und – mit Haken – dass sie freigeschaltet ist. */

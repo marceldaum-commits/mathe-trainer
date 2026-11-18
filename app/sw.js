@@ -1,6 +1,6 @@
 // Service Worker: macht die App offline nutzbar und liefert Updates aus.
 // CACHE muss zur VERSION in js/config.js passen; ASSETS pflegt `npm run fix` (tools/check.mjs).
-const CACHE = 'mt-2.3.6';
+const CACHE = 'mt-2.3.7';
 const ASSETS = [
   "./",
   "b/app.js",
@@ -8,25 +8,25 @@ const ASSETS = [
   "b/teil-4MVY47JE.js",
   "b/teil-5XWSACTG.js",
   "b/teil-63XAKAUB.js",
-  "b/teil-BIN25STV.js",
   "b/teil-BTEA4Q27.js",
-  "b/teil-CFWTNU6A.js",
+  "b/teil-BTXFA6AG.js",
   "b/teil-CRCAQDTV.js",
   "b/teil-DS7R5B22.js",
   "b/teil-EGNV3HNP.js",
   "b/teil-EYXMZW3C.js",
   "b/teil-GGS7D4DX.js",
-  "b/teil-JPEFXDPS.js",
   "b/teil-JZMVLLOD.js",
+  "b/teil-N7VHK3WW.js",
   "b/teil-P356EVSO.js",
   "b/teil-QBHGIUDN.js",
   "b/teil-RSH7KVZ2.js",
-  "b/teil-SRWHXDTA.js",
   "b/teil-V7CVGZHR.js",
   "b/teil-V7OCMSSF.js",
+  "b/teil-VEUPDKUK.js",
   "b/teil-WEKRVII4.js",
   "b/teil-YAQX4LMT.js",
   "b/teil-Z6THMIV3.js",
+  "b/teil-ZAAYLJ7V.js",
   "css/app.css",
   "fonts/inter-latin-wght-normal.woff2",
   "img/apple-touch-icon.png",

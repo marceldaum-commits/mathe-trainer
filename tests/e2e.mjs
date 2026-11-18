@@ -981,6 +981,31 @@ await ctx2.close();
   if (!(await ap.locator('#upd').isVisible())) fail('Update: Hinweis verschwindet beim Seitenwechsel');
   await ac.close();
 }
+/* ───────────── „App installieren“ (nur Web-App, Marcel 18.11.2026) ───────────── */
+{ // Android/Chrome: Installations-Angebot → Karte auf Start und in den Einstellungen, Tippen ruft das Angebot auf
+  const ic = await browser.newContext({ ...devices['Pixel 7'] }); const ip = await ic.newPage();
+  ip.on('pageerror', (e) => errors.push(`Installieren: ${e.message}`));
+  await ip.goto(BASE); await ip.waitForSelector('#home');
+  if (await ip.locator('#install-start').count()) fail('Installieren: Karte ohne Angebot des Browsers');
+  await ip.evaluate(() => { const ev = new Event('beforeinstallprompt', { cancelable: true }); ev.prompt = () => { window.__gefragt = (window.__gefragt || 0) + 1; }; ev.userChoice = Promise.resolve({ outcome: 'accepted' }); window.dispatchEvent(ev); });
+  await ip.waitForSelector('#install-start #install-los');
+  if (await ip.evaluate(() => { const b = document.querySelector('#install-los'); return b.getBoundingClientRect().height > 2.2 * parseFloat(getComputedStyle(b).lineHeight) || document.documentElement.scrollWidth - innerWidth > 1; })) fail('Installieren: Knopf bricht um oder macht die Seite zu breit');
+  if (shots) await ip.screenshot({ path: `${shots}/84b-installieren.png` });
+  await ip.goto(`${BASE}#/einstellungen`); await ip.waitForSelector('#install-einstellungen #install-los');
+  await ip.click('#install-einstellungen #install-los'); await ip.waitForTimeout(200);
+  if ((await ip.evaluate(() => window.__gefragt)) !== 1 || await ip.locator('#install-einstellungen').count()) fail('Installieren: Tippen ruft das Angebot des Browsers nicht auf');
+  await ic.close();
+  // iPhone: Anleitung „Teilen → Zum Home-Bildschirm“
+  const ioc = await browser.newContext({ ...devices['iPhone 13'] }); const iop = await ioc.newPage();
+  await iop.goto(BASE); await iop.waitForSelector('#home');
+  if (!/Zum Home-Bildschirm/.test(await iop.textContent('#install-start').catch(() => ''))) fail('Installieren: iPhone ohne Anleitung');
+  if (shots) await iop.screenshot({ path: `${shots}/84c-installieren-iphone.png` });
+  // schon installiert (eigenes Fenster): keine Karte
+  await iop.addInitScript(() => { Object.defineProperty(navigator, 'standalone', { get: () => true }); });
+  await iop.goto(BASE); await iop.reload(); await iop.waitForSelector('#home');
+  if (await iop.locator('#install-start').count()) fail('Installieren: Karte, obwohl die App schon installiert ist');
+  await ioc.close();
+}
 // Start-Wache: Lädt das Programm nicht, gibt es einen Neu-Lade-Versuch und danach einen Hinweis mit Knopf – nie eine leere Seite
 { const wc = await browser.newContext({ ...devices['Pixel 7'], serviceWorkers: 'block' }); const wp = await wc.newPage();
   await wc.addInitScript(() => { window.__mtWacheMs = 1500; });

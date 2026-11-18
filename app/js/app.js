@@ -21,6 +21,7 @@ import { arbeitView, arbeitPlan } from './arbeit.js';
 import { checkBadges, titleOf } from './badges.js';
 import { api, serverOn, kiBereit, kiArt, kiNachpruefen } from './api.js';
 import { updateLeiste } from './update.js';
+import { installKarte, beiInstallWechsel } from './install.js';
 import { theorieKnopf, theorieKnoepfe, hatTheorie } from './theoriefenster.js';
 import { settingsView, berichtView, karteiView, dailyGoal, openSteps, levelCard, erfolgeView, formelnView, klasseView, weekCard, readiness, applySkin, applySchrift, lehrplanView } from './extras.js';
 // Lernmusik (ab Werk an): In der Android-App startet sie gleich beim Öffnen (die App-Hülle erlaubt Ton ohne Tippen),
@@ -41,7 +42,6 @@ if (typeof window !== 'undefined' && window.MTApp) {
 
 const view = $('#view');
 let cleanup = null;
-let installEvent = null;
 
 function chips() {
   $('#chips').innerHTML =
@@ -150,6 +150,7 @@ function home() {
            <a class="btn" href="#/u/${spot.u.id}/${spot.i}">${started ? 'Weiter' : 'Erste Runde starten'} ${ICON.right}</a>`
         : `<h2>Alles geschafft!</h2><p>Wiederhole gern eine Runde – die Aufgaben sind jedes Mal neu. ${istOber() ? 'Oder teste dich im Abi-Modus.' : 'Oder schau schon einmal in die nächste Klasse.'}</p>`}
     </section>
+    <div id="install-platz"></div>
     <div class="sect"><h2>Was möchtest du üben?</h2></div>
     <section class="areas">${AREAS.map((a) => areaCard(a, a.id === 'pruefung' ? '#/pruefung' : `#/g/${a.id}`)).join('')}${istOber() ? '' : areaLink('#/pruefung', 'Teste dich', 'Arbeitsblatt, Probe-Arbeit, freies Üben')}</section>
     <div id="today" class="stack"></div>
@@ -160,6 +161,7 @@ function home() {
     ${footer()}
   </div>`);
   jgVerdrahten(el, () => route());
+  { const k = installKarte('start'); if (k) $('#install-platz', el).append(k); }
   const days = store.abiDays(), due = store.karteDue().length, tb = store.tagBest();
   const today = $('#today', el);
   const tile = (href, num, title, sub) => `<a class="card tile" href="${href}"><span class="num">${num}</span><h3>${esc(title)}</h3><small>${sub}</small></a>`;
@@ -308,11 +310,7 @@ function mehrView() {
     <section class="card stack nur-app" id="wer"><h3>Wer steckt dahinter?</h3><p>Den Mathe-Trainer macht ${esc(CONFIG.firma)}. Dort gibt es auch persönliche Mathe-Nachhilfe – online, eins zu eins. Mehr dazu unter ${esc(CONFIG.website.replace(/^https?:\/\/(www\.)?|\/$/g, ''))}.</p></section>
     ${footer()}
   </div>`);
-  if (installEvent) {
-    const box = h(`<div class="card install"><span class="grow"><h3>Als App aufs Handy</h3><small class="muted">Ein Tipp – dann liegt der Mathe-Trainer auf dem Startbildschirm.</small></span><button class="btn small" type="button">Installieren</button></div>`);
-    box.querySelector('button').onclick = async () => { installEvent.prompt(); await installEvent.userChoice; installEvent = null; box.remove(); };
-    $('#install', el).append(box);
-  }
+  { const k = installKarte('mehr'); if (k) $('#install', el).append(k); }
   return el;
 }
 
@@ -516,8 +514,7 @@ look.follow(); applySkin(); applySchrift(); initMelden();
 window.addEventListener('hashchange', route);
 // Zurück aus dem Shop (KI dazugebucht): beim Wiederkommen den Code neu prüfen und KI sofort freischalten.
 document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') kiNachpruefen().then((neu) => { if (neu) { toast('KI ist freigeschaltet.'); route(); } }).catch(() => {}); });
-window.addEventListener('beforeinstallprompt', (ev) => { ev.preventDefault(); installEvent = ev; window.__mtInstall = ev; if (['#/mehr', '', '#/'].includes(location.hash)) route(); });
-window.addEventListener('appinstalled', () => { installEvent = null; window.__mtInstall = null; toast('Installiert. Der Mathe-Trainer liegt jetzt bei deinen Apps.'); });
+beiInstallWechsel(() => { if (['#/mehr', '', '#/', '#/einstellungen'].includes(location.hash)) route(); });   // „App installieren“ (install.js)
 route();
 window.__mtGestartet?.();
 ladeAufgaben().catch(() => {});   // Aufgaben-Erzeuger (rund 1,5 MB) gleich nach dem ersten Bild im Hintergrund holen

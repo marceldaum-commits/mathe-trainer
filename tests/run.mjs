@@ -1045,6 +1045,11 @@ ok(nextStreak({ n: 3, last: '2026-11-10' }, D('2026-11-12')).n === 1, 'Serie: au
   ok(/data-schrift="klein"\]\{--fs:\.88\}/.test(css) && /data-schrift="gross"\]\{--fs:1\.12\}/.test(css), 'Schrift: Faktoren für klein und groß'); }
 
 // Selbst-Aktualisierung der Android-App: Stand aus der App-Hülle lesen, Dateiliste mit Prüfsummen
+{ const I = await import('../app/js/install.js'), fs = await import('node:fs'), M = JSON.parse(fs.readFileSync(new URL('../app/manifest.webmanifest', import.meta.url), 'utf8'));
+  ok(I.istIos({ userAgent: 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X)' }) && I.istIos({ userAgent: 'Mozilla/5.0 (Macintosh)', platform: 'MacIntel', maxTouchPoints: 5 }) && !I.istIos({ userAgent: 'Mozilla/5.0 (Linux; Android 14)' }), 'Installieren: iPhone/iPad werden erkannt (Anleitung statt Knopf)');
+  ok(M.name && M.display === 'standalone' && M.start_url && M.theme_color && M.icons.some((i) => i.purpose === 'maskable' && i.sizes === '512x512') && M.icons.some((i) => i.sizes === '192x192'), 'Installieren: Manifest mit Name, Symbolen (auch maskable), eigenem Fenster, Start-Adresse und Farbe');
+  const sw = fs.readFileSync(new URL('../app/sw.js', import.meta.url), 'utf8');
+  ok(/c\.add\('\.\/'\)/.test(sw) && /caches\.match\('\.\/'\)/.test(sw), 'Installieren: startet auch offline (Startseite im Speicher)'); }
 { const U = await import('../app/js/update.js');
   const app = (o) => ({ updateStand: () => (typeof o === 'string' ? o : JSON.stringify(o)) });
   ok(U.updateStand(undefined) === null && U.updateStand({}) === null, 'Update: im Browser gibt es keinen Stand');

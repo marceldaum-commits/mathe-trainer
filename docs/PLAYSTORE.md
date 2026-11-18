@@ -1,3 +1,5 @@
+> **Ruht (Marcel, 18.11.2026):** Für die nächsten 1–2 Monate gibt es nur die Web-App (installierbar als PWA) – keine APK, kein Play Store. Diese Seite bleibt für später.
+
 # Play Store – Vorbereitung (noch nicht veröffentlicht)
 
 Stand: 13.11.2026. Marcel: „Play Store, wenn die App voller ist.“ Dieses Dokument hält fest, was fertig ist und
