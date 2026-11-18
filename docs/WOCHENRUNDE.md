@@ -55,3 +55,15 @@ Ablauf von nun an jede Woche: (1) was jede App herausnimmt oder abgibt und an we
   - Raumlicht übernimmt „Schattenwurf“ und „Körper im Raum“ (Oberstufe). Normalverteilung zeigt Raumlicht am 24.11. zum Erleben, wir üben sie am 4.12.
   - Rechenblitz: LGS nur mit 2 Unbekannten im Kopf; 3 Unbekannte und Gauß machen wir und Raumlicht. Zehnerpotenzen baut Rechenblitz als Tempo-Thema aus, Potenzen bleiben bei uns in k10-wachstum. Zur Kopfrechen-Arena sagt Rechenblitz: behalten, nicht ausbauen, Link zu Rechenblitz – das passt.
   - Experimentopia: Radioaktivität ganz dort; Halbwertszeit rechnen bei uns (a-wachstum, k10-wachstum) und bei KurvenFlug.
+
+### Ansage „Geld verdienen“ (18.11., abends) und Klärung
+
+- **Ansage im Auftrag von Marcel:**
+  - Klare Profile, um die doppelte Oberstufe aufzulösen. Vorschlag: Raumlicht = Räumliches, Mathe-Trainer = Analysis und Stochastik fürs Abi, KurvenFlug = Kl. 5–10.
+  - Bis Montag nichts Neues in überlappenden Gebieten anfangen.
+  - Bis Mo 23.11., 13 Uhr, von jedem Raum: Inhaltsliste (Klassen × Themen, Zahl der Aufgaben), Überschneidungen, Vorschlag zum Abgeben bzw. Übernehmen.
+- **Marcel dazu:** „Klärt ihr das ab.“
+- **Unser Vorschlag (an Geld verdienen und Raumlicht):**
+  - „Integral anwenden“ kommt am Fr 20.11.; die Einheit ist schon fertig, gehört zu Analysis und ist bei Raumlicht nicht geplant.
+  - Danach bis zur Entscheidung nichts Neues in Analysis, Stochastik oder Geometrie. Das Gauß-Verfahren (Di 24.11.) wird zurückgehalten.
+  - Die Liste kommt bis Montag 13 Uhr.
