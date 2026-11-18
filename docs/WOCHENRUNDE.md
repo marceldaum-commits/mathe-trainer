@@ -110,3 +110,8 @@ Ablauf von nun an jede Woche: (1) was jede App herausnimmt oder abgibt und an we
 - **Abgleich Raumlicht (52 Aufgaben Analysis/Stochastik):**
   - Alle Aufgabentypen gibt es bei uns schon. Wir übernehmen nichts; Raumlicht streicht, sobald Marcel es direkt bestätigt, und verlinkt auf unsere Einheiten.
   - K12 Rotationskörper: Aus unserer Sicht darf es bei Raumlicht als Teil von „Analysis & Zufall erleben“ bleiben, das Rechnen dazu ist a-rotation. Entscheidung bei Marcel.
+- **Raumlicht (von Marcel direkt bestätigt):**
+  - Die klassischen Analysis- und Stochastik-Aufgaben werden gestrichen, auch die 5 Rotationskörper-Rechenaufgaben.
+  - Stattdessen kommt ein Rotationskörper-Labor zum Erleben (voraussichtlich `?ziel=rotation`). Umbau Di 24.11.
+  - An den gestrichenen Stellen verlinkt Raumlicht „Mehr üben im Mathe-Trainer“.
+  - Unsere Links zu Raumlicht: `?ziel=galton`, `binomial`, `zufall`, `baumeister`.
