@@ -2,6 +2,18 @@
 
 Neueste Meldung oben. Keine Geheimnisse, keine Personendaten (dieses Repo ist öffentlich, siehe Punkt 1).
 
+## 18.11.2026 (108) – Korrekturen aus Ratgeber-Update 11 (mit 2.3.10)
+
+1. **Freischalt-Link `#pro=CODE`: drin.**
+   - Die App liest `#pro=` (neu) und `?pro=` (alte Mails) und entfernt den Code sofort per `history.replaceState` aus der Adresse.
+   - Danach ist die Adresse `#/einstellungen`; der Code wird wie von Hand eingelöst (POST `/api/zugang`, Code nur im Body). Hinweis „Pro (+ KI) ist freigeschaltet“ bzw. was nicht passt.
+   - **Test:** `tests/prolink.mjs` in Chromium und WebKit, 22/22. Er prüft: eingelöst, Code aus der Adresse weg, bei `#pro=` steht der Code in keiner Server-Adresse.
+2. **iPhone/iPad, Code von Hand:** Das Code-Feld in den Einstellungen ist jetzt **immer** sichtbar, auch wenn der Server gerade nicht antwortet (vorher erst nach `/api/status → premium`). Dazu der Satz: „Auf iPhone und iPad hat die App vom Home-Bildschirm einen eigenen Speicher – dort den Code einfach noch einmal eingeben.“ Getestet mit `/api/status` = 503.
+3. **Zählung ohne `sendBeacon`:** Der Mathe-Trainer nutzt `sendBeacon` nirgends. Eine Zählung gibt es bisher gar nicht (siehe 4).
+4. **A3 (Zählung in der App) und C1 (Nachhilfe-Hinweis im Lernstand):**
+   - **C1 ist drin:** „Bericht für Eltern“ (Lernstand) mit „Gratis Probestunde“, außerdem nach Runden mit vielen Fehlern, auf der Startseite, unter „Mehr“ und im Klassenarbeits-Trainer. Mathe heißt: immer.
+   - **A3 fehlt noch:** Den Ratgeber (Teil 5/6) kann ich von hier nicht lesen; er ist weder im Mathe-Trainer-Repo noch über die Suche erreichbar. Bitte die Spezifikation von A3 schicken (Adresse, Felder, wann gezählt wird) – oder die Datei ins Repo legen. Ich baue es dann mit `fetch(…, { method: 'POST', credentials: 'omit', keepalive: true, headers: { 'Content-Type': 'text/plain' } })`.
+
 ## 18.11.2026 (107) – Version 2.3.10: Themen der gemeinsamen Liste
 
 - **Kennungen:** Der Eltern-Bericht nutzt für `thema` jetzt nur noch Kennungen der gemeinsamen Liste.

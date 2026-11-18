@@ -1045,6 +1045,9 @@ ok(nextStreak({ n: 3, last: '2026-11-10' }, D('2026-11-12')).n === 1, 'Serie: au
   ok(/data-schrift="klein"\]\{--fs:\.88\}/.test(css) && /data-schrift="gross"\]\{--fs:1\.12\}/.test(css), 'Schrift: Faktoren für klein und groß'); }
 
 // Selbst-Aktualisierung der Android-App: Stand aus der App-Hülle lesen, Dateiliste mit Prüfsummen
+{ const P = await import('../app/js/prolink.js');   // Freischalt-Link #pro= (neu) und ?pro= (alt)
+  ok(P.codeAusAdresse({ hash: '#pro=mt-ab12-cd34-ef56', search: '' }) === 'MT-AB12-CD34-EF56' && P.codeAusAdresse({ hash: '', search: '?pro=MT-AB12-CD34-EF56' }) === 'MT-AB12-CD34-EF56' && P.codeAusAdresse({ hash: '#/einstellungen', search: '' }) === null && P.codeAusAdresse({ hash: '#pro=quatsch', search: '' }) === '', 'Freischalt-Link: #pro= und ?pro= werden gelesen');
+  ok(P.adresseOhneCode('https://trainer.example/?pro=MT-AB12-CD34-EF56#/') === '/#/' && P.adresseOhneCode('https://trainer.example/#pro=MT-AB12-CD34-EF56') === '/#/einstellungen', 'Freischalt-Link: Code verschwindet aus der Adresse'); }
 { const E = await import('../app/js/eltern.js');   // Eltern-Handy koppeln (Marcel 18.11.2026); Rundlauf im Browser: tests/eltern.mjs
   ok(E.b64url(new Uint8Array(16)).length === 22 && E.b64url(new Uint8Array(32)).length === 43 && E.b64url(new Uint8Array(12)).length === 16 && !/[+/=]/.test(E.b64url(Uint8Array.from([251, 255, 191]))), 'Eltern: base64url ohne Auffüllzeichen (16 → 22, 32 → 43, IV 12 → 16 Zeichen)');
   const id = 'A'.repeat(22), key = 'B'.repeat(43);

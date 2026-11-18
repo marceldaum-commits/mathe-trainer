@@ -8,7 +8,8 @@
     "start": "python3 -m http.server 8123 --directory app",
     "test:webkit": "node tests/webkit.mjs",
     "test:update": "node tests/web-update.mjs",
-    "test:eltern": "node tests/eltern.mjs"
+    "test:eltern": "node tests/eltern.mjs",
+    "test:prolink": "node tests/prolink.mjs"
   },
   "devDependencies": {
     "esbuild": "0.28.2"

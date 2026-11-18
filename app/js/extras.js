@@ -94,7 +94,7 @@ export function settingsView() {
         <button class="btn small" id="st-push-an" type="button">Speichern</button></div>
       <div id="st-push-note"></div><div id="st-push-install"></div></section>` : ''}
     <section class="card stack" id="st-pro" hidden><h3>Pro-Fassung</h3>
-      <small class="muted">Mit einem Zugangscode schaltest du die Pro-Funktionen frei: Drucken und PDF, ausführliche Theorie – und mit „Pro + KI“ auch die KI-Funktionen. Der Code gilt in der Web-App (im Browser oder als installierte App) und liegt nur in diesem Gerät, es gibt kein Konto.</small>
+      <small class="muted">Mit einem Zugangscode schaltest du die Pro-Funktionen frei: Drucken und PDF, ausführliche Theorie – und mit „Pro + KI“ auch die KI-Funktionen. Der Code gilt in der Web-App (im Browser oder als installierte App) und liegt nur in diesem Gerät, es gibt kein Konto. Auf iPhone und iPad hat die App vom Home-Bildschirm einen eigenen Speicher – dort den Code einfach noch einmal eingeben.</small>
       <div id="st-pro-stand"></div>
       <div class="row push-row" id="st-pro-zeile"><input class="field" id="st-pro-code" type="text" autocomplete="off" autocapitalize="characters" spellcheck="false" maxlength="24" placeholder="MT-XXXX-XXXX-XXXX" aria-label="Zugangscode">
         <button class="btn small" id="st-pro-go" type="button">Einlösen</button></div>
@@ -173,7 +173,8 @@ export function settingsView() {
       if (r.ok && /^\d{4}-\d{2}-\d{2}$/.test(r.bis || '')) { store.zugang = { code, art: String(r.art || ''), bis: r.bis, ki: r.ki !== false /* false = Stufe „Pro“ ohne KI */ }; feld.value = ''; pn.innerHTML = `<div class="note ok">Eingelöst. ${r.ki !== false ? 'Drucken, PDF, ausführliche Theorie und die KI-Funktionen sind freigeschaltet.' : 'Drucken, PDF und die ausführliche Theorie sind freigeschaltet.'}</div>`; sfx('ok'); paintZ(); window.dispatchEvent(new Event('mt-ruhig')); }
       else pn.innerHTML = `<div class="note bad">${r.status === 404 ? 'Diesen Code kennen wir nicht, oder er ist abgelaufen.' : esc(r.error || 'Der Code konnte gerade nicht geprüft werden.')}</div>`;
     };
-    paintZ(); if (store.zugang) box.hidden = false;
+    // Die Code-Eingabe von Hand muss immer gehen (Leitstand 18.11.): auch ohne Antwort vom Server, z. B. offline oder in der App vom iPhone-Home-Bildschirm mit eigenem Speicher.
+    paintZ(); box.hidden = false;
     kiNachpruefen().then((neu) => { if (neu && el.isConnected) { paintZ(); toast('KI ist freigeschaltet.'); } }).catch(() => {});
     premiumBereit().then((an) => { if (an && el.isConnected) box.hidden = false; }); }
   { const paintS = () => el.querySelectorAll('#st-schrift .pick').forEach((b) => { const on = b.dataset.s === store.schrift; b.classList.toggle('sel', on); b.setAttribute('aria-checked', on); });

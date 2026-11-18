@@ -23,6 +23,7 @@ import { api, serverOn, kiBereit, kiArt, kiNachpruefen } from './api.js';
 import { updateLeiste } from './update.js';
 import { installKarte, beiInstallWechsel } from './install.js';
 import { elternView } from './eltern-ui.js';
+import { freischaltLink } from './prolink.js';
 import { elternAutomatik } from './eltern.js';
 import { theorieKnopf, theorieKnoepfe, hatTheorie } from './theoriefenster.js';
 import { settingsView, berichtView, karteiView, dailyGoal, openSteps, levelCard, erfolgeView, formelnView, klasseView, weekCard, readiness, applySkin, applySchrift, lehrplanView } from './extras.js';
@@ -519,6 +520,7 @@ window.addEventListener('hashchange', route);
 document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') kiNachpruefen().then((neu) => { if (neu) { toast('KI ist freigeschaltet.'); route(); } }).catch(() => {}); });
 elternAutomatik();   // gekoppeltes Eltern-Handy: Bericht und Sicherung nach jeder Lern-Sitzung (höchstens alle 10 Minuten)
 beiInstallWechsel(() => { if (['#/mehr', '', '#/', '#/einstellungen'].includes(location.hash)) route(); });   // „App installieren“ (install.js)
+freischaltLink((text) => toast(text));   // #pro=CODE (neu) bzw. ?pro=CODE (alte Mails): sofort aus der Adresse, dann einlösen
 route();
 window.__mtGestartet?.();
 ladeAufgaben().catch(() => {});   // Aufgaben-Erzeuger (rund 1,5 MB) gleich nach dem ersten Bild im Hintergrund holen
