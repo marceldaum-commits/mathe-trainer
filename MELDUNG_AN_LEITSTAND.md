@@ -2,6 +2,44 @@
 
 Neueste Meldung oben. Keine Geheimnisse, keine Personendaten (dieses Repo ist öffentlich, siehe Punkt 1).
 
+## 18.11.2026 (112) – 2.4.0 auf test: „Integral anwenden“, Knopf „← Alle Apps“, Abstimmung der Lern-Apps
+
+**2.4.0 (Freitags-Update 20.11., vorzeitig auf test)**
+- **Neue Einheit „Integral anwenden“** (`a-integral2`, Oberstufe Analysis, nach „Integralfunktion, Newton, Ortskurve“):
+  - Drei Aufgaben-Arten mit je fünf Stufen und 21 Aufgaben-Formen:
+    - Mittelwert einer Funktion;
+    - Bestand aus der Änderungsrate (Becken, Stausee, Bakterien, Freizeitpark, mit Einheiten);
+    - größter und kleinster Bestand (Vorzeichenwechsel der Rate, Ränder vergleichen).
+  - Jede Aufgabe hat einen vollständigen Lösungsweg, ohne Abkürzungen.
+  - Dazu Theorie kurz und ausführlich (Formel, Bedeutung der Größen, durchgerechnete Beispiele), Formelkarten und der Endgegner „Bilanz-Biber“.
+- **Wie geprüft:**
+  - `tests/hart/gen12.mjs` rechnet 6000 Aufgaben unabhängig nach (66.015 Prüfungen).
+  - `eindeutig.mjs` stellt sicher, dass es keine zweite richtige Antwort gibt.
+  - `stufen.mjs` stellt sicher, dass die Stufen schwerer werden.
+  - Stichproben aller Stufen habe ich von Hand nachgerechnet.
+  - `npm run check`: 1.314.645 Prüfungen grün.
+- **Knopf „← Alle Apps“** auf Start und Übersicht (Lernen), nicht in Aufgaben, Prüfungen oder Spielen:
+  - Ziel ist `…/lern-apps/?src=mathetrainer-kopf`; auf der Test-Stufe staging, sonst www. Er öffnet im selben Tab.
+  - Mindestens 44 px hoch, hell und dunkel lesbar, kein Preis.
+  - Bildschirmfotos für Handy (360 px, hell und dunkel) und PC (1440 px) liegen vor.
+- **Zurücksetzen-Felder** (Marcels Bildschirmfoto): Die Felder nutzen wieder die volle Breite. Der neue WebKit-Test schlägt mit der alten CSS an (14 % statt mindestens 80 %).
+- **C1:** Der Probestunden-Link im Klassenarbeits-Trainer zeigt jetzt auf `/probestunde/` (statt `/probestunde-anfrage/`), mit src, thema und klasse.
+- **2.3.11 (anonyme Zählung)** ist seit 18.11. abends auf main und test (e2e alle fünf Stufen grün).
+- **Tests 2.4.0:**
+  - webkit 104, eltern 40, prolink 22, zaehlung 18, web-update 12;
+  - e2e auf allen fünf Stufen: grün (Stufen 1–5, je 37 Einheiten mit Endgegner).
+- **live** bleibt beim Leitstand.
+
+**Abstimmung der Lern-Apps** (Marcel: „Besprecht nun gegenseitig eure Inhalte“; Einzelheiten in `docs/WOCHENRUNDE.md`)
+- Alle sechs Räume haben geantwortet; Link-Formate sind gesammelt (KurvenFlug `#kapitel=<name>`, Rechenblitz `?thema=`, Raumlicht `?ziel=`, Experimentopia `#thema=`, Wissensgarten).
+- Marcels Entscheidung umgesetzt:
+  - Raumlicht streicht seine 52 klassischen Analysis- und Stochastik-Aufgaben. Alle Typen gibt es bei uns schon, wir übernehmen nichts. Statt der Rechenaufgaben baut Raumlicht ein Rotationskörper-Labor.
+  - KurvenFlug nimmt seine Oberstufe heraus.
+  - Das Gauß-Verfahren kommt Di 24.11. wie geplant.
+- **Querverweise** zu den anderen Apps kommen nach der Abstimmung zu Wortlaut und Zählung am Montag, voraussichtlich mit dem Update Di 24.11.
+- **Offene Frage:** Unsere 9 Geometrie-Einheiten (Vektoren, Geraden, Ebenen, Abstände) sind in der Profil-Entscheidung nicht genannt. Sie bleiben unverändert, bis Marcel entscheidet.
+- Die Kopfrechen-Arena bleibt, wird nicht ausgebaut und verlinkt auf Rechenblitz; Rechenblitz ist einverstanden.
+
 ## 18.11.2026 (111) – Roadmap auf Dienstag/Freitag umgestellt
 
 - `docs/THEMEN-ROADMAP.md` und `docs/PRUEFPLAN.md` sind auf die neue Dauerregel umgestellt.
