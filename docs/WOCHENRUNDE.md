@@ -107,3 +107,6 @@ Ablauf von nun an jede Woche: (1) was jede App herausnimmt oder abgibt und an we
   - Meldung zu 2.3.11 (Zählung): 2.3.11 ist seit 18.11. abends auf test.
 - **Neu ab Montag in der Wochenrunde:** Sprachlern-App Englisch.
 - Unsere 9 Geometrie-Einheiten (g-*) sind in der Entscheidung nicht genannt. Sie bleiben unverändert; Rückfrage am Montag.
+- **Abgleich Raumlicht (52 Aufgaben Analysis/Stochastik):**
+  - Alle Aufgabentypen gibt es bei uns schon. Wir übernehmen nichts; Raumlicht streicht, sobald Marcel es direkt bestätigt, und verlinkt auf unsere Einheiten.
+  - K12 Rotationskörper: Aus unserer Sicht darf es bei Raumlicht als Teil von „Analysis & Zufall erleben“ bleiben, das Rechnen dazu ist a-rotation. Entscheidung bei Marcel.
