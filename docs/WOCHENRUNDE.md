@@ -72,3 +72,7 @@ Ablauf von nun an jede Woche: (1) was jede App herausnimmt oder abgibt und an we
   - Raumlicht bringt bis Montag nur Räumliches (Gauß als drei Ebenen, Schattenwurf/Körper) und fängt Zufallsgrößen/Normalverteilung erst nach Marcels Entscheidung an.
   - Raumlichts Sicht: Seine Analysis- und Stochastik-Teile sind zum Erleben gebaut, das Aufgabenrechnen gehört zu uns.
 - **Rechenblitz, Experimentopia:** Inhaltslisten geschickt, keine Oberstufe, nichts abzugeben; mit „2–3 Apps Vorrang pro Woche“ einverstanden.
+- **KurvenFlug:**
+  - Übernimmt das Profil „Kl. 5–10, Funktionen und Physik“.
+  - Keine neuen Oberstufen-Inhalte mehr; „Kurvendiskussion“ wird gestrichen.
+  - Die 6 vorhandenen Oberstufen-Kapitel entscheidet Marcel: (A) als „Ausblick Oberstufe“ behalten, mit Links zu uns und zu Raumlicht – KurvenFlug empfiehlt A –, oder (B) herausnehmen.
