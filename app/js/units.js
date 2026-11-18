@@ -571,9 +571,9 @@ const OBER = [
   },
 ];
 const OBER_AREAS = [
-  { id: 'analysis', title: 'Analysis', soon: ['Stetigkeit und Differenzierbarkeit', 'Transformationen a·f(b(x−c))+d', 'Mittelwert einer Funktion'] },
-  { id: 'stochastik', title: 'Stochastik', soon: ['Gütefunktion', 'Normalverteilung rückwärts', 'Prognose- und Konfidenzintervalle'] },
-  { id: 'geometrie', title: 'Analytische Geometrie', soon: ['Schattenwurf', 'Körper im Raum', 'Winkel zwischen Gerade und Ebene'] },
+  { id: 'analysis', title: 'Analysis', soon: ['Gauß-Verfahren: drei Gleichungen, drei Unbekannte', 'Nullstellen finden: Ausklammern, Substitution, Polynomdivision', 'Transformationen a·f(b(x−c))+d', 'Mittelwert einer Funktion', 'Abi-Pflichtteil ohne Taschenrechner', 'Stetigkeit und Differenzierbarkeit', 'Wachstum und Differentialgleichungen', 'Integrationsverfahren'] },
+  { id: 'stochastik', title: 'Stochastik', soon: ['Satz von Bayes: Baum umdrehen', 'Normalverteilung rückwärts', 'Dichtefunktion: Wahrscheinlichkeit als Fläche', 'Prognose- und Konfidenzintervalle', 'Gütefunktion', 'Zufall simulieren', 'Warten auf den ersten Treffer', 'Übergangsprozesse mit Matrizen'] },
+  { id: 'geometrie', title: 'Analytische Geometrie', soon: ['Kreuzprodukt: Fläche und Volumen', 'Körper im Raum', 'Schattenwurf', 'Linear abhängig oder unabhängig?', 'Beweisen mit Vektoren', 'Matrizen und Abbildungen'] },
   { id: 'pruefung', title: 'Prüfung', soon: ['Musterlösungen lesen', 'Zeit einteilen'] },
 ];
 

@@ -39,13 +39,13 @@ export const MITTEL_AREAS = [
   { id: 'mdaten', mittel: true, title: 'Daten und Zufall', info: 'Diagramme, Mittelwert, Wahrscheinlichkeit', soon: [] },
 ];
 /** Was je Klasse als Nächstes kommt (für die Karte „Kommt bald“). */
-export const MITTEL_BALD = {
-  5: ['Körper und Netze', 'Römische Zahlen', 'Zeit und Geld im Alltag'],
-  6: ['Symmetrie und Spiegeln', 'Flächen zusammengesetzter Figuren', 'Dreisatz im Alltag'],
-  7: ['Dreiecke konstruieren', 'Achsen- und Punktspiegelung', 'Terme aufstellen'],
-  8: ['Baumdiagramme', 'Lineare Ungleichungen', 'Bruchterme'],
-  9: ['Mehrstufige Zufallsversuche', 'Kreis und Zylinder im Sachzusammenhang', 'Wurzelgleichungen'],
-  10: ['Kugel und Kegel im Sachzusammenhang', 'Wachstum vergleichen', 'Trigonometrie am Einheitskreis'],
+export const MITTEL_BALD = {   // Lehrplan-Abgleich 18.11.2026 (docs/LEHRPLAN-ABGLEICH.md), Wichtigstes zuerst
+  5: ['Körper und Netze', 'Geraden, Strecken, senkrecht und parallel', 'Vierecke erkennen und zeichnen', 'Maßstab: Karten und Pläne', 'Potenzen und Quadratzahlen', 'Zeit und Geld im Alltag', 'Römische Zahlen und Zweiersystem'],
+  6: ['Symmetrie und Spiegeln', 'Flächen zusammengesetzter Figuren', 'Dreisatz im Alltag', 'Periodische Dezimalzahlen'],
+  7: ['Dreiecke konstruieren', 'Terme aufstellen', 'Achsen- und Punktspiegelung', 'Satz des Thales', 'Umkreis, Inkreis und Höhen im Dreieck', 'Boxplot und Quartile'],
+  8: ['Baumdiagramme', 'Was ist eine Funktion?', 'Lineare Ungleichungen', 'Bruchterme', 'Hyperbeln: die Funktion a/x'],
+  9: ['Mehrstufige Zufallsversuche', 'Zehnerpotenzen und wissenschaftliche Schreibweise', 'Kreis und Zylinder im Sachzusammenhang', 'Parabel trifft Gerade', 'Wurzelgleichungen', 'Kathetensatz und Höhensatz'],
+  10: ['Prüfungstraining Mittlerer Abschluss', 'Trigonometrie am Einheitskreis', 'Potenzfunktionen', 'Kreisbogen und Kreisausschnitt', 'Wachstum vergleichen', 'Kugel und Kegel im Sachzusammenhang', 'Ganzrationale Funktionen', 'Potenzen mit Bruch-Hochzahlen'],
 };
 
 export const MITTEL = [
@@ -418,7 +418,7 @@ export const MITTEL = [
     ] },
   { id: 'k8-zufall', jg: '8', area: 'mdaten', title: 'Wahrscheinlichkeit', sub: 'Laplace und Gegenereignis',
     meta: { boss: ['Würfel-Wicht', 'P', [H(genLaplace), H(genGegen)]], why: 'Wie wahrscheinlich ist ein Sechser, ein Regentag, ein Gewinn? Wahrscheinlichkeiten machen Zufall berechenbar – für Spiele, Versicherungen und Wettervorhersagen.',
-      formeln: [['Laplace', 'P(E)=\\dfrac{\\text{günstige}}{\\text{mögliche}}'], ['Gegenereignis', 'P(\\overline E)=1-P(E)'], ['Mindestens einmal', '1-q^n\\quad(q:\\ \\text{Wahrscheinlichkeit für „nicht“},\\ n:\\ \\text{Anzahl der Versuche})']] },
+      formeln: [['Laplace', 'P(E)=\\dfrac{\\text{günstige}}{\\text{mögliche}}'], ['Gegenereignis', 'P(\\overline E)=1-P(E)'], ['Mindestens einmal', '1-q^n\\quad(q:\\ \\text{Gegenwahrscheinlichkeit},\\ n:\\ \\text{Versuche})']] },
     steps: [
       { id: 'rad', kind: 'Entdecken', title: 'Glücksrad', run: gluecksrad },
       { id: 'laplace', kind: 'Benennen', title: 'Wahrscheinlichkeit berechnen', run: info([
