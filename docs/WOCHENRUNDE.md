@@ -92,3 +92,18 @@ Ablauf von nun an jede Woche: (1) was jede App herausnimmt oder abgibt und an we
   - Ihre Vorschläge für uns: k9-aehnlich → optik, k7-zuordnung → hebel/strom, k10-wachstum → saeure, k8-zufall → vererbung, k7-prozent → zellen.
   - Unbekannte Namen öffnen die Startseite.
 - **Aufräum-Freitag 20.11.** (Marcels Vorschlag, über Experimentopia): Jede App setzt den unstrittigen Abgleich um und baut ihre Querverweise. Strittiges bleibt bis Montag unverändert.
+
+### Entscheidung Marcel (über Leitstand, 18.11., 22:40)
+
+- **Unser Profil:** Mittelstufe und Abi – Analysis, Stochastik, Rechnen in Stufen (auch Gauß), ausführlich üben.
+- **Vorrang:** Abi-Vorbereitung bis Ende Januar.
+- **Raumlicht** gibt seine klassischen Analysis- und Stochastik-Aufgaben ab. Was uns davon fehlt, übernehmen wir; die Liste ist bei Raumlicht angefragt.
+- **KurvenFlug** nimmt seine Oberstufe heraus.
+- **Gauß-Verfahren:** muss nicht mehr warten, Di 24.11. wie geplant.
+- **Mittelstufe:** Abgleich mit KurvenFlug und Rechenblitz; Doppeltes wird verlinkt statt gebaut.
+- **Offen bei uns:**
+  - „← Alle Apps“
+  - Probestunden-Link mit /probestunde/
+  - Meldung zu 2.3.11 (Zählung): 2.3.11 ist seit 18.11. abends auf test.
+- **Neu ab Montag in der Wochenrunde:** Sprachlern-App Englisch.
+- Unsere 9 Geometrie-Einheiten (g-*) sind in der Entscheidung nicht genannt. Sie bleiben unverändert; Rückfrage am Montag.
