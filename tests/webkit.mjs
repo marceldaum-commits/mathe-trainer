@@ -47,6 +47,11 @@ try {
       if (ueb) break;
     }
     ok(ueb > 0, `${name}: Übungsaufgaben lassen sich beantworten (${ueb})`);
+    // Zurücksetzen: die drei Wahl-Felder nutzen die volle Breite (vorher in eine schmale Spalte gequetscht)
+    await p.goto(`${BASE}#/einstellungen`); await p.waitForSelector('#st-reset'); await p.click('#st-reset');
+    const rw = await p.evaluate(() => [...document.querySelectorAll('#st-reset-wahl button')].map((b) => { const t = b.querySelector('h3').getBoundingClientRect().width, w = b.getBoundingClientRect().width; return Math.round((t / w) * 100); }));
+    ok(rw.length === 3 && rw.every((x) => x >= 80), `${name}: Zurücksetzen-Felder in voller Breite (${rw.join('/')} %)`);
+    if (shots) await p.locator('#st-reset-wahl').screenshot({ path: `${shots}/reset-${name}.png` });
     ok(/Zum Home-Bildschirm/.test(await p.goto(BASE).then(() => p.waitForSelector('#home')).then(() => p.textContent('body'))), `${name}: Anleitung „App installieren“ für Safari`);
     if (shots) await p.screenshot({ path: `${shots}/webkit-${name}.png` });
     ok(!err.length, `${name}: keine Skriptfehler (${err.slice(0, 3).join(' | ')})`);

@@ -951,7 +951,8 @@ textarea.field{resize:vertical;min-height:72px;font:inherit;padding:10px 12px}
 input[type=date]#ar-datum{min-height:48px;padding:0 12px;border-radius:13px;border:1.5px solid var(--line);background:var(--card);color:var(--ink);font:inherit;font-size:calc(16px*var(--fs,1));width:100%}
 button.card.unit{text-align:left;width:100%;font:inherit;color:inherit;cursor:pointer}
 /* Einstellungen: Zurücksetzen, Pi anziehen */
-.st-reset-wahl .card{box-shadow:none;border:1.5px solid var(--line)}
+.st-reset-wahl .card{box-shadow:none;border:1.5px solid var(--line);display:block;text-align:left;width:100%}
+.st-reset-wahl .card>span{display:block}
 .st-pi{display:flex;gap:14px;align-items:center}
 .st-pi .pi-fig{flex:none;width:92px}
 .st-pi .pi-fig svg{width:92px;height:92px}
