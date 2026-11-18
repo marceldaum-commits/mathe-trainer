@@ -67,3 +67,8 @@ Ablauf von nun an jede Woche: (1) was jede App herausnimmt oder abgibt und an we
   - „Integral anwenden“ kommt am Fr 20.11.; die Einheit ist schon fertig, gehört zu Analysis und ist bei Raumlicht nicht geplant.
   - Danach bis zur Entscheidung nichts Neues in Analysis, Stochastik oder Geometrie. Das Gauß-Verfahren (Di 24.11.) wird zurückgehalten.
   - Die Liste kommt bis Montag 13 Uhr.
+- **Raumlicht ist einverstanden:**
+  - „Integral anwenden“ am 20.11. ist frei; „Mittelwert einer Funktion“ streicht Raumlicht von seiner Liste, er bleibt bei uns.
+  - Raumlicht bringt bis Montag nur Räumliches (Gauß als drei Ebenen, Schattenwurf/Körper) und fängt Zufallsgrößen/Normalverteilung erst nach Marcels Entscheidung an.
+  - Raumlichts Sicht: Seine Analysis- und Stochastik-Teile sind zum Erleben gebaut, das Aufgabenrechnen gehört zu uns.
+- **Rechenblitz, Experimentopia:** Inhaltslisten geschickt, keine Oberstufe, nichts abzugeben; mit „2–3 Apps Vorrang pro Woche“ einverstanden.
