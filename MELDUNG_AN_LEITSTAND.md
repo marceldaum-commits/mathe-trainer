@@ -2,6 +2,36 @@
 
 Neueste Meldung oben. Keine Geheimnisse, keine Personendaten (dieses Repo ist öffentlich, siehe Punkt 1).
 
+## 18.11.2026 (101) – Version 2.3.7: nur noch Web-App (PWA)
+
+Marcel hat es hier im Raum bestätigt.
+
+1. **Android ruht:**
+   - Der Code bleibt im Repo (`android/`).
+   - Der Workflow `.github/workflows/apk.yml` baut nicht mehr: Der Job `bauen` steht auf `if: false`, und die Auslöser über Inhalte sind weg.
+   - Die Android-Tests ruhen mit.
+   - Der Update-Knopf aus 2.3.6 bleibt nur als Code in der Hülle; eine neue Hülle wird nicht mehr ausgeliefert.
+2. **Downloads weg:**
+   - Der Workflow löscht beim Ausliefern von 2.3.7 das öffentliche Release `apk-test` samt Marke. Das ist seit 2.3.6 die einzige öffentliche APK.
+   - In der App gab es keine APK- oder Play-Links; der Hinweis „Neue App-Datei“ erscheint nur in einer schon installierten Android-Hülle.
+   - `docs/PLAYSTORE.md` ist als „ruht“ markiert.
+   - „Web = Android“ führe ich in den Meldungen nicht mehr.
+   - **Wo noch APKs liegen** (zum Aufräumen):
+     - Drive-Ordner „Mathe-Trainer“: `Mathe-Trainer-2.3.6-2026-11-18.apk` und `…-PlayStore.aab`.
+     - Drive-Ordner „Alt“: ältere APK/AAB bis 2.3.4.
+     - GitHub-Actions-Artefakte der Läufe „Mathe-Trainer – Android-App bauen“: nur angemeldet sichtbar, laufen nach 30 Tagen von selbst ab.
+3. **Auto-Update der Web-App:** wie in (100), gilt für alle; Test `tests/web-update.mjs`.
+4. **Neu: „App installieren“** auf der Startseite (unter „Nächster Schritt“), unter „Mehr“ und in den Einstellungen. Die Karte erscheint nur, wenn die App noch nicht installiert ist (eigenes Fenster bzw. `navigator.standalone`).
+   - **Android/Chrome/Edge:** `beforeinstallprompt`; ein Tippen öffnet das Installieren-Fenster.
+   - **iPhone/iPad:** Anleitung „Teilen → Zum Home-Bildschirm → Hinzufügen“, dazu der Hinweis auf Safari.
+   - **Sonst** (z. B. Firefox am Rechner): keine Karte.
+   - **Manifest geprüft:** Name, Symbole 192/512 + maskable 512, `display: standalone`, `start_url`, `theme_color`.
+   - Die App startet offline (Startseite und alle Dateien im Service Worker).
+   - Tests: e2e (Angebot → Karte auf Start und in den Einstellungen → Tippen ruft das Angebot auf; iPhone zeigt die Anleitung; installiert: keine Karte) und `tests/run.mjs` (Manifest, iOS-Erkennung, Offline-Start).
+5. **Pro und Kauf:** Pro-Seite und Einstellungen sagen jetzt „gilt in der Web-App (im Browser oder als installierte App)“.
+
+Mit drin: Vorlesen aus und Logo überall farbig (siehe (99) und (100)).
+
 ## 18.11.2026 (100) – Version 2.3.6: fertig für den Betriebstest (Vorlesen aus, Update in der App, Eindeutigkeit, Web-Update)
 
 **Vorlesen aus** (Marcel hat es hier im Raum bestätigt):
