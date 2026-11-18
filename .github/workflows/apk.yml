@@ -17,7 +17,7 @@ on:
         options: [test, store]
         default: test
 permissions:
-  contents: read
+  contents: write   # nur für die Test-APK unter der festen Adresse (Release apk-test), siehe letzter Schritt
 jobs:
   bauen:
     runs-on: ubuntu-latest
@@ -57,3 +57,13 @@ jobs:
           name: Mathe-Trainer-App
           path: aus/
           retention-days: 30
+      # Test-Fassung unter einer festen Adresse ablegen: Die Test-App lädt sie mit „Jetzt aktualisieren“ selbst
+      # (android/…/ApkLaden.java, Marcel 18.11.2026: „Das Update sollte komplett in der App laufen“). Das Repo ist öffentlich.
+      - name: Test-APK veröffentlichen (Release apk-test)
+        if: ${{ (inputs.kanal || 'test') == 'test' && github.ref_name == 'test' }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          cp aus/*-test.apk "$RUNNER_TEMP/Mathe-Trainer-test.apk"
+          gh release view apk-test >/dev/null 2>&1 || gh release create apk-test --prerelease --target "$GITHUB_SHA" --title "Mathe-Trainer – Test-App (immer die neueste)" --notes "Wird bei jeder neuen Fassung auf dem Zweig test ersetzt. Installation über die Test-App: „Jetzt aktualisieren“."
+          gh release upload apk-test "$RUNNER_TEMP/Mathe-Trainer-test.apk" --clobber

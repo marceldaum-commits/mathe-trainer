@@ -272,6 +272,7 @@ for (const [name, fn] of Object.entries({ ...G, ...H, ...K, ...K4 })) {
 { const E = await import('../app/js/eingabe.js');
   ok(E.parseInput('3,5') === 3.5 && E.parseInput(' -2 ') === -2 && E.parseInput('7/4') === 1.75 && E.parseInput('25 %') === 25 && E.parseInput('x=4') === 4 && E.parseInput('−3') === -3, 'Eingabe: Zahlen, Brüche, Prozent, Minus');
   ok([' ', 'abc', '1/0', '3,5,1', '2x', '--2', '1e5'].every((s) => E.parseInput(s) === null), 'Eingabe: Unsinn wird abgelehnt');
+  ok(E.isRight(0.67, 2 / 3, '2/3', '0,67') && E.isRight(0.667, 2 / 3, '2/3', '0.667') && !E.isRight(0.66, 2 / 3, '2/3', '0,66') && !E.isRight(0.7, 2 / 3, '2/3', '0,7') && E.isRight(-1.33, -4 / 3, '-4/3', '-1,33'), 'Eingabe: Bruch-Lösung auch als gerundete Dezimalzahl (ab zwei Stellen), Leitstand 18.11.');
   ok(E.isRight(3.14, Math.PI, '3,14') && !E.isRight(3.2, Math.PI, '3,14') && E.isRight(0.75, 0.75, '3/4') && E.isRight(0.667, 2 / 3, '2/3') && !E.isRight(0.6, 2 / 3, '2/3') && !E.isRight(12.4, 12, '12'), 'Eingabe: Rundung auf gezeigte Stellen');
   const able = new Set();
   for (const [name, fn] of Object.entries({ ...G, ...H, ...K, ...K4 })) {
@@ -282,7 +283,7 @@ for (const [name, fn] of Object.entries({ ...G, ...H, ...K, ...K4 })) {
       const r = { num: spec.num, tex: q.options.find((o) => o.correct).tex }, sh = spec.sh, v = E.parseInput(sh.plain);
       ok(v !== null && E.isRight(v, r.num, sh.plain), `${name} (Stufe ${lv}): getippte Lösung ${sh.plain} wird anerkannt (${r.tex}, Wert ${r.num})`);
       for (const o of q.options) { if (o.correct) continue; const so = E.shapeOf(o.tex); if (!so) continue; const w = E.parseInput(so.plain);
-        ok(!E.isRight(w, r.num, sh.plain), `${name} (Stufe ${lv}): getippter Ablenker ${so.plain} wird nicht anerkannt (richtig ${sh.plain})`);
+        ok(!E.isRight(w, r.num, sh.plain, so.plain), `${name} (Stufe ${lv}): getippter Ablenker ${so.plain} wird nicht anerkannt (richtig ${sh.plain})`);
         ok(typeof E.diagnose(w, q, spec.faktor) === 'string', `${name} (Stufe ${lv}): getippter Ablenker ${so.plain} bekommt eine Diagnose`); }
     }
   }
@@ -823,7 +824,7 @@ for (const u of UNITS) {
   for (const [name, fn] of Object.entries({ ...GENS7, ...GENS8 })) for (const lv of LV) for (let i = 0; i < 40; i++) {
     const q = fn(lv), spec = E8.inputSpec(q); if (!spec) continue; tippbar.add(name);
     const v = E8.parseInput(spec.sh.plain); ok(v !== null && E8.isRight(v, spec.num, spec.sh.plain), `${name} (Stufe ${lv}): getippte Lösung ${spec.sh.plain} wird anerkannt`);
-    for (const o of q.options) { if (o.correct) continue; const so = E8.shapeOf(o.tex); if (!so) continue; const w = E8.parseInput(so.plain); ok(!E8.isRight(w, spec.num, spec.sh.plain), `${name} (Stufe ${lv}): getippter Ablenker ${so.plain} wird nicht anerkannt (richtig ${spec.sh.plain})`); } }
+    for (const o of q.options) { if (o.correct) continue; const so = E8.shapeOf(o.tex); if (!so) continue; const w = E8.parseInput(so.plain); ok(!E8.isRight(w, spec.num, spec.sh.plain, so.plain), `${name} (Stufe ${lv}): getippter Ablenker ${so.plain} wird nicht anerkannt (richtig ${spec.sh.plain})`); } }
   ok(tippbar.size >= 8, `Pakete 0.32 und 0.33: zum Eintippen geeignet (${[...tippbar].join(', ')})`);
 }
 

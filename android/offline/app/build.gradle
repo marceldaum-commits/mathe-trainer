@@ -56,4 +56,16 @@ android {
     compileOptions { sourceCompatibility JavaVersion.VERSION_17; targetCompatibility JavaVersion.VERSION_17 }
     lint { abortOnError false; checkReleaseBuilds false }
 }
+// Test-Fassung: darf ihre neue App-Hülle selbst installieren (Knopf „Jetzt aktualisieren“, ApkLaden.java).
+// Die Play-Store-Fassung bekommt diese Erlaubnis nie – dort aktualisiert der Store.
+if (kanal == 'test') {
+    def roh = file('src/main/AndroidManifest.xml').text
+    def marke = '<!-- KANAL-TEST:'
+    assert roh.contains(marke) : 'Marke KANAL-TEST fehlt im AndroidManifest'
+    def neu = roh.replace(marke, '<uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />\n    ' + marke)
+    def ziel = new File(layout.buildDirectory.get().asFile, 'kanal-test/AndroidManifest.xml')
+    ziel.parentFile.mkdirs()
+    if (!ziel.exists() || ziel.text != neu) ziel.text = neu
+    android.sourceSets.main.manifest.srcFile ziel
+}
 preBuild.dependsOn('webAppKopieren')

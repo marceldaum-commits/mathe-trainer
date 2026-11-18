@@ -136,6 +136,23 @@ public class LauncherActivity extends Activity {
         @JavascriptInterface public String updateStand() {
             return "{\"kanal\":\"" + kanal() + "\",\"inhalt\":\"" + inhalt + "\",\"bereit\":\"" + bereit + "\",\"huelle\":" + huelleNeu + "}";
         }
+        /**
+         * Neue App-Hülle in der App laden und installieren (nur Kanal „test“, siehe ApkLaden.java).
+         * Antwort: "ok" (lädt – Fortschritt als Ereignis mt-apk), "erlaubnis" (Android-Einstellung „Unbekannte Apps installieren“
+         * ist offen – danach noch einmal tippen), "laeuft" oder "aus".
+         */
+        @JavascriptInterface public String apkLaden() {
+            if (!"test".equals(kanal())) return "aus";
+            if (ApkLaden.laeuft()) return "laeuft";
+            if (Build.VERSION.SDK_INT >= 26 && !getPackageManager().canRequestPackageInstalls()) {
+                runOnUiThread(() -> { try { startActivity(new Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES, Uri.parse("package:" + getPackageName()))); } catch (Exception nichtDa) { /* nichts tun */ } });
+                return "erlaubnis";
+            }
+            ApkLaden.starte(getApplicationContext(), (stand, prozent) -> runOnUiThread(() -> {
+                if (web != null) web.evaluateJavascript("window.dispatchEvent(new CustomEvent('mt-apk',{detail:{stand:'" + stand + "',prozent:" + prozent + "}}))", null);
+            }));
+            return "ok";
+        }
         /** Von Hand nach neuen Inhalten suchen (Knopf in den Einstellungen). Antwort kommt als Ereignis mt-update-fertig. */
         @JavascriptInterface public void updateSuchen() { updateSuche(true); }
         /** Geladene Inhalte jetzt übernehmen: Die App startet ihre Seite neu. */

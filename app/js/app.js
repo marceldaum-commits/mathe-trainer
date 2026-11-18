@@ -537,13 +537,15 @@ if (window.MTApp) document.getElementById('view').before(updateLeiste());
 // In der Offline-App (Android) sind alle Dateien fest eingepackt – dort braucht es keinen Service Worker.
 // Die Web-App aktualisiert sich von selbst, ohne Knopf (Marcel, 15.11.2026): Eine neue Fassung wird im Hintergrund geladen
 // und übernommen, sobald gerade keine Aufgabe und kein Spiel läuft – mittendrin wird nie neu geladen.
+// Nach dem automatischen Neuladen kurz sagen, was jetzt läuft.
+try { const alt = sessionStorage.getItem('mt-alte-version'); sessionStorage.removeItem('mt-alte-version'); if (alt && alt !== VERSION) setTimeout(() => toast(`Neue Version ${VERSION} geladen.`), 800); } catch { /* ohne sessionStorage */ }
 if (!window.MTApp && 'serviceWorker' in navigator && (location.protocol === 'https:' || ['localhost', '127.0.0.1'].includes(location.hostname))) {
-  const hadController = !!navigator.serviceWorker.controller;
+  let hadController = !!navigator.serviceWorker.controller;
   const mittendrin = () => !!view.querySelector('.stephead') || !$('#sheet').hidden;
   let wartet = null, ladeNeu = false, reloaded = false;
   const jetzt = () => {
     if (mittendrin()) return;
-    if (ladeNeu && !reloaded) { reloaded = true; location.reload(); return; }
+    if (ladeNeu && !reloaded) { reloaded = true; try { sessionStorage.setItem('mt-alte-version', VERSION); } catch { /* egal */ } location.reload(); return; }
     if (wartet) { const w = wartet; wartet = null; w.postMessage('skip'); }
   };
   navigator.serviceWorker.register('sw.js').then((reg) => {
@@ -554,10 +556,24 @@ if (!window.MTApp && 'serviceWorker' in navigator && (location.protocol === 'htt
       w?.addEventListener('statechange', () => { if (w.state === 'installed' && navigator.serviceWorker.controller) neu(w); });
     });
     // Nur bei einem Update neu laden – nicht beim allerersten Besuch.
-    navigator.serviceWorker.addEventListener('controllerchange', () => { if (hadController) { ladeNeu = true; jetzt(); } });
+    // (Beim ersten Besuch übernimmt der Service Worker die Seite einmal ohne Update – danach zählt jeder Wechsel als Update.)
+    navigator.serviceWorker.addEventListener('controllerchange', () => { if (hadController) { ladeNeu = true; jetzt(); } hadController = true; });
     window.addEventListener('hashchange', () => setTimeout(jetzt, 0));
-    // Auch bei lange offener Seite nachsehen: wenn sie wieder in den Vordergrund kommt, höchstens alle 30 Minuten.
-    let zuletzt = Date.now();
-    document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible' && Date.now() - zuletzt > 30 * 60 * 1000) { zuletzt = Date.now(); reg.update().catch(() => {}); } jetzt(); });
+    // Die neue Seite baut sich manchmal erst kurz nach dem Wechsel auf: Steht etwas aus, alle 3 Sekunden noch einmal nachsehen.
+    setInterval(() => { if (wartet || ladeNeu) jetzt(); }, 3000);
+    // Nachsehen (Leitstand 18.11.2026: „Die WebApp muss immer automatisch aktuell sein“): beim Öffnen, bei jeder Rückkehr
+    // in den Tab (höchstens einmal je Minute) und spätestens alle 30 Minuten – Service Worker neu prüfen und stand.json abgleichen
+    // (ohne Zwischenspeicher). Weicht die Version ab, sucht der Service Worker sofort noch einmal.
+    let zuletzt = 0;
+    const pruefe = (immer = false) => {
+      if (!immer && Date.now() - zuletzt < 60 * 1000) return; zuletzt = Date.now();
+      reg.update().catch(() => {});
+      fetch(`stand.json?nc=${Date.now()}`, { cache: 'no-store' }).then((r) => (r.ok ? r.json() : null))
+        .then((d) => { if (d?.version && d.version !== VERSION) reg.update().catch(() => {}); }).catch(() => {});
+    };
+    pruefe(true);
+    document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') pruefe(); jetzt(); });
+    window.addEventListener('focus', () => { pruefe(); jetzt(); });
+    setInterval(() => pruefe(true), 30 * 60 * 1000);
   }).catch(() => { /* ohne Service Worker läuft die App trotzdem */ });
 }

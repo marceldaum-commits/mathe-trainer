@@ -162,7 +162,7 @@ export function quiz(sequence, opts = {}) {
           if (solved) return;
           const v = parseInput(inp.value);
           if (v === null) { note.innerHTML = '<div class="note tip">Bitte eine Zahl eintippen, zum Beispiel 3,5 oder 7/4.</div>'; inp.focus(); return; }
-          if (isRight(v, spec.num, sh.plain)) { inp.classList.add('ok'); inp.classList.remove('no'); inp.readOnly = true; form.querySelector('button').hidden = true; finish(); return; }
+          if (isRight(v, spec.num, sh.plain, inp.value)) { inp.classList.add('ok'); inp.classList.remove('no'); inp.readOnly = true; form.querySelector('button').hidden = true; finish(); return; }
           mistakes++; wrongN++; sfx('bad'); miss(); inp.classList.add('no');
           gewaehlt = inp.value.trim();
           const why = diagnose(v, q, spec.faktor);

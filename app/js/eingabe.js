@@ -38,11 +38,16 @@ export function parseInput(text) {
 }
 /** Wie viele Nachkommastellen zeigt die Lösung? (Danach richtet sich die erlaubte Abweichung.) */
 export const decimalsOf = (plain) => (plain.includes('/') ? 3 : (plain.split(',')[1] || '').length);
-/** Ist die Eingabe richtig? Erlaubt Rundung auf die gezeigte Stellenzahl. */
-export function isRight(value, num, plain) {
+/** Ist die Eingabe richtig? Erlaubt Rundung auf die gezeigte Stellenzahl.
+ *  Ist die Lösung ein Bruch, gilt auch die Dezimalzahl – gerundet auf mindestens zwei Stellen (2/3 → 0,67 oder 0,667);
+ *  dafür braucht es den getippten Text (text), sonst bleibt es bei der engen Grenze. */
+export function isRight(value, num, plain, text = '') {
   if (value === null) return false;
   const d = decimalsOf(plain), tol = (d === 0 ? 0.005 : 0.5 * 10 ** -d) + 1e-9;
-  return Math.abs(value - num) <= (plain.includes('/') ? 0.0006 * Math.max(1, Math.abs(num)) : tol);
+  if (!plain.includes('/')) return Math.abs(value - num) <= tol;
+  if (Math.abs(value - num) <= 0.0006 * Math.max(1, Math.abs(num))) return true;
+  const st = /^\s*-?\d+[.,](\d+)\s*$/.exec(String(text))?.[1].length || 0;
+  return st >= 2 && Math.abs(value - Math.round(num * 10 ** st) / 10 ** st) < 1e-9;
 }
 /** Passt die falsche Eingabe zu einem typischen Fehler? Liefert dessen Diagnose. */
 export function diagnose(value, q, faktor = 1) {

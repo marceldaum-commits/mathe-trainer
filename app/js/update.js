@@ -25,7 +25,7 @@ export function updateSuchen(app = globalThis.window?.MTApp, w = globalThis.wind
       const ende = (ev) => { clearTimeout(t); w.removeEventListener('mt-update-fertig', ende);
         const s = updateStand(app);
         if (s?.bereit) return fertig({ art: 'neu', text: `Version ${s.bereit} ist geladen.` });
-        if (s?.huelle) return fertig({ art: 'neu', text: 'Es gibt eine neue App-Datei (APK im Test-Ordner) – bitte einmal installieren.' });
+        if (s?.huelle) return fertig({ art: 'neu', text: typeof app.apkLaden === 'function' ? 'Es gibt eine neue App-Version – oben auf „Jetzt aktualisieren“ tippen.' : 'Es gibt eine neue App-Datei (APK im Test-Ordner) – bitte einmal installieren.' });
         const d = typeof ev?.detail === 'string' ? ev.detail : '';
         if (d === 'ok') return fertig({ art: 'aktuell', text: 'Alles aktuell.' });
         const nr = /^antwort(\d{3})$/.exec(d)?.[1];
@@ -48,13 +48,34 @@ export function updateSuchen(app = globalThis.window?.MTApp, w = globalThis.wind
 /** Der Hinweis-Streifen über der Seite. Leer und versteckt, solange es nichts Neues gibt. */
 export function updateLeiste(app = globalThis.window?.MTApp) {
   const el = h('<div class="upd" id="upd" hidden></div>');
+  let apkText = '', apkLaeuft = false;
+  // Fortschritt der neuen App-Hülle (aus ApkLaden.java): laedt, frage, fertig, abgebrochen, fehler
+  globalThis.window?.addEventListener('mt-apk', (ev) => {
+    const d = ev?.detail || {}, pz = Number.isInteger(d.prozent) ? Math.max(0, Math.min(100, d.prozent)) : 0;
+    apkLaeuft = d.stand === 'laedt' || d.stand === 'frage';
+    apkText = d.stand === 'laedt' ? `Wird geladen … ${pz} %` : d.stand === 'frage' ? 'Bitte bei Android auf „Installieren“ tippen.'
+      : d.stand === 'fertig' ? 'Installiert – die App startet neu.' : d.stand === 'abgebrochen' ? 'Abgebrochen – du kannst es jederzeit noch einmal versuchen.'
+      : 'Das Laden hat nicht geklappt – bitte später noch einmal versuchen.';
+    const st = el.querySelector('#upd-apk-stand'), k = el.querySelector('#upd-apk-los');
+    if (st && k) { st.textContent = apkText; k.disabled = apkLaeuft; } else male();
+  });
   const male = () => {
     const s = updateStand(app);
     const teile = [];
     if (s?.bereit) teile.push(`<div class="upd-zeile"><span><b>Neue Inhalte geladen</b> (Version ${esc(s.bereit)})</span><button class="btn small" id="upd-los" type="button">Jetzt nutzen</button></div>`);
-    if (s?.huelle) teile.push('<div class="upd-zeile" id="upd-apk"><span><b>Neue App-Datei verfügbar.</b> Sie wird nicht hier in der App geladen: Die neue APK liegt im Test-Ordner. Einmal installieren (über die alte drüber), deine Daten bleiben erhalten. Bis dahin läuft alles wie bisher.</span></div>');
+    if (s?.huelle) teile.push(typeof app?.apkLaden === 'function'
+      // Neue Hülle mit Knopf (Marcel, 18.11.2026: „Das Update sollte komplett in der App laufen“): laden, Android fragt einmal „Installieren?“
+      ? `<div class="upd-zeile" id="upd-apk"><span><b>Neue App-Version verfügbar.</b> Deine Daten bleiben erhalten. <span id="upd-apk-stand" role="status">${esc(apkText)}</span></span><button class="btn small" id="upd-apk-los" type="button"${apkLaeuft ? ' disabled' : ''}>Jetzt aktualisieren</button></div>`
+      : '<div class="upd-zeile" id="upd-apk"><span><b>Neue App-Datei verfügbar.</b> Sie wird nicht hier in der App geladen: Die neue APK liegt im Test-Ordner. Einmal installieren (über die alte drüber), deine Daten bleiben erhalten. Bis dahin läuft alles wie bisher.</span></div>');
     el.innerHTML = teile.join(''); el.hidden = !teile.length;
     el.querySelector('#upd-los')?.addEventListener('click', () => { if (typeof app?.updateAnwenden === 'function') app.updateAnwenden(); });
+    el.querySelector('#upd-apk-los')?.addEventListener('click', () => {
+      let r = ''; try { r = app.apkLaden(); } catch { r = 'fehler'; }
+      apkLaeuft = r === 'ok' || r === 'laeuft';
+      apkText = r === 'erlaubnis' ? 'Bitte in den Android-Einstellungen „Dieser Quelle vertrauen“ einschalten, dann zurück und noch einmal tippen.'
+        : apkLaeuft ? 'Wird geladen …' : r === 'aus' ? 'Diese App-Fassung aktualisiert der Play Store.' : 'Das Laden hat nicht geklappt – bitte später noch einmal versuchen.';
+      male();
+    });
   };
   globalThis.window?.addEventListener('mt-update', male);
   male();
