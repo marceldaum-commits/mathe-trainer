@@ -82,3 +82,9 @@ Ablauf von nun an jede Woche: (1) was jede App herausnimmt oder abgibt und an we
   - Vorschlag: Geometrie im Raum vollständig bei Raumlicht. In Analysis und Stochastik behält Raumlicht nur die Erlebnis-Bereiche; neue Rechenthemen kämen zu uns.
   - **Offen für Montag:** Was passiert mit unseren 9 Geometrie-Einheiten (g-*)? Unser Vorschlag in der Liste: behalten, denn sie sind Rechentraining in Stufen fürs Abi, nicht 3D-Erleben. Kein Ausbau ohne Marcels Entscheidung; Links zu Raumlicht.
 - **2. Ansage von Geld verdienen (im Auftrag von Marcel): auch bestehende Inhalte anpassen oder streichen**, damit nichts gestückelt wirkt. Keine Stummel; Doppeltes zusammenführen. Für uns heißt das: die Mittelstufe gegen KurvenFlug (Graph) und Rechenblitz (Tempo) abgleichen. Bleiben soll, was „ausführlich üben in Stufen“ ist. Die Liste bis Mo 13 Uhr bekommt zusätzlich d) Streichen/Abgeben aus dem Bestand und e) woran man sieht, dass die App „aus einem Guss“ ist. Umgesetzt wird erst nach Marcels Entscheidung am Montag.
+- **KurvenFlug Link-Format (ersetzt die Nummern):** `#kapitel=<name>`. Diese Namen bleiben bei jedem Umbau gleich:
+  - Mathe Kl. 5–8: koordinaten, brueche, winkel, massstab, zuordnungen, geraden, prozent, rendezvous
+  - Mathe Kl. 8–10: pythagoras, parabeln, nullstellen, trigonometrie, wellen, verschobene-wellen, potenzfunktionen, logarithmus
+  - Physik: weg-zeit, beschleunigung, wurf, waagerechter-wurf, schleuder, energie, laser, lichtbrechung
+  - neu ab 20.11.: terme
+  - Keine Links auf Oberstufen-Kapitel.
