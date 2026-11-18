@@ -2,6 +2,20 @@
 
 Neueste Meldung oben. Keine Geheimnisse, keine Personendaten (dieses Repo ist öffentlich, siehe Punkt 1).
 
+## 18.11.2026 (106) – Themen-Roadmap festgeschrieben
+
+`docs/THEMEN-ROADMAP.md` hält Marcels Entscheidung fest: 1 Einheit pro Woche (Mittwoch auf test), die letzte Woche im Monat ist Pflegewoche mit der Monatsprüfung nach `docs/PRUEFPLAN.md`, Oberstufe zuerst, Länder-Wahlthemen danach (bis dahin „Kommt bald“).
+
+- **Kommender Mittwoch:** Der 25.11. liegt in der ersten Pflegewoche (23.–30.11., Monatsprüfung Block A). Deshalb kommt die erste neue Einheit am **2.12.**: „Integral anwenden: Mittelwert, Rekonstruktion, Bestand aus Änderungsrate“ (Oberstufe). Soll sie trotzdem schon am 25.11. kommen, bitte Bescheid geben – sie ist dann die Ausnahme von der Pflegewoche.
+- **Danach:**
+  - 9.12. Gauß-Verfahren;
+  - 16.12. Nullstellen finden (Substitution, Polynomdivision);
+  - 23.12. Satz von Bayes;
+  - Januar: Normalverteilung rückwärts, Transformationen, Kreuzprodukt;
+  - Februar: Abi-Pflichtteil ohne Taschenrechner, dann die Lücken in Klasse 5–10 (Körper, Boxplot, Scheitelpunktform, Symmetrie, mehrstufige Zufallsversuche, Konstruieren, Ungleichungen).
+- **Wahlthemen:** Matrizen u. a. danach.
+- **Vorrang:** Lehrplan-Prüfliste und Theorie-Korrektur (inkl. Exponentialfunktionen) sind erledigt und gemeldet in (103); sie stehen mit 2.3.8 auf test.
+
 ## 18.11.2026 (105) – Version 2.3.9: Eltern-Handy koppeln mit Sicherung, Monatsverlauf, Klassen nach Lehrplan
 
 **Eltern-Handy koppeln** (App-Teil, nach eurer Spezifikation):

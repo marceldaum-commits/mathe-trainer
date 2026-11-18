@@ -5,7 +5,8 @@ damit nicht jedes Mal alles neu geprüft werden muss.
 
 ## Wochenrhythmus
 
-- **Jede Woche eine neue Einheit:** Mittwoch auf `test`, Freitag Freigabe durch den Leitstand. Reihenfolge: `docs/THEMEN-ROADMAP.md`.
+- **Jede Woche eine neue Einheit:** Mittwoch auf `test`, Freigabe durch den Leitstand. Reihenfolge und Kalender: `docs/THEMEN-ROADMAP.md`.
+- **Die letzte Woche im Monat ist Pflegewoche:** keine neue Einheit, nur die Monatsprüfung (unten).
 - **Täglich** (bestehende Routine): Nutzer-Meldungen lesen, Fehler beheben, `npm run check`.
 
 ## Monatsprüfung (letzte Woche des Monats)
@@ -45,7 +46,7 @@ Neue Einheiten gehören ab dem Folgemonat zu ihrem Block (nach Klasse bzw. Gebie
 | Monat | Prüfwoche | Block | dazu |
 | --- | --- | --- | --- |
 | November 2026 | 23.–30.11. | **A** Oberstufe Analysis | Rundum-Prüfung; neu im November: Theorie-Ergänzungen 2.3.8, Klassen-Verschiebung 2.3.9 |
-| Dezember 2026 | 24.–31.12. | **B** Stochastik und Geometrie | Rundum-Prüfung; neue Einheiten aus Dezember |
+| Dezember 2026 | 28.–31.12. | **B** Stochastik und Geometrie | Rundum-Prüfung; neue Einheiten aus Dezember |
 | Januar 2027 | 25.–31.01. | **C** Klasse 5–7 | Rundum-Prüfung; neue Einheiten aus Januar |
 | Februar 2027 | 22.–28.02. | **D** Klasse 8–10 | Rundum-Prüfung; neue Einheiten aus Februar |
 | März 2027 | 25.–31.03. | **A** | … und so weiter im Kreis (alle vier Monate ist jeder Block wieder dran) |

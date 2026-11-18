@@ -3,13 +3,45 @@
 Für den Leitstand, zur Auswahl durch Marcel. Stand heute: **73 Einheiten** (Oberstufe 36, Klasse 5–10 zusammen 37).
 Die Oberstufe ist gut abgedeckt. In Klasse 5–10 fehlen einzelne Bereiche ganz, zum Beispiel Daten in Klasse 7 und 9 oder Körper in Klasse 9.
 
-## Entscheidung Marcel (18.11.2026)
+## Festgeschrieben (Marcel, 18.11.2026)
 
-- **Rhythmus: jede Woche eine neue Einheit, ohne Pflegewoche.** Fehler werden wie bisher täglich nebenher behoben; geprüft wird monatlich nach `docs/PRUEFPLAN.md`.
-- **Themen in die Lehrplan-Klasse verschieben: ja.** Baumdiagramm/Vierfeldertafel nach Klasse 9, Flächen und Prismen nach Klasse 7 (Version 2.3.9). „Trigonometrie und Körper“ bleibt in Klasse 10 (Kugel/Kegel sind dort Lehrplan).
-- Reihenfolge der neuen Einheiten: nach `docs/LEHRPLAN-ABGLEICH.md` (Top 10 fehlend), siehe unten.
+1. **Rhythmus:** 1 neue Einheit pro Woche, **Mittwoch auf `test`**; Freigabe für live durch den Leitstand.
+   **Die letzte Woche im Monat ist Pflegewoche:** keine neue Einheit, dafür die Monatsprüfung nach `docs/PRUEFPLAN.md`.
+2. **Reihenfolge: Oberstufe zuerst** (Integral anwenden und weitere Abi-Themen), danach die Lücken in Klasse 5–10.
+3. **Länder-Wahlthemen** (z. B. Matrizen): ja, aber erst nach den Pflichtthemen. Bis dahin „Kommt bald“ (ohne Datum, ohne Kaufhinweis).
+4. **Themen in die Lehrplan-Klasse verschoben** (2.3.9): Baumdiagramm/Vierfeldertafel nach Klasse 9, Flächen und Prismen nach Klasse 7. „Trigonometrie und Körper“ bleibt in Klasse 10.
 
-## Rhythmus (ursprünglicher Vorschlag)
+## Kalender der neuen Einheiten
+
+Die erste Woche nach diesem Beschluss (23.–30.11.) ist schon Pflegewoche (erste Monatsprüfung), deshalb kommt die erste neue Einheit am **Mittwoch, 2.12.2026**.
+
+| Mittwoch | Stufe | Neue Einheit |
+| --- | --- | --- |
+| 25.11.2026 | – | **Pflegewoche** (Monatsprüfung Block A) |
+| 2.12.2026 | Oberstufe Analysis | **Integral anwenden: Mittelwert, Rekonstruktion, Bestand aus Änderungsrate** |
+| 9.12.2026 | Oberstufe Analysis | Gauß-Verfahren: drei Gleichungen, drei Unbekannte |
+| 16.12.2026 | Oberstufe Analysis | Nullstellen finden: Ausklammern, Substitution, Polynomdivision |
+| 23.12.2026 | Oberstufe Stochastik | Satz von Bayes: Baum umdrehen |
+| 30.12.2026 | – | **Pflegewoche** (Monatsprüfung Block B) |
+| 6.1.2027 | Oberstufe Stochastik | Normalverteilung rückwärts und Dichtefunktion |
+| 13.1.2027 | Oberstufe Analysis | Transformationen a·f(b(x−c))+d |
+| 20.1.2027 | Oberstufe Geometrie | Kreuzprodukt: Fläche und Volumen |
+| 27.1.2027 | – | **Pflegewoche** (Monatsprüfung Block C) |
+| 3.2.2027 | Oberstufe Analysis | Abi-Pflichtteil ohne Taschenrechner |
+| 10.2.2027 | Klasse 9 | Körper: Zylinder, Kegel, Pyramide, Kugel |
+| 17.2.2027 | Klasse 7 | Mittelwert, Median, Boxplot |
+| 24.2.2027 | – | **Pflegewoche** (Monatsprüfung Block D) |
+| 3.3.2027 | Klasse 9 | Quadratische Funktionen: Scheitelpunktform |
+| 10.3.2027 | Klasse 6 | Symmetrie: Achsen- und Punktspiegelung |
+| 17.3.2027 | Klasse 9 | Mehrstufige Zufallsversuche und Zählprinzip |
+| 24.3.2027 | Klasse 7 | Dreiecke konstruieren, Kongruenz |
+| 31.3.2027 | – | **Pflegewoche** (Monatsprüfung Block A) |
+| danach | Klasse 8 … | Lineare Ungleichungen; Terme aufstellen (Kl. 7); Körper und Netze (Kl. 5); weitere aus `docs/LEHRPLAN-ABGLEICH.md` |
+| danach | Wahlthemen | Matrizen und Übergangsprozesse u. a. (Länder) |
+
+Jede fertige Einheit verschwindet aus „Kommt bald“. Vorrang vor neuen Einheiten haben weiter: Lehrplan-Prüfliste und Theorie-Korrekturen.
+
+## Rhythmus (ursprünglicher Vorschlag, überholt)
 
 - **1 neue Einheit pro Woche.** Fertig gebaut und getestet am Mittwoch, auf `test` am Mittwochabend; Marcel schaut, und der Leitstand gibt sie am Freitag frei.
   Eine Einheit hat 5–8 Schritte mit Spiel bzw. Aufgaben, Theorie (kurz und ausführlich), Formelkarten, Boss und harten Tests.
@@ -17,7 +49,7 @@ Die Oberstufe ist gut abgedeckt. In Klasse 5–10 fehlen einzelne Bereiche ganz,
 - **Täglich** (die bestehende Routine): nur Fehlersuche und kleine Verbesserungen an bestehenden Aufgaben, keine neuen Einheiten.
 - Wer schneller will: 2 Einheiten pro Woche gehen nur ohne die Pflegewoche und mit kürzerer Theorie, das empfehle ich nicht.
 
-## Reihenfolge ab jetzt (jede Woche eine Einheit, nach Lehrplan-Abgleich)
+## Reihenfolge nach Lehrplan-Abgleich (überholt durch „Oberstufe zuerst“)
 
 | Woche | Klasse | Neue Einheit |
 | --- | --- | --- |
