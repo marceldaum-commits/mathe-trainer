@@ -1,6 +1,6 @@
 // Service Worker: macht die App offline nutzbar und liefert Updates aus.
 // CACHE muss zur VERSION in js/config.js passen; ASSETS pflegt `npm run fix` (tools/check.mjs).
-const CACHE = 'mt-2.3.4';
+const CACHE = 'mt-2.3.5';
 const ASSETS = [
   "./",
   "b/app.js",
@@ -11,17 +11,17 @@ const ASSETS = [
   "b/teil-B5COT6AE.js",
   "b/teil-BJ3MSGNF.js",
   "b/teil-BYCXH73E.js",
-  "b/teil-CNDBGFMN.js",
+  "b/teil-DIMIOMEP.js",
   "b/teil-G5B5ULOV.js",
   "b/teil-IE6YHPBM.js",
   "b/teil-KZTXSXDO.js",
-  "b/teil-LMYSCCRI.js",
   "b/teil-NSDBX3WN.js",
-  "b/teil-NZ7ECKWC.js",
   "b/teil-OKNAVLW7.js",
   "b/teil-PAFQVIGY.js",
   "b/teil-UKMYVWA5.js",
-  "b/teil-UOLJD6K7.js",
+  "b/teil-WJGICAGN.js",
+  "b/teil-WOL6SKR7.js",
+  "b/teil-WUN3PDRL.js",
   "b/teil-ZDZLQKN4.js",
   "b/teil-ZEM5BSY2.js",
   "b/teil-ZKTWFDQN.js",
@@ -34,8 +34,7 @@ const ASSETS = [
   "img/icon-192.png",
   "img/icon-512.png",
   "img/icon-maskable-512.png",
-  "img/logo.svg",
-  "img/marke.svg",
+  "img/symbol.svg",
   "js/look.js",
   "js/wache.js",
   "manifest.webmanifest",

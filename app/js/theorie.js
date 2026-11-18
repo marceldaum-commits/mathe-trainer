@@ -340,7 +340,7 @@ export function abschnitte(id) {
 export const proOffen = () => store.zugangGilt() || !premiumOn();
 
 const website = () => CONFIG.website.replace(/^https?:\/\/|\/$/g, '');
-const kopf = (u, art) => `<header class="b-kopf"><img class="b-logo" src="img/logo.svg" alt="Logo ${esc(CONFIG.firma)}"><div class="b-firma"><b>${esc(CONFIG.firma)}</b><span>${esc(website())}</span></div>
+const kopf = (u, art) => `<header class="b-kopf"><img class="b-logo" src="img/favicon.svg" alt="Logo ${esc(CONFIG.firma)}"><div class="b-firma"><b>${esc(CONFIG.firma)}</b><span>${esc(website())}</span></div>
   <div class="b-titel"><h1>${esc(u.title)}</h1><span>${esc(u.sub || '')} · ${art}</span></div></header>`;
 
 /** Das Kapitel als Lesetext (Vorschau = Druckbild). lang = true: ausführliche Fassung, falls vorhanden. */

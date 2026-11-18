@@ -42,8 +42,8 @@ button{font:inherit;color:inherit;cursor:pointer}
   padding:calc(10px + env(safe-area-inset-top)) 16px 10px;background:color-mix(in srgb,var(--bg) 88%,transparent);
   backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
 .brand{display:flex;align-items:center;gap:10px;text-decoration:none;min-width:0}
-/* Logo bleibt schwarz-weiß (Marcel): img/marke.svg – das farbige App-Symbol ist nur favicon/PWA/Android */
-.brand-logo{flex:none;width:36px;height:36px;border-radius:10px;background:#000 url(../img/marke.svg) center/78% no-repeat}
+/* Ein Logo überall (Marcel 18.11.): farbiges Symbol – klein (≤48 px) ohne Schrift (favicon.svg), groß mit f'(x) (symbol.svg) */
+.brand-logo{flex:none;width:36px;height:36px;border-radius:9px;background:url(../img/favicon.svg) center/100% no-repeat}
 .brand-text{display:grid;line-height:1.1;min-width:0;text-decoration:none}
 .brand-logo{display:block}
 .brand-text b{font-weight:800;letter-spacing:-.03em;color:var(--head)}
@@ -489,7 +489,7 @@ main:has(.stephead){padding-top:calc(10px + env(safe-area-inset-top))}
 
 /* Zertifikat */
 .zert{display:grid;gap:10px;justify-items:center;text-align:center;padding:34px 22px;border-radius:26px;border:3px double var(--head);background:var(--card)}
-.zert-logo{width:72px;height:72px;border-radius:18px;background:#000 url(../img/marke.svg) center/78% no-repeat}
+.zert-logo{width:72px;height:72px;border-radius:16px;background:url(../img/symbol.svg) center/100% no-repeat}
 .zert-k{letter-spacing:.14em;text-transform:uppercase;font-weight:800;font-size:calc(11px*var(--fs,1));color:var(--muted)}
 .zert h1{font-size:calc(40px*var(--fs,1))}
 .zert-name{font-size:calc(26px*var(--fs,1));font-weight:800;color:var(--head);min-width:60%;border-bottom:1.5px solid var(--head);padding:6px 12px}
@@ -649,7 +649,7 @@ a.count{text-decoration:none}
 .blatt{display:grid;gap:18px;color:#111;font-size:calc(14.5px*var(--fs,1));line-height:1.45}
 .b-seite{background:#fff;color:#111;border:1px solid #d5dbe6;border-radius:10px;padding:22px 20px;box-shadow:var(--shadow);overflow-x:auto}
 .b-kopf{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;align-items:center;padding-bottom:12px;border-bottom:2px solid #111}
-.b-logo{width:46px;height:46px;grid-row:1}
+.b-logo{width:46px;height:46px;grid-row:1;border-radius:10px}
 .b-firma{display:grid;line-height:1.25}.b-firma b{font-size:calc(15px*var(--fs,1));color:#111}.b-firma span{font-size:calc(12px*var(--fs,1));color:#555}
 .b-titel{grid-column:1 / -1;margin-top:8px}.b-titel h1{font-size:calc(21px*var(--fs,1));color:#111;letter-spacing:-.02em}.b-titel span{font-size:calc(12.5px*var(--fs,1));color:#444}
 .b-name{display:flex;flex-wrap:wrap;gap:8px 22px;margin:14px 0 6px;font-size:calc(13.5px*var(--fs,1))}

@@ -3,7 +3,7 @@ import { CONFIG } from './config.js';
 import { toast } from './ui.js';
 
 let logo = null;
-const loadLogo = () => (logo ||= new Promise((res) => { const im = new Image(); im.onload = () => res(im); im.onerror = () => res(null); im.src = 'img/marke.svg'; }));
+const loadLogo = () => (logo ||= new Promise((res) => { const im = new Image(); im.onload = () => res(im); im.onerror = () => res(null); im.src = 'img/symbol.svg'; }));
 
 function wrap(g, text, x, y, maxW, lh) {
   let line = '';
@@ -23,8 +23,7 @@ export async function drawCard(canvas, data) {
   g.fillStyle = 'rgba(255,116,24,.16)'; g.beginPath(); g.arc(W - 120, 170, 330, 0, 7); g.fill();
   g.fillStyle = 'rgba(115,224,169,.10)'; g.beginPath(); g.arc(90, H - 210, 280, 0, 7); g.fill();
   const im = await loadLogo();
-  g.fillStyle = '#000'; g.beginPath(); g.roundRect(80, 80, 120, 120, 28); g.fill();
-  if (im) g.drawImage(im, 92, 92, 96, 96);
+  if (im) g.drawImage(im, 80, 80, 120, 120);
   g.fillStyle = '#fff'; g.textBaseline = 'alphabetic'; g.font = '800 46px Inter, Arial, sans-serif'; g.fillText('Mathe-Trainer', 228, 132);
   g.fillStyle = '#c4d0e9'; g.font = '500 30px Inter, Arial, sans-serif'; g.fillText(`von ${CONFIG.firma}`, 228, 178);
   g.fillStyle = '#ff7418'; g.font = '900 34px Inter, Arial, sans-serif'; g.fillText(String(data.kicker || '').toUpperCase(), 80, 400);

@@ -749,7 +749,7 @@ for (const u of UNITS) {
     ok(sicht(a) !== sicht(andere), 'Arbeitsblatt: andere Nummer liefert ein anderes Blatt');
     ok(a.every((q) => q.options.filter((o) => o.correct).length === 1 && q.explain && q.gen && q.unit) && units.every((id) => a.length < units.length || a.some((q) => q.unit === UNITS.find((u) => u.id === id).title)), 'Arbeitsblatt: jede Aufgabe hat genau eine Lösung mit Erklärung, jedes gewählte Thema kommt vor');
     ok(JSON.stringify(B.leseHash(B.blattHash(c).slice(8))) === JSON.stringify(c), 'Arbeitsblatt: Adresse lässt sich zurücklesen');
-    const html = B.blattHtml(c, a); ok(html.includes('img/logo.svg') && html.includes('Mathenachhilfe Online') && html.includes(`Nr. ${c.seed}`) && html.includes('Name:') && (html.match(/class="b-aufgabe"/g) || []).length === c.n && (html.match(/class="b-lsg"/g) || []).length === c.n && !/undefined|NaN/.test(html), 'Arbeitsblatt: Logo, Firmenname, Nummer, Namen-Zeile, Aufgaben und Lösungen vollständig');
+    const html = B.blattHtml(c, a); ok(html.includes('img/favicon.svg') && html.includes('Mathenachhilfe Online') && html.includes(`Nr. ${c.seed}`) && html.includes('Name:') && (html.match(/class="b-aufgabe"/g) || []).length === c.n && (html.match(/class="b-lsg"/g) || []).length === c.n && !/undefined|NaN/.test(html), 'Arbeitsblatt: Logo, Firmenname, Nummer, Namen-Zeile, Aufgaben und Lösungen vollständig');
   }
   { const r1 = Math.random(); B.bauBlatt({ units: ['regeln'], lv: 3, n: 5, seed: 42 }); const G = await import('../app/js/gen.js'); const x = new Set(); for (let i = 0; i < 6; i++) x.add(G.genPolynom(3).formula); ok(x.size > 1 && r1 >= 0, 'Arbeitsblatt: danach würfeln die Aufgaben wieder echt zufällig'); }
   for (const land of ['', 'BY', 'HE-GK', 'HE-LK']) for (const lv of LV) { const k = B.bauKlausur({ lv, seed: 4711 + lv }, land), be = k.reduce((s, q) => s + q.be, 0);
@@ -759,7 +759,7 @@ for (const u of UNITS) {
   ok(B.leseHash('klausur_3_99')?.klausur && !B.leseHash('klausur_9_1') && !B.leseHash('gibtsnicht_3_8_1') && !B.leseHash('regeln_3_99_1') && !B.leseHash('') && !B.leseHash('regeln_3_8_abc'), 'Arbeitsblatt: kaputte Adressen werden abgewiesen');
   ok(B.NP_GRENZEN[0][1] === 15 && B.NP_GRENZEN.at(-1)[0] === 0 && B.NP_GRENZEN.every((g, i, a) => !i || (g[0] < a[i - 1][0] && g[1] === a[i - 1][1] - 1)), 'Probeklausur: Notenpunkte-Tabelle lückenlos von 15 bis 0');
   for (const u of UNITS) { const K = Th.karten(u); ok(K.length >= 1 && K.every((c) => c.title && c.html), `Theorie ${u.id}: Kurzfassung vorhanden`);
-    const kurz = Th.kapitelHtml(u, false); ok(kurz.includes(u.title) && kurz.includes('img/logo.svg') && !/undefined|NaN/.test(kurz), `Theorie ${u.id}: Kapitel mit Titel und Logo`); }
+    const kurz = Th.kapitelHtml(u, false); ok(kurz.includes(u.title) && kurz.includes('img/favicon.svg') && !/undefined|NaN/.test(kurz), `Theorie ${u.id}: Kapitel mit Titel und Logo`); }
   const ALLE_U = (await import('../app/js/units.js')).ALLE_UNITS;   // auch die Einheiten der Klassen 5–10
   ok(Object.keys(Th.LANG).length >= 6 && Object.keys(Th.LANG).every((id) => ALLE_U.some((u) => u.id === id)) && Object.values(Th.LANG).every((L) => L.length >= 4 && L.every(([t, html]) => t && html.length > 80)), 'Theorie: ausführliche Kapitel gehören zu echten Einheiten und haben mehrere Abschnitte');
   { const u = UNITS.find((x) => x.id === 'extrema'); ok(Th.kapitelHtml(u, true).includes('Durchgerechnetes Beispiel') && !Th.kapitelHtml(u, false).includes('Durchgerechnetes Beispiel') && Th.kapitelHtml(UNITS.find((x) => x.id === 'a-trig'), true).includes('Durchgerechnetes Beispiel'), 'Theorie: ausführliche Fassung zeigt das Kapitel, die kurze nicht'); }
@@ -1160,7 +1160,7 @@ ok(nextStreak({ n: 3, last: '2026-11-10' }, D('2026-11-12')).n === 1, 'Serie: au
   ok(/<style>[\s\S]*#lade\{[^}]*position:fixed[^}]*inset:0[\s\S]*<\/style>/.test(kopf), 'Schnellstart: Das Ladebild ist direkt in der Seite gestaltet (kein Warten auf eine CSS-Datei)');
   ok(!/<link rel="stylesheet"|<script/.test(kopf), 'Schnellstart: Im Kopf der Seite blockiert weder eine CSS-Datei noch ein Skript das erste Bild');
   ok(rumpf.trimStart().startsWith('<div id="lade"') && rumpf.indexOf('id="lade-balken"') < rumpf.indexOf('<script'), 'Schnellstart: Ladebild mit Balken steht vor dem ersten Skript');
-  ok(/<svg class="lade-logo"[^>]*>\s*<path fill="#ffffff"/.test(rumpf) && !/lade-logo[^>]*src=/.test(rumpf), 'Schnellstart: Logo im Ladebild ist eingebettet und schwarz-weiß');
+  ok(/<svg class="lade-logo"[^>]*>/.test(rumpf) && !/lade-logo[^>]*src=/.test(rumpf), 'Schnellstart: Logo im Ladebild ist eingebettet');
   ok(!/<script(?![^>]*\bsrc=)[^>]*>/.test(html), 'Schnellstart: kein eingebettetes Skript (die Sicherheits-Regel der Seite verbietet es)');
   ok(kopf.includes('prefers-color-scheme:dark') && kopf.includes(':root[data-look="dunkel"] #lade') && kopf.includes('<noscript><style>#lade{display:none}'), 'Schnellstart: Ladebild hell und dunkel; ohne JavaScript verdeckt es nichts');
   const vor = [...kopf.matchAll(/<link rel="modulepreload" href="([^"]+)">/g)].map((m) => m[1]);
@@ -1268,11 +1268,17 @@ ok(nextStreak({ n: 3, last: '2026-11-10' }, D('2026-11-12')).n === 1, 'Serie: au
   } finally { st.zugang = alt; globalThis.fetch = altFetch; if (altApp) globalThis.window.MTApp = altApp; else delete globalThis.window.MTApp; }
 }
 
-// Marcel 17.11.2026: neues farbiges App-Symbol nur für favicon/PWA/Android – das Logo in der App bleibt schwarz-weiß
-{ const fs = await import('node:fs'); const css = fs.readFileSync(new URL('../app/css/app.css', import.meta.url), 'utf8'), mk = fs.readFileSync(new URL('../app/img/marke.svg', import.meta.url), 'utf8');
-  const farben = [...new Set((mk.match(/#[0-9a-fA-F]{3,6}\b/g) || []).map((c) => c.toLowerCase()))];
-  ok(/\.brand-logo\{[^}]*img\/marke\.svg/.test(css) && /\.zert-logo\{[^}]*img\/marke\.svg/.test(css) && !/\.brand-logo\{[^}]*favicon/.test(css), 'Logo: Kopf und Zertifikat zeigen das schwarz-weiße Logo');
-  ok(farben.length > 0 && farben.every((c) => ['#000', '#000000', '#fff', '#ffffff'].includes(c)), `Logo: marke.svg ist schwarz-weiß (${farben.join(', ')})`); }
+// Marcel 18.11.2026: ein Logo überall – das farbige Symbol in Kopf, Zertifikat, Ladebild, Teilen-Bild, Arbeitsblatt, Favicon, PWA und Android
+{ const fs = await import('node:fs'); const lies = (f) => fs.readFileSync(new URL('../app/' + f, import.meta.url), 'utf8');
+  const css = lies('css/app.css'), html = lies('index.html'), fav = lies('img/favicon.svg'), sym = lies('img/symbol.svg'), share = lies('js/share.js'), blatt = lies('js/blatt.js'), theo = lies('js/theorie.js');
+  const farbig = (s) => s.includes('#16204a') && s.includes('#ff8a1f');
+  ok(farbig(fav) && farbig(sym), 'Logo: favicon.svg und symbol.svg sind das farbige Symbol');
+  ok(!/<text/.test(fav) && sym.length > fav.length + 500, 'Logo: klein (favicon) ohne Schrift, groß (symbol) mit f\'(x) als Pfad');
+  ok(/\.brand-logo\{[^}]*img\/favicon\.svg/.test(css) && /\.zert-logo\{[^}]*img\/symbol\.svg/.test(css), 'Logo: Kopf und Zertifikat zeigen das farbige Symbol');
+  ok(share.includes("'img/symbol.svg'") && blatt.includes('src="img/favicon.svg"') && theo.includes('src="img/favicon.svg"'), 'Logo: Teilen-Bild und Arbeitsblätter zeigen das farbige Symbol');
+  ok(!fs.existsSync(new URL('../app/img/marke.svg', import.meta.url)) && !fs.existsSync(new URL('../app/img/logo.svg', import.meta.url)) && !/marke\.svg|logo\.svg/.test(css + html + share + blatt + theo), 'Logo: kein altes schwarz-weißes Logo mehr in der App');
+  const lade = (html.split('<body>')[1].match(/<svg class="lade-logo"[\s\S]*?<\/svg>/) || [''])[0];
+  ok(farbig(lade), 'Logo: Ladebild zeigt das farbige Symbol'); }
 
 console.log(fails ? `${fails} verschiedene Fehler bei ${n} Prüfungen` : `tests: alle ${n} Prüfungen bestanden`);
 process.exit(fails ? 1 : 0);
