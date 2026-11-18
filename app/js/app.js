@@ -14,7 +14,7 @@ import { mixOf } from './a/gen.js';
 import { ladeAufgaben, aufgabenDa, NichtGeladen } from './faul.js';
 import { store, LEVELS } from './store.js';
 import { CONFIG, VERSION, STAND } from './config.js';
-import { $, h, esc, ICON, starsHtml, toast, sfx, sound, klang, confetti, look, formelnEinpassen } from './ui.js';
+import { $, h, esc, ICON, starsHtml, toast, sfx, sound, klang, confetti, look, formelnEinpassen, VORLESEN } from './ui.js';
 import { abiView, rundeView, blitzView } from './exam.js';
 import { kopfView, knobelHeuteGeloest } from './kopf.js';
 import { arbeitView, arbeitPlan } from './arbeit.js';
@@ -537,6 +537,8 @@ if (window.MTApp) document.getElementById('view').before(updateLeiste());
 // In der Offline-App (Android) sind alle Dateien fest eingepackt – dort braucht es keinen Service Worker.
 // Die Web-App aktualisiert sich von selbst, ohne Knopf (Marcel, 15.11.2026): Eine neue Fassung wird im Hintergrund geladen
 // und übernommen, sobald gerade keine Aufgabe und kein Spiel läuft – mittendrin wird nie neu geladen.
+// Vorlesen ist abgeschaltet (Marcel 18.11.2026): früher geladene Nova-Dateien im Gerät aufräumen.
+if (!VORLESEN) { try { globalThis.caches?.delete('stimme-nova').catch(() => {}); } catch { /* ohne Cache Storage */ } }
 // Nach dem automatischen Neuladen kurz sagen, was jetzt läuft.
 try { const alt = sessionStorage.getItem('mt-alte-version'); sessionStorage.removeItem('mt-alte-version'); if (alt && alt !== VERSION) setTimeout(() => toast(`Neue Version ${VERSION} geladen.`), 800); } catch { /* ohne sessionStorage */ }
 if (!window.MTApp && 'serviceWorker' in navigator && (location.protocol === 'https:' || ['localhost', '127.0.0.1'].includes(location.hostname))) {

@@ -109,11 +109,16 @@ export const klang = {
 };
 /* Vorlesen mit der Stimme „Nova“ (KI-generiert): Einstellung an/aus wird gemerkt (von Haus aus aus).
    Die Stimme selbst steckt in vorlesen.js und wird erst geladen, wenn jemand vorlesen lässt. */
+/** Schalter fürs Vorlesen (Marcel, 18.11.2026: „Vorlesen überall erstmal rausnehmen … später evtl. wieder einfügen“).
+ *  false: keine Vorlese-Knöpfe, keine Einstellungen dazu, keine Abrufe beim Stimmen-Server, keine Gerätestimme,
+ *  vorlesen/texte.json bleibt leer (das Stimmen-Werk spricht nichts mehr) und alte Nova-Dateien im Gerät werden aufgeräumt.
+ *  Der Code bleibt – zum Wiedereinschalten genügt true. */
+export const VORLESEN = false;
 const VORLESE_KEY = 'mt.vorlesen';
 export const TEMPI = [0.75, 0.9, 1, 1.15, 1.3, 1.5];
 let vorleseWerte = (() => { try { return { an: false, ...JSON.parse(localStorage.getItem(VORLESE_KEY) || '{}') }; } catch { return { an: false }; } })();
 export const vorlese = {
-  get an() { return vorleseWerte.an === true; },
+  get an() { return VORLESEN && vorleseWerte.an === true; },
   /** Sprechtempo (Marcel): 1,0 = Tempo des Servers. */
   get tempo() { return TEMPI.includes(+vorleseWerte.tempo) ? +vorleseWerte.tempo : 1; },
   /** Qualität für „offline laden“: 'normal' (Standard) oder 'best'. */
@@ -146,6 +151,7 @@ export function vorleseKnoepfe(root) {
 /** Liest einen Bereich der Seite vor (lädt den Baustein beim ersten Mal nach). Noch einmal tippen hält an.
  *  art: 'fest' (vorab vertont) · 'aufgabe' (erst in der Aufgabe entstanden). */
 export async function vorlies(el, knopf = null, art = 'aufgabe') {
+  if (!VORLESEN) return;
   vorleseFreigeben();   // noch im Antippen – vor allem, was wartet
   const V = await import('./vorlesen.js'); vorleseGeladen = true;
   if (knopf?.classList.contains('spricht')) { V.stopp(); return; }

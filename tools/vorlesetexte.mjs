@@ -46,4 +46,6 @@ for (const [fn, stufen] of erzeuger) for (const lv of stufen) for (let s = 1; s 
 }
 const laufzeit = [...zaehl].filter(([t, n]) => n >= MIN && t && !texte.has(t)).map(([t]) => t).sort();
 const liste = [...[...texte].sort().map((text) => ({ text, sprache: 'de' })), ...laufzeit.map((text) => ({ text, sprache: 'de', laufzeit: true }))];
-process.stdout.write(`${JSON.stringify({ format: 1, app: 'mathe-trainer', texte: liste }, null, 1)}\n`);
+// Vorlesen abgeschaltet (Schalter VORLESEN in app/js/ui.js): leere Liste, damit das Stimmen-Werk nichts mehr spricht.
+const { VORLESEN } = await import(`${R}ui.js`);
+process.stdout.write(`${JSON.stringify({ format: 1, app: 'mathe-trainer', texte: VORLESEN ? liste : [] }, null, 1)}\n`);

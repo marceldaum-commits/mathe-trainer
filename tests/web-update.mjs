@@ -1,6 +1,7 @@
 // Browser-Test der automatischen Aktualisierung der Web-App (Leitstand 18.11.2026: „Die WebApp muss immer automatisch aktuell sein“).
 // Spielt zwei neue Fassungen nach: alte Fassung offen, mitten in einer Aufgabe kommt eine neue → kein Neuladen mittendrin;
-// zurück zum Start → lädt von selbst neu, Hinweis „Neue Version … geladen“, Spielstand und Nova-Offline-Dateien bleiben, alte Speicher weg.
+// zurück zum Start → lädt von selbst neu, Hinweis „Neue Version … geladen“, Spielstand bleibt, alte Speicher weg
+// (Nova-Offline-Dateien bleiben – solange das Vorlesen eingeschaltet ist; sonst werden sie aufgeräumt).
 // Danach: neue Fassung, während die Seite zu ist → beim nächsten Öffnen ohne Neuladen von Hand die neueste.
 // Aufruf: node tests/web-update.mjs   (dauert gut zwei Minuten: die Prüfung bei Rückkehr in den Tab läuft höchstens einmal je Minute)
 import { createRequire } from 'node:module'; const { chromium } = createRequire(import.meta.url)('playwright');
@@ -55,7 +56,8 @@ try {
   ok(await warte(() => p.evaluate(() => document.body.innerText.includes('Neue Version 9.9.8 geladen')), 5000, 'Hinweis'), 'Hinweis „Neue Version 9.9.8 geladen.“');
   const daten = await p.evaluate(async () => ({ ls: localStorage.getItem('mt-test-daten'), nova: !!(await (await caches.open('stimme-nova')).match('/nova/test.mp3')), speicher: await caches.keys() }));
   ok(daten.ls === 'bleibt', 'Spielstand/Einstellungen (localStorage) bleiben');
-  ok(daten.nova, 'Nova-Offline-Dateien bleiben');
+  const { VORLESEN } = await import('../app/js/ui.js');
+  ok(VORLESEN ? daten.nova : !daten.nova, VORLESEN ? 'Nova-Offline-Dateien bleiben' : 'Vorlesen aus: alte Nova-Dateien aufgeräumt');
   ok(!daten.speicher.includes(`mt-${ALT}`) && daten.speicher.includes('mt-9.9.8'), `Alter App-Speicher aufgeräumt (${daten.speicher.join(', ')})`);
   // Seite zu, neue Fassung kommt, später wieder öffnen
   await p.close(); aktiv = '9.9.9';

@@ -14,7 +14,7 @@ import { UNITS, AREAS, istOber, jgName } from './units.js';
 import { pi, HUETE, BRILLEN, outfitFrei, outfitJetzt } from './figuren.js';
 import { examText } from './exam.js';
 import { kiPunkteText } from './pro.js';
-import { $, h, esc, ICON, sfx, sound, klang, vorlese, vorleseFreigeben, TEMPI, toast, confetti, drucken } from './ui.js';
+import { $, h, esc, ICON, sfx, sound, klang, vorlese, vorleseFreigeben, TEMPI, VORLESEN, toast, confetti, drucken } from './ui.js';
 import { CONFIG, VERSION, STAND } from './config.js';
 import { updateStand, updateSuchen } from './update.js';
 import { merkbilderEinsetzen, hatMerkbild } from './merkbild.js';
@@ -65,7 +65,7 @@ export function settingsView() {
       <button class="schalter" id="st-pruef" type="button" role="switch" aria-checked="false"><span class="knopf" aria-hidden="true"></span><span>Klang auch in Prüfungen</span></button>
       <button class="btn ghost small" id="st-klang-probe" type="button">Probe hören</button>
       <small class="muted" id="st-klang-note">Leises Piano, eigens für den Mathe-Trainer komponiert. Die Musik läuft ab dem ersten Tippen (in der App gleich beim Öffnen) und macht nach jedem Stück eine Pause – hier kannst du sie ausschalten. Im Abi-Modus und bei der Probeklausur ist alles still, außer du schaltest „Klang auch in Prüfungen“ ein. Alles, was ein Ton meldet, siehst du auch auf dem Bildschirm.</small></section>
-    <section class="card stack" id="st-vorlesen"><h3>Vorlesen</h3>
+    ${VORLESEN ? `    <section class="card stack" id="st-vorlesen"><h3>Vorlesen</h3>
       <button class="schalter" id="st-vl" type="button" role="switch" aria-checked="false"><span class="knopf" aria-hidden="true"></span><span>Aufgaben und Theorie vorlesen</span></button>
       <div class="stack" id="st-vl-mehr">
         <div class="picks col" role="radiogroup" aria-label="Stimme"><button class="pick sel" type="button" role="radio" aria-checked="true" id="st-vl-nova">Nova – KI-generierte Stimme</button></div>
@@ -73,7 +73,7 @@ export function settingsView() {
         <button class="btn ghost small" id="st-vl-probe" type="button">Probe hören</button>
         <div class="stack" id="st-vl-offline" aria-live="polite"></div>
       </div>
-      <small class="muted" id="st-vl-info">Ein Knopf „Vorlesen“ erscheint bei jeder Aufgabe und bei jedem Theorie-Abschnitt. Formeln werden in Worten gesprochen.<br><br>Vorgelesen wird mit der Stimme Nova, einer mit KI (OpenAI) erzeugten Stimme. Feste Texte vertonen wir vorab. Texte, die erst in der Aufgabe entstehen (z.&nbsp;B. Rechenaufgaben), schickt die App ohne Angaben zu dir an unseren Server stimmen.mathenachhilfe-online.com; dieser lässt sie einmalig von OpenAI vertonen und speichert die Audiodatei. Es werden keine Namen, Konten oder Geräte-Kennungen übertragen, und unser Server speichert keine Zugriffsprotokolle.</small></section>
+      <small class="muted" id="st-vl-info">Ein Knopf „Vorlesen“ erscheint bei jeder Aufgabe und bei jedem Theorie-Abschnitt. Formeln werden in Worten gesprochen.<br><br>Vorgelesen wird mit der Stimme Nova, einer mit KI (OpenAI) erzeugten Stimme. Feste Texte vertonen wir vorab. Texte, die erst in der Aufgabe entstehen (z.&nbsp;B. Rechenaufgaben), schickt die App ohne Angaben zu dir an unseren Server stimmen.mathenachhilfe-online.com; dieser lässt sie einmalig von OpenAI vertonen und speichert die Audiodatei. Es werden keine Namen, Konten oder Geräte-Kennungen übertragen, und unser Server speichert keine Zugriffsprotokolle.</small></section>` : ''}
     <section class="card stack"><h3>Schriftgröße</h3>
       <div class="umschalt drei" id="st-schrift" role="radiogroup" aria-label="Schriftgröße"><button class="pick" type="button" role="radio" data-s="klein">Klein</button><button class="pick" type="button" role="radio" data-s="normal">Normal</button><button class="pick" type="button" role="radio" data-s="gross">Groß</button></div>
       <small class="muted">Gilt für die ganze App. Ausdrucke bleiben in normaler Größe.</small></section>
@@ -183,7 +183,7 @@ export function settingsView() {
     if (!window.MTApp) { ub.hidden = true; un.hidden = true; }   // Web-App: aktualisiert sich von selbst, kein Knopf
     ub.onclick = () => { ub.disabled = true; un.textContent = 'Suche …';
       updateSuchen().then((r) => { ub.disabled = false; un.textContent = r.text; if (r.art === 'neu') window.dispatchEvent(new Event('mt-update')); }); }; }
-  { // Vorlesen: an/aus (Stimme Nova, KI-generiert – Pflicht-Kennzeichnung), Probe; die Wahl wird gemerkt
+  if (VORLESEN) { // Vorlesen: an/aus (Stimme Nova, KI-generiert – Pflicht-Kennzeichnung), Probe; die Wahl wird gemerkt
     const sw = $('#st-vl', el), mehr = $('#st-vl-mehr', el);
     const tp = $('#st-vl-tempo', el), tpText = () => { const t = String(vorlese.tempo).replace('.', ','); $('#st-vl-tempo-text', el).textContent = `Sprechtempo ${t}${vorlese.tempo === 1 ? ' (Standard)' : ''}`; tp.setAttribute('aria-valuetext', `${t}-fach`); };
     tp.oninput = () => { vorlese.setze({ tempo: TEMPI[+tp.value] }); tpText(); };

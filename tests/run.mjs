@@ -1206,8 +1206,16 @@ ok(nextStreak({ n: 3, last: '2026-11-10' }, D('2026-11-12')).n === 1, 'Serie: au
   ok(createHash('sha256').update(`nova|de|${normal(' Hallo \n Welt ')}`).digest('hex').slice(0, 32) === 'cb1e6d67882767042ebaa54d163e450c', 'Vorlesen: Kennung der Nova-Datei');
   const lang = 'Ein Satz. '.repeat(80); ok(stuecke(lang, 300).every((x) => x.length <= 300) && stuecke(lang, 300).join(' ') === normal(lang), 'Vorlesen: Stücke bis 300 Zeichen, nichts geht verloren');
   const L = JSON.parse(fs.readFileSync(new URL('../app/vorlesen/texte.json', import.meta.url), 'utf8')), vl0 = fs.readFileSync(new URL('../app/js/vorlesen.js', import.meta.url), 'utf8');
+  const UIv = await import('../app/js/ui.js');
+  if (!UIv.VORLESEN) {   // Marcel 18.11.2026: Vorlesen erst einmal abgeschaltet
+    ok(L.format === 1 && L.app === 'mathe-trainer' && Array.isArray(L.texte) && L.texte.length === 0, 'Vorlesen aus: texte.json ist leer – das Stimmen-Werk spricht nichts mehr');
+    ok(UIv.vorleseKnopf('x') === '' && UIv.vorlese.an === false, 'Vorlesen aus: kein Vorlese-Knopf, auch wenn es früher eingeschaltet war');
+    const ex = fs.readFileSync(new URL('../app/js/extras.js', import.meta.url), 'utf8'), ap = fs.readFileSync(new URL('../app/js/app.js', import.meta.url), 'utf8'), ui = fs.readFileSync(new URL('../app/js/ui.js', import.meta.url), 'utf8');
+    ok(/\$\{VORLESEN \? `\s*<section class="card stack" id="st-vorlesen">/.test(ex) && /if \(VORLESEN\) \{ \/\/ Vorlesen/.test(ex), 'Vorlesen aus: keine Einstellungen (Stimme, Sprechtempo, Offline laden)');
+    ok(/if \(!VORLESEN\) return;/.test(ui) && /caches\?\.delete\('stimme-nova'\)/.test(ap), 'Vorlesen aus: kein Abruf, keine Gerätestimme; alte Nova-Dateien werden aufgeräumt');
+  } else
   ok(L.format === 1 && L.app === 'mathe-trainer' && L.texte.length > 500 && L.texte.every((t) => t.sprache === 'de' && t.text.length <= 1500 && t.text === normal(t.text) && !/⟦|\\[a-z]|<|>/.test(t.text)), 'Vorlesen: texte.json im vereinbarten Format, ohne TeX und HTML');
-  { const lz = L.texte.filter((t) => t.laufzeit === true), zeichen = lz.reduce((n, t) => n + t.text.length, 0), fest = new Set(L.texte.filter((t) => !t.laufzeit).map((t) => t.text));
+  if (UIv.VORLESEN) { const lz = L.texte.filter((t) => t.laufzeit === true), zeichen = lz.reduce((n, t) => n + t.text.length, 0), fest = new Set(L.texte.filter((t) => !t.laufzeit).map((t) => t.text));
     ok(lz.length > 1000 && lz.every((t) => t.text.length <= 300 && !fest.has(t.text)) && new Set(lz.map((t) => t.text)).size === lz.length, `Vorlesen: ${lz.length} vorhersehbare Laufzeit-Sätze (Aufgabenkarten) mit "laufzeit": true, je höchstens 300 Zeichen`);
     ok(zeichen < 150000, `Vorlesen: Laufzeit-Sätze zusammen ${zeichen} Zeichen – unter 150 000 (sonst vorher dem Leitstand ankündigen)`);
     ok(/stuecke\(text, art === 'fest' \? FEST_MAX : JETZT_MAX\)/.test(vl0) && /const fest = await holeDatei\(adresse\(await kennung\(stueck\)\)\)/.test(vl0), 'Vorlesen: Aufgaben-Stücke (300 Zeichen) werden zuerst als vorab vertonte Datei gesucht'); }
