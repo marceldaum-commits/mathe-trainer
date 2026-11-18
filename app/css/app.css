@@ -1041,3 +1041,6 @@ button.card.unit{text-align:left;width:100%;font:inherit;color:inherit;cursor:po
   background:var(--mint-soft);color:var(--mint-ink);border:1.5px solid currentColor;text-decoration:none;font-size:calc(14px*var(--fs,1))}
 .pro-aktiv b{font-weight:800}
 .pro-aktiv small{color:inherit;opacity:.85}
+/* Knopf „← Alle Apps“ (Start und Übersicht): mind. 44 px, im Dunkelmodus über die Farb-Variablen lesbar */
+.alle-apps{display:inline-flex;align-items:center;justify-self:start;align-self:flex-start;min-height:44px;padding:0 16px;border-radius:99px;border:1.5px solid var(--line);background:var(--card);color:var(--ink);font-weight:800;font-size:calc(14px*var(--fs,1));text-decoration:none;white-space:nowrap}
+.alle-apps:hover,.alle-apps:focus-visible{border-color:var(--orange);color:var(--orange)}

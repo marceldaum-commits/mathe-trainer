@@ -18,7 +18,7 @@ export const tageBis = (datum, heute = new Date()) => Math.round((tagVon(datum) 
  * der letzte Tag vor der Arbeit bleibt zum Wiederholen frei, sobald genug Zeit ist.
  */
 /** Vor Klausuren: Link zur Probestunden-Anfrage mit Herkunft, Thema und Klasse (Marcel 18.11.: Crashkurs bleibt nur für Kunden). */
-export const probeLink = (p, jg = store.jahrgang) => linkMitHerkunft(CONFIG.probeAnfrage || 'https://www.mathenachhilfe-online.com/probestunde-anfrage/', 'klassenarbeit',
+export const probeLink = (p, jg = store.jahrgang) => linkMitHerkunft(CONFIG.probestunde, 'klassenarbeit',
   { thema: p?.units?.[0] ? themaVon(p.units[0].title, istOber()) : '', klasse: jg });
 export function arbeitPlan(arbeit, units = ALLE_UNITS, fertig = (u, s) => store.isDone(u, s), heute = new Date()) {
   if (!arbeit) return null;

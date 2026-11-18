@@ -24,7 +24,7 @@ import { updateLeiste } from './update.js';
 import { installKarte, beiInstallWechsel } from './install.js';
 import { elternView } from './eltern-ui.js';
 import { freischaltLink } from './prolink.js';
-import { zaehle, zaehlungStarten, hinweiseBeobachten, linkMitHerkunft } from './zaehler.js';
+import { zaehle, zaehlungStarten, hinweiseBeobachten, linkMitHerkunft, alleAppsKnopf } from './zaehler.js';
 import { elternAutomatik } from './eltern.js';
 import { theorieKnopf, theorieKnoepfe, hatTheorie } from './theoriefenster.js';
 import { settingsView, berichtView, karteiView, dailyGoal, openSteps, levelCard, erfolgeView, formelnView, klasseView, weekCard, readiness, applySkin, applySchrift, lehrplanView } from './extras.js';
@@ -139,6 +139,7 @@ function home() {
   widgetMelden(spot);
   const started = store.xp > 0;
   const el = h(`<div class="view stack" id="home">
+    ${alleAppsKnopf()}
     <section class="hero ${started ? 'klein' : ''}">
       <span class="eyebrow">${istOber() ? 'Oberstufen-Mathe zum Anfassen' : jung() ? `${jgName(store.jahrgang)} · Los geht's!` : 'Mathe zum Anfassen'}</span>
       <h1>${jung() ? 'Mathe zum <br><span class="orange">Ausprobieren.</span>' : 'Verstehen <br>schafft <span class="orange">Sicherheit.</span>'}</h1>
@@ -233,6 +234,7 @@ function testeDichView() {
 /** Lernen: erst das Gebiet wählen. */
 function lernenView() {
   const el = h(`<div class="view stack">
+    ${alleAppsKnopf()}
     <div><span class="eyebrow">Lernen · ${esc(jgName(store.jahrgang))}</span><h1 style="margin-top:8px">Wähle ein Gebiet</h1></div>
     <section class="stack">${LERN_AREAS().map((a) => { const s = areaStat(a); return linkCard(`#/g/${a.id}`, `<i class="pct">${Math.round(s.pct)} %</i>`, a.title, `${esc(areaInfo(a))} · ${s.doneUnits}/${s.n} Einheiten`); }).join('')}</section>
     <section class="stack">${dungeonKarte()}${linkCard('#/theorie', '§', 'Theorie nachlesen', istOber() ? 'Jedes Thema kurz erklärt – und ausführlich mit Beispielen, zum Drucken.' : 'Jedes Thema kurz erklärt – zum Nachschlagen und Drucken.')}</section>

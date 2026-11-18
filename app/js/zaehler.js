@@ -7,7 +7,7 @@ import { THEMEN, themaVon } from './eltern.js';
 
 const SCHALTER = 'mt.zaehlung';
 export const EREIGNISSE = ['start', 'elternbereich', 'pro_ansehen', 'pro_kasse', 'code_eingeloest', 'probestunde_klick', 'neukunde_klick', 'crashkurs_klick', 'nachhilfe_hinweis', 'geschenk_klick', 'level_start', 'level_geschafft', 'theorie'];
-export const ORTE = ['elternbericht', 'elternbereich', 'lernstand', 'gesperrt', 'klassenarbeit', 'geschenk', 'einstellungen', 'fusszeile', 'link', 'eingabe'];
+export const ORTE = ['elternbericht', 'elternbereich', 'lernstand', 'gesperrt', 'klassenarbeit', 'geschenk', 'einstellungen', 'fusszeile', 'link', 'eingabe', 'kopf'];
 
 export function zaehlungAn() { try { return globalThis.localStorage?.getItem(SCHALTER) !== 'aus'; } catch { return true; } }
 export function zaehlungSetzen(an) { try { globalThis.localStorage?.setItem(SCHALTER, an ? 'an' : 'aus'); } catch { /* ohne Speicher */ } }
@@ -42,6 +42,13 @@ export function linkMitHerkunft(href, ort, { thema = '', klasse = '' } = {}) {
     return u.toString();
   } catch { return href; }
 }
+/** Übersicht aller Lern-Apps (Website). Test-Stufe → staging, sonst www. Gleicher Tab, Herkunft src=mathetrainer-kopf. */
+export function alleAppsLink(host = globalThis.location?.hostname || '') {
+  const basis = /^(trainer-test\.|localhost$|127\.)/.test(host) ? 'https://staging.mathenachhilfe-online.com' : 'https://www.mathenachhilfe-online.com';
+  return linkMitHerkunft(`${basis}/lern-apps/`, 'kopf');
+}
+/** Knopf „← Alle Apps“ – nur auf Start und Übersicht, nie in Aufgaben, Prüfungen oder Spielen. */
+export const alleAppsKnopf = () => `<a class="alle-apps nur-web" data-ort="kopf" href="${alleAppsLink()}">← Alle Apps</a>`;
 /** Welches Ereignis gehört zu einem Link? */
 export function ereignisFuer(href) {
   const h = String(href || '');
