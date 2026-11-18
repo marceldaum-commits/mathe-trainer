@@ -1045,6 +1045,13 @@ ok(nextStreak({ n: 3, last: '2026-11-10' }, D('2026-11-12')).n === 1, 'Serie: au
   ok(/data-schrift="klein"\]\{--fs:\.88\}/.test(css) && /data-schrift="gross"\]\{--fs:1\.12\}/.test(css), 'Schrift: Faktoren für klein und groß'); }
 
 // Selbst-Aktualisierung der Android-App: Stand aus der App-Hülle lesen, Dateiliste mit Prüfsummen
+{ // 30-Tage-Codes laufen ab dem ersten Einlösen (Leitstand 18.11.): Die App speichert genau das Datum aus der Antwort von /api/zugang.
+  const fsx = await import('node:fs'); const ex = fsx.readFileSync(new URL('../app/js/extras.js', import.meta.url), 'utf8'), pl = fsx.readFileSync(new URL('../app/js/prolink.js', import.meta.url), 'utf8');
+  ok([ex, pl].every((t) => /store\.zugang = \{ code, art: String\(r\.art \|\| ''\), bis: r\.bis,/.test(t)) && !/tage30[^\n]*(\+|setDate)/.test(ex + pl), '30-Tage-Code: Ablaufdatum kommt nur aus der Antwort von /zugang (kein eigenes Rechnen)'); }
+{ const A = await import('../app/js/arbeit.js'), Z = await import('../app/js/zaehler.js');   // Klassenarbeit: Probestunden-Anfrage (Marcel 18.11.)
+  const l = A.probeLink({ units: [{ title: 'Lineare Funktionen' }] }, '8');
+  ok(l.startsWith('https://www.mathenachhilfe-online.com/probestunde-anfrage/?') && /src=mathetrainer-klassenarbeit/.test(l) && /klasse=8/.test(l) && /thema=/.test(l) && Z.ereignisFuer(l) === 'probestunde_klick', `Klassenarbeit: Link zur Probestunden-Anfrage mit Herkunft (${l})`);
+  ok(!(await import('node:fs')).readFileSync(new URL('../app/js/arbeit.js', import.meta.url), 'utf8').includes('crashkurs'), 'Klassenarbeit: kein Crashkurs-Hinweis (nur für Kunden)'); }
 { const P = await import('../app/js/prolink.js');   // Freischalt-Link #pro= (neu) und ?pro= (alt)
   ok(P.codeAusAdresse({ hash: '#pro=mt-ab12-cd34-ef56', search: '' }) === 'MT-AB12-CD34-EF56' && P.codeAusAdresse({ hash: '', search: '?pro=MT-AB12-CD34-EF56' }) === 'MT-AB12-CD34-EF56' && P.codeAusAdresse({ hash: '#/einstellungen', search: '' }) === null && P.codeAusAdresse({ hash: '#pro=quatsch', search: '' }) === '', 'Freischalt-Link: #pro= und ?pro= werden gelesen');
   ok(P.adresseOhneCode('https://trainer.example/?pro=MT-AB12-CD34-EF56#/') === '/#/' && P.adresseOhneCode('https://trainer.example/#pro=MT-AB12-CD34-EF56') === '/#/einstellungen', 'Freischalt-Link: Code verschwindet aus der Adresse'); }

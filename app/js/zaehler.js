@@ -45,7 +45,7 @@ export function linkMitHerkunft(href, ort, { thema = '', klasse = '' } = {}) {
 /** Welches Ereignis gehört zu einem Link? */
 export function ereignisFuer(href) {
   const h = String(href || '');
-  if (h.startsWith(CONFIG.probestunde) || /\/probestunde\//.test(h)) return 'probestunde_klick';
+  if (h.startsWith(CONFIG.probestunde) || /\/probestunde(-anfrage)?\//.test(h)) return 'probestunde_klick';
   if (/neukunde/.test(h)) return 'neukunde_klick';
   if (/crashkurs/.test(h)) return 'crashkurs_klick';
   if (/geschenk/.test(h)) return 'geschenk_klick';

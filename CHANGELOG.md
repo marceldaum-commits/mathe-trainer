@@ -4,6 +4,8 @@ Kurzfassung für Nutzer und Leitstand. Einzelheiten: `docs/PLAN.md` (Baulog) und
 
 ## 2.3.11 – 18.11.2026
 - **Anonyme Zählung, abschaltbar.** Die App zählt nur Zahlen wie „App geöffnet“ oder „Link angetippt“ – ohne Kennung, ohne Lernstand, ohne Code – und schickt sie an den eigenen Server. Abschalten in den Einstellungen („Anonyme Nutzungszählung“); dann wird nichts gesendet. Links zur Website tragen ihre Herkunft (`src=mathetrainer-…`). Fußzeile: „Ein Angebot von Mathenachhilfe Online“.
+- Klassenarbeits-Trainer: Hinweis auf die kostenlose Probestunde vor der Arbeit.
+- 30-Tage-Zugang läuft ab dem ersten Einlösen.
 
 ## 2.3.10 – 18.11.2026
 - Freischalt-Link `#pro=CODE` (und weiter `?pro=` aus alten Mails); der Code verschwindet sofort aus der Adresszeile.

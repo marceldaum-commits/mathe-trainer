@@ -2,6 +2,17 @@
 
 Neueste Meldung oben. Keine Geheimnisse, keine Personendaten (dieses Repo ist öffentlich, siehe Punkt 1).
 
+## 18.11.2026 (110) – Mit 2.3.11: Probestunde vor Klausuren, 30-Tage-Codes
+
+1. **Klassenarbeits-Trainer (C1):** Der Hinweis lautet jetzt „Eine kostenlose Probestunde kann vor der Arbeit helfen.“ Daneben steht der Link „Probestunde anfragen“ → `https://www.mathenachhilfe-online.com/probestunde-anfrage/?src=mathetrainer-klassenarbeit&thema=…&klasse=…`.
+   - **thema:** aus der ersten Einheit der Arbeit (Kennung der gemeinsamen Liste); **klasse:** 5–10, Oberstufe ohne.
+   - Zählt als `nachhilfe_hinweis` bzw. `probestunde_klick` mit Ort `klassenarbeit`. Einen Crashkurs-Link gibt es nicht; `crashkurs_klick` kommt nicht vor.
+   - Test in `tests/run.mjs`.
+2. **30-Tage-Codes ab dem ersten Einlösen:** Die App speichert das Ablaufdatum genau aus der Antwort von `POST /api/zugang` (`bis`), von Hand und über den Freischalt-Link. Sie rechnet nichts selbst und zeigt vor dem Einlösen kein Datum.
+   - Test in `tests/run.mjs` (Quelltext-Prüfung).
+   - Auf der Pro-Seite steht jetzt: „Der 30-Tage-Zugang läuft ab dem ersten Einlösen (einlösbar 12 Monate lang, gut als Geschenk).“
+   - `/zugang/neu` ruft die App nicht auf; `abEinloesung`/`einloesbarBis` brauchen wir deshalb nicht.
+
 ## 18.11.2026 (109) – Version 2.3.11: Anonyme Zählung (A3), abschaltbar
 
 Marcel hat hier im Raum zugestimmt: „Ja, wie beschrieben“. Damit ersetzt die Zählung die bisherige Regel „kein Tracking“ für den Mathe-Trainer.
