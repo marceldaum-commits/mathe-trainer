@@ -88,3 +88,7 @@ Ablauf von nun an jede Woche: (1) was jede App herausnimmt oder abgibt und an we
   - Physik: weg-zeit, beschleunigung, wurf, waagerechter-wurf, schleuder, energie, laser, lichtbrechung
   - neu ab 20.11.: terme
   - Keine Links auf Oberstufen-Kapitel.
+- **Experimentopia Link-Format:** `https://experimentopia.mathenachhilfe-online.com/#thema=<name>` (Test: `experimentopia-test.`), ab Fr 20.11.
+  - Ihre Vorschläge für uns: k9-aehnlich → optik, k7-zuordnung → hebel/strom, k10-wachstum → saeure, k8-zufall → vererbung, k7-prozent → zellen.
+  - Unbekannte Namen öffnen die Startseite.
+- **Aufräum-Freitag 20.11.** (Marcels Vorschlag, über Experimentopia): Jede App setzt den unstrittigen Abgleich um und baut ihre Querverweise. Strittiges bleibt bis Montag unverändert.
