@@ -31,7 +31,13 @@ Neueste Meldung oben. Keine Geheimnisse, keine Personendaten (dieses Repo ist ö
    - fremdes schreib → 403 und Hinweis „gilt nicht mehr“;
    - Aufheben löscht Bericht und Sicherung;
    - kein Überlauf; Knöpfe brechen bei 360 px nicht um.
-   - **Der echte Server** auf trainer-test antwortet noch mit 405 (Bericht) bzw. 404 (Sicherung), die Eltern-Seite auf staging mit 404. Sobald beides läuft, teste ich den Rundlauf gegen den echten Server.
+   - **Gegen den echten Server auf trainer-test** (18.11., 17:55) mit echter AES-GCM-Verschlüsselung:
+     - PUT Bericht 204, PUT Sicherung 204;
+     - GET Sicherung 200, entschlüsselt mit app „mathe-trainer“ und richtigem schreib;
+     - fremdes schreib 403;
+     - DELETE Bericht 204, danach ist die Sicherung weg (404).
+     - Die Eltern-Seite auf staging antwortet mit 200.
+     - Ein zu kurzer Dummy-Body wird mit 400 abgewiesen; die App sendet immer echten Geheimtext.
 - **Bitte noch:** die vollständige gemeinsame Themen-Liste schicken. Ich nutze analysis, stochastik, vektoren, exponential-log und für Klasse 5–10 zahlen, algebra, geometrie, daten.
 
 **Klassen nach Lehrplan** (Marcel: „ja“):
