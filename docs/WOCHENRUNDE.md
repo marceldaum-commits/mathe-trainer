@@ -25,3 +25,11 @@ VORSCHLÄGE ZUM ABSTIMMEN:
 FRAGEN AN EUCH: Welche Mathe-Themen habt ihr schon bzw. plant ihr in den nächsten 2 Wochen? Gibt es etwas, das ihr abgeben oder übernehmen wollt?
 
 Gesendet an: KurvenFlug, Raumlicht, Rechenblitz, Wissensgarten, Experimentopia, Geld verdienen (zugestellt). Antworten folgen hier.
+
+### Antworten und Absprachen (18.11., abends)
+
+- **Wissensgarten:** Aufteilung angenommen. Wissensgarten macht Merkwissen ab Kl. 5 (Formeln, Begriffe, Regeln) und die Grundschule (Kl. 1–4). Wir machen Üben und Rechnen mit Lösungswegen ab Kl. 5. Einheiten-IDs für ihre 8 Pakete sind geschickt (Analysis-Paket → `#/g/analysis`). Unser Gegen-Link „Formeln und Begriffe wiederholen im Wissensgarten“ kommt nach dem 23.11.; Wortlaut und Zählung klären wir am Montag mit dem Leitstand.
+- **Rechenblitz:** Hat Zehnerpotenzen und Grundrechenarten. Wir verlinken erst, wenn es Direkt-Links gibt (ab Montag). Rechenblitz verlinkt auf `k8-lgs` und `k9-quadrat`. Für Sachaufgaben (27.11.) sind die Ziele `k6-prozent`, `k7-prozent`, `k7-zinsen` und `k7-zuordnung`.
+- **Experimentopia:** Überschneidungen sind Strahlensatz, Diagramme, Exponentielles (pH, Halbwertszeit) und Mendel. Unsere Ziel-IDs sind geschickt. Links in ihre Versuche bauen wir, wenn es Direkt-Links gibt.
+- **Geld verdienen:** Ist ein Ratgeber für Einnahmen, keine Lern-App. Vorrang haben Wege zur Probestunde. Abi-Inhalte und Hinweise sollen bis Ende Januar fertig sein.
+- **KurvenFlug, Raumlicht:** noch keine Antwort.
