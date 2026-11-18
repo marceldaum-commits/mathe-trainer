@@ -23,6 +23,8 @@ export function verbundAnalysis(lv = 3) {
     const X = (xs, correct, why) => ({ tex: `x_1=${ft(xs[0])},\\quad x_2=${ft(xs[1])}`, xs, correct, why });
     const Pt = (name, x, y, correct, why) => ({ tex: `${name}${P(x, y)}`, pt: [x, y], hoch: name === 'H', correct, why });
     const N = (num, correct, why, t) => ({ tex: t ?? ft(num, 2), num, correct, why });
+    // Wendestelle: Ablenker „nicht geteilt“ (x = −f''(0)); fällt er auf eine Extrem- oder die Wendestelle, die Steigung im Wendepunkt
+    const xg = -f2[0], wg = [xw, p, q].includes(xg) ? N(polyEval(f1, xw), false, `Das ist die Steigung ${tex(`f'(${ft(xw)})`)} im Wendepunkt – gesucht ist die Stelle x.`, `x=${ft(polyEval(f1, xw))}`) : N(xg, false, `Beim Auflösen von ${tex(`${polyTex(f2)}=0`)} muss noch durch ${tex(ft(f2[1]))} geteilt werden.`, `x=${ft(xg)}`);
     const parts = [
       { prompt: `Bestimme die Ableitung ${tex("f'")}.`, kind: 'abl',
         options: [D(f1, true), D([f1[0], f1[1], f[3]], false, 'Der alte Exponent kommt als Faktor nach vorn: aus x³ wird 3x².'), D([f[1], f[2], f[3]], false, 'Die Exponenten wurden gesenkt, aber die Vorfaktoren nicht mit dem alten Exponenten multipliziert.'), d ? D([f1[0] + d, f1[1], f1[2]], false, 'Eine Zahl ohne x fällt beim Ableiten weg – und zu ihr kommt nichts hinzu.') : D(f1[1] ? [f1[0], -f1[1], f1[2]] : [f1[0] + 3, 0, f1[2]], false, 'Achte beim Ableiten auf Vorzeichen und Vorfaktoren jedes einzelnen Summanden.')],
@@ -34,7 +36,7 @@ export function verbundAnalysis(lv = 3) {
         options: [Pt('H', xH, F(xH), true), Pt('T', xH, F(xH), false, `${tex(`f''(${ft(xH)})=${ft(polyEval(f2, xH))}<0`)}: Das ist ein Hochpunkt.`), Pt('H', xT, F(xT), false, `${tex(`f''(${ft(xT)})=${ft(polyEval(f2, xT))}>0`)}: Dort liegt der Tiefpunkt.`), Pt('H', xH, polyEval(f2, xH), false, 'Der y-Wert entsteht durch Einsetzen in f, nicht in f″.')],
         hints: [`Vorzeichen von ${tex("f''")} an der Stelle: negativ → Hochpunkt, positiv → Tiefpunkt.`, `${tex(`f''(x)=${polyTex(f2)}`)}. Den y-Wert liefert ${tex('f')}.`], explain: `${tex(`f''(${ft(xH)})=${ft(polyEval(f2, xH))}<0`)} und ${tex(`f(${ft(xH)})=${ft(F(xH))}`)}: Hochpunkt ${tex(`H${P(xH, F(xH))}`)}.` },
       { prompt: 'Wo liegt die Wendestelle?', kind: 'wende',
-        options: [N(xw, true, undefined, `x=${ft(xw)}`), N(p, false, 'Das ist eine Extremstelle. Die Wendestelle liegt bei einer kubischen Funktion genau zwischen den Extremstellen.', `x=${ft(p)}`), N(-xw === xw ? xw + 1 : -xw, false, `Löse ${tex("f''(x)=0")} und achte auf das Vorzeichen.`, `x=${ft(-xw === xw ? xw + 1 : -xw)}`), N(p + q === xw ? xw + 2 : p + q, false, `Beim Auflösen von ${tex(`${polyTex(f2)}=0`)} muss noch geteilt werden.`, `x=${ft(p + q === xw ? xw + 2 : p + q)}`)],
+        options: [N(xw, true, undefined, `x=${ft(xw)}`), N(p, false, 'Das ist eine Extremstelle. Die Wendestelle liegt bei einer kubischen Funktion genau zwischen den Extremstellen.', `x=${ft(p)}`), N(-xw === xw ? xw + 1 : -xw, false, `Löse ${tex("f''(x)=0")} und achte auf das Vorzeichen.`, `x=${ft(-xw === xw ? xw + 1 : -xw)}`), wg],
         hints: [`Wendestelle: ${tex("f''(x)=0")}.`, `${tex(`f''(x)=${polyTex(f2)}`)}.`], explain: `${tex(`f''(x)=${polyTex(f2)}=0`)} bei ${tex(`x=${ft(xw)}`)} – genau in der Mitte zwischen den Extremstellen.` },
       { prompt: `Berechne ${tex(`\\int_{${a}}^{${b}}f(x)\\,dx`)}.`, kind: 'integral',
         options: [N(I, true), N(-I, false, 'Obere Grenze minus untere Grenze – nicht umgekehrt.'), N(F(b) - F(a), false, 'Du hast die Grenzen in f eingesetzt. Erst die Stammfunktion bilden.'), N(polyEval(f1, b) - polyEval(f1, a), false, 'Du hast abgeleitet statt aufgeleitet.')],
@@ -50,7 +52,7 @@ export function verbundStochastik(lv = 3) {
   for (;;) {
     const [n, p] = pick(tier(lv, [[10, 0.2], [5, 0.2]], [[20, 0.2], [10, 0.4], [20, 0.25]], [[25, 0.2], [50, 0.2], [20, 0.4]], [[50, 0.4], [25, 0.2], [75, 0.2]], [[100, 0.2], [150, 0.4], [96, 0.25]]));
     const mu = n * p, sg = Math.sqrt(n * p * (1 - p)), k = Math.round(mu) + pick([-1, 1, 2]), q = 1 - p;
-    const ctx = pick([['Eine Maschine stellt Bauteile her.', 'ist fehlerhaft', 'Bauteile', 'fehlerhafte Bauteile'], ['Ein Glücksrad wird gedreht.', 'gewinnt', 'Drehungen', 'Gewinne'], ['Eine Basketballerin wirft Freiwürfe.', 'trifft', 'Würfe', 'Treffer']]);
+    const ctx = pick([['Eine Maschine stellt Bauteile her.', 'ist ein Bauteil fehlerhaft', 'Bauteile', 'fehlerhafte Bauteile', 'ein fehlerhaftes Bauteil'], ['Ein Glücksrad wird gedreht.', 'gewinnt man', 'Drehungen', 'Gewinne', 'einen Gewinn'], ['Eine Basketballerin wirft Freiwürfe.', 'trifft sie', 'Würfe', 'Treffer', 'einen Treffer']]);
     const N = (num, correct, why, t) => ({ tex: t ?? ft(num, 2), num, correct, why });
     const B = (t, num, correct, why) => ({ tex: t, num, correct, why });
     const pt = ft(p), qt = ft(q);
@@ -61,15 +63,15 @@ export function verbundStochastik(lv = 3) {
       { prompt: `Welcher Term gibt die Wahrscheinlichkeit für <b>genau ${k}</b> ${ctx[3]} an?`, kind: 'genau',
         options: [B(`\\binom{${n}}{${k}}\\cdot ${pt}^{${k}}\\cdot ${qt}^{${n - k}}`, binom(n, k) * p ** k * q ** (n - k), true), B(`${pt}^{${k}}\\cdot ${qt}^{${n - k}}`, p ** k * q ** (n - k), false, `Es fehlt der Binomialkoeffizient: Die ${k} Treffer können an verschiedenen Stellen liegen.`), B(`\\binom{${n}}{${k}}\\cdot ${pt}^{${n - k}}\\cdot ${qt}^{${k}}`, binom(n, k) * p ** (n - k) * q ** k, false, 'Die Exponenten sind vertauscht: Der Exponent der Trefferwahrscheinlichkeit ist die Trefferzahl.'), B(`\\binom{${n}}{${k}}\\cdot ${pt}^{${k}}`, binom(n, k) * p ** k, false, `Auch die ${n - k} Nicht-Treffer gehören dazu.`)],
         hints: ['Bernoulli-Formel.', `${tex('P(X=k)=\\binom{n}{k}p^k(1-p)^{n-k}')}.`], explain: `${tex(`P(X=${k})=\\binom{${n}}{${k}}\\cdot ${pt}^{${k}}\\cdot ${qt}^{${n - k}}\\approx${ft(binom(n, k) * p ** k * q ** (n - k) * 100, 1)}\\,\\%`)}.` },
-      { prompt: `Welcher Term gibt die Wahrscheinlichkeit für <b>mindestens einen</b> der ${ctx[3]} an?`.replace('einen der Gewinne', 'einen Gewinn').replace('einen der Treffer', 'einen Treffer').replace('einen der fehlerhafte Bauteile', 'ein fehlerhaftes Bauteil'), kind: 'min1',
+      { prompt: `Welcher Term gibt die Wahrscheinlichkeit für <b>mindestens ${ctx[4]}</b> an?`, kind: 'min1',
         options: [B(`1-${qt}^{${n}}`, 1 - q ** n, true), B(`1-${pt}^{${n}}`, 1 - p ** n, false, `Das Gegenereignis ist „kein Treffer“ – mit ${tex(qt)} je Versuch.`), B(`${n}\\cdot ${pt}`, n * p, false, 'Das ist der Erwartungswert, keine Wahrscheinlichkeit.'), B(`${qt}^{${n}}`, q ** n, false, 'Das ist die Wahrscheinlichkeit für „kein Treffer“. Davon das Gegenteil.')],
-        hints: ['„Mindestens einer“ ist das Gegenteil von „keiner“.', `${tex('P(X\\ge 1)=1-P(X=0)')}.`], explain: `${tex(`P(X\\ge1)=1-${qt}^{${n}}\\approx${ft((1 - q ** n) * 100, 1)}\\,\\%`)}.` },
+        hints: ['„Mindestens einer“ ist das Gegenteil von „keiner“.', `${tex('P(X\\ge 1)=1-P(X=0)')}.`], explain: `${tex(`P(X\\ge1)=1-${qt}^{${n}}${1 - q ** n >= 0.9995 ? '>99{,}9' : `\\approx${ft((1 - q ** n) * 100, 1)}`}\\,\\%`)}.` },
       { prompt: 'Wie groß ist die Standardabweichung?', kind: 'sigma',
         options: [N(sg, true), N(n * p * q, false, 'Das ist die Varianz. Für die Standardabweichung noch die Wurzel ziehen.'), N(Math.sqrt(n * p), false, `Der Faktor ${tex('(1-p)')} fehlt unter der Wurzel.`), N(mu, false, 'Das ist der Erwartungswert.')],
-        hints: [`${tex('\\sigma=\\sqrt{n\\,p\\,(1-p)}')}.`, `Unter der Wurzel steht ${tex(ft(n * p * q, 2))}.`], explain: `${tex(`\\sigma=\\sqrt{${n}\\cdot${pt}\\cdot${qt}}=\\sqrt{${ft(n * p * q, 2)}}\\approx${ft(sg, 2)}`)}.` },
+        hints: [`${tex('\\sigma=\\sqrt{n\\,p\\,(1-p)}')}.`, `Unter der Wurzel steht ${tex(ft(n * p * q, 2))}.`], explain: `${tex(`\\sigma=\\sqrt{${n}\\cdot${pt}\\cdot${qt}}=\\sqrt{${ft(n * p * q, 2)}}${Math.abs(sg - Math.round(sg * 100) / 100) < 1e-9 ? '=' : '\\approx'}${ft(sg, 2)}`)}.` },
     ];
     if (k < 1 || k >= n || parts.some((t) => !uniq(t.options)) || !uniqNum(parts[0].options) || !uniqNum(parts[3].options)) continue;
-    return { art: 'stochastik', title: 'Bernoulli-Kette', intro: `${ctx[0]} Jedes Mal gilt unabhängig voneinander: Mit der Wahrscheinlichkeit ${tex(`p=${pt}`)} ${ctx[1]} ${ctx[0].startsWith('Ein Glücksrad') ? 'man' : ctx[0].startsWith('Eine Maschine') ? 'ein Bauteil' : 'sie'}. Betrachtet werden ${n} ${ctx[2]}.`, formula: `n=${n},\\quad p=${pt}`, parts: fin(parts), n, p, k, be: [2, 3, 3, 2] };
+    return { art: 'stochastik', title: 'Bernoulli-Kette', intro: `${ctx[0]} Jedes Mal gilt unabhängig voneinander: Mit der Wahrscheinlichkeit ${tex(`p=${pt}`)} ${ctx[1]}. Betrachtet werden ${n} ${ctx[2]}.`, formula: `n=${n},\\quad p=${pt}`, parts: fin(parts), n, p, k, be: [2, 3, 3, 2] };
   }
 }
 
@@ -82,19 +84,21 @@ export function verbundGeometrie(lv = 3) {
     const B = A.map((c, i) => c + u[i]), C = A.map((c, i) => c + w[i]);
     const len = Math.hypot(...u), dot = u.reduce((t, c, i) => t + c * w[i], 0), M = A.map((c, i) => (c + B[i]) / 2);
     if (w.every((c) => c === 0) || !Number.isInteger(len) || same(u, w)) continue;
+    const zi = [2, 1, 0].find((i) => A[i] !== 0); if (zi === undefined) continue; // Zeile mit A_i ≠ 0 für den Vorzeichen-Ablenker
+    const rad = u[0] ** 2 + u[1] ** 2 - u[2] ** 2, pr = u.map((c, i) => c * w[i]);
     const V = (v, correct, why) => ({ tex: vecTex(v), vec: v, correct, why });
     const N = (num, correct, why) => ({ tex: ft(num, 2), num, correct, why });
     const G = (Pp, r, correct, why) => ({ tex: `\\vec x=${vecTex(Pp)}+t\\cdot${vecTex(r)}`, P: Pp, r, correct, why });
     const Mp = (v, correct, why) => ({ tex: `M(${v.map((c) => ft(c)).join('\\mid ')})`, vec: v, correct, why });
     const parts = [
       { prompt: `Bestimme den Vektor ${tex('\\overrightarrow{AB}')}.`, kind: 'ab',
-        options: [V(u, true), V(u.map((c) => -c), false, `„Spitze minus Fuß“: ${tex('B-A')}, nicht ${tex('A-B')}.`), V(A.map((c, i) => c + B[i]), false, 'Die Koordinaten werden subtrahiert, nicht addiert.'), V(u.map((c, i) => (i === 2 ? c + 2 * A[2] || c + 1 : c)), false, 'Achte in der dritten Zeile auf das Vorzeichen: B minus A.')],
+        options: [V(u, true), V(u.map((c) => -c), false, `„Spitze minus Fuß“: ${tex('B-A')}, nicht ${tex('A-B')}.`), V(A.map((c, i) => c + B[i]), false, 'Die Koordinaten werden subtrahiert, nicht addiert.'), V(u.map((c, i) => (i === zi ? c + 2 * A[i] : c)), false, `Achte in der ${['ersten', 'zweiten', 'dritten'][zi]} Zeile auf das Vorzeichen: B minus A.`)],
         hints: ['Spitze minus Fuß.', `${tex('\\overrightarrow{AB}=B-A')} – Zeile für Zeile.`], explain: `${tex(`\\overrightarrow{AB}=${vecTex(u)}`)}.` },
       { prompt: `Wie lang ist die Strecke ${tex('AB')}?`, kind: 'laenge',
-        options: [N(len, true), N(u.reduce((t, c) => t + Math.abs(c), 0), false, 'Die Beträge werden nicht einfach addiert: erst quadrieren, dann addieren, dann die Wurzel ziehen.'), N(len * len, false, 'Hier fehlt die Wurzel.'), N(Math.sqrt(Math.abs(u[0] ** 2 + u[1] ** 2 - u[2] ** 2)) === len ? len + 1 : Math.sqrt(Math.abs(u[0] ** 2 + u[1] ** 2 - u[2] ** 2)), false, 'Alle Quadrate werden addiert – auch bei negativen Koordinaten.')],
+        options: [N(len, true), N(u.reduce((t, c) => t + Math.abs(c), 0), false, 'Die Beträge werden nicht einfach addiert: erst quadrieren, dann addieren, dann die Wurzel ziehen.'), N(len * len, false, 'Hier fehlt die Wurzel.'), u[2] < 0 && rad > 0 ? N(Math.sqrt(rad), false, `Alle Quadrate werden addiert – auch bei negativen Koordinaten: ${tex(`${par(u[2])}^2=${u[2] ** 2}`)}.`) : N(Math.sqrt(u.reduce((t, c) => t + Math.abs(c), 0)), false, 'Unter der Wurzel stehen die Quadrate der Koordinaten, nicht ihre Beträge.')],
         hints: [`${tex('|\\vec v|=\\sqrt{v_1^2+v_2^2+v_3^2}')}.`, `Unter der Wurzel steht ${tex(ft(len * len))}.`], explain: `${tex(`|\\overrightarrow{AB}|=\\sqrt{${u.map((c) => `${par(c)}^2`).join('+')}}=\\sqrt{${ft(len * len)}}=${ft(len)}`)}.` },
       { prompt: `Berechne das Skalarprodukt ${tex('\\overrightarrow{AB}\\cdot\\overrightarrow{AC}')}.`, kind: 'skalar',
-        options: [N(dot, true), N(dot + 2 * Math.abs(u[1] * w[1]) || dot + 1, false, 'Achte auf die Vorzeichen der einzelnen Produkte.'), N(u.reduce((t, c, i) => t + c + w[i], 0), false, 'Zeilenweise multiplizieren, dann addieren – nicht alles addieren.'), N(-dot || 3, false, 'Das Vorzeichen ist falsch.')],
+        options: [N(dot, true), pr.some((c) => c < 0) ? N(pr.reduce((t, c) => t + Math.abs(c), 0), false, 'Achte auf die Vorzeichen: Negative Produkte werden abgezogen, nicht ihre Beträge addiert.') : N(u[0] * w[1] + u[1] * w[2] + u[2] * w[0], false, 'Malgenommen werden immer die Einträge derselben Zeile.'), N(u.reduce((t, c, i) => t + c + w[i], 0), false, 'Zeilenweise multiplizieren, dann addieren – nicht alles addieren.'), dot ? N(-dot, false, 'Das Vorzeichen ist falsch.') : N(pr[0] + pr[1], false, 'Es müssen alle drei Produkte addiert werden – das dritte fehlt.')],
         hints: [`Erst ${tex(`\\overrightarrow{AC}=${vecTex(w)}`)} bilden.`, 'Zeilenweise multiplizieren und die drei Produkte addieren.'], explain: `${tex(`\\overrightarrow{AC}=${vecTex(w)}`)}, also ${tex(`${u.map((c, i) => `${par(c)}\\cdot${par(w[i])}`).join('+')}=${ft(dot)}`)}${dot === 0 ? ' – die Vektoren stehen senkrecht aufeinander' : ''}.` },
       { prompt: `Welche Gleichung beschreibt die Gerade durch ${tex('A')} und ${tex('B')}?`, kind: 'gerade',
         options: [G(A, u, true), G(A, B, false, 'Der Richtungsvektor ist der Verbindungsvektor, nicht der Ortsvektor von B.'), G(u, A, false, 'Stützvektor und Richtungsvektor sind vertauscht.'), G(B, A.map((c, i) => c + B[i]), false, `Der Richtungsvektor ist ${tex('B-A')}, nicht ${tex('A+B')}.`)],

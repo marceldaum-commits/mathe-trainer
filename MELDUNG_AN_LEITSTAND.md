@@ -2,6 +2,20 @@
 
 Neueste Meldung oben. Keine Geheimnisse, keine Personendaten (dieses Repo ist öffentlich, siehe Punkt 1).
 
+## 18.11.2026 (98) – Betriebstest Tag 1: Version 2.3.4 (nur Fehlerbehebungen)
+
+- **Logo:** Seit 2.3.3 zeigte der Kopf der App das neue farbige Symbol. Das war ein Fehler: Marcel hat entschieden, dass das Logo schwarz-weiß bleibt. Jetzt zeigen Kopf und Zertifikat wieder das schwarz-weiße Logo (`img/marke.svg`). Favicon, PWA-Icons und Android-Symbol bleiben farbig. Ein Test sichert das ab.
+- **Aufgaben:**
+  - Stichprobe: 20 schwere Aufgaben-Formen (Stufe 4/5) und die 3 Verbund-Aufgaben, 232 Einzelfragen nachgerechnet.
+  - Alle Lösungen stimmen. 15 Fehler-Erklärungen und Texte habe ich korrigiert (Liste in `docs/PLAN.md`, Baulog 2.3.4).
+  - Offen für nach dem Betriebstest: Bei den Verbund-Aufgaben ist Stufe 5 kaum schwerer als Stufe 4.
+- **Nutzer-Meldungen** seit 16.11.: keine.
+- **Bildschirm Einstellungen:** 360/393/1440 px, hell/dunkel, große Schrift. Nichts läuft über, auch der Knopf „KI dazubuchen“ passt.
+- **Technik:** Keine Änderung an Speicherfeldern, Schnittstelle oder Abrufen. App-Hülle unverändert (Nr. 7), keine neue APK nötig. Die Inhalte kommen von selbst.
+- **Geprüft:** `npm run check` zweimal grün, e2e auf allen fünf Stufen (siehe Baulog).
+
+**Web = Android**, Version 2.3.4.
+
 ## 17.11.2026 (97) – Fertig für den Betriebstest – Version 2.3.3
 
 Eure Aufträge: KI-Punkte-Abfrage (Endpunkt live), Nachtauftrag „Aufgaben prüfen“ und „Nova – ganze Sätze, nie die Android-Stimme“.
