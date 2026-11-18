@@ -566,7 +566,7 @@ if (!window.MTApp && 'serviceWorker' in navigator && (location.protocol === 'htt
     // (ohne Zwischenspeicher). Weicht die Version ab, sucht der Service Worker sofort noch einmal.
     let zuletzt = 0;
     const pruefe = (immer = false) => {
-      if (!immer && Date.now() - zuletzt < 60 * 1000) return; zuletzt = Date.now();
+      if (navigator.onLine === false || (!immer && Date.now() - zuletzt < 60 * 1000)) return; zuletzt = Date.now();   // ohne Netz nicht fragen
       reg.update().catch(() => {});
       fetch(`stand.json?nc=${Date.now()}`, { cache: 'no-store' }).then((r) => (r.ok ? r.json() : null))
         .then((d) => { if (d?.version && d.version !== VERSION) reg.update().catch(() => {}); }).catch(() => {});
@@ -574,6 +574,7 @@ if (!window.MTApp && 'serviceWorker' in navigator && (location.protocol === 'htt
     pruefe(true);
     document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') pruefe(); jetzt(); });
     window.addEventListener('focus', () => { pruefe(); jetzt(); });
+    window.addEventListener('online', () => pruefe(true));
     setInterval(() => pruefe(true), 30 * 60 * 1000);
   }).catch(() => { /* ohne Service Worker läuft die App trotzdem */ });
 }
