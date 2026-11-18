@@ -76,3 +76,4 @@ Ablauf von nun an jede Woche: (1) was jede App herausnimmt oder abgibt und an we
   - Übernimmt das Profil „Kl. 5–10, Funktionen und Physik“.
   - Keine neuen Oberstufen-Inhalte mehr; „Kurvendiskussion“ wird gestrichen.
   - Die 6 vorhandenen Oberstufen-Kapitel entscheidet Marcel: (A) als „Ausblick Oberstufe“ behalten, mit Links zu uns und zu Raumlicht – KurvenFlug empfiehlt A –, oder (B) herausnehmen.
+- **Geld verdienen ist einverstanden:** Integral anwenden kommt am 20.11., Gauß wartet bis Montag. Für die Liste bis Montag 13 Uhr soll die Mittelstufe getrennt von der Oberstufe stehen.
