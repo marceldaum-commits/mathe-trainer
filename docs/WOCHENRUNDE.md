@@ -50,3 +50,8 @@ Ablauf von nun an jede Woche: (1) was jede App herausnimmt oder abgibt und an we
   - Kopfrechen-Arena und Knobelaufgabe des Tages (kleines Motivationsspiel; kein Ausbau, Link auf Rechenblitz). Ob wir die Arena ganz abgeben, entscheiden Marcel bzw. der Leitstand.
   - Formelsammlung.
 - **Mathe-Trainer plant:** 20.11. Integral anwenden, 24.11. Gauß-Verfahren, 27.11. Nullstellen, 1.12. Bayes, 4.12. Normalverteilung, 11.12. Kreuzprodukt.
+- **Abgleich der anderen Räume (Kurzfassung, Folgen für uns):**
+  - KurvenFlug gibt „Daten & Diagramme“, „Wahrscheinlichkeit“ und „Normalverteilung & Testen“ an uns ab (nur geplante Themen, nichts Gebautes). „Geraden & Ebenen“ und „Körper“ gehen an Raumlicht bzw. bleiben bei uns.
+  - Raumlicht übernimmt „Schattenwurf“ und „Körper im Raum“ (Oberstufe). Normalverteilung zeigt Raumlicht am 24.11. zum Erleben, wir üben sie am 4.12.
+  - Rechenblitz: LGS nur mit 2 Unbekannten im Kopf; 3 Unbekannte und Gauß machen wir und Raumlicht. Zehnerpotenzen baut Rechenblitz als Tempo-Thema aus, Potenzen bleiben bei uns in k10-wachstum. Zur Kopfrechen-Arena sagt Rechenblitz: behalten, nicht ausbauen, Link zu Rechenblitz – das passt.
+  - Experimentopia: Radioaktivität ganz dort; Halbwertszeit rechnen bei uns (a-wachstum, k10-wachstum) und bei KurvenFlug.
