@@ -22,6 +22,8 @@ import { checkBadges, titleOf } from './badges.js';
 import { api, serverOn, kiBereit, kiArt, kiNachpruefen } from './api.js';
 import { updateLeiste } from './update.js';
 import { installKarte, beiInstallWechsel } from './install.js';
+import { elternView } from './eltern-ui.js';
+import { elternAutomatik } from './eltern.js';
 import { theorieKnopf, theorieKnoepfe, hatTheorie } from './theoriefenster.js';
 import { settingsView, berichtView, karteiView, dailyGoal, openSteps, levelCard, erfolgeView, formelnView, klasseView, weekCard, readiness, applySkin, applySchrift, lehrplanView } from './extras.js';
 // Lernmusik (ab Werk an): In der Android-App startet sie gleich beim Öffnen (die App-Hülle erlaubt Ton ohne Tippen),
@@ -298,6 +300,7 @@ function mehrView() {
       ${linkCard('#/zertifikat', ICON.check, 'Zertifikate', 'Für jedes geschaffte Gebiet – zum Ausdrucken.')}
       ${linkCard('#/formeln', '∑', 'Formelsammlung', 'Jede abgeschlossene Einheit schaltet Formelkarten frei.')}
       ${linkCard('#/bericht', 'B', 'Bericht für Eltern', 'Lernstand zum Drucken oder Teilen.')}
+      ${linkCard('#/eltern', '♥', 'Eltern-Handy koppeln', 'Eltern sehen Fortschritt und Problemstellen auf dem eigenen Handy – ohne Konto, verschlüsselt.')}
       ${linkCard('#/einstellungen', ICON.gear, 'Einstellungen', istOber() ? `Schwierigkeit ${LEVELS[store.level - 1]} · Bundesland · Abi-Termin` : `${jgName(store.jahrgang)} · Schwierigkeit ${LEVELS[store.level - 1]} · Schrift`)}
     </section>
     <div id="install"></div>
@@ -453,7 +456,7 @@ function routeBau() {
   const hash = location.hash;
   const m = hash.match(/^#\/u\/([\w-]+)(?:\/(\d+))?$/);
   const u = m && UNITS.find((x) => x.id === m[1]);
-  const x = hash.match(/^#\/(abi|tag|duell|blitz|bericht|einstellungen|wiederholen|erfolge|formeln|klasse|lehrplan|einstufung|aufgabe|plan|zertifikat|abenteuer|karte|theorie|karten|kiaufgabe|pro|kopf|arbeit|dungeon)(?:\/([\w-]+))?$/);
+  const x = hash.match(/^#\/(abi|tag|duell|blitz|bericht|eltern|einstellungen|wiederholen|erfolge|formeln|klasse|lehrplan|einstufung|aufgabe|plan|zertifikat|abenteuer|karte|theorie|karten|kiaufgabe|pro|kopf|arbeit|dungeon)(?:\/([\w-]+))?$/);
   const gm = hash.match(/^#\/g\/(\w+)$/), g = gm && LERN_AREAS().find((a) => a.id === gm[1]);
   const pm = hash.match(/^#\/ueben\/(\w+?)(-grund)?$/), pa = pm && LERN_AREAS().find((a) => a.id === pm[1]);
   const bm = hash.match(/^#\/blatt(?:\/([\w.\-/]+))?$/);
@@ -465,7 +468,7 @@ function routeBau() {
   else if (x) {
     const after = () => { chips(); setTimeout(badgeCheck, 600); };
     const r = { abi: () => abiView(['A', 'B'].includes(x[2]) ? x[2] : null, after), tag: () => rundeView('tag', undefined, (res) => { after(); meldeTag(res); }), duell: () => rundeView('duell', x[2], after), blitz: () => blitzView(after),
-      bericht: berichtView, einstellungen: settingsView, wiederholen: karteiView, erfolge: erfolgeView, formeln: formelnView, klasse: klasseView, lehrplan: lehrplanView,
+      bericht: berichtView, eltern: elternView, einstellungen: settingsView, wiederholen: karteiView, erfolge: erfolgeView, formeln: formelnView, klasse: klasseView, lehrplan: lehrplanView,
       einstufung: () => (x[2] === 'ergebnis' ? einstufungErgebnis() : einstufungView()), aufgabe: () => verbundView(x[2]), plan: planView, zertifikat: () => zertifikatView(x[2]), abenteuer: () => abenteuerView(after), karte: karteView, theorie: () => theorieSpaeter(x[2]), karten: kartenView, kiaufgabe: kiAufgabeView, pro: proView, kopf: () => kopfView(after), arbeit: () => arbeitView(after), dungeon: () => dungeonSpaeter(after) }[x[1]]();
     el = r.el; cleanup = r.cleanup || null;
   } else if (hash === '#/stufe') el = stufeView();
@@ -514,6 +517,7 @@ look.follow(); applySkin(); applySchrift(); initMelden();
 window.addEventListener('hashchange', route);
 // Zurück aus dem Shop (KI dazugebucht): beim Wiederkommen den Code neu prüfen und KI sofort freischalten.
 document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') kiNachpruefen().then((neu) => { if (neu) { toast('KI ist freigeschaltet.'); route(); } }).catch(() => {}); });
+elternAutomatik();   // gekoppeltes Eltern-Handy: Bericht und Sicherung nach jeder Lern-Sitzung (höchstens alle 10 Minuten)
 beiInstallWechsel(() => { if (['#/mehr', '', '#/', '#/einstellungen'].includes(location.hash)) route(); });   // „App installieren“ (install.js)
 route();
 window.__mtGestartet?.();

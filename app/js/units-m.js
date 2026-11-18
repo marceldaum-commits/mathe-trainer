@@ -39,12 +39,14 @@ export const MITTEL_AREAS = [
   { id: 'mdaten', mittel: true, title: 'Daten und Zufall', info: 'Diagramme, Mittelwert, Wahrscheinlichkeit', soon: [] },
 ];
 /** Was je Klasse als Nächstes kommt (für die Karte „Kommt bald“). */
-export const MITTEL_BALD = {   // Lehrplan-Abgleich 18.11.2026 (docs/LEHRPLAN-ABGLEICH.md), Wichtigstes zuerst
+export const MITTEL_BALD = {   // Lehrplan-Abgleich 18.11.2026 (docs/LEHRPLAN-ABGLEICH.md), Wichtigstes zuerst.
+  // Verschoben in die Lehrplan-Klasse (Marcel 18.11.): Baumdiagramm/Vierfeldertafel nach 9, Flächen und Prismen nach 7.
+  // „Trigonometrie und Körper“ bleibt in 10 (Kugel und Kegel sind dort Lehrplan; Klasse 10 braucht zwei Einheiten mit Spiel).
   5: ['Körper und Netze', 'Geraden, Strecken, senkrecht und parallel', 'Vierecke erkennen und zeichnen', 'Maßstab: Karten und Pläne', 'Potenzen und Quadratzahlen', 'Zeit und Geld im Alltag', 'Römische Zahlen und Zweiersystem'],
   6: ['Symmetrie und Spiegeln', 'Flächen zusammengesetzter Figuren', 'Dreisatz im Alltag', 'Periodische Dezimalzahlen'],
   7: ['Dreiecke konstruieren', 'Terme aufstellen', 'Achsen- und Punktspiegelung', 'Satz des Thales', 'Umkreis, Inkreis und Höhen im Dreieck', 'Boxplot und Quartile'],
-  8: ['Baumdiagramme', 'Was ist eine Funktion?', 'Lineare Ungleichungen', 'Bruchterme', 'Hyperbeln: die Funktion a/x'],
-  9: ['Mehrstufige Zufallsversuche', 'Zehnerpotenzen und wissenschaftliche Schreibweise', 'Kreis und Zylinder im Sachzusammenhang', 'Parabel trifft Gerade', 'Wurzelgleichungen', 'Kathetensatz und Höhensatz'],
+  8: ['Was ist eine Funktion?', 'Lineare Ungleichungen', 'Bruchterme', 'Hyperbeln: die Funktion a/x'],
+  9: ['Zehnerpotenzen und wissenschaftliche Schreibweise', 'Kreis und Zylinder im Sachzusammenhang', 'Parabel trifft Gerade', 'Wurzelgleichungen', 'Kathetensatz und Höhensatz'],
   10: ['Prüfungstraining Mittlerer Abschluss', 'Trigonometrie am Einheitskreis', 'Potenzfunktionen', 'Kreisbogen und Kreisausschnitt', 'Wachstum vergleichen', 'Kugel und Kegel im Sachzusammenhang', 'Ganzrationale Funktionen', 'Potenzen mit Bruch-Hochzahlen'],
 };
 
@@ -476,7 +478,7 @@ export const MITTEL = [
       { id: 'rueck', kind: 'Brücke', title: 'Kreisteile', run: quiz([genKreis, genKreis, genKreis, genKreis]) },
       { id: 'mix', kind: 'Festigen', title: 'Kreis gemischt', run: mix(genKreis) },
     ] },
-  { id: 'k8-flaechen', jg: '8', area: 'mgeo', title: 'Flächen und Prismen', sub: 'Dreieck, Trapez, Prisma, Zylinder',
+  { id: 'k8-flaechen', jg: '7', area: 'mgeo', title: 'Flächen und Prismen', sub: 'Dreieck, Trapez, Prisma, Zylinder',
     meta: { boss: ['Trapez-Tapir', '▱', [genVieleck, genPrisma]], why: 'Wie viel Farbe braucht die Giebelwand? Wie viel Wasser passt in die Regentonne? Mit wenigen Formeln für Flächen und Körper beantwortest du solche Fragen – beim Renovieren, Verpacken und Bauen.',
       formeln: [['Dreieck', 'A=\\tfrac12\\cdot g\\cdot h'], ['Trapez', 'A=\\tfrac12\\cdot(a+c)\\cdot h'], ['Prisma', 'V=G\\cdot h'], ['Zylinder', 'V=\\pi\\cdot r^2\\cdot h'], ['Rohr', 'V=\\pi\\,(r_a^2-r_i^2)\\cdot h'], ['Masse', '\\text{Masse}=V\\cdot\\text{Masse pro cm}^3']] },
     steps: [
@@ -618,7 +620,7 @@ export const MITTEL = [
       { id: 'rechnen', kind: 'Brücke', title: 'Gesetze anwenden', run: quiz([genLog, genLog, H(genPotenz), genLog]) },
       { id: 'mix', kind: 'Festigen', title: 'Logarithmus gemischt', run: mix(genLog, H(genPotenz)) },
     ] },
-  { id: 'k10-daten', jg: '10', area: 'mdaten', title: 'Baumdiagramm und Vierfeldertafel', sub: 'Mehrstufige Versuche, bedingte Wahrscheinlichkeit',
+  { id: 'k10-daten', jg: '9', area: 'mdaten', title: 'Baumdiagramm und Vierfeldertafel', sub: 'Mehrstufige Versuche, bedingte Wahrscheinlichkeit',
     meta: { boss: ['Tafel-Tiger', '▦', [H(genBaum), H(genVierfelder), H(genBedingt)]], why: 'Ein positiver Schnelltest heißt nicht sicher „krank“ – wie wahrscheinlich es wirklich ist, zeigt die Vierfeldertafel. Mit Baumdiagrammen berechnest du Chancen, wenn mehrere Zufälle hintereinander passieren.',
       formeln: [['Pfadregel', '\\text{entlang des Pfads malnehmen}'], ['Summenregel', '\\text{passende Pfade addieren}'], ['Bedingt', 'P_B(A)=\\dfrac{P(A\\cap B)}{P(B)}'], ['Ohne Zurücklegen', '\\text{2. Stufe: eine Kugel weniger}'], ['Vierfeldertafel', 'P(A\\cap B)=P(A)+P(B)-P(A\\cup B)']] },
     steps: [

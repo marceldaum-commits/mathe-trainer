@@ -27,6 +27,18 @@ export function weekKey(d = new Date()) {
 }
 export const WOCHEN_ZIEL = 5, WOCHEN_BONUS = 50;
 
+/* Lernzeit: Zeit zwischen zwei Aufgaben zählt, wenn die Pause kürzer als 3 Minuten war (sonst 30 Sekunden für die Aufgabe). */
+let letzteAufgabe = 0;
+function tagMerken(ok, jetzt = Date.now()) {
+  const t = dayKey(new Date(jetzt)), m = t.slice(0, 7), dt = letzteAufgabe && jetzt - letzteAufgabe < 3 * 60000 ? jetzt - letzteAufgabe : 30000;
+  letzteAufgabe = jetzt;
+  const T = (mem.tage && typeof mem.tage === 'object' ? mem.tage : (mem.tage = {})), M = (mem.monate && typeof mem.monate === 'object' ? mem.monate : (mem.monate = {}));
+  for (const e of [(T[t] ||= { ms: 0, aufgaben: 0, richtig: 0 }), (M[m] ||= { ms: 0, aufgaben: 0, richtig: 0 })]) { e.ms += dt; e.aufgaben++; if (ok) e.richtig++; }
+  for (const k of Object.keys(T).sort().slice(0, -35)) delete T[k];
+  for (const k of Object.keys(M).sort().slice(0, -24)) delete M[k];
+}
+const zusammen = (o) => Object.fromEntries(Object.entries(o && typeof o === 'object' ? o : {}).filter(([, e]) => e && typeof e === 'object')
+  .map(([k, e]) => [k, { min: Math.round((+e.ms || 0) / 60000), aufgaben: +e.aufgaben || 0, richtig: +e.richtig || 0 }]));
 export function dayKey(d = new Date()) {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 }
@@ -91,7 +103,7 @@ export const store = {
   reset() { const { geraet, zugang, schrift, jahrgang, outfit } = mem; mem = FRESH(); if (outfit) mem.outfit = outfit; if (geraet) mem.geraet = geraet; if (zugang) mem.zugang = zugang; if (schrift) mem.schrift = schrift; if (jahrgang) mem.jahrgang = jahrgang; save(); },
 
   /** Nur das Geübte löschen: Aufgaben-Statistik, Fehler-Kartei, Runden- und Prüfungs-Ergebnisse. Sterne, Punkte und Abzeichen bleiben. */
-  resetGeuebt() { mem.stats = {}; mem.kartei = {}; mem.runs = []; mem.exams = []; mem.tag = {}; save(); },
+  resetGeuebt() { mem.stats = {}; mem.kartei = {}; mem.runs = []; mem.exams = []; mem.tag = {}; mem.tage = {}; mem.monate = {}; save(); },
   /** Sterne der genannten Einheiten löschen (z. B. alle einer Klassenstufe). Punkte und Abzeichen bleiben. */
   resetEinheiten(ids) { for (const k of Object.keys(mem.done)) if (ids.includes(k.split('/')[0])) delete mem.done[k]; if (ids.includes(mem.last)) delete mem.last; save(); },
   /** Summe aller Sterne – schaltet die Outfits für Pi frei. */
@@ -108,8 +120,11 @@ export const store = {
     if (!topic) return;
     const s = (mem.stats[topic] ||= { ok: 0, bad: 0 });
     if (firstTry) s.ok++; else s.bad++;
-    s.last = dayKey(); save();
+    s.last = dayKey(); tagMerken(firstTry); save();
   },
+  /** Je Tag (35 Tage) und je Monat (24 Monate): Lernzeit in Minuten, Aufgaben, davon auf Anhieb richtig – für den Eltern-Bericht. */
+  get tagLog() { return zusammen(mem.tage); },
+  get monate() { return zusammen(mem.monate); },
   get stats() { return mem.stats; },
   /** Themen mit den meisten Fehlern zuerst (mindestens 3 Versuche). */
   weak(n = 5) {

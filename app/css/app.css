@@ -104,6 +104,10 @@ main{width:min(100%,560px);margin:0 auto;padding:18px 16px calc(40px + env(safe-
 .cta .btn{background:#fff;color:#bb5000;border-color:#fff;box-shadow:none}
 .foot{display:flex;flex-wrap:wrap;gap:6px 16px;justify-content:center;color:var(--muted);font-size:calc(12.5px*var(--fs,1));padding-top:6px}
 .install{border:2px solid var(--orange);}
+.eltern-qr{background:#fff;border-radius:12px;padding:8px;width:min(240px,70vw);align-self:center}
+.eltern-qr svg{display:block;width:100%;height:auto}
+.el-wieder summary{cursor:pointer;font-weight:700;font-size:calc(15px*var(--fs,1))}
+#eltern .field{width:100%;box-sizing:border-box}
 .install h3{margin:0 0 2px}
 .install-ios{margin:0;padding-left:calc(20px*var(--fs,1));display:grid;gap:4px;font-size:calc(15px*var(--fs,1))}
 .install #install-los{white-space:nowrap}

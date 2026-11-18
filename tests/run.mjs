@@ -1045,6 +1045,12 @@ ok(nextStreak({ n: 3, last: '2026-11-10' }, D('2026-11-12')).n === 1, 'Serie: au
   ok(/data-schrift="klein"\]\{--fs:\.88\}/.test(css) && /data-schrift="gross"\]\{--fs:1\.12\}/.test(css), 'Schrift: Faktoren für klein und groß'); }
 
 // Selbst-Aktualisierung der Android-App: Stand aus der App-Hülle lesen, Dateiliste mit Prüfsummen
+{ const E = await import('../app/js/eltern.js');   // Eltern-Handy koppeln (Marcel 18.11.2026); Rundlauf im Browser: tests/eltern.mjs
+  ok(E.b64url(new Uint8Array(16)).length === 22 && E.b64url(new Uint8Array(32)).length === 43 && E.b64url(new Uint8Array(12)).length === 16 && !/[+/=]/.test(E.b64url(Uint8Array.from([251, 255, 191]))), 'Eltern: base64url ohne Auffüllzeichen (16 → 22, 32 → 43, IV 12 → 16 Zeichen)');
+  const id = 'A'.repeat(22), key = 'B'.repeat(43);
+  ok(E.linkLesen(`https://staging.mathenachhilfe-online.com/eltern-bericht/#${id}.${key}`)?.key === key && E.linkLesen(`#${id}.${key}`)?.id === id && E.linkLesen('https://example.com/') === null, 'Eltern: Kopplungs-Link wird gelesen');
+  ok(E.elternBasis('trainer-test.mathenachhilfe-online.com').includes('staging.') && E.elternBasis('trainer.mathenachhilfe-online.com') === 'https://www.mathenachhilfe-online.com/eltern-bericht/', 'Eltern: Link auf staging (test) bzw. www (live)');
+  ok(E.themaVon('Ableitung') === 'analysis' && E.themaVon('Binomialverteilung') === 'stochastik' && E.themaVon('Abstand Punkt–Ebene') === 'vektoren' && E.themaVon('Exponentielles Wachstum') === 'exponential-log', 'Eltern: Themen aus der gemeinsamen Liste'); }
 { const I = await import('../app/js/install.js'), fs = await import('node:fs'), M = JSON.parse(fs.readFileSync(new URL('../app/manifest.webmanifest', import.meta.url), 'utf8'));
   ok(I.istIos({ userAgent: 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X)' }) && I.istIos({ userAgent: 'Mozilla/5.0 (Macintosh)', platform: 'MacIntel', maxTouchPoints: 5 }) && !I.istIos({ userAgent: 'Mozilla/5.0 (Linux; Android 14)' }), 'Installieren: iPhone/iPad werden erkannt (Anleitung statt Knopf)');
   ok(M.name && M.display === 'standalone' && M.start_url && M.theme_color && M.icons.some((i) => i.purpose === 'maskable' && i.sizes === '512x512') && M.icons.some((i) => i.sizes === '192x192'), 'Installieren: Manifest mit Name, Symbolen (auch maskable), eigenem Fenster, Start-Adresse und Farbe');

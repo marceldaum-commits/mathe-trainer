@@ -6,7 +6,7 @@ Die Oberstufe ist gut abgedeckt. In Klasse 5–10 fehlen einzelne Bereiche ganz,
 ## Entscheidung Marcel (18.11.2026)
 
 - **Rhythmus: jede Woche eine neue Einheit, ohne Pflegewoche.** Fehler werden wie bisher täglich nebenher behoben; geprüft wird monatlich nach `docs/PRUEFPLAN.md`.
-- **Themen in die Lehrplan-Klasse verschieben: ja.** Baumdiagramm/Vierfeldertafel und Trigonometrie/Körper nach Klasse 9, Flächen und Prismen nach Klasse 7 (Version 2.3.9).
+- **Themen in die Lehrplan-Klasse verschieben: ja.** Baumdiagramm/Vierfeldertafel nach Klasse 9, Flächen und Prismen nach Klasse 7 (Version 2.3.9). „Trigonometrie und Körper“ bleibt in Klasse 10 (Kugel/Kegel sind dort Lehrplan).
 - Reihenfolge der neuen Einheiten: nach `docs/LEHRPLAN-ABGLEICH.md` (Top 10 fehlend), siehe unten.
 
 ## Rhythmus (ursprünglicher Vorschlag)
