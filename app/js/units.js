@@ -40,6 +40,7 @@ import {
 } from './a/gen.js';
 import { haerter as H } from './a/gen10.js';
 import { genKoordPunkt, genKoordSpiegel, genParallelogramm, genGeradeGleich, genKollinear } from './a/gen11.js';
+import { genMittelwertFkt, genBestand, genBestandExtrem } from './a/gen12.js';
 
 const T = (s) => `<div class="big">${tex(s, true)}</div>`;
 
@@ -536,6 +537,24 @@ const OBER = [
     ],
   },
   {
+    id: 'a-integral2', area: 'analysis', title: 'Integral anwenden', sub: 'Mittelwert, Bestand aus der Änderungsrate',
+    steps: [
+      { id: 'regel', kind: 'Benennen', title: 'Mittelwert einer Funktion', run: info([
+        { title: 'Mittelwert einer Funktion', html: `${T('m=\\dfrac{1}{b-a}\\displaystyle\\int_a^b f(x)\\,dx')}<p>${tex('m')} ist der <b>mittlere Funktionswert</b> von ${tex('f')} auf dem Intervall ${tex('[a;\\,b]')}: ${tex('a')} ist die linke, ${tex('b')} die rechte Grenze, ${tex('b-a')} die Breite des Intervalls. Das Integral liefert die Flächenbilanz, das Teilen durch die Breite macht daraus eine Höhe: Ein Rechteck über ${tex('[a;\\,b]')} mit der Höhe ${tex('m')} hat dieselbe Flächenbilanz wie der Graph.</p><p>Beispiel: ${tex('f(x)=3x^2')} auf ${tex('[0;\\,2]')}.</p>${T('m=\\dfrac{1}{2-0}\\int_0^2 3x^2\\,dx=\\dfrac12\\Bigl[x^3\\Bigr]_0^2=\\dfrac12\\cdot(8-0)=4')}<p class="muted">Nicht verwechseln: Das Mittel der Randwerte ${tex('\\tfrac12\\bigl(f(0)+f(2)\\bigr)=\\tfrac12\\,(0+12)=6')} ist hier falsch – es stimmt nur bei Geraden.</p>` },
+        { title: 'Mit e-Funktion und Sinus', html: `<p>Der Rechenweg bleibt gleich: Stammfunktion, Hauptsatz, durch die Breite teilen. Bei ${tex('e^{kx}')} wird durch die innere Ableitung ${tex('k')} geteilt.</p><p>Beispiel: ${tex('f(x)=2e^{0{,}5x}')} auf ${tex('[0;\\,2]')}, Stammfunktion ${tex('F(x)=\\dfrac{2}{0{,}5}\\,e^{0{,}5x}=4e^{0{,}5x}')}.</p>${T('m=\\dfrac12\\Bigl[4e^{0{,}5x}\\Bigr]_0^2=\\dfrac12\\,\\bigl(4e^{1}-4e^{0}\\bigr)=2\\,(e-1)\\approx 3{,}44')}<p>Beispiel: ${tex('f(x)=\\sin(x)')} auf ${tex('[0;\\,\\pi]')}, Stammfunktion ${tex('F(x)=-\\cos(x)')}.</p>${T('m=\\dfrac{1}{\\pi}\\Bigl[-\\cos(x)\\Bigr]_0^{\\pi}=\\dfrac{1}{\\pi}\\,\\bigl(1-(-1)\\bigr)=\\dfrac{2}{\\pi}\\approx 0{,}64')}` },
+        { eyebrow: 'Merken', title: 'Rückwärts: die Grenze gesucht', html: `<p>Ist der Mittelwert vorgegeben und eine Grenze gesucht, stellt man dieselbe Formel als Gleichung auf.</p><p>Beispiel: Für welches ${tex('b>0')} hat ${tex('f(x)=x^2')} auf ${tex('[0;\\,b]')} den Mittelwert 3?</p>${T('\\dfrac{1}{b}\\int_0^b x^2\\,dx=\\dfrac1b\\cdot\\dfrac{b^3}{3}=\\dfrac{b^2}{3}=3\\ \\Rightarrow\\ b^2=9\\ \\Rightarrow\\ b=3')}<p>Die Lösung ${tex('b=-3')} entfällt, weil die rechte Grenze positiv sein soll.</p>` },
+      ]) },
+      { id: 'mittel', kind: 'Brücke', title: 'Mittelwerte berechnen', run: quiz([genMittelwertFkt, genMittelwertFkt, genMittelwertFkt, genMittelwertFkt]) },
+      { id: 'rate', kind: 'Benennen', title: 'Vom Zufluss zum Bestand', run: info([
+        { title: 'Bestand aus der Änderungsrate', html: `${T('B(t)=B(0)+\\displaystyle\\int_0^t r(s)\\,ds')}<p>${tex('B(t)')} ist der <b>Bestand</b> zum Zeitpunkt ${tex('t')} (Wassermenge, Besucherzahl, Bakterien …), ${tex('B(0)')} der Anfangsbestand. ${tex('r')} ist die <b>Änderungsrate</b>: Bestand pro Zeiteinheit, zum Beispiel ${tex('\\text{m}^3')} pro Stunde. ${tex('s')} heißt die Integrationsvariable, weil ${tex('t')} schon die obere Grenze ist. Es gilt ${tex("B'(t)=r(t)")}.</p>${T('\\int_{t_1}^{t_2}r(t)\\,dt=B(t_2)-B(t_1)')}<p>Das Integral der Rate ist die <b>Gesamtänderung</b> zwischen ${tex('t_1')} und ${tex('t_2')}. Positiv heißt Zunahme, negativ Abnahme. Einheit: ${tex('\\tfrac{\\text{m}^3}{\\text{h}}\\cdot\\text{h}=\\text{m}^3')}.</p><p>Beispiel: In ein Becken mit ${tex('B(0)=10\\,\\text{m}^3')} fließt Wasser mit ${tex('r(t)=6t+2')} (in ${tex('\\text{m}^3')} pro Stunde).</p>${T('B(3)=10+\\int_0^3(6t+2)\\,dt=10+\\Bigl[3t^2+2t\\Bigr]_0^3=10+33=43')}<p>Nach 3 Stunden sind ${tex('43\\,\\text{m}^3')} im Becken.</p>` },
+        { title: 'Wann ist der Bestand am größten?', html: `<p>Wegen ${tex("B'(t)=r(t)")} nimmt der Bestand zu, solange ${tex('r(t)>0')} ist, und ab, solange ${tex('r(t)<0')} ist.</p>${T('r:\\ +\\ \\to\\ -\\ \\Rightarrow\\ \\text{größter Bestand}\\qquad r:\\ -\\ \\to\\ +\\ \\Rightarrow\\ \\text{kleinster Bestand}')}<p>Danach die <b>Ränder</b> vergleichen: Den Unterschied zum Anfang liefert ${tex('B(t)-B(0)=\\int_0^t r(s)\\,ds')}.</p><p>Beispiel: ${tex('r(t)=8-2t')} auf ${tex('[0;\\,6]')}. Nullstelle ${tex('t=4')}, davor ${tex('r>0')}, danach ${tex('r<0')}: größter Bestand bei ${tex('t=4')}.</p>${T('B(4)-B(0)=\\int_0^4(8-2t)\\,dt=\\Bigl[8t-t^2\\Bigr]_0^4=32-16=16')}<p class="muted">Wo die Rate am größten ist, wächst der Bestand nur am schnellsten – der größte Bestand kommt erst, wenn die Rate auf null gefallen ist.</p>` },
+      ]) },
+      { id: 'bestand', kind: 'Brücke', title: 'Bestand aus der Änderungsrate', run: quiz([genBestand, genBestand, genBestand, genBestand]) },
+      { id: 'extrem', kind: 'Brücke', title: 'Wann ist am meisten da?', run: quiz([genBestandExtrem, genBestandExtrem, genBestandExtrem, genBestandExtrem]) },
+      { id: 'mix', kind: 'Festigen', title: 'Integral anwenden gemischt', run: quiz([genMittelwertFkt, genBestand, genBestandExtrem, genBestand, genMittelwertFkt, genBestandExtrem]) },
+    ],
+  },
+  {
     id: 's-test2', area: 'stochastik', title: 'Binomialverteilung genauer, zweiseitig testen', sub: 'Einzeln und kumuliert, Histogramm, rückwärts fragen, stetige Größen',
     steps: [
       { id: 'regel', kind: 'Benennen', title: 'Vier Blickwinkel', run: info([
@@ -571,7 +590,7 @@ const OBER = [
   },
 ];
 const OBER_AREAS = [
-  { id: 'analysis', title: 'Analysis', soon: ['Gauß-Verfahren: drei Gleichungen, drei Unbekannte', 'Nullstellen finden: Ausklammern, Substitution, Polynomdivision', 'Transformationen a·f(b(x−c))+d', 'Mittelwert einer Funktion', 'Abi-Pflichtteil ohne Taschenrechner', 'Stetigkeit und Differenzierbarkeit', 'Wachstum und Differentialgleichungen', 'Integrationsverfahren'] },
+  { id: 'analysis', title: 'Analysis', soon: ['Gauß-Verfahren: drei Gleichungen, drei Unbekannte', 'Nullstellen finden: Ausklammern, Substitution, Polynomdivision', 'Transformationen a·f(b(x−c))+d', 'Abi-Pflichtteil ohne Taschenrechner', 'Stetigkeit und Differenzierbarkeit', 'Wachstum und Differentialgleichungen', 'Integrationsverfahren'] },
   { id: 'stochastik', title: 'Stochastik', soon: ['Satz von Bayes: Baum umdrehen', 'Normalverteilung rückwärts', 'Dichtefunktion: Wahrscheinlichkeit als Fläche', 'Prognose- und Konfidenzintervalle', 'Gütefunktion', 'Zufall simulieren', 'Warten auf den ersten Treffer', 'Übergangsprozesse mit Matrizen'] },
   { id: 'geometrie', title: 'Analytische Geometrie', soon: ['Kreuzprodukt: Fläche und Volumen', 'Körper im Raum', 'Schattenwurf', 'Linear abhängig oder unabhängig?', 'Beweisen mit Vektoren', 'Matrizen und Abbildungen'] },
   { id: 'pruefung', title: 'Prüfung', soon: ['Musterlösungen lesen', 'Zeit einteilen'] },
@@ -645,6 +664,8 @@ const META = {
     formeln: [['Umkehrfunktion', 'y=f(x)\\ \\text{nach}\\ x\\ \\text{auflösen, dann}\\ x\\leftrightarrow y'], ['Wurzel ableiten', "\\left(\\sqrt x\\right)'=\\dfrac{1}{2\\sqrt x}"], ['Rationale Exponenten', "\\left(x^{r}\\right)'=r\\cdot x^{r-1}"]] },
   'a-numerik': { boss: ['Näherungs-Nixe', 'xₙ', [genIntegralfunktion, genNewton, genOrtskurve]], why: 'Die meisten Gleichungen der Technik lassen sich nicht exakt lösen – Taschenrechner und Computer benutzen Verfahren wie das von Newton. Integralfunktionen beschreiben Füllstände und zurückgelegte Wege, Ortskurven zeigen, wie sich eine ganze Familie von Kurven verhält.',
     formeln: [['Integralfunktion', "J_a(x)=\\displaystyle\\int_a^x f(t)\\,dt,\\quad J_a'(x)=f(x)"], ['Newton-Verfahren', "x_{n+1}=x_n-\\dfrac{f(x_n)}{f'(x_n)}"], ['Ortskurve', '\\text{Parameter eliminieren}']] },
+  'a-integral2': { boss: ['Bilanz-Biber', '∫', [genMittelwertFkt, genBestand, genBestandExtrem]], why: 'Wasserwerke berechnen aus der Zuflussrate, wie voll ein Speicher ist; Ärztinnen aus der Aufnahmerate, wie viel Wirkstoff im Blut ist; Wetterdienste aus dem Temperaturverlauf die Tagesmitteltemperatur. Immer steckt ein Integral dahinter.',
+    formeln: [['Mittelwert einer Funktion', 'm=\\dfrac{1}{b-a}\\displaystyle\\int_a^b f(x)\\,dx'], ['Bestand aus der Änderungsrate', 'B(t)=B(0)+\\displaystyle\\int_0^t r(s)\\,ds'], ['Gesamtänderung', '\\int_{t_1}^{t_2}r(t)\\,dt=B(t_2)-B(t_1)'], ['Größter / kleinster Bestand', 'r:\\ +\\to -\\ \\text{(Maximum)},\\quad r:\\ -\\to +\\ \\text{(Minimum)},\\ \\text{Ränder prüfen}']] },
   's-test2': { boss: ['Histo-Hydra', 'H₀', [genBinomVerteilung, genMengen, genHistogramm, genRueckwaerts, genZweiseitig, genStetig]], why: 'Ob eine Münze fair ist, ein Medikament anders wirkt oder eine Maschine falsch eingestellt ist: Abweichungen in beide Richtungen prüft man zweiseitig. Histogramme und Dichten zeigen auf einen Blick, womit zu rechnen ist – in der Qualitätskontrolle genauso wie in Wahlumfragen.',
     formeln: [['Einzelwahrscheinlichkeit', 'P(X=k)=\\binom{n}{k}p^k(1-p)^{n-k}'], ['Kumuliert', 'P(X\\ge k)=1-P(X\\le k-1)'], ['Vereinigung', 'P(A\\cup B)=P(A)+P(B)-P(A\\cap B)'], ['Annahmebereich (5 %)', '[\\mu-1{,}96\\sigma;\\ \\mu+1{,}96\\sigma]'], ['Mindestens ein Treffer', '1-(1-p)^n\\ge s'], ['Dichte', 'P(a\\le X\\le b)=\\displaystyle\\int_a^b f(x)\\,dx']] },
   'g-abstand2': { boss: ['Lot-Leopard', '⊥', [genHesse, genSchnittgerade, genWindschief, genSpiegelung, genBewegung]], why: 'Flugsicherung, Robotik und jedes 3D-Spiel rechnen ständig Abstände aus: Wie nah kommen sich zwei Flugbahnen? Wo trifft ein Lichtstrahl sein Spiegelbild? Fast immer führt der Weg über eine Senkrechte.',
