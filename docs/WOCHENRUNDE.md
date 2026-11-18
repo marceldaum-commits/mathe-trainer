@@ -77,3 +77,7 @@ Ablauf von nun an jede Woche: (1) was jede App herausnimmt oder abgibt und an we
   - Keine neuen Oberstufen-Inhalte mehr; „Kurvendiskussion“ wird gestrichen.
   - Die 6 vorhandenen Oberstufen-Kapitel entscheidet Marcel: (A) als „Ausblick Oberstufe“ behalten, mit Links zu uns und zu Raumlicht – KurvenFlug empfiehlt A –, oder (B) herausnehmen.
 - **Geld verdienen ist einverstanden:** Integral anwenden kommt am 20.11., Gauß wartet bis Montag. Für die Liste bis Montag 13 Uhr soll die Mittelstufe getrennt von der Oberstufe stehen.
+- **Raumlicht (Inhaltsliste):**
+  - Umfang: 144 Aufgaben, alles Oberstufe; davon Raum 92, Analysis 32, Stochastik 20.
+  - Vorschlag: Geometrie im Raum vollständig bei Raumlicht. In Analysis und Stochastik behält Raumlicht nur die Erlebnis-Bereiche; neue Rechenthemen kämen zu uns.
+  - **Offen für Montag:** Was passiert mit unseren 9 Geometrie-Einheiten (g-*)? Unser Vorschlag in der Liste: behalten, denn sie sind Rechentraining in Stufen fürs Abi, nicht 3D-Erleben. Kein Ausbau ohne Marcels Entscheidung; Links zu Raumlicht.
