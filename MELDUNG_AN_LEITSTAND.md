@@ -12,7 +12,8 @@ Neueste Meldung oben. Keine Geheimnisse, keine Personendaten (dieses Repo ist ö
 - **Nutzer-Meldungen** seit 16.11.: keine.
 - **Bildschirm Einstellungen:** 360/393/1440 px, hell/dunkel, große Schrift. Nichts läuft über, auch der Knopf „KI dazubuchen“ passt.
 - **Technik:** Keine Änderung an Speicherfeldern, Schnittstelle oder Abrufen. App-Hülle unverändert (Nr. 7), keine neue APK nötig. Die Inhalte kommen von selbst.
-- **Geprüft:** `npm run check` zweimal grün, e2e auf allen fünf Stufen (siehe Baulog).
+- **Geprüft:** `npm run check` zweimal grün, e2e auf allen fünf Stufen grün (3, 1, 5, 2, 4; je 36 Einheiten ohne Fehler).
+- **Stand:** main = test = a010ec5, live unverändert. APK/AAB 2.3.4 (versionCode 20304, bekannter Schlüssel) liegen im Drive-Ordner, 2.3.3 ist nach „Alt“ verschoben.
 
 **Web = Android**, Version 2.3.4.
 
