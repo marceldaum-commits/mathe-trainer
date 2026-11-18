@@ -1,4 +1,4 @@
-// Aufgaben erst bei Bedarf laden (Paket 0.40): Die Aufgaben-Erzeuger (gen.js … gen11.js) sind zusammen rund 1,5 MB groß.
+// Aufgaben erst bei Bedarf laden (Paket 0.40): Die Aufgaben-Erzeuger (gen.js … gen12.js) sind zusammen rund 1,5 MB groß.
 // Der erste Bildschirm braucht sie nicht. Die App arbeitet deshalb mit leichten Platzhaltern (app/js/a/*.js, erzeugt von
 // tools/zwilling.mjs): gleiche Namen, gleiche Themen – der Aufruf wird an den echten Erzeuger weitergereicht, sobald
 // ladeAufgaben() die schweren Dateien im Hintergrund geholt hat. Vorher wirft ein Aufruf NichtGeladen; der Router fängt das ab.
@@ -13,6 +13,7 @@ const DATEIEN = [
   ['gen', () => import('./gen.js')], ['gen2', () => import('./gen2.js')], ['gen3', () => import('./gen3.js')], ['gen4', () => import('./gen4.js')],
   ['gen5', () => import('./gen5.js')], ['gen6', () => import('./gen6.js')], ['gen7', () => import('./gen7.js')], ['gen8', () => import('./gen8.js')],
   ['gen9', () => import('./gen9.js')], ['gen10', () => import('./gen10.js')], ['gen11', () => import('./gen11.js')],
+  ['gen12', () => import('./gen12.js')],
 ];
 /** Holt alle Aufgaben-Erzeuger (einmal; weitere Aufrufe bekommen dasselbe Versprechen). Schlägt das Laden fehl, darf neu versucht werden. */
 export function ladeAufgaben() {
