@@ -1,12 +1,12 @@
 # Prüfplan Mathe-Trainer (rollierend)
 
-Dauerregel von Marcel (18.11.2026): **Jede Woche neuer Inhalt, einmal im Monat gegen Ende alles prüfen und fixen** – nach Plan,
+Dauerregel von Marcel (18.11.2026): **Dienstag und Freitag neuer Inhalt, einmal im Monat gegen Ende alles prüfen und fixen** – nach Plan,
 damit nicht jedes Mal alles neu geprüft werden muss.
 
 ## Wochenrhythmus
 
-- **Jede Woche eine neue Einheit:** Mittwoch auf `test`, Freigabe durch den Leitstand. Reihenfolge und Kalender: `docs/THEMEN-ROADMAP.md`.
-- **Die letzte Woche im Monat ist Pflegewoche:** keine neue Einheit, nur die Monatsprüfung (unten).
+- **Dienstag und Freitag je ein großes Inhaltsupdate** auf `test` (bis 16 Uhr, mit Meldung). Reihenfolge und Kalender: `docs/THEMEN-ROADMAP.md`.
+- **Die Monatsprüfung (unten) läuft zusätzlich** in der letzten Woche des Monats; ihre Korrekturen kommen mit dem nächsten Di/Fr-Update.
 - **Täglich** (bestehende Routine): Nutzer-Meldungen lesen, Fehler beheben, `npm run check`.
 
 ## Monatsprüfung (letzte Woche des Monats)

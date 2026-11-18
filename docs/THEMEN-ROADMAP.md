@@ -3,43 +3,35 @@
 Für den Leitstand, zur Auswahl durch Marcel. Stand heute: **73 Einheiten** (Oberstufe 36, Klasse 5–10 zusammen 37).
 Die Oberstufe ist gut abgedeckt. In Klasse 5–10 fehlen einzelne Bereiche ganz, zum Beispiel Daten in Klasse 7 und 9 oder Körper in Klasse 9.
 
-## Festgeschrieben (Marcel, 18.11.2026)
+## Rhythmus: Dienstag und Freitag (Dauerregel Marcel, 18.11.2026 – ersetzt „1 Einheit mittwochs“ und die Pflegewoche)
 
-1. **Rhythmus:** 1 neue Einheit pro Woche, **Mittwoch auf `test`**; Freigabe für live durch den Leitstand.
-   **Die letzte Woche im Monat ist Pflegewoche:** keine neue Einheit, dafür die Monatsprüfung nach `docs/PRUEFPLAN.md`.
-2. **Reihenfolge: Oberstufe zuerst** (Integral anwenden und weitere Abi-Themen), danach die Lücken in Klasse 5–10.
-3. **Länder-Wahlthemen** (z. B. Matrizen): ja, aber erst nach den Pflichtthemen. Bis dahin „Kommt bald“ (ohne Datum, ohne Kaufhinweis).
-4. **Themen in die Lehrplan-Klasse verschoben** (2.3.9): Baumdiagramm/Vierfeldertafel nach Klasse 9, Flächen und Prismen nach Klasse 7. „Trigonometrie und Körper“ bleibt in Klasse 10.
+- **Jeden Dienstag und Freitag bis 16 Uhr ein großes Inhaltsupdate auf `test`**, dazu eine Meldung (was neu ist, wie viele Aufgaben, wie geprüft). Der Leitstand prüft am selben Tag und gibt frei.
+- **Inhalt nach Wirkung:** neue Themen mit Aufgaben, bestehende Themen ausweiten, Aufgaben korrigieren und vervollständigen, neue Optionen in der App.
+- **Pflicht (Marcel wörtlich): „mathematisch korrekt, vollständig, nachvollziehbar. Keine Abkürzungen, weil die Schüler damit lernen.“**
+  - Jeder Lösungsweg zeigt alle Schritte.
+  - Jede nötige Formel steht in der Theorie, mit Beispiel.
+  - Jedes Ergebnis ist nachgerechnet (`tests/run.mjs`, harte Tests `tests/hart/*.mjs`, `tests/hart/eindeutig.mjs`).
+- **Richtschnur der Reihenfolge:** Oberstufe zuerst, danach Lücken in Klasse 5–10, Länder-Wahlthemen zuletzt (bis dahin „Kommt bald“).
+- **Monatsprüfung** nach `docs/PRUEFPLAN.md` läuft zusätzlich weiter (letzte Woche im Monat).
+- **Themen in die Lehrplan-Klasse verschoben** (2.3.9): Baumdiagramm/Vierfeldertafel → Klasse 9, Flächen und Prismen → Klasse 7; „Trigonometrie und Körper“ bleibt in 10.
 
-## Kalender der neuen Einheiten
+## Kalender (Richtschnur, Inhalt je Update nach Wirkung)
 
-Die erste Woche nach diesem Beschluss (23.–30.11.) ist schon Pflegewoche (erste Monatsprüfung), deshalb kommt die erste neue Einheit am **Mittwoch, 2.12.2026**.
+| Update | Schwerpunkt |
+| --- | --- |
+| **Fr 20.11.2026** | **Neue Einheit Oberstufe: Integral anwenden** (Mittelwert einer Funktion, Rekonstruktion eines Bestands aus der Änderungsrate) |
+| Di 24.11. | Gauß-Verfahren (LGS mit drei Unbekannten) + Korrekturen aus der Monatsprüfung Block A |
+| Fr 27.11. | Nullstellen finden: Ausklammern, Substitution, Polynomdivision |
+| Di 1.12. | Satz von Bayes: Baum umdrehen |
+| Fr 4.12. | Normalverteilung rückwärts und Dichtefunktion |
+| Di 8.12. | Transformationen a·f(b(x−c))+d |
+| Fr 11.12. | Kreuzprodukt: Fläche und Volumen |
+| Di 15.12. | Abi-Pflichtteil ohne Taschenrechner |
+| Fr 18.12. | Klasse 9: Körper (Zylinder, Kegel, Pyramide, Kugel) |
+| Di 22.12. | Klasse 7: Mittelwert, Median, Boxplot |
+| danach | Kl. 9 Scheitelpunktform, Kl. 6 Symmetrie, Kl. 9 mehrstufige Zufallsversuche, Kl. 7 Konstruieren, Kl. 8 Ungleichungen, Kl. 7 Terme aufstellen, Kl. 5 Körper und Netze; dann Wahlthemen (Matrizen u. a.) |
 
-| Mittwoch | Stufe | Neue Einheit |
-| --- | --- | --- |
-| 25.11.2026 | – | **Pflegewoche** (Monatsprüfung Block A) |
-| 2.12.2026 | Oberstufe Analysis | **Integral anwenden: Mittelwert, Rekonstruktion, Bestand aus Änderungsrate** |
-| 9.12.2026 | Oberstufe Analysis | Gauß-Verfahren: drei Gleichungen, drei Unbekannte |
-| 16.12.2026 | Oberstufe Analysis | Nullstellen finden: Ausklammern, Substitution, Polynomdivision |
-| 23.12.2026 | Oberstufe Stochastik | Satz von Bayes: Baum umdrehen |
-| 30.12.2026 | – | **Pflegewoche** (Monatsprüfung Block B) |
-| 6.1.2027 | Oberstufe Stochastik | Normalverteilung rückwärts und Dichtefunktion |
-| 13.1.2027 | Oberstufe Analysis | Transformationen a·f(b(x−c))+d |
-| 20.1.2027 | Oberstufe Geometrie | Kreuzprodukt: Fläche und Volumen |
-| 27.1.2027 | – | **Pflegewoche** (Monatsprüfung Block C) |
-| 3.2.2027 | Oberstufe Analysis | Abi-Pflichtteil ohne Taschenrechner |
-| 10.2.2027 | Klasse 9 | Körper: Zylinder, Kegel, Pyramide, Kugel |
-| 17.2.2027 | Klasse 7 | Mittelwert, Median, Boxplot |
-| 24.2.2027 | – | **Pflegewoche** (Monatsprüfung Block D) |
-| 3.3.2027 | Klasse 9 | Quadratische Funktionen: Scheitelpunktform |
-| 10.3.2027 | Klasse 6 | Symmetrie: Achsen- und Punktspiegelung |
-| 17.3.2027 | Klasse 9 | Mehrstufige Zufallsversuche und Zählprinzip |
-| 24.3.2027 | Klasse 7 | Dreiecke konstruieren, Kongruenz |
-| 31.3.2027 | – | **Pflegewoche** (Monatsprüfung Block A) |
-| danach | Klasse 8 … | Lineare Ungleichungen; Terme aufstellen (Kl. 7); Körper und Netze (Kl. 5); weitere aus `docs/LEHRPLAN-ABGLEICH.md` |
-| danach | Wahlthemen | Matrizen und Übergangsprozesse u. a. (Länder) |
-
-Jede fertige Einheit verschwindet aus „Kommt bald“. Vorrang vor neuen Einheiten haben weiter: Lehrplan-Prüfliste und Theorie-Korrekturen.
+Jedes Update kann zusätzlich bestehende Themen ausweiten oder Aufgaben verbessern. Jede fertige Einheit verschwindet aus „Kommt bald“.
 
 ## Rhythmus (ursprünglicher Vorschlag, überholt)
 

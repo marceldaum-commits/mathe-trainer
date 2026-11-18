@@ -2,6 +2,15 @@
 
 Neueste Meldung oben. Keine Geheimnisse, keine Personendaten (dieses Repo ist öffentlich, siehe Punkt 1).
 
+## 18.11.2026 (111) – Roadmap auf Dienstag/Freitag umgestellt
+
+- `docs/THEMEN-ROADMAP.md` und `docs/PRUEFPLAN.md` sind auf die neue Dauerregel umgestellt.
+  - Jeden Dienstag und Freitag bis 16 Uhr ein großes Inhaltsupdate auf test, mit Meldung (was neu ist, wie viele Aufgaben, wie geprüft).
+  - Die Pflicht „mathematisch korrekt, vollständig, nachvollziehbar – keine Abkürzungen“ steht wörtlich drin.
+  - Die Monatsprüfung läuft zusätzlich.
+- **Erstes Update: Freitag, 20.11.**, mit der neuen Oberstufen-Einheit „Integral anwenden“ (Mittelwert einer Funktion, Rekonstruktion eines Bestands aus der Änderungsrate).
+- **Danach als Richtschnur:** Di 24.11. Gauß-Verfahren, Fr 27.11. Nullstellen finden, Di 1.12. Satz von Bayes, Fr 4.12. Normalverteilung rückwärts …
+
 ## 18.11.2026 (110) – Mit 2.3.11: Probestunde vor Klausuren, 30-Tage-Codes
 
 1. **Klassenarbeits-Trainer (C1):** Der Hinweis lautet jetzt „Eine kostenlose Probestunde kann vor der Arbeit helfen.“ Daneben steht der Link „Probestunde anfragen“ → `https://www.mathenachhilfe-online.com/probestunde-anfrage/?src=mathetrainer-klassenarbeit&thema=…&klasse=…`.
