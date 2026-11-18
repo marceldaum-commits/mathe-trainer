@@ -2,6 +2,21 @@
 
 Neueste Meldung oben. Keine Geheimnisse, keine Personendaten (dieses Repo ist öffentlich, siehe Punkt 1).
 
+## 18.11.2026 (99) – Version 2.3.5: ein Logo überall
+
+Marcel hat bestätigt: das farbige Symbol überall.
+
+- **Kopf der App:** das farbige Symbol (klein, ohne Schrift), daneben der Schriftzug „Mathe-Trainer“.
+- **Ladebild beim Start:** das farbige Symbol mit f'(x), direkt in der Seite eingebettet.
+- **Zertifikat und Teilen-Bild:** das farbige Symbol mit f'(x) (`img/symbol.svg`).
+- **Arbeitsblätter und Theorie-PDF:** im Kopf ebenfalls das farbige Symbol statt des alten schwarz-weißen Logos.
+- **Entfernt:** `img/marke.svg` und `img/logo.svg` (die alten schwarz-weißen Logos).
+- **Unverändert:** Favicon, PWA-Icons und Android-Symbol. Die App-Hülle bleibt Nr. 7, es ist keine neue APK-Installation nötig.
+- **Tests:** Der alte Schwarz-weiß-Test ist ersetzt. Jetzt wird geprüft, dass Kopf, Zertifikat, Ladebild, Teilen-Bild und Arbeitsblätter das farbige Symbol zeigen und kein altes Logo mehr vorkommt.
+- **Geprüft:** `npm run check` grün; Bildschirmfotos von Ladebild und Kopf bei 360 px, hell und dunkel, ohne Fehler. Der e2e-Lauf auf allen fünf Stufen läuft.
+
+**Web = Android**, Version 2.3.5.
+
 ## 18.11.2026 (98) – Betriebstest Tag 1: Version 2.3.4 (nur Fehlerbehebungen)
 
 - **Logo:** Seit 2.3.3 zeigte der Kopf der App das neue farbige Symbol. Das war ein Fehler: Marcel hat entschieden, dass das Logo schwarz-weiß bleibt. Jetzt zeigen Kopf und Zertifikat wieder das schwarz-weiße Logo (`img/marke.svg`). Favicon, PWA-Icons und Android-Symbol bleiben farbig. Ein Test sichert das ab.
