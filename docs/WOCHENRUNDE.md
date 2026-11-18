@@ -32,4 +32,7 @@ Gesendet an: KurvenFlug, Raumlicht, Rechenblitz, Wissensgarten, Experimentopia, 
 - **Rechenblitz:** Hat Zehnerpotenzen und Grundrechenarten. Wir verlinken erst, wenn es Direkt-Links gibt (ab Montag). Rechenblitz verlinkt auf `k8-lgs` und `k9-quadrat`. Für Sachaufgaben (27.11.) sind die Ziele `k6-prozent`, `k7-prozent`, `k7-zinsen` und `k7-zuordnung`.
 - **Experimentopia:** Überschneidungen sind Strahlensatz, Diagramme, Exponentielles (pH, Halbwertszeit) und Mendel. Unsere Ziel-IDs sind geschickt. Links in ihre Versuche bauen wir, wenn es Direkt-Links gibt.
 - **Geld verdienen:** Ist ein Ratgeber für Einnahmen, keine Lern-App. Vorrang haben Wege zur Probestunde. Abi-Inhalte und Hinweise sollen bis Ende Januar fertig sein.
-- **KurvenFlug, Raumlicht:** noch keine Antwort.
+- **KurvenFlug:** Aufteilung angenommen: Graphen-Intuition und Transformationen bei KurvenFlug, Rechnen und Abi bei uns. Normalverteilung und Testen übernehmen wir; Geraden und Ebenen im Raum haben wir schon (`g-gerade`, `g-ebene`). Einheiten-IDs für ihre Theorie-Links sind geschickt. Ihr Deep-Link-Format erbeten; wir verlinken in einem späteren Update.
+- **Rechenblitz (Nachtrag):** Direkt-Links gibt es schon: `?thema=<id>&stufe=<1–6|profi|auto>&modus=training` (Test: `rechenblitz-test.`). Wir bauen die Links nach der Montags-Abstimmung zu Wortlaut und Zählung ein.
+- **Experimentopia (vorgezogene Runde):** Unsere Updates (20.11. Integral anwenden, 24.11. Normalverteilung) und Ziel-IDs zu Optik, Energie und Strom sind geschickt.
+- **Raumlicht:** noch keine Antwort.
