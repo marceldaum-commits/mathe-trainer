@@ -2,6 +2,68 @@
 
 Neueste Meldung oben. Keine Geheimnisse, keine Personendaten (dieses Repo ist öffentlich, siehe Punkt 1).
 
+## 18.11.2026 (103) – Version 2.3.8: Theorie geprüft und ergänzt, Lehrplan-Abgleich, „Kommt bald“
+
+**1. Prüfliste Theorie** (vollständig je Thema: `docs/THEORIE-PRUEFUNG.md`, Spalten „Thema → passt? → Formel+Bedeutung+Beispiel vorher? → korrigiert“)
+
+| | Oberstufe | Klasse 5–10 | zusammen |
+| --- | --- | --- | --- |
+| geprüft | 36 | 37 | 73 |
+| passt nicht zur Überschrift | 0 | 1 | 1 |
+| Formel/Bedeutung/Beispiel fehlte vorher | 12 | 34 | 46 |
+| korrigiert | 12 | 37 (3 vollständige bekamen ein Zusatzbeispiel) | 49 |
+
+- **Nicht passend:** Klasse 9 „Ähnlichkeit und Strahlensätze“. Im Schritt „Festigen“ waren Pythagoras-Aufgaben eingemischt; jetzt sind es nur Strahlensatz-Aufgaben.
+- **Exponentialfunktionen** (Marcels Beispiel): Im Mathe-Trainer enthalten die Einheiten Klasse 10 „Exponential- und Sinusfunktion“ und Oberstufe „ln-Funktion und Wachstum“ wirklich a·bˣ, eˣ, ln, Wachstum und Zerfall. Es fehlten aber Verfahren, die die Aufgaben brauchen:
+  - Prozent je Schritt → Faktor 1 ± p/100;
+  - „Wann verdreifacht?“ mit bˣ = 3 → x = lg 3 / lg b;
+  - Halbwertszeit;
+  - Ableitung der e-Funktion mit Kettenregel, aˣ = e^{x·ln a}, k = ln a.
+  Alles ist jetzt ergänzt, jeweils mit Beispiel.
+- **Größte Lücken vorher** (Verfahren für einen Hauptteil der Aufgaben fehlte):
+  - Klasse 5: ggT/kgV, Rechenregeln/schriftliches Rechnen, Quadranten/Dreiecksfläche/Durchschnitt.
+  - Klasse 6: „p % von“ und „wie viel Prozent“.
+  - Oberstufe:
+    - Hesse-Form (genHesse fragt danach, die Theorie hatte sie nicht);
+    - partielle Integration (Sinus/Kosinus Stufe 5, Rotationskörper ∫x·e^{−cx});
+    - stetige Zufallsgrößen (∫f = 1, E(X) = ∫x·f(x)dx).
+- **Insgesamt:** rund 110 neue Erklärkarten (Formel, Bedeutung der Größen, durchgerechnetes Beispiel mit eigenen Zahlen), etwa 60 neue „Formeln zum Merken“ und 18 neue Abschnitte in der ausführlichen Theorie.
+- **Alle 112 Theorie-Kapitel** (kurz und ausführlich) rendern ohne Formelfehler (geprüft mit KaTeX im Browser). Die Zahlen der Beispiele sind nachgerechnet.
+
+**2. Vektor-Geometrie** – jetzt jeweils mit Formel, Bedeutung und Beispiel:
+
+| Punkt | Einheit |
+| --- | --- |
+| Hessesche Normalform (… = 0 und mit n₀) | Hesse-Form, Schnittgerade, Spiegelung |
+| Abstand Punkt–Ebene | Abstände und Winkel; Hesse-Form |
+| Abstand Gerade–Ebene (parallel), Ebene–Ebene (parallel) | Abstände und Winkel; Hesse-Form |
+| Abstand Gerade–Gerade (parallel) | Kugeln, Abstände, Ebenen |
+| Abstand Gerade–Gerade (windschief) | Hesse-Form, Schnittgerade, Spiegelung |
+| Winkel Gerade–Gerade, Ebene–Ebene, Gerade–Ebene (mit Sinus) | Abstände und Winkel (Karte „Schnittwinkel“, Beispiel 7) |
+| Winkel zwischen Vektoren cos α = a·b/(\|a\|·\|b\|) | Skalarprodukt; Abstände und Winkel |
+
+**3. Lehrplan-Abgleich** (`docs/LEHRPLAN-ABGLEICH.md`): Bayern, Baden-Württemberg, NRW, Niedersachsen und Hessen (Gymnasium und Realschule, Sek. I und Oberstufe) sowie die KMK-Standards MSA und Abitur.
+- **159 Themen:** 97 vorhanden, 28 teilweise, 34 fehlen.
+- **Einschränkung:** Die offiziellen Lehrplan-Seiten (u. a. lehrplanplus.bayern.de, kmk.org) waren aus dieser Umgebung nicht erreichbar. Die Klassen-Zuordnung beruht auf Fachwissen und ist in jeder Zeile mit „(n.o.g.)“ markiert. Zum Nachprüfen müssten diese Seiten im Netz der Sitzung freigegeben werden.
+- **Top 10 fehlend:**
+  1. mehrstufige Zufallsversuche/Baumdiagramm in Kl. 8/9;
+  2. Dreiecke konstruieren und Kongruenz (Kl. 7);
+  3. Gauß-Verfahren (Oberstufe);
+  4. Terme aufstellen (Kl. 7);
+  5. Körper und Netze (Kl. 5);
+  6. Achsen- und Punktspiegelung (Kl. 6/7);
+  7. Prüfungstraining Mittlerer Abschluss;
+  8. Nullstellen finden: Substitution/Polynomdivision (Oberstufe);
+  9. Trigonometrie am Einheitskreis (Kl. 10);
+  10. Potenzfunktionen (Kl. 10).
+- **„Kommt bald“ ist jetzt in der App sichtbar** (ohne Datum, ohne Kaufhinweis): je Klasse 5–10 und je Oberstufen-Gebiet, die wichtigsten fehlenden Themen zuerst, 4–8 je Gruppe.
+- **Bauen:** Die Reihenfolge der Themen-Roadmap (`docs/THEMEN-ROADMAP.md`) passt zum Abgleich. Ich schlage vor, sie mit den Top 10 abzugleichen und dann 1 Einheit pro Woche zu bauen, sobald Marcel den Rhythmus gewählt hat.
+- **Auffällig** (Klasse im Trainer ≠ übliche Lehrplanklasse): Baumdiagramm nur in Kl. 10 (meist 8/9), Trigonometrie in Kl. 10 (meist 9), Flächen in Kl. 8 (meist 6/7). Das ist noch nicht verschoben, weil es den Lernstand der Nutzer berührt; bitte entscheiden.
+
+**4. Offen:**
+- Klasse 8 „Flächen und Prismen“, Stufe 5: Eine Trapez-Aufgabe braucht den Pythagoras (kommt erst in Klasse 9). Die Karte erklärt den Weg; den Erzeuger selbst habe ich im Betriebstest nicht geändert.
+- **Tests:** `npm run check` grün. Die Grenze für die Bündelgröße ist von 2,1 auf 2,3 MB angehoben, wegen der vielen neuen Theorie-Texte.
+
 ## 18.11.2026 (102) – Offene Punkte „fertig machen“: KI, Erinnerung, Roadmap, iPhone/iPad
 
 Stand auf `test`: **Version 2.3.7**, mit allem aus (99), (100) und (101): nur Web-App, Vorlesen aus, Auto-Update, Logo überall gleich. Live gibt der Leitstand frei. In diesem Schritt ändert sich an der App nichts, nur Tests und Unterlagen.
