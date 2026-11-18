@@ -27,7 +27,7 @@ Neueste Meldung oben. Keine Geheimnisse, keine Personendaten (dieses Repo ist ö
     - Hesse-Form (genHesse fragt danach, die Theorie hatte sie nicht);
     - partielle Integration (Sinus/Kosinus Stufe 5, Rotationskörper ∫x·e^{−cx});
     - stetige Zufallsgrößen (∫f = 1, E(X) = ∫x·f(x)dx).
-- **Insgesamt:** rund 110 neue Erklärkarten (Formel, Bedeutung der Größen, durchgerechnetes Beispiel mit eigenen Zahlen), etwa 60 neue „Formeln zum Merken“ und 18 neue Abschnitte in der ausführlichen Theorie.
+- **Insgesamt:** 75 neue Erklärkarten (233 → 308; Formel, Bedeutung der Größen, durchgerechnetes Beispiel mit eigenen Zahlen), dazu viele bestehende Karten um Bedeutung und Beispiel erweitert. 56 neue „Formeln zum Merken“ (177 → 233) und 11 neue Abschnitte in der ausführlichen Theorie (395 → 406).
 - **Alle 112 Theorie-Kapitel** (kurz und ausführlich) rendern ohne Formelfehler (geprüft mit KaTeX im Browser). Die Zahlen der Beispiele sind nachgerechnet.
 
 **2. Vektor-Geometrie** – jetzt jeweils mit Formel, Bedeutung und Beispiel:
@@ -62,7 +62,7 @@ Neueste Meldung oben. Keine Geheimnisse, keine Personendaten (dieses Repo ist ö
 
 **4. Offen:**
 - Klasse 8 „Flächen und Prismen“, Stufe 5: Eine Trapez-Aufgabe braucht den Pythagoras (kommt erst in Klasse 9). Die Karte erklärt den Weg; den Erzeuger selbst habe ich im Betriebstest nicht geändert.
-- **Tests:** `npm run check` grün. Die Grenze für die Bündelgröße ist von 2,1 auf 2,3 MB angehoben, wegen der vielen neuen Theorie-Texte.
+- **Tests:** `npm run check` grün. Die Grenze für die Bündelgröße ist von 2,1 auf 2,3 MB angehoben, wegen der neuen Theorie-Texte.
 
 ## 18.11.2026 (102) – Offene Punkte „fertig machen“: KI, Erinnerung, Roadmap, iPhone/iPad
 
