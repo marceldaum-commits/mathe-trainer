@@ -1268,5 +1268,11 @@ ok(nextStreak({ n: 3, last: '2026-11-10' }, D('2026-11-12')).n === 1, 'Serie: au
   } finally { st.zugang = alt; globalThis.fetch = altFetch; if (altApp) globalThis.window.MTApp = altApp; else delete globalThis.window.MTApp; }
 }
 
+// Marcel 17.11.2026: neues farbiges App-Symbol nur für favicon/PWA/Android – das Logo in der App bleibt schwarz-weiß
+{ const fs = await import('node:fs'); const css = fs.readFileSync(new URL('../app/css/app.css', import.meta.url), 'utf8'), mk = fs.readFileSync(new URL('../app/img/marke.svg', import.meta.url), 'utf8');
+  const farben = [...new Set((mk.match(/#[0-9a-fA-F]{3,6}\b/g) || []).map((c) => c.toLowerCase()))];
+  ok(/\.brand-logo\{[^}]*img\/marke\.svg/.test(css) && /\.zert-logo\{[^}]*img\/marke\.svg/.test(css) && !/\.brand-logo\{[^}]*favicon/.test(css), 'Logo: Kopf und Zertifikat zeigen das schwarz-weiße Logo');
+  ok(farben.length > 0 && farben.every((c) => ['#000', '#000000', '#fff', '#ffffff'].includes(c)), `Logo: marke.svg ist schwarz-weiß (${farben.join(', ')})`); }
+
 console.log(fails ? `${fails} verschiedene Fehler bei ${n} Prüfungen` : `tests: alle ${n} Prüfungen bestanden`);
 process.exit(fails ? 1 : 0);

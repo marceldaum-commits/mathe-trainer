@@ -3,7 +3,7 @@ import { CONFIG } from './config.js';
 import { toast } from './ui.js';
 
 let logo = null;
-const loadLogo = () => (logo ||= new Promise((res) => { const im = new Image(); im.onload = () => res(im); im.onerror = () => res(null); im.src = 'img/favicon.svg'; }));
+const loadLogo = () => (logo ||= new Promise((res) => { const im = new Image(); im.onload = () => res(im); im.onerror = () => res(null); im.src = 'img/marke.svg'; }));
 
 function wrap(g, text, x, y, maxW, lh) {
   let line = '';
