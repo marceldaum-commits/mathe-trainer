@@ -24,6 +24,7 @@ import { updateLeiste } from './update.js';
 import { installKarte, beiInstallWechsel } from './install.js';
 import { elternView } from './eltern-ui.js';
 import { freischaltLink } from './prolink.js';
+import { zaehle, zaehlungStarten, hinweiseBeobachten, linkMitHerkunft } from './zaehler.js';
 import { elternAutomatik } from './eltern.js';
 import { theorieKnopf, theorieKnoepfe, hatTheorie } from './theoriefenster.js';
 import { settingsView, berichtView, karteiView, dailyGoal, openSteps, levelCard, erfolgeView, formelnView, klasseView, weekCard, readiness, applySkin, applySchrift, lehrplanView } from './extras.js';
@@ -112,7 +113,7 @@ const unitCard = (u, k) => {
 };
 const linkCard = (href, num, title, sub) => `<a class="card unit" href="${href}"><span class="num">${num}</span><span><h3>${esc(title)}</h3><small>${sub}</small></span><span class="go">${ICON.right}</span></a>`;
 const footer = () => `<footer class="foot">
-    <a class="site nur-web" href="${CONFIG.website}" target="_blank" rel="noopener">${esc(CONFIG.firma)}</a><span class="nur-app">${esc(CONFIG.firma)} · ${esc(CONFIG.website.replace(/^https?:\/\/(www\.)?|\/$/g, ''))}</span>
+    <a class="site nur-web" href="${linkMitHerkunft(CONFIG.website, 'fusszeile')}" target="_blank" rel="noopener">Ein Angebot von ${esc(CONFIG.firma)}</a><span class="nur-app">${esc(CONFIG.firma)} · ${esc(CONFIG.website.replace(/^https?:\/\/(www\.)?|\/$/g, ''))}</span>
     <a href="${CONFIG.impressum}" target="_blank" rel="noopener">Impressum</a>
     <a href="${CONFIG.datenschutz}" target="_blank" rel="noopener">Datenschutz</a>
     <span id="ver">Version ${VERSION} · ${STAND}${typeof window.MTApp?.updateStand === 'function' ? ' · hält sich selbst aktuell' : ''}</span></footer>`;
@@ -520,6 +521,12 @@ window.addEventListener('hashchange', route);
 document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') kiNachpruefen().then((neu) => { if (neu) { toast('KI ist freigeschaltet.'); route(); } }).catch(() => {}); });
 elternAutomatik();   // gekoppeltes Eltern-Handy: Bericht und Sicherung nach jeder Lern-Sitzung (höchstens alle 10 Minuten)
 beiInstallWechsel(() => { if (['#/mehr', '', '#/', '#/einstellungen'].includes(location.hash)) route(); });   // „App installieren“ (install.js)
+// Anonyme Nutzungszählung (abschaltbar in den Einstellungen): „start“, Links mit Herkunft, Nachhilfe-Hinweise, Eltern-Seite, Theorie
+zaehlungStarten(() => { const m = /^#\/(?:u|theorie)\/([\w-]+)/.exec(location.hash), u = m && ALLE_UNITS.find((x) => x.id === m[1].replace(/-lang$/, ''));
+  return { klasse: store.jahrgang, unitTitel: u ? u.title : '', ober: istOber() }; });
+window.addEventListener('hashchange', () => { if (/^#\/eltern\b/.test(location.hash)) zaehle('elternbereich'); else if (/^#\/theorie\/[\w-]+/.test(location.hash)) zaehle('theorie'); });
+if (/^#\/eltern\b/.test(location.hash)) zaehle('elternbereich'); else if (/^#\/theorie\/[\w-]+/.test(location.hash)) zaehle('theorie');
+hinweiseBeobachten();
 freischaltLink((text) => toast(text));   // #pro=CODE (neu) bzw. ?pro=CODE (alte Mails): sofort aus der Adresse, dann einlösen
 route();
 window.__mtGestartet?.();

@@ -3,6 +3,7 @@
 // Der Code wird sofort aus der Adresszeile entfernt (history.replaceState), dann wie von Hand eingelöst (POST /api/zugang).
 import { api, codeNorm } from './api.js';
 import { store } from './store.js';
+import { zaehle } from './zaehler.js';
 
 /** Code aus der Adresse: null = kein Freischalt-Link; '' = Link mit ungültigem Code; sonst der Code in Normalform. */
 export function codeAusAdresse(loc = globalThis.location) {
@@ -31,6 +32,7 @@ export function freischaltLink(melde = () => {}, w = globalThis.window) {
   try { w.history.replaceState(null, '', adresseOhneCode(w.location.href)); } catch { /* alte Browser */ }
   if (!code) { melde('Der Freischalt-Link enthält keinen gültigen Code. Bitte den Code in den Einstellungen von Hand eingeben.'); return Promise.resolve({ ok: false }); }
   return einloesen(code).then((r) => {
+    if (r.ok) zaehle('code_eingeloest', 'link');
     melde(r.ok ? (r.ki ? 'Pro + KI ist freigeschaltet.' : 'Pro ist freigeschaltet.') : r.text);
     try { w.dispatchEvent(new Event('mt-ruhig')); w.dispatchEvent(new Event('hashchange')); } catch { /* egal */ }
     return r;

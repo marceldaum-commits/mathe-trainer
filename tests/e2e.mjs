@@ -15,7 +15,8 @@ const shots = process.argv[2];
 
 const browser = await chromium.launch();
 const ctx = await browser.newContext({ ...devices['Pixel 7'], colorScheme: process.env.DARK ? 'dark' : 'light', acceptDownloads: true });
-await ctx.addInitScript(() => { window.__mtTest = true; });   // markiert in Boss und Blitz die richtige Antwort
+await ctx.addInitScript(() => { window.__mtTest = true; });
+await ctx.route('**/zaehler/v1/e', (r) => r.fulfill({ status: 204, body: '' }));   // anonyme Nutzungszählung: der Test-Server (reine Dateien) kennt sie nicht   // markiert in Boss und Blitz die richtige Antwort
 const page = await ctx.newPage();
 const errors = [];
 let serverAus = false;   // solange der nachgestellte Melde-Server „nicht erreichbar“ spielt, sind seine Lade-Fehler erwartet

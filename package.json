@@ -9,7 +9,8 @@
     "test:webkit": "node tests/webkit.mjs",
     "test:update": "node tests/web-update.mjs",
     "test:eltern": "node tests/eltern.mjs",
-    "test:prolink": "node tests/prolink.mjs"
+    "test:prolink": "node tests/prolink.mjs",
+    "test:zaehlung": "node tests/zaehlung.mjs"
   },
   "devDependencies": {
     "esbuild": "0.28.2"

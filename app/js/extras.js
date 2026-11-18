@@ -22,6 +22,7 @@ import { BADGES, TITLES, SKINS, titleOf, skinOpen, checkBadges } from './badges.
 import { tex } from './ui.js';
 import { installKarte, installAngebot } from './install.js';
 import { elternKarte } from './eltern-ui.js';
+import { zaehle, zaehlungAn, zaehlungSetzen } from './zaehler.js';
 import { api, serverOn, nameOk, codeOk, codeNorm, premiumBereit, ZUGANG_ART, kiDazuKnopf, kiNachpruefen } from './api.js';
 import { pushOn, pushCan, pushAn, pushAus, pushStand, pushGesperrt, zeitOk, installiert, SPERR_HILFE, SPERR_SCHRITTE, SPERR_SCHRITTE_APP, nativ } from './erinnern.js';
 import { WOCHEN_ZIEL, WOCHEN_BONUS } from './store.js';
@@ -78,6 +79,9 @@ export function settingsView() {
       <small class="muted" id="st-vl-info">Ein Knopf „Vorlesen“ erscheint bei jeder Aufgabe und bei jedem Theorie-Abschnitt. Formeln werden in Worten gesprochen.<br><br>Vorgelesen wird mit der Stimme Nova, einer mit KI (OpenAI) erzeugten Stimme. Feste Texte vertonen wir vorab. Texte, die erst in der Aufgabe entstehen (z.&nbsp;B. Rechenaufgaben), schickt die App ohne Angaben zu dir an unseren Server stimmen.mathenachhilfe-online.com; dieser lässt sie einmalig von OpenAI vertonen und speichert die Audiodatei. Es werden keine Namen, Konten oder Geräte-Kennungen übertragen, und unser Server speichert keine Zugriffsprotokolle.</small></section>` : ''}
     <div id="st-install"></div>
     <div id="st-eltern"></div>
+    <section class="card stack" id="st-zaehl-box"><h3>Nutzungszählung</h3>
+      <button class="schalter" id="st-zaehl" type="button" role="switch" aria-checked="true"><span class="knopf" aria-hidden="true"></span><span>Anonyme Nutzungszählung (hilft uns, die App zu verbessern)</span></button>
+      <small class="muted">Gezählt werden nur Zahlen wie „App geöffnet“ oder „Link angetippt“ – keine Kennung, kein Name, kein Lernstand. Ist der Schalter aus, wird nichts gesendet.</small></section>
     <section class="card stack"><h3>Schriftgröße</h3>
       <div class="umschalt drei" id="st-schrift" role="radiogroup" aria-label="Schriftgröße"><button class="pick" type="button" role="radio" data-s="klein">Klein</button><button class="pick" type="button" role="radio" data-s="normal">Normal</button><button class="pick" type="button" role="radio" data-s="gross">Groß</button></div>
       <small class="muted">Gilt für die ganze App. Ausdrucke bleiben in normaler Größe.</small></section>
@@ -170,7 +174,7 @@ export function settingsView() {
       const code = codeNorm(feld.value);
       if (!code) { pn.innerHTML = '<div class="note bad">Der Code hat die Form MT-XXXX-XXXX-XXXX.</div>'; return; }
       go.disabled = true; pn.innerHTML = ''; const r = await api.zugang(code); go.disabled = false;
-      if (r.ok && /^\d{4}-\d{2}-\d{2}$/.test(r.bis || '')) { store.zugang = { code, art: String(r.art || ''), bis: r.bis, ki: r.ki !== false /* false = Stufe „Pro“ ohne KI */ }; feld.value = ''; pn.innerHTML = `<div class="note ok">Eingelöst. ${r.ki !== false ? 'Drucken, PDF, ausführliche Theorie und die KI-Funktionen sind freigeschaltet.' : 'Drucken, PDF und die ausführliche Theorie sind freigeschaltet.'}</div>`; sfx('ok'); paintZ(); window.dispatchEvent(new Event('mt-ruhig')); }
+      if (r.ok && /^\d{4}-\d{2}-\d{2}$/.test(r.bis || '')) { store.zugang = { code, art: String(r.art || ''), bis: r.bis, ki: r.ki !== false /* false = Stufe „Pro“ ohne KI */ }; zaehle('code_eingeloest', 'eingabe'); feld.value = ''; pn.innerHTML = `<div class="note ok">Eingelöst. ${r.ki !== false ? 'Drucken, PDF, ausführliche Theorie und die KI-Funktionen sind freigeschaltet.' : 'Drucken, PDF und die ausführliche Theorie sind freigeschaltet.'}</div>`; sfx('ok'); paintZ(); window.dispatchEvent(new Event('mt-ruhig')); }
       else pn.innerHTML = `<div class="note bad">${r.status === 404 ? 'Diesen Code kennen wir nicht, oder er ist abgelaufen.' : esc(r.error || 'Der Code konnte gerade nicht geprüft werden.')}</div>`;
     };
     // Die Code-Eingabe von Hand muss immer gehen (Leitstand 18.11.): auch ohne Antwort vom Server, z. B. offline oder in der App vom iPhone-Home-Bildschirm mit eigenem Speicher.
@@ -190,6 +194,8 @@ export function settingsView() {
       updateSuchen().then((r) => { ub.disabled = false; un.textContent = r.text; if (r.art === 'neu') window.dispatchEvent(new Event('mt-update')); }); }; }
   { const k = installKarte('einstellungen'); if (k) $('#st-install', el).append(k); }
   $('#st-eltern', el).append(elternKarte());
+  { const sw = $('#st-zaehl', el), zeichne = () => { const an = zaehlungAn(); sw.setAttribute('aria-checked', an); sw.classList.toggle('an', an); };
+    sw.onclick = () => { zaehlungSetzen(!zaehlungAn()); sfx('tap'); zeichne(); }; zeichne(); }
   if (VORLESEN) { // Vorlesen: an/aus (Stimme Nova, KI-generiert – Pflicht-Kennzeichnung), Probe; die Wahl wird gemerkt
     const sw = $('#st-vl', el), mehr = $('#st-vl-mehr', el);
     const tp = $('#st-vl-tempo', el), tpText = () => { const t = String(vorlese.tempo).replace('.', ','); $('#st-vl-tempo-text', el).textContent = `Sprechtempo ${t}${vorlese.tempo === 1 ? ' (Standard)' : ''}`; tp.setAttribute('aria-valuetext', `${t}-fach`); };
@@ -287,7 +293,7 @@ export function berichtView() {
     <section class="card stack"><h3>Hier hakt es noch</h3>${weak.length ? `<ul class="rep-list">${weak.map((s) => `<li>${esc(s.topic)} <small class="muted">${s.bad} von ${s.ok + s.bad} nicht auf Anhieb</small></li>`).join('')}</ul>` : '<small class="muted">Bisher keine auffälligen Themen.</small>'}
       <small class="muted">In der Fehler-Kartei zum Wiederholen: ${store.karteCount} Aufgabenart${store.karteCount === 1 ? '' : 'en'}.</small></section>
     ${exams.length ? `<section class="card stack"><h3>Abi-Modus</h3>${exams.map((e) => `<div class="rep-row"><span>Teil ${esc(e.part)} · ${esc(e.date)}</span><small class="muted">${examText(e)}</small><b>${e.np} NP</b></div>`).join('')}<small class="muted">Prognose aus Auswahl-Aufgaben – eine Orientierung, kein Notenersatz.</small></section>` : ''}
-    <section class="cta nur-web"><h2>Gemeinsam geht es schneller.</h2><p>${weak.length ? `Bei ${esc(weak.slice(0, 2).map((s) => s.topic).join(' und '))} unterstützen wir gezielt.` : 'Wir zeigen in einer Probestunde, wie persönliche Nachhilfe den nächsten Schritt leichter macht.'} Die erste Stunde ist kostenlos.</p>
+    <section class="cta nur-web" data-hinweis="lernstand"><h2>Gemeinsam geht es schneller.</h2><p>${weak.length ? `Bei ${esc(weak.slice(0, 2).map((s) => s.topic).join(' und '))} unterstützen wir gezielt.` : 'Wir zeigen in einer Probestunde, wie persönliche Nachhilfe den nächsten Schritt leichter macht.'} Die erste Stunde ist kostenlos.</p>
       <a class="btn" href="${CONFIG.probestunde}" target="_blank" rel="noopener">Gratis Probestunde ${ICON.right}</a><small>${esc(CONFIG.website.replace(/^https?:\/\/|\/$/g, ''))}</small></section>
     <div class="row noprint"><button class="btn ghost grow" id="rp-print" type="button">Drucken / PDF</button><button class="btn grow" id="rp-share" type="button">Teilen</button></div>
     <small class="muted noprint">Der Bericht entsteht nur auf diesem Gerät. Es werden keine Daten übertragen.</small>

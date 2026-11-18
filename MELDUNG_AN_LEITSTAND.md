@@ -2,6 +2,32 @@
 
 Neueste Meldung oben. Keine Geheimnisse, keine Personendaten (dieses Repo ist öffentlich, siehe Punkt 1).
 
+## 18.11.2026 (109) – Version 2.3.11: Anonyme Zählung (A3), abschaltbar
+
+Marcel hat hier im Raum zugestimmt: „Ja, wie beschrieben“. Damit ersetzt die Zählung die bisherige Regel „kein Tracking“ für den Mathe-Trainer.
+
+- **Aufruf:** `fetch('/zaehler/v1/e', { method: 'POST', keepalive: true, credentials: 'omit', headers: { 'Content-Type': 'text/plain' } })`, gleiche Herkunft, kein sendBeacon, Fehler werden ignoriert, keine Wiederholung.
+  - **Body:** nur `app` („mathetrainer“), `v`, `ev`, `ort`, `thema` (nur Kennungen aus den Listen).
+- **Ereignisse:**
+  - `start` (einmal je Seitenaufruf), `elternbereich` (#/eltern), `theorie` (Theorie-Kapitel);
+  - `pro_ansehen` (Pro-Info; Ort gesperrt/lernstand), `pro_kasse` (Shop-Link);
+  - `code_eingeloest` (`link` beim Freischalt-Link, `eingabe` von Hand);
+  - `probestunde_klick` und `nachhilfe_hinweis` (lernstand: Bericht für Eltern und Hinweise nach Runden mit vielen Fehlern; klassenarbeit: Klassenarbeits-Trainer).
+  - Neukunden-, Crashkurs- und Geschenk-Links gibt es im Mathe-Trainer nicht. Die Erkennung ist trotzdem eingebaut, falls sie kommen.
+- **Links** zur Website und zum Shop bekommen beim Antippen `?src=mathetrainer-<ort>`, dazu `thema` (aus der Einheit, wo bekannt) und `klasse` (5–10).
+- **Fußzeile:** dezent „Ein Angebot von Mathenachhilfe Online“ → Startseite mit `src=mathetrainer-fusszeile`, ohne Preis, ohne Aufforderung.
+- **Schalter** in den Einstellungen: „Anonyme Nutzungszählung (hilft uns, die App zu verbessern)“, Standard an, mit dem Satz, was gezählt wird. Aus = kein Aufruf.
+  - Bildschirmfoto: `docs/bilder/zaehlung-schalter.png`.
+- **Test** `tests/zaehlung.mjs` (`npm run test:zaehlung`) in Chromium und WebKit, **19/19**:
+  - Ereignisse und Orte stimmen;
+  - nur die erlaubten Felder, text/plain, keine Cookies; keine Geräte-Kennung, kein Code, kein Lernstand im Aufruf;
+  - Probestunden-Link mit `src=mathetrainer-lernstand&klasse=9`; Fußzeilen-Hinweis;
+  - Schalter von Haus aus an; Schalter aus → 0 Aufrufe;
+  - **echter Aufruf gegen trainer-test: 204.**
+- **CHANGELOG.md** neu, mit dem Eintrag „Anonyme Zählung, abschaltbar“.
+- **Datenschutz:** Abschnitt 10h gibt es laut euch schon.
+- **Geprüft:** `npm run check`, webkit 102/102, eltern 40/40, prolink 22/22, web-update 12/12; e2e läuft.
+
 ## 18.11.2026 (108) – Korrekturen aus Ratgeber-Update 11 (mit 2.3.10)
 
 1. **Freischalt-Link `#pro=CODE`: drin.**
