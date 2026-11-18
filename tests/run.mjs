@@ -1204,8 +1204,12 @@ ok(nextStreak({ n: 3, last: '2026-11-10' }, D('2026-11-12')).n === 1, 'Serie: au
   // Kennung wie beim Stimmen-Werk (Prüfwert des Leitstands: "de", "Hallo Welt" → cb1e6d67882767042ebaa54d163e450c)
   ok(createHash('sha256').update(`nova|de|${normal(' Hallo \n Welt ')}`).digest('hex').slice(0, 32) === 'cb1e6d67882767042ebaa54d163e450c', 'Vorlesen: Kennung der Nova-Datei');
   const lang = 'Ein Satz. '.repeat(80); ok(stuecke(lang, 300).every((x) => x.length <= 300) && stuecke(lang, 300).join(' ') === normal(lang), 'Vorlesen: Stücke bis 300 Zeichen, nichts geht verloren');
-  const L = JSON.parse(fs.readFileSync(new URL('../app/vorlesen/texte.json', import.meta.url), 'utf8'));
+  const L = JSON.parse(fs.readFileSync(new URL('../app/vorlesen/texte.json', import.meta.url), 'utf8')), vl0 = fs.readFileSync(new URL('../app/js/vorlesen.js', import.meta.url), 'utf8');
   ok(L.format === 1 && L.app === 'mathe-trainer' && L.texte.length > 500 && L.texte.every((t) => t.sprache === 'de' && t.text.length <= 1500 && t.text === normal(t.text) && !/⟦|\\[a-z]|<|>/.test(t.text)), 'Vorlesen: texte.json im vereinbarten Format, ohne TeX und HTML');
+  { const lz = L.texte.filter((t) => t.laufzeit === true), zeichen = lz.reduce((n, t) => n + t.text.length, 0), fest = new Set(L.texte.filter((t) => !t.laufzeit).map((t) => t.text));
+    ok(lz.length > 1000 && lz.every((t) => t.text.length <= 300 && !fest.has(t.text)) && new Set(lz.map((t) => t.text)).size === lz.length, `Vorlesen: ${lz.length} vorhersehbare Laufzeit-Sätze (Aufgabenkarten) mit "laufzeit": true, je höchstens 300 Zeichen`);
+    ok(zeichen < 150000, `Vorlesen: Laufzeit-Sätze zusammen ${zeichen} Zeichen – unter 150 000 (sonst vorher dem Leitstand ankündigen)`);
+    ok(/stuecke\(text, art === 'fest' \? FEST_MAX : JETZT_MAX\)/.test(vl0) && /const fest = await holeDatei\(adresse\(await kennung\(stueck\)\)\)/.test(vl0), 'Vorlesen: Aufgaben-Stücke (300 Zeichen) werden zuerst als vorab vertonte Datei gesucht'); }
   const vl = fs.readFileSync(new URL('../app/js/vorlesen.js', import.meta.url), 'utf8').replace(/^\s*\/\/.*$/gm, '');
   ok(JSON.stringify((await import('../app/js/ui.js')).TEMPI) === '[0.75,0.9,1,1.15,1.3,1.5]' && /preservesPitch = true/.test(vl) && /u\.rate = vorlese\.tempo/.test(vl), 'Vorlesen: Sprechtempo in sechs Stufen, gleiche Tonhöhe, auch für die Gerätestimme');
   ok(/d\.fehler === 'netz' && navigator\.onLine === false\) \{ start\(\); if \(await geraet\(/.test(vl) && (vl.match(/geraet\(/g) || []).length === 2 && !/'ki'/.test(vl), 'Vorlesen: Gerätestimme nur ohne Netz (Leitstand 17.11.), KI-Antworten nicht vorgelesen');
