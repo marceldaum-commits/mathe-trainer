@@ -2,6 +2,45 @@
 
 Neueste Meldung oben. Keine Geheimnisse, keine Personendaten (dieses Repo ist öffentlich, siehe Punkt 1).
 
+## 18.11.2026 (105) – Version 2.3.9: Eltern-Handy koppeln mit Sicherung, Monatsverlauf, Klassen nach Lehrplan
+
+**Eltern-Handy koppeln** (App-Teil, nach eurer Spezifikation):
+1. **Knopf „Eltern-Handy koppeln“:** unter „Mehr“ (eigene Seite `#/eltern`, für alle Stufen inkl. Oberstufe) und in den Einstellungen. Feld „Spitzname“ ist freiwillig (höchstens 20 Zeichen).
+   - **Schlüssel:** id (16 Byte), schreib (16 Byte) und key (32 Byte) mit `crypto.getRandomValues`, base64url ohne Padding (22/22/43 Zeichen). Sie liegen nur lokal (`mt.eltern`).
+   - **QR-Code und Link:** QR-Code mit dem Link `…/eltern-bericht/#<id>.<key>`, dazu ein Knopf „Link teilen“ (Teilen bzw. Kopieren). Der QR-Code entsteht im Gerät mit qrcode-generator 1.4.4 (MIT), eingebunden als `app/js/qrcode.js`.
+   - **Stufen:** test → `https://staging.mathenachhilfe-online.com/eltern-bericht/`, live → `https://www.mathenachhilfe-online.com/eltern-bericht/`.
+2. **Bericht:**
+   - **Wann:** nach jeder Lern-Sitzung (Seite verlassen bzw. zurück zum Start, wieder online), höchstens alle 10 Minuten; „Senden“ von Hand jederzeit.
+   - **Wie:** AES-GCM-256 mit neuem 12-Byte-IV je Sendung, `PUT /eltern/v1/b/<id>` mit `X-Schreib`, Body `text/plain` „iv.ciphertext“, höchstens 24 KB.
+   - **Felder:** format, app (mathetrainer), appName, name (nur wenn eingetragen), klasse, stand, zeitraum („letzte 7 Tage“), lernzeitMin, tageAktiv, aufgaben, richtigProzent, staerken, schwach (mit Tipp), fortschritt (je Gebiet geschafft/von), letzte (bis 7 Tage), klassenarbeit (falls geplant), hinweis und neu **verlauf** ([{monat, min, aufgaben, richtigProzent}], höchstens 12, älteste zuerst). Keine weiteren Personendaten, keine Geräte-Kennung.
+3. **Kopplung aufheben:** DELETE `/eltern/v1/b/<id>` (und `/s/<id>`), danach sind die Schlüssel im Gerät gelöscht. Ohne Netz bleibt die Kopplung bestehen, mit Hinweis.
+4. **Sicherung des Lernstands** (Zusatz):
+   - **Hochladen:** zusammen mit dem Bericht, nur bei Änderung (Prüfsumme), `PUT /eltern/v1/s/<id>`, höchstens 512 KB. Ist sie zu groß, wird sie erst gekürzt (Läufe, Abi-Versuche, Tagesliste; Monatssummen bleiben).
+   - **Klartext:** `{format:1, app:"mathe-trainer", v, stand, schreib, daten}`; daten = alle `mt.*`-Speicher (Lernstand, Statistik, Monatssummen, Einstellungen, Pro-Code), ohne Geräte-Kennung, ohne Kopplungsschlüssel und ohne Zwischenspeicher.
+   - **„Neues Gerät? Fortschritt wiederherstellen“** (aufklappbar in der Eltern-Karte), Feld „Kopplungs-Link einfügen“: Die App liest id und key, holt die Sicherung mit GET und entschlüsselt sie.
+     - Bei vorhandenem Lernstand fragt sie: „Ja, ersetzen“ / „Abbrechen“.
+     - Danach ist das Gerät wieder gekoppelt (id, key und schreib aus der Sicherung) und schreibt weiter.
+     - Hinweise: „Keine Sicherung gefunden“ (404), „Dieser Link gehört zu einer anderen App“, falscher Link oder Schlüssel, keine Verbindung.
+   - **Der Satz zur Datenschutzerklärung 10i** steht in der Eltern-Karte.
+5. **Monatssummen** werden dauerhaft gespeichert (24 Monate), dazu Tageswerte (35 Tage). Lernzeit = Zeit zwischen zwei Aufgaben, wenn die Pause unter 3 Minuten liegt, sonst 30 Sekunden je Aufgabe.
+6. **Rundlauf-Test** `tests/eltern.mjs` (`npm run test:eltern`) in Chromium und WebKit, mit einem Server, der genau nach Spezifikation nachgestellt ist. **40 von 40 Prüfungen bestanden:**
+   - Koppeln, Schlüssellängen, Link (test/staging);
+   - PUT als Geheimtext, Entschlüsseln mit dem key aus dem Link, Pflichtfelder, keine weiteren Felder, Monatsverlauf;
+   - Sicherung ohne Geräte-Kennung, nur bei Änderung;
+   - **zweites Gerät** (anderes Profil): unbekannter Link → „Keine Sicherung gefunden“; Link einfügen → derselbe Lernstand, wieder gekoppelt, schreibt weiter (204);
+   - fremdes schreib → 403 und Hinweis „gilt nicht mehr“;
+   - Aufheben löscht Bericht und Sicherung;
+   - kein Überlauf; Knöpfe brechen bei 360 px nicht um.
+   - **Der echte Server** auf trainer-test antwortet noch mit 405 (Bericht) bzw. 404 (Sicherung), die Eltern-Seite auf staging mit 404. Sobald beides läuft, teste ich den Rundlauf gegen den echten Server.
+- **Bitte noch:** die vollständige gemeinsame Themen-Liste schicken. Ich nutze analysis, stochastik, vektoren, exponential-log und für Klasse 5–10 zahlen, algebra, geometrie, daten.
+
+**Klassen nach Lehrplan** (Marcel: „ja“):
+- „Baumdiagramm und Vierfeldertafel“ ist jetzt in Klasse 9, „Flächen und Prismen“ in Klasse 7.
+- „Trigonometrie und Körper“ bleibt in Klasse 10: Kugel und Kegel sind dort Lehrplan, und Klasse 10 braucht mindestens zwei Einheiten mit Spiel.
+- Der Lernstand bleibt erhalten (gleiche Kennung). „Kommt bald“ ohne die jetzt abgedeckten Baumdiagramme.
+
+**Geprüft:** `npm run check` grün, `tests/eltern.mjs` 40/40, `tests/webkit.mjs` 102/102, `tests/web-update.mjs` 12/12; e2e läuft.
+
 ## 18.11.2026 (104) – Prüfplan angelegt; Entscheidungen von Marcel
 
 - **`docs/PRUEFPLAN.md`** (Dauerregel: jede Woche neuer Inhalt, Monatsprüfung in der letzten Woche).
