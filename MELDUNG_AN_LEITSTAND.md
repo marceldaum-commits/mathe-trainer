@@ -2,6 +2,38 @@
 
 Neueste Meldung oben. Keine Geheimnisse, keine Personendaten (dieses Repo ist öffentlich, siehe Punkt 1).
 
+## 18.11.2026 (102) – Offene Punkte „fertig machen“: KI, Erinnerung, Roadmap, iPhone/iPad
+
+Stand auf `test`: **Version 2.3.7**, mit allem aus (99), (100) und (101): nur Web-App, Vorlesen aus, Auto-Update, Logo überall gleich. Live gibt der Leitstand frei. In diesem Schritt ändert sich an der App nichts, nur Tests und Unterlagen.
+
+1. **KI-Funktionen: fertig.** In der App laufen alle fünf über `/api/ki/*` auf dem Trainer-Server:
+   - „Erklär's mir anders“ (einfacher, mit Beispiel, Eselsbrücke); ohne Code 3 kostenlose Proben.
+   - KI-Tutor-Nachfrage, Rechenweg prüfen (Foto oder Text), Blatt-Auswertung, KI-Aufgaben (im Gerät nachgerechnet).
+   - KI-Punkte des Tages (`/api/ki/rest`).
+   - Knopf „KI dazubuchen“ zum Shop-Produkt MT-KIUP (Web) und Nachprüfen beim Zurückkommen („KI ist freigeschaltet“).
+   - **Geprüft:** Der Test-Server meldet `ki: true` mit allen fünf Arten. Eine echte Probe-Erklärung über `/api/ki/erklaer` kam als ganzer, passender Text zurück (zufällige Gerätekennung, kein Name, kein Lernstand).
+2. **Handy-Erinnerung (Push): fertig.** In den Einstellungen gibt es:
+   - echten An/Aus-Schalter und frei wählbare Uhrzeit (5-Minuten-Schritte);
+   - bei gesperrten Mitteilungen eine Anleitung je Gerät;
+   - den Hinweis „Als App installieren“ samt Knopf. Auf dem iPhone geht Web-Push nur in der installierten App; das sagt die App.
+   - **Server:** `/api/push/schluessel` liefert den Schlüssel, `/api/push` nimmt Anmeldungen an.
+   - **Tests:** e2e (Erinnerung an, gesperrt, Uhrzeit).
+3. **Themen-Roadmap:** `docs/THEMEN-ROADMAP.md` – zur Auswahl für Marcel.
+   - **Rhythmus:** 1 neue Einheit pro Woche (Mittwoch auf test, Freitag frei), jede 4. Woche eine Pflegewoche; täglich nur Fehlersuche.
+   - **Reihenfolge:** Lücken in Klasse 5–10 zuerst:
+     - Körper (Kl. 9), Daten/Boxplot (Kl. 7), Scheitelpunktform (Kl. 9), Symmetrie (Kl. 5);
+     - mehrstufige Zufallsversuche (Kl. 9), Konstruieren (Kl. 7);
+     - Integral anwenden (Oberstufe), Ungleichungen (Kl. 8), Matrizen (Länder-Wahlthema).
+   - **Zu entscheiden:** Rhythmus mit oder ohne Pflegewoche; Lücken oder Oberstufe zuerst; Länder-Wahlthemen ja oder nein.
+4. **2.3.6 und 2.3.7** sind gemeldet in (100) und (101) und liegen als 2.3.7 auf `test`.
+5. **iPhone/iPad (WebKit):** Der Mathe-Trainer ist reines JavaScript (kein Kotlin/Wasm). Neuer Test `tests/webkit.mjs` (`npm run test:webkit`) mit der Safari-Engine (Playwright WebKit), iPhone 13 und iPad:
+   - 23 Seiten geöffnet, je Seite: Inhalt da (keine weiße Seite), nichts ragt über den Rand;
+   - Blitz-Runde gespielt, Übungsaufgaben beantwortet;
+   - Anleitung „App installieren“ für Safari;
+   - keine Skriptfehler.
+   - **Ergebnis:** 102 von 102 Prüfungen bestanden.
+   - **Zusätzlich lief der ganze e2e-Durchlauf einmal in WebKit:** Alle Seiten und Spiele bauen sich auf. Er brach nur an Stellen ab, an denen der Test-Roboter in WebKit anders wischt bzw. Playwright bei aktivem Service Worker keine Anfragen abfängt – keine Fehler der App.
+
 ## 18.11.2026 (101) – Version 2.3.7: nur noch Web-App (PWA)
 
 Marcel hat es hier im Raum bestätigt.

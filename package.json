@@ -5,7 +5,9 @@
   "scripts": {
     "check": "node tools/check.mjs && node tests/run.mjs && node tests/stufen.mjs && node tests/hart.mjs",
     "fix": "node tools/check.mjs --fix && node tools/check.mjs --fix",
-    "start": "python3 -m http.server 8123 --directory app"
+    "start": "python3 -m http.server 8123 --directory app",
+    "test:webkit": "node tests/webkit.mjs",
+    "test:update": "node tests/web-update.mjs"
   },
   "devDependencies": {
     "esbuild": "0.28.2"
