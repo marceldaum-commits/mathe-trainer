@@ -2,6 +2,17 @@
 
 Neueste Meldung oben. Keine Geheimnisse, keine Personendaten (dieses Repo ist öffentlich, siehe Punkt 1).
 
+## 18.11.2026 (104) – Prüfplan angelegt; Entscheidungen von Marcel
+
+- **`docs/PRUEFPLAN.md`** (Dauerregel: jede Woche neuer Inhalt, Monatsprüfung in der letzten Woche).
+  - **Wöchentlich:** eine neue Einheit (Mittwoch auf `test`).
+  - **Monatlich:** ein Inhaltsblock gründlich (Aufgaben richtig, Eindeutigkeit/alle Lösungswege, Formel in der Theorie, Lehrplan-Klasse, Stufen) + der neue Inhalt des Monats + eine Rundum-Prüfung (e2e alle Stufen, WebKit iPhone/iPad, Auto-Update, Links, KI-Probe, Push-Schlüssel, Bildschirme, Meldungen).
+  - **Blöcke:** A Oberstufe Analysis (18), B Oberstufe Stochastik und Geometrie (18), C Klasse 5–7 (22), D Klasse 8–10 (15) – im Kreis, alle vier Monate ist jeder Block wieder dran.
+  - **Erster Prüfmonat:** November, 23.–30.11., Block A.
+- **Marcel hat hier im Raum entschieden:**
+  1. Themen in die Lehrplan-Klasse verschieben: **ja** (kommt als 2.3.9: Baumdiagramm/Vierfeldertafel und Trigonometrie/Körper nach Klasse 9, Flächen und Prismen nach Klasse 7).
+  2. **Jede Woche eine neue Einheit**; die Pflegewoche entfällt und wird durch die Monatsprüfung ersetzt. Reihenfolge der nächsten 12 Wochen in `docs/THEMEN-ROADMAP.md`, beginnend mit „Dreiecke konstruieren, Kongruenz“ (Kl. 7).
+
 ## 18.11.2026 (103) – Version 2.3.8: Theorie geprüft und ergänzt, Lehrplan-Abgleich, „Kommt bald“
 
 **1. Prüfliste Theorie** (vollständig je Thema: `docs/THEORIE-PRUEFUNG.md`, Spalten „Thema → passt? → Formel+Bedeutung+Beispiel vorher? → korrigiert“)
