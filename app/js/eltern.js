@@ -40,16 +40,41 @@ export function elternBasis(host = globalThis.location?.hostname || '') {
 export const elternLink = (k = kopplung()) => (k ? `${elternBasis()}#${k.id}.${k.key}` : '');
 
 /* ───────────── Bericht ───────────── */
-/** Thema aus der gemeinsamen Liste der Apps (grob nach Stichworten; im Zweifel nach Gebiet der Klasse). */
+/** Thema aus der gemeinsamen Liste der Apps (Leitstand 18.11.2026; nur diese Kennungen zählen), grob nach Stichworten im Titel. */
+export const THEMEN = ['grundrechenarten', 'einmaleins', 'brueche', 'dezimalzahlen', 'prozent', 'zuordnungen', 'terme-gleichungen', 'lineare-funktionen', 'gleichungssysteme', 'pythagoras',
+  'quadratische-funktionen', 'potenzen-wurzeln', 'exponential-log', 'trigonometrie', 'geometrie', 'vektoren', 'analysis', 'stochastik', 'negative-zahlen', 'potenzen', 'runden', 'einheiten',
+  'teilbarkeit', 'terme', 'gleichungen', 'funktionen', 'sachaufgaben', 'dreisatz', 'wahrscheinlichkeit', 'statistik', 'folgen'];
 export function themaVon(text, ober = true) {
-  const t = String(text).toLowerCase();
-  if (/expon|e-funktion|\bln\b|logarith|wachstum|zerfall|halbwert/.test(t)) return 'exponential-log';
-  if (/vektor|ebene|gerade|abstand|skalar|kreuz|hesse|spiegel|kugel|windschief/.test(t)) return ober ? 'vektoren' : 'geometrie';
-  if (/wahrschein|binom|baum|zufall|erwartung|test|kombinat|vierfeld|stichprob|normalvert|hypothes|laplace|bedingt|daten|mittelwert|median|diagramm/.test(t)) return ober ? 'stochastik' : 'daten';
-  if (/ableit|integral|extrem|kurve|tangente|wende|stammfunk|monoton|krümm|steckbrief|grenzwert/.test(t)) return 'analysis';
-  if (/sinus|kosinus|trigon|winkel|dreieck|pythagoras|kreis|fläche|körper|prisma|zylinder|kegel|strahlensatz|quader/.test(t)) return ober ? 'analysis' : 'geometrie';
-  if (/bruch|dezimal|prozent|zins|teiler|zahl|runden|potenz|wurzel/.test(t)) return ober ? 'analysis' : 'zahlen';
-  return ober ? 'analysis' : 'algebra';
+  const t = String(text).toLowerCase(), ist = (re) => re.test(t);
+  if (ist(/expon|e-funktion|\bln\b|logarith|wachstum|zerfall|halbwert/)) return 'exponential-log';
+  if (ober) {
+    if (ist(/vektor|ebene|gerade|abstand|skalar|kreuz|hesse|spiegel|kugel|windschief|im raum|mittelpunkt|parameter/)) return 'vektoren';
+    if (ist(/wahrschein|binom|baum|zufall|erwartung|test|kombinat|vierfeld|stichprob|normalvert|hypothes|laplace|bedingt|varianz|sigma|bernoulli|kumuliert|urne|würfel/)) return 'stochastik';
+    if (ist(/sinus|kosinus|trigon/)) return 'trigonometrie';
+    return 'analysis';
+  }
+  if (ist(/binomische formel|klammer|term/)) return 'terme-gleichungen';
+  if (ist(/pythagoras|kathete|hypotenuse/)) return 'pythagoras';
+  if (ist(/sinus|kosinus|tangens|trigon/)) return 'trigonometrie';
+  if (ist(/gleichungssystem|lgs|zwei gleichungen|einsetzungs|additions/)) return 'gleichungssysteme';
+  if (ist(/parabel|quadratisch|scheitel|pq-formel|mitternacht/)) return 'quadratische-funktionen';
+  if (ist(/wurzel|potenz|hochzahl|exponent/)) return 'potenzen-wurzeln';
+  if (ist(/linear|steigung|gerade/)) return 'lineare-funktionen';
+  if (ist(/funktion|graph|ableit|integral|extrem|monoton|tangente/)) return 'funktionen';
+  if (ist(/wahrschein|zufall|baum|vierfeld|würfel|laplace|ereignis|kombinat|urne|binom/)) return 'wahrscheinlichkeit';
+  if (ist(/daten|mittelwert|median|durchschnitt|diagramm|statistik|häufigkeit|boxplot|spannweite/)) return 'statistik';
+  if (ist(/bruch|brüche|kürzen|erweitern|nenner/)) return 'brueche';
+  if (ist(/dezimal|komma/)) return 'dezimalzahlen';
+  if (ist(/prozent|zins/)) return 'prozent';
+  if (ist(/dreisatz/)) return 'dreisatz';
+  if (ist(/zuordnung|proportional/)) return 'zuordnungen';
+  if (ist(/negativ|ganze zahl|rationale zahl|minus/)) return 'negative-zahlen';
+  if (ist(/teiler|vielfach|ggt|kgv|prim|teilbar/)) return 'teilbarkeit';
+  if (ist(/runden|überschlag/)) return 'runden';
+  if (ist(/größe|einheit|umrechn|maßstab/)) return 'einheiten';
+  if (ist(/term|gleichung|klammer|binomisch|umform/)) return 'terme-gleichungen';
+  if (ist(/winkel|dreieck|kreis|fläche|körper|prisma|zylinder|kegel|quader|würfel|strahlensatz|ähnlich|umfang|volumen|koordinat|geometr|viereck|spiegel|raum|mittelpunkt|symmetr/)) return 'geometrie';
+  return 'grundrechenarten';
 }
 const prozent = (ok, n) => (n ? Math.round((ok / n) * 100) : 0);
 

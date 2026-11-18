@@ -2,6 +2,14 @@
 
 Neueste Meldung oben. Keine Geheimnisse, keine Personendaten (dieses Repo ist öffentlich, siehe Punkt 1).
 
+## 18.11.2026 (107) – Version 2.3.10: Themen der gemeinsamen Liste
+
+- **Kennungen:** Der Eltern-Bericht nutzt für `thema` jetzt nur noch Kennungen der gemeinsamen Liste.
+  - **Oberstufe:** analysis, stochastik, vektoren, exponential-log, trigonometrie.
+  - **Klasse 5–10** genauer nach Einheit: brueche, dezimalzahlen, prozent, negative-zahlen, teilbarkeit, runden, einheiten, dreisatz, zuordnungen, terme-gleichungen, lineare-funktionen, gleichungssysteme, quadratische-funktionen, potenzen-wurzeln, pythagoras, trigonometrie, geometrie, statistik, wahrscheinlichkeit, funktionen; sonst grundrechenarten.
+- **Test** (`tests/run.mjs`): Jedes Aufgaben-Thema aller Erzeuger landet in einer Kennung der Liste; Stichproben je Klasse sind richtig zugeordnet.
+- **2.3.9:** Mein e2e lief nach eurer Freigabe zu Ende, alle fünf Stufen grün. main = test = live = 75d1bd4.
+
 ## 18.11.2026 (106) – Themen-Roadmap festgeschrieben
 
 `docs/THEMEN-ROADMAP.md` hält Marcels Entscheidung fest: 1 Einheit pro Woche (Mittwoch auf test), die letzte Woche im Monat ist Pflegewoche mit der Monatsprüfung nach `docs/PRUEFPLAN.md`, Oberstufe zuerst, Länder-Wahlthemen danach (bis dahin „Kommt bald“).
