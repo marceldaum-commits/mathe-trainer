@@ -2,6 +2,64 @@
 
 Neueste Meldung oben. Keine Geheimnisse, keine Personendaten (dieses Repo ist öffentlich, siehe Punkt 1).
 
+## 18.11.2026 (100) – Version 2.3.6: fertig für den Betriebstest (Vorlesen aus, Update in der App, Eindeutigkeit, Web-Update)
+
+**Vorlesen aus** (Marcel hat es hier im Raum bestätigt):
+- Schalter `VORLESEN = false` in `app/js/ui.js`. Der Code bleibt, zum Wiedereinschalten genügt `true`.
+- Weg sind: Vorlese-Knöpfe (Aufgaben, Theorie), der Einstellungsbereich (Stimme, Sprechtempo, Probe, „Alle Nova-Texte offline laden“) und die Hinweise „Nova nicht erreichbar“.
+- Es gibt keine Abrufe mehr an stimmen.mathenachhilfe-online.com oder /jetzt und keine Gerätestimme.
+- `vorlesen/texte.json` ist leer (`{"format":1,"app":"mathe-trainer","texte":[]}`), damit das Stimmen-Werk nichts mehr spricht.
+- Schon geladene Nova-Dateien im Gerät (Cache `stimme-nova`) werden beim Start aufgeräumt.
+- Nova-Stand vor dem Abschalten: 774 von 774 festen Texten (100 %). Von der Gesamtliste mit Laufzeit-Sätzen (2.3.5) waren 1 300 von 2 226 vertont (58 %), der Rest ist durch das Abschalten hinfällig.
+- **Musik und Klänge** waren schon da und bleiben:
+  - Lernmusik und Effekte (richtig/falsch, Stern, Level) sind getrennt schaltbar, jede mit eigener Lautstärke.
+  - Die Musik startet in der App beim Öffnen, im Web beim ersten Tippen; früher geht es im Browser nicht.
+
+**Update komplett in der App** (Marcel: „Das Update sollte komplett in der App laufen“):
+- **Inhalte** kamen schon immer von selbst.
+- **Neue App-Hülle** (jetzt Nr. 8): In der Test-App steht im Hinweis „Neue App-Version verfügbar“ ein Knopf „Jetzt aktualisieren“.
+  - Die App lädt die APK selbst (mit Fortschritt) und übergibt sie an Android (PackageInstaller).
+  - Android fragt einmal „Installieren?“; das ist bei Android immer so.
+- **Adresse der APK:** GitHub legt bei jedem Bau auf `test` die Test-APK als Release `apk-test` ab (`Mathe-Trainer-test.apk`, das Repo ist öffentlich).
+  - Android installiert sie nur, wenn sie mit demselben Schlüssel signiert ist.
+- **Play-Store-Fassung** (Kanal store): Sie bekommt die Installations-Erlaubnis nicht, geprüft im gebauten Paket. Dort aktualisiert der Store, es gibt keinen Kauf- oder Download-Hinweis.
+- **Hülle 8** muss Marcel einmal von Hand installieren, danach geht es per Knopf.
+
+**Eindeutigkeit** (Marcel: „zwei Wege, aber bei der Kontrolle nur einer“):
+- **Geprüft:** alle 152 Erzeuger × 5 Stufen × 30 Startwerte, dazu die 23 schweren Themen (Stufe 4/5) und die 3 Verbund-Aufgaben.
+  - Das sind 25 925 Aufgaben mit 226 403 Prüfungen; 84 % der richtigen Antworten werden mathematisch gelesen.
+  - Neuer Test `tests/hart/eindeutig.mjs` (läuft in `npm run check`, ohne fremde Bibliothek).
+- **Gleichwertigkeit:** Jede Antwort wird ausgewertet:
+  - Zahl, Bruch, Wurzel, Dezimalzahl;
+  - Terme an Zufallsstellen (ausmultipliziert = faktorisiert);
+  - Lösungsmengen (Reihenfolge egal, ±);
+  - Punkte und Vektoren, Ebenen bis auf einen Faktor, Geraden in jeder Darstellung.
+- **Fälle:**
+  1. „Kürze vollständig“ (genKuerzen) und „Bringe die Ebene in die Hesse-Form“ (genHesse): Ein Ablenker hat denselben Wert, aber nicht die verlangte Form. Die Aufgabe verlangt die Form ausdrücklich, ist also eindeutig (b).
+  2. „Berechne den Normalenvektor n = AB × AC“ (schwer, Kreuzprodukt): −n wäre auch ein Normalenvektor, aber die Formel legt n fest, also eindeutig (b).
+  3. **Eintippen, Bruch-Lösung:** Bisher galt nur der Bruch oder eine sehr genaue Dezimalzahl. Neu gilt auch die gerundete Dezimalzahl ab zwei Stellen (2/3 → 0,67 oder 0,667), also mathematisch gleichwertig geprüft (a). Mit Test.
+  4. **Keine Funde** bei: zweiter gleichwertiger Antwort, Stammfunktion nur +C anders, falscher Antwort, die die Gleichung vollständig löst, richtiger Antwort, der eine Lösung fehlt, Vielfachem eines Richtungs- oder Normalenvektors, derselben Geraden in anderer Darstellung, Eintippen mit gleichwertigem Ablenker.
+- **Nicht maschinell lesbar** (16 %): Text-Antworten wie Lage von Geraden, Symmetrie, Begriffe, Intervalle. Stichprobe angesehen: Die Antworten schließen sich gegenseitig aus.
+
+**Web-App immer aktuell:**
+1. **Prüfen:** beim Öffnen, bei jeder Rückkehr in den Tab (`visibilitychange`/`focus`, höchstens einmal je Minute), wieder online und spätestens alle 30 Minuten.
+   - Dabei laufen `registration.update()` und der Abgleich `stand.json?nc=…` mit `cache: 'no-store'`.
+2. **Übernehmen:** Die neue Fassung wird übernommen, sobald es ungefährlich ist, also nicht mitten in Aufgabe, Runde oder Fenster, sonst beim nächsten Wechsel zum Start. Dann `skipWaiting` + `clients.claim` und automatisches Neuladen, danach „Neue Version x.y.z geladen.“.
+   - Die neue Fassung wird bewusst erst in diesem Moment aktiv und nicht sofort: Sonst holte eine alte, offene Seite Bündel-Teile, die es nicht mehr gibt.
+3. **Daten:** localStorage bleibt. Alte `mt-…`-Speicher werden aufgeräumt. Nova-Dateien sind wegen „Vorlesen aus“ jetzt bewusst weg; bei eingeschaltetem Vorlesen blieben sie.
+4. **Zwei echte Fehler behoben:**
+   - Wer die Seite zum allerersten Mal geöffnet hatte und offen ließ, bekam nie automatisch das Update.
+   - Die Übernahme nach dem Verlassen einer Aufgabe hing am Zeitpunkt des Seitenaufbaus; jetzt wird alle 3 Sekunden nachgesehen.
+5. **Version sichtbar:** in den Einstellungen und in der Fußzeile.
+- **Browser-Test:** `node tests/web-update.mjs`, 12 Prüfungen:
+  - alte Fassung offen, neue mitten in der Aufgabe → kein Neuladen; zurück zum Start → neue Version mit Hinweis;
+  - Daten bleiben, alter Speicher weg;
+  - neue Fassung bei geschlossener Seite → beim nächsten Öffnen ohne Neuladen von Hand die neueste.
+
+**Geprüft:** `npm run check` grün (mit Eindeutigkeit), `tests/web-update.mjs` grün. Android: Test- und Store-Fassung gebaut, Erlaubnis nur in der Test-Fassung, gleicher Schlüssel. e2e: siehe Baulog.
+
+**Web = Android**, Version 2.3.6.
+
 ## 18.11.2026 (99) – Version 2.3.5: ein Logo überall
 
 Marcel hat bestätigt: das farbige Symbol überall.
