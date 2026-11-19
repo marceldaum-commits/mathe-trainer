@@ -441,6 +441,8 @@ textarea.field{width:100%;border-radius:14px;border:1.5px solid var(--line);padd
   .foot{justify-content:center}
   /* Einstellungen, Bericht, Formular-Seiten: lesbare Breite */
   .view.stack>section.card,.view.stack>details.card{max-width:760px}
+  /* Karten mit Formular oder Text bleiben einspaltig (die zwei Spalten oben gelten nur für Listen aus Kacheln) */
+  .view.stack>section.card.stack{grid-template-columns:minmax(0,1fr)}
 }
 @media (min-width:900px) and (max-width:1180px){.brand-text small{display:none}}
 
