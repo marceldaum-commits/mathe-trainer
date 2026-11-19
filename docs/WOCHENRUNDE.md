@@ -142,3 +142,8 @@ Ablauf von nun an jede Woche: (1) was jede App herausnimmt oder abgibt und an we
   - Plan für Di 24.11.: Für Kl. 5–10 keine Preise und keine Kaufknöpfe; sachlicher Satz; Kauf nur hinter dem Eltern-Tor. Die Oberstufe bleibt sachlich mit Pass-Hinweis.
   - Gemeinsame Vorgabe für das Eltern-Tor bei der AppZentrale angefragt.
 - **Entscheidung Marcel (19.11.), „Alle drei so“:** Kurven-Flug → **Sinus-Slalom**, Vektor-Lotse → **Vektor-Kompass**, Raum-Blick → **Geraden-Drehbühne**. Am Ende jeweils der Hinweis „Mehr davon in KurvenFlug“ bzw. „… in Raumlicht“ (nur freie Ziele). Umsetzung im Update Di 24.11.; Schritt-IDs (`flug`, `lotse`, `raum`) bleiben, damit der Fortschritt erhalten bleibt.
+- **Eltern-Tor (bestätigt):**
+  - Für Kl. 5–10 zeigt die Pro-Seite nur die Inhalte, mit dem Satz „Das gehört zu Mathe-Trainer Pro. Deine Eltern können im Elternbereich nachsehen.“
+  - Hinter das Eltern-Tor kommen Preise, „Pro holen“, „KI dazubuchen“ und für Kl. 5–10 auch „Nachhilfe buchen“ in der Kopfzeile. Nach Marcels Regel für Rechenblitz gehen alle Website-Links außer Impressum und Datenschutz über das Tor.
+  - Die gemeinsame Vorgabe für das Tor kommt nach der Beschreibung durch Wissensgarten. Umsetzung Di 24.11.
+- **Abi-Bündel freigegeben:** 24,99 € (unser Abi-Pass + Raumlicht Pro + KI-Abi-Pass), Verkauf 1.2.–30.4.2027.
