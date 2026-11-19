@@ -20,7 +20,11 @@ Neuester Beitrag oben.
   - Unter jeder KI-Antwort (Tutor, Erklärung, Rechenweg, Auswertung) steht klein: „Antwort einer KI – sie kann Fehler enthalten.“
   - KI-Aufgaben bekommen „Von einer KI erstellt und im Gerät nachgerechnet.“ (Das Nachrechnen über toQuestion/verify gibt es schon.)
   - Ein Test prüft, dass beide Sätze bei jeder KI-Antwort sichtbar sind.
-- Rechtsbezug: ja (KI-Kennzeichnung) – geht vor live an „Recht“.
+- Rechtsbezug: ja (KI-Kennzeichnung). **Recht hat V7 freigegeben (19.11.)**, mit einer Auflage:
+  - „nachgerechnet“ darf nur stehen, wenn die Prüfung im Gerät wirklich gelaufen ist.
+  - Heute zeigt kiaufgabe.js eine KI-Aufgabe nur, wenn `toQuestion` sie bestanden hat. Sonst wird sie verworfen und der Punkt gutgeschrieben.
+  - Umsetzung: Der Satz wird nur gesetzt, wenn `q.geprueft === true` direkt aus `toQuestion` kommt. Fehlt die Markierung, heißt es „Von einer KI erstellt – nicht nachgerechnet.“
+  - Ein Test prüft beide Fälle.
 
 ## 19.11.2026 – Neuer Raum „Recht“ (AppZentrale, auf Wunsch von Marcel)
 
