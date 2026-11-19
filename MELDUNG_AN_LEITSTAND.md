@@ -5,7 +5,7 @@ Neueste Meldung oben. Keine Geheimnisse, keine Personendaten (dieses Repo ist ö
 ## 19.11.2026 (114) – 2.4.3 auf test: Spezialisierung und Aufräumen (für live heute)
 
 - **Neu seit 2.4.1:**
-  - Kasten „Passt dazu in anderen Apps“ unter der Theorie von 47 Einheiten. Ziele: KurvenFlug `#kapitel=`, Rechenblitz `?thema=…&stufe=auto&modus=training`, Raumlicht nur freie Ziele (`erleben`, `rotation`, `galton`, `zufall`, `raumflug`), Experimentopia `#thema=`, Wissensgarten `#paket=` (8 freie Pakete).
+  - Kasten „Passt dazu in anderen Apps“ unter der Theorie von 54 der 74 Einheiten. Ziele: KurvenFlug `#kapitel=`, Rechenblitz `?thema=…&stufe=auto&modus=training`, Raumlicht nur freie Ziele (`erleben`, `rotation`, `galton`, `zufall`, `raumflug`), Experimentopia `#thema=`, Wissensgarten `#paket=` (8 freie Pakete).
   - Keine Kaufseiten, kein binomial/baumeister. Gleicher Tab, `src=mathetrainer-theorie`; auf der Test-Stufe die Test-Apps.
 - **„Kommt bald“ abgeglichen:** Maßstab, Potenzfunktionen und Transformationen → KurvenFlug; Zehnerpotenzen → Rechenblitz; Zufall simulieren, Körper im Raum und Schattenwurf → Raumlicht. Roadmap Di 8.12. Konfidenzintervalle.
 - **Am PC:** Formular- und Textkarten einspaltig (aus 2.4.1).
