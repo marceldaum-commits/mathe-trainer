@@ -127,3 +127,14 @@ Ablauf von nun an jede Woche: (1) was jede App herausnimmt oder abgibt und an we
 - **Entscheidung Marcel (19.11., über AppZentrale):** Die 9 Raumgeometrie-Einheiten bleiben beim Mathe-Trainer (Rechentraining). Raumlicht zeigt dasselbe räumlich; gegenseitige Querverweise nach der Montagsrunde.
 - **Ökosystem-Ideen (Marcel 19.11.: erst sammeln, Montag planen, bis dahin nichts bauen):** Unser Beitrag (Aufwand, Wiederverwendbares, Ideen „Zurück, wo du warst“ / gemeinsame Klassen-Wahl per Link / Tagesmission, Bedenken Datenschutz/WebKit) ist an die AppZentrale geschickt.
 - **Wissensgarten:** Paket-Links `#paket=<ID>` ab Fr 20.11. auf test; Paket-IDs bei der AppZentrale erfragt.
+
+### Entscheidungen Marcel (19.11., nachmittags, über AppZentrale)
+
+- **Umzug live:** live = ebd85f8 (2.5.0) auf trainer. und lernen.…/mathetrainer/; Rückweg ba65a2f, nicht 2.4.3.
+- **Familien-Speicher auf unserem Server ohne Google.** Stände aller Apps und Kinder liegen verschlüsselt beim Server und gehören zur Familie; Wiederherstellung durch Marcel per Schlüsselverwahrung, dazu ein Notfall-Code. Gebaut wird nach der Wochenrunde.
+- **Geschenk-Codes:** nur Einlösefrist (bis 31.12. des dritten Jahres); eingelöst wie ein Kauf.
+- **Abi-Pass:** heißt „Abi-Pass (bis 31.07.)“.
+- **30-Tage-Pass:** wird beworben mit „Kein Abo – endet automatisch“.
+  - Texte für beide Punkte kommen mit dem Update am Di 24.11.
+- **Spiel „Kurven-Flug“ wird umbenannt.** Vorschläge: „Sinus-Slalom“, außerdem „Vektor-Kompass“ statt „Vektor-Lotse“ und „Geraden-Drehbühne“ statt „Raum-Blick“, jeweils mit Hinweis auf KurvenFlug bzw. Raumlicht. Antwort bis Montag.
+- **Neue Beschreibung** statt „nur Oberstufe Bayern/Hessen“: in einem späteren Di/Fr-Update.
