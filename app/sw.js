@@ -1,6 +1,6 @@
 // Service Worker: macht die App offline nutzbar und liefert Updates aus.
 // CACHE muss zur VERSION in js/config.js passen; ASSETS pflegt `npm run fix` (tools/check.mjs).
-const CACHE = 'mt-2.4.1';
+const CACHE = 'mt-2.4.2';
 const ASSETS = [
   "./",
   "b/app.js",
@@ -10,15 +10,16 @@ const ASSETS = [
   "b/teil-6YPP5Y2A.js",
   "b/teil-7NOMZFZR.js",
   "b/teil-7P2IKPOK.js",
-  "b/teil-A3LETXQJ.js",
   "b/teil-B4ZSPYDO.js",
   "b/teil-BE4KAE7D.js",
   "b/teil-CGI23OVS.js",
+  "b/teil-DZ2PDPYF.js",
   "b/teil-E4AERY2N.js",
   "b/teil-FDFAJOSF.js",
   "b/teil-FWPOC3JP.js",
+  "b/teil-GJJGOW7N.js",
   "b/teil-HZSTWP7V.js",
-  "b/teil-K6OTKUKS.js",
+  "b/teil-JPHXYG4N.js",
   "b/teil-KPY5VR6J.js",
   "b/teil-KTQ3GSC6.js",
   "b/teil-MFPG2WXE.js",
@@ -26,10 +27,10 @@ const ASSETS = [
   "b/teil-NIO7452L.js",
   "b/teil-PTMSKPAF.js",
   "b/teil-QE432YP7.js",
+  "b/teil-T5PGYUBN.js",
   "b/teil-TIA3CUYO.js",
-  "b/teil-TJU3HYSO.js",
   "b/teil-V4VWKKQP.js",
-  "b/teil-XCFMOKA5.js",
+  "b/teil-WRBPHHCV.js",
   "css/app.css",
   "fonts/inter-latin-wght-normal.woff2",
   "img/apple-touch-icon.png",

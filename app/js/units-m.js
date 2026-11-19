@@ -41,13 +41,15 @@ export const MITTEL_AREAS = [
 /** Was je Klasse als Nächstes kommt (für die Karte „Kommt bald“). */
 export const MITTEL_BALD = {   // Lehrplan-Abgleich 18.11.2026 (docs/LEHRPLAN-ABGLEICH.md), Wichtigstes zuerst.
   // Verschoben in die Lehrplan-Klasse (Marcel 18.11.): Baumdiagramm/Vierfeldertafel nach 9, Flächen und Prismen nach 7.
+  // Abgleich mit den anderen Apps (19.11.): Maßstab (Kl. 5) und Potenzfunktionen (Kl. 10) übt KurvenFlug am Graphen,
+  // Zehnerpotenzen (Kl. 9) Rechenblitz im Kopf – dort verlinkt statt doppelt gebaut.
   // „Trigonometrie und Körper“ bleibt in 10 (Kugel und Kegel sind dort Lehrplan; Klasse 10 braucht zwei Einheiten mit Spiel).
-  5: ['Körper und Netze', 'Geraden, Strecken, senkrecht und parallel', 'Vierecke erkennen und zeichnen', 'Maßstab: Karten und Pläne', 'Potenzen und Quadratzahlen', 'Zeit und Geld im Alltag', 'Römische Zahlen und Zweiersystem'],
+  5: ['Körper und Netze', 'Geraden, Strecken, senkrecht und parallel', 'Vierecke erkennen und zeichnen', 'Potenzen und Quadratzahlen', 'Zeit und Geld im Alltag', 'Römische Zahlen und Zweiersystem'],
   6: ['Symmetrie und Spiegeln', 'Flächen zusammengesetzter Figuren', 'Dreisatz im Alltag', 'Periodische Dezimalzahlen'],
   7: ['Dreiecke konstruieren', 'Terme aufstellen', 'Achsen- und Punktspiegelung', 'Satz des Thales', 'Umkreis, Inkreis und Höhen im Dreieck', 'Boxplot und Quartile'],
   8: ['Was ist eine Funktion?', 'Lineare Ungleichungen', 'Bruchterme', 'Hyperbeln: die Funktion a/x'],
-  9: ['Zehnerpotenzen und wissenschaftliche Schreibweise', 'Kreis und Zylinder im Sachzusammenhang', 'Parabel trifft Gerade', 'Wurzelgleichungen', 'Kathetensatz und Höhensatz'],
-  10: ['Prüfungstraining Mittlerer Abschluss', 'Trigonometrie am Einheitskreis', 'Potenzfunktionen', 'Kreisbogen und Kreisausschnitt', 'Wachstum vergleichen', 'Kugel und Kegel im Sachzusammenhang', 'Ganzrationale Funktionen', 'Potenzen mit Bruch-Hochzahlen'],
+  9: ['Kreis und Zylinder im Sachzusammenhang', 'Parabel trifft Gerade', 'Wurzelgleichungen', 'Kathetensatz und Höhensatz'],
+  10: ['Prüfungstraining Mittlerer Abschluss', 'Trigonometrie am Einheitskreis', 'Kreisbogen und Kreisausschnitt', 'Wachstum vergleichen', 'Kugel und Kegel im Sachzusammenhang', 'Ganzrationale Funktionen', 'Potenzen mit Bruch-Hochzahlen'],
 };
 
 export const MITTEL = [

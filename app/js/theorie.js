@@ -1,6 +1,7 @@
 // Theorie zum Nachlesen: jede Einheit als Kapitel in zwei Längen.
 // „Kurz“ entsteht aus den Erklär-Karten und Formeln der Einheit (immer aktuell, für alle).
 // „Ausführlich“ ist eigens geschriebener Text mit Herleitung und durchgerechnetem Beispiel (Pro) – wächst Thema für Thema.
+import { verweisKasten } from './querverweise.js';
 import { $, h, tex, esc, ICON, sfx, drucken, vorleseKnoepfe } from './ui.js';
 import { MEHR } from './theorie-mehr.js';
 import { store } from './store.js';
@@ -384,6 +385,7 @@ function kapitelView(u, startLang) {
       <a class="btn small" href="#/u/${u.id}">Üben</a><button class="btn ghost small" id="t-druck" type="button">PDF ${marke('pro')}</button></div>
     <div id="t-pro" class="noprint"></div>
     <div id="t-text"></div>
+    ${verweisKasten(u.id)}
   </div>`);
   let lang = !!startLang && hatLang(u);
   const pro = $('#t-pro', el);

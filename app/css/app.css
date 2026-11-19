@@ -1046,3 +1046,10 @@ button.card.unit{text-align:left;width:100%;font:inherit;color:inherit;cursor:po
 /* Knopf „← Alle Apps“ (Start und Übersicht): mind. 44 px, im Dunkelmodus über die Farb-Variablen lesbar */
 .alle-apps{display:inline-flex;align-items:center;justify-self:start;align-self:flex-start;min-height:44px;padding:0 16px;border-radius:99px;border:1.5px solid var(--line);background:var(--card);color:var(--ink);font-weight:800;font-size:calc(14px*var(--fs,1));text-decoration:none;white-space:nowrap}
 .alle-apps:hover,.alle-apps:focus-visible{border-color:var(--orange);color:var(--orange)}
+/* Querverweise zu den anderen Lern-Apps unter der Theorie (AppZentrale 19.11.) */
+.t-apps{gap:8px}
+.view.stack>section.t-apps{max-width:none}
+.t-app{display:flex;flex-direction:column;gap:2px;min-height:44px;justify-content:center;padding:10px 14px;border-radius:14px;border:1.5px solid var(--line);color:var(--ink);text-decoration:none}
+.t-app b{font-size:calc(15px*var(--fs,1));color:var(--head)}
+.t-app small{font-size:calc(13px*var(--fs,1));color:var(--muted)}
+.t-app:hover,.t-app:focus-visible{border-color:var(--orange)}

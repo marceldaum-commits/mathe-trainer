@@ -590,9 +590,9 @@ const OBER = [
   },
 ];
 const OBER_AREAS = [
-  { id: 'analysis', title: 'Analysis', soon: ['Gauß-Verfahren: drei Gleichungen, drei Unbekannte', 'Nullstellen finden: Ausklammern, Substitution, Polynomdivision', 'Transformationen a·f(b(x−c))+d', 'Abi-Pflichtteil ohne Taschenrechner', 'Stetigkeit und Differenzierbarkeit', 'Wachstum und Differentialgleichungen', 'Integrationsverfahren'] },
-  { id: 'stochastik', title: 'Stochastik', soon: ['Satz von Bayes: Baum umdrehen', 'Normalverteilung rückwärts', 'Dichtefunktion: Wahrscheinlichkeit als Fläche', 'Prognose- und Konfidenzintervalle', 'Gütefunktion', 'Zufall simulieren', 'Warten auf den ersten Treffer', 'Übergangsprozesse mit Matrizen'] },
-  { id: 'geometrie', title: 'Analytische Geometrie', soon: ['Kreuzprodukt: Fläche und Volumen', 'Körper im Raum', 'Schattenwurf', 'Linear abhängig oder unabhängig?', 'Beweisen mit Vektoren', 'Matrizen und Abbildungen'] },
+  { id: 'analysis', title: 'Analysis', soon: ['Gauß-Verfahren: drei Gleichungen, drei Unbekannte', 'Nullstellen finden: Ausklammern, Substitution, Polynomdivision', 'Abi-Pflichtteil ohne Taschenrechner', 'Stetigkeit und Differenzierbarkeit', 'Wachstum und Differentialgleichungen', 'Integrationsverfahren'] },
+  { id: 'stochastik', title: 'Stochastik', soon: ['Satz von Bayes: Baum umdrehen', 'Normalverteilung rückwärts', 'Dichtefunktion: Wahrscheinlichkeit als Fläche', 'Prognose- und Konfidenzintervalle', 'Gütefunktion', 'Warten auf den ersten Treffer', 'Übergangsprozesse mit Matrizen'] },
+  { id: 'geometrie', title: 'Analytische Geometrie', soon: ['Kreuzprodukt: Fläche und Volumen', 'Linear abhängig oder unabhängig?', 'Beweisen mit Vektoren', 'Matrizen und Abbildungen'] },
   { id: 'pruefung', title: 'Prüfung', soon: ['Musterlösungen lesen', 'Zeit einteilen'] },
 ];
 

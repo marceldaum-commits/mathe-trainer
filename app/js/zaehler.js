@@ -7,7 +7,7 @@ import { THEMEN, themaVon } from './eltern.js';
 
 const SCHALTER = 'mt.zaehlung';
 export const EREIGNISSE = ['start', 'elternbereich', 'pro_ansehen', 'pro_kasse', 'code_eingeloest', 'probestunde_klick', 'neukunde_klick', 'crashkurs_klick', 'nachhilfe_hinweis', 'geschenk_klick', 'level_start', 'level_geschafft', 'theorie'];
-export const ORTE = ['elternbericht', 'elternbereich', 'lernstand', 'gesperrt', 'klassenarbeit', 'geschenk', 'einstellungen', 'fusszeile', 'link', 'eingabe', 'kopf'];
+export const ORTE = ['elternbericht', 'elternbereich', 'lernstand', 'gesperrt', 'klassenarbeit', 'geschenk', 'einstellungen', 'fusszeile', 'link', 'eingabe', 'kopf', 'theorie'];
 
 export function zaehlungAn() { try { return globalThis.localStorage?.getItem(SCHALTER) !== 'aus'; } catch { return true; } }
 export function zaehlungSetzen(an) { try { globalThis.localStorage?.setItem(SCHALTER, an ? 'an' : 'aus'); } catch { /* ohne Speicher */ } }

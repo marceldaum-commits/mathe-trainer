@@ -1064,6 +1064,22 @@ ok(nextStreak({ n: 3, last: '2026-11-10' }, D('2026-11-12')).n === 1, 'Serie: au
   const pc = css.slice(css.indexOf('@media (min-width:900px){'));
   ok(/\.view\.stack>section\.card\.stack\{grid-template-columns:minmax\(0,1fr\)\}/.test(pc) && pc.indexOf('section.card.stack{grid-template-columns') > pc.indexOf('.view.stack>section.stack,.steps{display:grid;grid-template-columns:1fr 1fr'), 'PC: Karten mit Formular oder Text bleiben einspaltig (nach der Zwei-Spalten-Regel für Listen)');
 }
+{ const Q = await import('../app/js/querverweise.js'), { UNITS } = await import('../app/js/units.js');   // Querverweise zu den anderen Lern-Apps (AppZentrale 19.11.)
+  const RB = ['add', 'sub', 'mul', 'div', 'gap', 'doppel', 'geld', 'frac', 'dec', 'pct', 'neg', 'pow', 'term', 'linear', 'zehner', 'order', 'round', 'unit', 'divis', 'eq', 'lgs', 'zeit', 'geo', 'folge', 'dreisatz', 'zins', 'wahr', 'stat', 'kreis', 'word', 'mix'];   // Rechenblitz-Themen, in der App nachgesehen
+  const KF = ['koordinaten', 'brueche', 'winkel', 'massstab', 'zuordnungen', 'geraden', 'prozent', 'rendezvous', 'pythagoras', 'parabeln', 'nullstellen', 'trigonometrie', 'wellen', 'verschobene-wellen', 'potenzfunktionen', 'logarithmus', 'terme'];
+  const EX = ['schwimmen', 'hebel', 'rollen', 'kraft', 'fallen', 'pendel', 'strom', 'magnet', 'waerme', 'licht', 'optik', 'schall', 'trennen', 'saeure', 'reaktion', 'vererbung', 'zellen', 'ernaehrung', 'oekologie', 'koerper'];
+  const RL = ['galton', 'binomial', 'zufall', 'baumeister', 'raumflug', 'abi'];
+  const ids = new Set([...UNITS, ...(await import('../app/js/units-m.js')).MITTEL].map((u) => u.id)); let alle = [];
+  for (const [u, v] of Object.entries(Q.VERWEISE)) { ok(ids.has(u), `Querverweise: Einheit ${u} gibt es`); for (const [app, k] of v) { alle.push(Q.appAdresse(app, k, 'trainer.mathenachhilfe-online.com')); ok({ rechenblitz: RB, kurvenflug: KF, experimentopia: EX, raumlicht: RL }[app]?.includes(k), `Querverweise: ${app} kennt „${k}“ (${u})`); } }
+  ok(alle.every((l) => /^https:\/\/(kurvenflug|rechenblitz|raumlicht|experimentopia|wissensgarten)\.mathenachhilfe-online\.com\//.test(l) && /src=mathetrainer-theorie/.test(l) && !/shop|produkt|kasse|warenkorb|preis/i.test(l)), 'Querverweise: nur freie Inhalte der Lern-Apps, mit Herkunft, nie Kaufseiten');
+  ok(Q.appAdresse('kurvenflug', 'geraden', 'trainer-test.mathenachhilfe-online.com') === 'https://kurvenflug-test.mathenachhilfe-online.com/?src=mathetrainer-theorie#kapitel=geraden', `Querverweise: Test-Stufe → Test-Apps (${Q.appAdresse('kurvenflug', 'geraden', 'trainer-test.mathenachhilfe-online.com')})`);
+  ok(Q.appAdresse('rechenblitz', 'lgs', 'trainer.mathenachhilfe-online.com') === 'https://rechenblitz.mathenachhilfe-online.com/?thema=lgs&stufe=auto&modus=training&src=mathetrainer-theorie', 'Querverweise: Rechenblitz-Format ?thema=…&stufe=…&modus=training');
+  const kasten = Q.verweisKasten('k8-lgs', 'trainer.mathenachhilfe-online.com');
+  ok(/Passt dazu in anderen Apps/.test(kasten) && /KurvenFlug/.test(kasten) && /Rechenblitz/.test(kasten) && /Wissensgarten/.test(kasten) && /noprint/.test(kasten) && !/target=/.test(kasten), 'Querverweise: Kasten unter der Theorie, nicht im Druck, gleicher Tab');
+  ok(Q.verweisKasten('a-numerik') === '', 'Querverweise: Einheit ohne passende App → kein Kasten');
+  const bald = JSON.stringify((await import('../app/js/units-m.js')).MITTEL_BALD) + (((t) => t.slice(t.indexOf('const OBER_AREAS'), t.indexOf('];', t.indexOf('const OBER_AREAS'))))((await import('node:fs')).readFileSync(new URL('../app/js/units.js', import.meta.url), 'utf8')));
+  ok(!/Zehnerpotenzen und wiss|Potenzfunktionen|Maßstab: Karten|Schattenwurf|Zufall simulieren|Transformationen a/.test(bald), 'Kommt bald: abgegebene Themen gestrichen (Abgleich 19.11.)');
+}
 { const P = await import('../app/js/prolink.js');   // Freischalt-Link #pro= (neu) und ?pro= (alt)
   ok(P.codeAusAdresse({ hash: '#pro=mt-ab12-cd34-ef56', search: '' }) === 'MT-AB12-CD34-EF56' && P.codeAusAdresse({ hash: '', search: '?pro=MT-AB12-CD34-EF56' }) === 'MT-AB12-CD34-EF56' && P.codeAusAdresse({ hash: '#/einstellungen', search: '' }) === null && P.codeAusAdresse({ hash: '#pro=quatsch', search: '' }) === '', 'Freischalt-Link: #pro= und ?pro= werden gelesen');
   ok(P.adresseOhneCode('https://trainer.example/?pro=MT-AB12-CD34-EF56#/') === '/#/' && P.adresseOhneCode('https://trainer.example/#pro=MT-AB12-CD34-EF56') === '/#/einstellungen', 'Freischalt-Link: Code verschwindet aus der Adresse'); }

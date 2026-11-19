@@ -5,6 +5,10 @@ Bayern (LehrplanPLUS Gy G9 / RS), Baden-Württemberg (Bildungsplan 2016 Gy / RS,
 Nordrhein-Westfalen (KLP Gy G9 Sek I 2019, KLP Realschule, KLP Sek II), Niedersachsen (KC Gy Sek I, KC gymn. Oberstufe, KC RS),
 Hessen (KC/Lehrplan Gy und RS, KC gymn. Oberstufe) sowie den KMK-Bildungsstandards MSA (2022) und AHR (2012).
 
+**Abgleich mit den anderen Lern-Apps (19.11.2026, Marcel über die AppZentrale):** Was eine andere App schon gut abdeckt, wird nicht doppelt gebaut, sondern unter der Theorie verlinkt (`app/js/querverweise.js`).
+- Aus „Kommt bald“ gestrichen: Maßstab (Kl. 5) und Potenzfunktionen (Kl. 10) → KurvenFlug; Zehnerpotenzen (Kl. 9) → Rechenblitz; Transformationen a·f(b(x−c))+d → KurvenFlug; Zufall simulieren, Körper im Raum, Schattenwurf (Oberstufe) → Raumlicht.
+- Die Tabellen unten sind der Stand vom 18.11.; dort steht bei diesen Zeilen noch „Kommt bald“.
+
 **Wichtiger Hinweis zur Prüfung:** Die offiziellen Seiten (lehrplanplus.bayern.de, kmk.org u. a.) waren aus dieser Sitzung
 **nicht erreichbar** (Netzwerk-Sperre). Eine Websuche bestätigte nur Eckdaten (z. B. KMK-Beschluss MSA vom 23.06.2022,
 fünf Leitideen; NRW-Inhaltsfelder Arithmetik/Algebra, Funktionen, Geometrie, Stochastik). Die Klassen-Zuordnungen stammen

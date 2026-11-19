@@ -24,7 +24,7 @@ Die Oberstufe ist gut abgedeckt. In Klasse 5–10 fehlen einzelne Bereiche ganz,
 | Fr 27.11. | Nullstellen finden: Ausklammern, Substitution, Polynomdivision |
 | Di 1.12. | Satz von Bayes: Baum umdrehen |
 | Fr 4.12. | Normalverteilung rückwärts und Dichtefunktion |
-| Di 8.12. | Transformationen a·f(b(x−c))+d |
+| Di 8.12. | Prognose- und Konfidenzintervalle (statt Transformationen – die übt KurvenFlug am Graphen, Abgleich 19.11.) |
 | Fr 11.12. | Kreuzprodukt: Fläche und Volumen |
 | Di 15.12. | Abi-Pflichtteil ohne Taschenrechner |
 | Fr 18.12. | Klasse 9: Körper (Zylinder, Kegel, Pyramide, Kugel) |
@@ -52,9 +52,9 @@ Jedes Update kann zusätzlich bestehende Themen ausweiten oder Aufgaben verbesse
 | 5 | Oberstufe | Gauß-Verfahren: drei Gleichungen, drei Unbekannte |
 | 6 | Oberstufe | Nullstellen finden: Ausklammern, Substitution, Polynomdivision |
 | 7 | 10 | Trigonometrie am Einheitskreis |
-| 8 | 10 | Potenzfunktionen |
+| 8 | 10 | ~~Potenzfunktionen~~ → KurvenFlug (verlinkt, Abgleich 19.11.) |
 | 9 | 10 | Prüfungstraining Mittlerer Abschluss |
-| 10 | 9 | Zehnerpotenzen und wissenschaftliche Schreibweise |
+| 10 | 9 | ~~Zehnerpotenzen und wissenschaftliche Schreibweise~~ → Rechenblitz (verlinkt, Abgleich 19.11.) |
 | 11 | 7 | Satz des Thales |
 | 12 | Oberstufe | Satz von Bayes: Baum umdrehen |
 
