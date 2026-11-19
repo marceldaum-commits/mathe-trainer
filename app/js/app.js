@@ -534,12 +534,16 @@ hinweiseBeobachten();
 freischaltLink((text) => toast(text));
 // Umzug auf lernen.mathenachhilfe-online.com/mathetrainer/ (19.11.2026): alte Adresse → einpacken und weiterleiten,
 // neue Adresse → mitgebrachten Lernstand übernehmen. Lokal und in Tests passiert nichts.
-umzugBeimStart({ toast: (t) => toast(t), hinweis: (los) => {
+let umzugBox = null;
+umzugBeimStart({ toast: (t) => toast(t), warten: (an) => {
+  if (an && !umzugBox) { umzugBox = h('<div class="umzug-hinweis" role="status"><div class="card stack"><h3>Wir ziehen um …</h3><p>Der Mathe-Trainer bekommt eine neue Adresse. Dein Fortschritt kommt mit – einen Moment.</p></div></div>'); document.body.append(umzugBox); }
+  if (!an && umzugBox) { umzugBox.remove(); umzugBox = null; }
+}, hinweis: (los) => {
   const box = h(`<div class="umzug-hinweis" role="dialog" aria-label="Neue Adresse"><div class="card stack"><h3>Der Mathe-Trainer ist umgezogen</h3>
     <p>Neue Adresse: <b>lernen.mathenachhilfe-online.com/mathetrainer</b>. Dein Fortschritt kommt mit.</p>
     <p class="muted">Danach bitte die App vom Home-Bildschirm löschen und an der neuen Adresse neu installieren.</p>
     <button class="btn block" type="button">Zur neuen Adresse</button></div></div>`);
-  box.querySelector('button').onclick = () => { box.querySelector('button').disabled = true; los(); };
+  box.querySelector('button').onclick = () => { box.remove(); los(); };
   document.body.append(box);
 } }).catch(() => {});   // #pro=CODE (neu) bzw. ?pro=CODE (alte Mails): sofort aus der Adresse, dann einlösen
 route();
