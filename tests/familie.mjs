@@ -30,12 +30,13 @@ function server() {
     if (pfad === '/rechte') return antwort(200, { rechte: e.rechte });
     if (pfad === '/protokoll') return antwort(200, { eintraege: [] });
     if (pfad === '/einloesen' && meth === 'POST') { if (!(await darf())) return antwort(403, {}); const { code } = JSON.parse(o.body); if (!/^MT-/.test(code)) return antwort(400, { grund: 'code' }); e.rechte.push({ produkt: 'pro', app: 'mathetrainer', bis: null }); return antwort(200, { rechte: e.rechte }); }
-    if (/^\/(index|s\/[a-z][a-z0-9-]+\/[\w-]{11})$/.test(pfad)) {
+    if (pfad === '/sperrliste') return antwort(200, { hashes: [await F.codeHash('MT-GESP-ERRT-0001')] });
+    if (/^\/(index|s\/[a-z][a-z0-9-]+\/([\w-]{22}|geraet-[\w-]+))$/.test(pfad)) {
       const b = e.blobs.get(pfad);
       if (meth === 'GET') return b ? antwort(200, { d: b.d, rev: b.rev, t: b.t }) : antwort(404, {});
       if (meth === 'PUT') {
         if (!(await darf())) return antwort(403, {});
-        if (String(b ? b.rev : 0) !== String(h['If-Match'])) return antwort(409, { d: b?.d, rev: b?.rev ?? 0 });
+        if (String(b ? b.rev : 0) !== String(h['If-Match'])) return antwort(409, { rev: b?.rev ?? 0, d: b?.d, t: b?.t });
         const nb = { d: o.body, rev: (b?.rev || 0) + 1, t: ++uhr }; e.blobs.set(pfad, nb); return antwort(200, { rev: nb.rev });
       }
     }
@@ -65,7 +66,7 @@ ok(!(await A.anlegen(testPub)).ok, 'Familie kein zweites Mal anlegen');
 // Index mit zwei Kindern
 let { index, kind: lea } = F.kindHinzu(F.neuerIndex(), { name: 'Lea', klasse: '8' });
 let r2 = F.kindHinzu(index, { name: 'Tim', klasse: '11' }); index = F.appMerken(r2.index, 'mathetrainer'); const tim = r2.kind;
-ok(/^[\w-]{11}$/.test(lea.kindId) && lea.kindId !== tim.kindId && index.kinder.length === 2 && index.apps[0] === 'mathetrainer', 'Index: zwei Kinder mit eigener kindId, App gemerkt');
+ok(/^[\w-]{22}$/.test(lea.kindId) && lea.kindId !== tim.kindId && index.kinder.length === 2 && index.apps[0] === 'mathetrainer', 'Index: zwei Kinder mit eigener kindId, App gemerkt');
 const i1 = await A.indexSichern(index, 0);
 ok(i1.ok && i1.rev === 1, 'Index sichern (If-Match: 0) → rev 1');
 const il = await A.indexLaden();
@@ -78,7 +79,7 @@ const s1 = await A.standSichern('mathetrainer', lea.kindId, stand, 0);
 ok(s1.ok && s1.rev === 1, 'Stand von Lea sichern → rev 1');
 const B = F.familie(F.familieLesen(link), { f: S.f });   // zweites Gerät über den Familien-Link
 const sl = await B.standLaden('mathetrainer', lea.kindId);
-ok(sl.ok && JSON.parse(sl.daten['mathetrainer.v1']).xp === 4242 && sl.rev === 1, 'Zweites Gerät lädt Leas Stand über den Familien-Link');
+ok(sl.ok && JSON.parse(sl.daten['mathetrainer.v1']).xp === 4242 && sl.rev === 1 && /^\d{4}-\d{2}-\d{2}T/.test(sl.stand), 'Zweites Gerät lädt Leas Stand über den Familien-Link');
 ok((await B.standLaden('mathetrainer', tim.kindId)).grund === 'keine', 'Stand eines anderen Kindes gibt es noch nicht (404)');
 const s2 = await B.standSichern('mathetrainer', lea.kindId, { ...stand, 'mathetrainer.look': 'dunkel' }, 1);
 ok(s2.ok && s2.rev === 2, 'Zweites Gerät sichert mit rev 1 → rev 2');
@@ -114,6 +115,16 @@ ok((await F.familie(fam, { f: async () => { throw new Error('offline'); } }).lis
 let ungueltig = false; try { F.familie({ famId: 'x', famKey: 'y', schreib: 'z' }); } catch { ungueltig = true; }
 ok(ungueltig && (await A.standLaden('../x', lea.kindId)).grund === 'ungueltig', 'Ungültige Familie bzw. App-Name abgewiesen');
 ok(/Familien-Nummer: /.test(F.notfallBlatt(fam, 'mathetrainer').text), 'Notfall-Blatt mit Familien-Nummer und Link');
+
+const S2 = server(), mem = new Map(), sp = { getItem: (k) => mem.get(k) ?? null, setItem: (k, v) => mem.set(k, v) };
+// Sperrliste braucht keine Familie: eigener kleiner Server-Aufruf
+const sperr = await F.sperrlisteLaden({ f: async (u) => (/\/familie\/v1\/sperrliste$/.test(u) ? { ok: true, status: 200, json: async () => ({ hashes: [await F.codeHash('MT-GESP-ERRT-0001'), 'kaputt'] }) } : { ok: false, status: 404 }), speicher: sp, schluessel: 'mathetrainer.sperrliste' });
+ok(sperr.ok && sperr.anzahl === 1, 'Sperrliste geladen, ungültige Einträge verworfen, im Gerät gespeichert');
+ok(await F.codeGesperrt(' mt-gesp-errt-0001 ', { speicher: sp, schluessel: 'mathetrainer.sperrliste' }) && !(await F.codeGesperrt('MT-AB12-CD34-EF56', { speicher: sp, schluessel: 'mathetrainer.sperrliste' })), 'Offline-Prüfung: gesperrter Code erkannt (getrimmt, groß), anderer nicht');
+ok((await F.sperrlisteLaden({ f: async () => { throw new Error('offline'); }, speicher: sp, schluessel: 'mathetrainer.sperrliste' })).grund === 'netz' && await F.codeGesperrt('MT-GESP-ERRT-0001', { speicher: sp, schluessel: 'mathetrainer.sperrliste' }), 'Offline: alte Sperrliste bleibt gültig');
+const fam2 = F.neueFamilie(), C = F.familie(fam2, { f: S2.f }); await C.anlegen(testPub);
+const gid = F.geraetKindId('tablet 1');
+ok(gid === 'geraet-tablet1' && (await C.standSichern('mathetrainer', gid, { look: 'dunkel' }, 0)).ok && (await C.standLaden('mathetrainer', gid)).daten.look === 'dunkel', 'Gerätedaten unter kindId „geraet-<id>“');
 
 console.log(fehler ? `${fehler} Fehler` : `familie: ${n} Prüfungen bestanden`);
 if (fehler) process.exit(1);

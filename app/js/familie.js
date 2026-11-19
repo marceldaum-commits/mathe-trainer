@@ -4,21 +4,23 @@
 //
 // Schlüssel: famId (16 B), famKey (32 B, nie im Klartext beim Server), schreib (16 B, Header X-Schreib), alles base64url.
 // Link:      …/#familie=<famId>.<famKey>.<schreib>
-// Blobs:     AES-GCM-256, 12-Byte-IV, Schlüssel HKDF-SHA256(famKey, salt leer, info "lernapps/v1/<app>/<kindId>" bzw.
+// Blobs:     AES-GCM-256, 12-Byte-IV, Schlüssel HKDF-SHA256(famKey, salt = 32 Nullbytes, info "lernapps/v1/<app>/<kindId>" bzw.
 //            "lernapps/v1/index"); Klartext = 1 Zeichen Art + Inhalt: „z“ = gzip(JSON), „j“ = JSON (Gerät ohne gzip).
+//            Stand-JSON: { app, v: 1, kind, stand (ISO-Zeit), daten } – Rechte nie im Kind-Blob. kindId 16 B oder „geraet-<id>“.
 //            Body text/plain „<iv>.<ct>“ (base64url) wie bei eltern/v1.
 // Notfall:   famKey zusätzlich für den öffentlichen Wiederherstellungs-Schlüssel (X25519, 32 B) verschlüsselt:
 //            eph = neues X25519-Paar; geteilt = X25519(eph.priv, pub); k = HKDF-SHA256(geteilt, salt = eph.pub ‖ pub,
 //            info "lernapps/v1/notfall"); Kopie = „<eph.pub>.<iv>.<AES-GCM(k, famKey)>“ (base64url).
 // Server:    /familie/v1/<famId>[/index|/s/<app>/<kindId>|/liste|/rechte|/einloesen|/protokoll] (Bauplan).
-//            GET liefert { d, rev, t }, PUT liefert { rev }; PUT mit If-Match: <rev> (neu: If-Match: 0), 409 → { d, rev }.
+//            GET liefert { d, rev, t }, PUT liefert { rev }; PUT mit If-Match: <rev> (neu: If-Match: 0), 409 → { rev, d, t }.
+//            Sperrliste: GET /familie/v1/sperrliste → { hashes: [SHA-256(Code) base64url, …] } (Bauplan v1.2).
 
 /* ───────────── Grundbausteine ───────────── */
 export const b64url = (bytes) => { let s = ''; for (const b of bytes) s += String.fromCharCode(b); return btoa(s).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, ''); };
 export const b64urlLesen = (s) => Uint8Array.from(atob(String(s).replace(/-/g, '+').replace(/_/g, '/') + '==='.slice((String(s).length + 3) % 4)), (c) => c.charCodeAt(0));
 const zufall = (n) => crypto.getRandomValues(new Uint8Array(n));
 const text = new TextEncoder(), lesen = new TextDecoder();
-const ID22 = /^[\w-]{22}$/, KEY43 = /^[\w-]{43}$/, KIND11 = /^[\w-]{11}$/, APP = /^[a-z][a-z0-9-]{1,30}$/;
+const ID22 = /^[\w-]{22}$/, KEY43 = /^[\w-]{43}$/, KIND = /^([\w-]{22}|geraet-[\w-]{1,40})$/, APP = /^[a-z][a-z0-9-]{1,30}$/;
 
 /* ───────────── X25519 (RFC 7748), eigene kleine Rechnung mit BigInt ─────────────
    Damit läuft die Notfall-Kopie auch auf Geräten, deren WebCrypto noch kein X25519 kennt. Nur für die Notfall-Kopie
@@ -48,7 +50,7 @@ const BASIS = (() => { const u = new Uint8Array(32); u[0] = 9; return u; })();
 export const x25519Oeffentlich = (priv) => x25519(priv, BASIS);
 
 /* ───────────── HKDF, AES-GCM, gzip ───────────── */
-async function hkdf(geheim, info, salt = new Uint8Array(0)) {
+async function hkdf(geheim, info, salt = new Uint8Array(32)) {   // Blobs: salt = 32 Nullbytes (Bauplan v1.1)
   const k = await crypto.subtle.importKey('raw', geheim, 'HKDF', false, ['deriveKey']);
   return crypto.subtle.deriveKey({ name: 'HKDF', hash: 'SHA-256', salt, info: text.encode(info) }, k, { name: 'AES-GCM', length: 256 }, false, ['encrypt', 'decrypt']);
 }
@@ -99,7 +101,9 @@ export function familieLesen(textOderHash) {
 /** Familien-Nummer zum Finden bei einer Wiederherstellung (öffnet nichts): die ersten 8 Zeichen der famId. */
 export const familienNummer = (famId) => `${famId.slice(0, 4)}-${famId.slice(4, 8)}`;
 export const neueFamilie = () => ({ famId: b64url(zufall(16)), famKey: b64url(zufall(32)), schreib: b64url(zufall(16)) });
-export const neueKindId = () => b64url(zufall(8));
+export const neueKindId = () => b64url(zufall(16));
+/** Kennung für Gerätedaten (Einstellungen, die keinem Kind gehören). */
+export const geraetKindId = (id) => `geraet-${String(id).replace(/[^\w-]/g, '').slice(0, 40)}`;
 
 /* ───────────── Server ───────────── */
 /**
@@ -124,7 +128,7 @@ export function familie(fam, { basis = '', f = globalThis.fetch } = {}) {
     const body = await verschluesseln(obj, fam.famKey, info);
     const r = await ruf(pfad, { method: 'PUT', headers: { ...schreibKopf, 'Content-Type': 'text/plain', 'If-Match': String(rev ?? 0) }, body });
     if (r.ok) return { ok: true, rev: r.daten?.rev };
-    if (r.status === 409 && r.daten?.d) {   // anderes Gerät war schneller: aktuellen Stand mitliefern, die App führt zusammen
+    if (r.status === 409 && r.daten?.d) {   // { rev, d, t }   // anderes Gerät war schneller: aktuellen Stand mitliefern, die App führt zusammen
       try { return { ok: false, grund: 'konflikt', daten: await entschluesseln(r.daten.d, fam.famKey, info), rev: r.daten.rev }; } catch { return { ok: false, grund: 'konflikt', rev: r.daten.rev }; }
     }
     return r;
@@ -137,8 +141,19 @@ export function familie(fam, { basis = '', f = globalThis.fetch } = {}) {
     async anlegen(wiederherstellPub) { return ruf('', { method: 'PUT', headers: { ...schreibKopf, 'Content-Type': 'text/plain' }, body: await notfallKopie(fam.famKey, wiederherstellPub) }); },
     indexLaden: () => blobLaden('/index', INFO_INDEX),
     indexSichern: (index, rev) => blobSichern('/index', INFO_INDEX, index, rev),
-    standLaden(app, kindId) { if (!APP.test(app) || !KIND11.test(kindId)) return Promise.resolve({ ok: false, grund: 'ungueltig' }); return blobLaden(`/s/${app}/${kindId}`, infoStand(app, kindId)); },
-    standSichern(app, kindId, daten, rev) { if (!APP.test(app) || !KIND11.test(kindId)) return Promise.resolve({ ok: false, grund: 'ungueltig' }); return blobSichern(`/s/${app}/${kindId}`, infoStand(app, kindId), daten, rev); },
+    /** Stand laden → { ok, daten, stand, rev, t } (daten = App-Format, stand = ISO-Zeit des Sicherns). */
+    async standLaden(app, kindId) {
+      if (!APP.test(app) || !KIND.test(kindId)) return { ok: false, grund: 'ungueltig' };
+      const r = await blobLaden(`/s/${app}/${kindId}`, infoStand(app, kindId)); if (!r.ok) return r;
+      if (r.daten?.app !== app || r.daten?.kind !== kindId) return { ok: false, grund: 'schluessel' };
+      return { ok: true, daten: r.daten.daten, stand: r.daten.stand, rev: r.rev, t: r.t };
+    },
+    /** Stand sichern → { ok, rev } | { ok: false, grund: 'konflikt', daten, stand, rev } | { ok: false, grund }. */
+    async standSichern(app, kindId, daten, rev) {
+      if (!APP.test(app) || !KIND.test(kindId)) return { ok: false, grund: 'ungueltig' };
+      const r = await blobSichern(`/s/${app}/${kindId}`, infoStand(app, kindId), { app, v: 1, kind: kindId, stand: new Date().toISOString(), daten }, rev);
+      return r.grund === 'konflikt' && r.daten ? { ...r, daten: r.daten.daten, stand: r.daten.stand } : r;
+    },
     liste: () => ruf('/liste'),
     rechte: () => ruf('/rechte'),
     einloesen: (code) => ruf('/einloesen', { method: 'POST', headers: { ...schreibKopf, 'Content-Type': 'application/json' }, body: JSON.stringify({ code: String(code).trim().toUpperCase() }) }),
@@ -160,4 +175,27 @@ export const appMerken = (index, app) => (index.apps?.includes(app) ? index : { 
 export function notfallBlatt(fam, app, basis) {
   return { link: familieLink(fam, app, basis), nummer: familienNummer(fam.famId),
     text: `Familien-Zugang für die Lern-Apps von Mathenachhilfe Online.\nFamilien-Nummer: ${familienNummer(fam.famId)}\nLink: ${familieLink(fam, app, basis)}\nGut aufbewahren: Wer diesen Link hat, kann die Lernstände öffnen.` };
+}
+
+/* ───────────── Sperrliste (erstattete bzw. gesperrte Codes, Bauplan v1.2) ───────────── */
+/** SHA-256 eines Codes (getrimmt, groß), base64url. */
+export async function codeHash(code) { return b64url(new Uint8Array(await crypto.subtle.digest('SHA-256', text.encode(String(code).trim().toUpperCase())))); }
+/**
+ * Sperrliste laden, wenn online, und im Gerät zwischenspeichern (Schlüssel z. B. „mathetrainer.sperrliste“).
+ * Liefert { ok, anzahl } – bei Fehlern bleibt die zuletzt gespeicherte Liste gültig.
+ */
+export async function sperrlisteLaden({ basis = '', f = globalThis.fetch, speicher = globalThis.localStorage, schluessel } = {}) {
+  if (!schluessel) throw new Error('schluessel fehlt (z. B. „<app>.sperrliste“)');
+  let r; try { r = await f(`${basis}/familie/v1/sperrliste`, { cache: 'no-store' }); } catch { return { ok: false, grund: 'netz' }; }
+  if (!r.ok) return { ok: false, grund: 'fehler' };
+  let hashes; try { hashes = (await r.json()).hashes; } catch { return { ok: false, grund: 'fehler' }; }
+  if (!Array.isArray(hashes)) return { ok: false, grund: 'fehler' };
+  const liste = hashes.filter((h) => /^[\w-]{43}$/.test(h));
+  try { speicher?.setItem(schluessel, JSON.stringify({ t: Date.now(), hashes: liste })); } catch { /* ohne Speicher */ }
+  return { ok: true, anzahl: liste.length };
+}
+/** Ist der Code gesperrt? Prüft die zwischengespeicherte Liste (offline nutzbar). */
+export async function codeGesperrt(code, { speicher = globalThis.localStorage, schluessel } = {}) {
+  let liste = []; try { liste = JSON.parse(speicher?.getItem(schluessel) || '{}').hashes || []; } catch { /* leer */ }
+  return liste.includes(await codeHash(code));
 }
