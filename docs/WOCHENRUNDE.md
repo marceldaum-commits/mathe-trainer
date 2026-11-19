@@ -2,6 +2,29 @@
 
 Neuester Beitrag oben.
 
+## 19.11.2026 – Weg zur Probestunde (Recht V15; Marcel: „Ja, alles so umsetzen“; ab Di 24.11.)
+
+Verbindlich mit Wortlaut: PROBESTUNDE.md (website_backup, Branch appzentrale, d672374).
+
+1. **Elternbereich bzw. Elternbericht (hinter dem Tor):**
+   - Hinweis nur bei objektiven Schwierigkeiten (z. B. ein Thema 2 Wochen unter 50 %). Berechnet NUR im Gerät.
+   - Höchstens 1× in 4 Wochen je Thema, wegklickbar, mit Schalter „Hinweise auf Nachhilfe ausblenden“.
+   - Wortlaut:
+     > Hinweis: In <Thema> hat <Spitzname> in den letzten Wochen öfter Schwierigkeiten. Das ist normal und lässt sich üben – die App zeigt dazu passende Übungen. Wenn ihr persönliche Unterstützung möchtet: Unser Angebot – eine kostenlose, unverbindliche Probestunde Online-Nachhilfe. [Probestunde anfragen] · [Solche Hinweise ausblenden]
+2. **Kinderansicht bei Schwierigkeiten, NUR dieser Satz:**
+   > Du kommst hier gerade nicht weiter? Das ist okay. Probier eine leichtere Stufe oder schau dir die Erklärung noch einmal an. Und du kannst jederzeit deine Eltern oder deine Lehrkraft fragen.
+
+   Dazu die Knöpfe [Leichter üben] [Erklärung ansehen]. Kein Außenlink, kein Bezug auf Probestunde oder Elternbereich.
+   - Das ersetzt die bisherigen `.promo`-Hinweise in den Aufgaben-Runden (app.js, plus.js, arbeit.js).
+3. **Kl. 9–10 (ohne Tor):**
+   - Wortlaut:
+     > Tipp: Wenn ein Thema länger hakt, kann eine persönliche Erklärung helfen. Mit deinen Eltern könnt ihr bei uns eine kostenlose, unverbindliche Probestunde anfragen. [Mehr erfahren]
+   - Höchstens 1× pro Woche, wegklickbar, kein Preis. Der Link führt zur Probestunden-Seite.
+   - Kl. 5–8: der Probestunden-Hinweis nur hinter dem Tor.
+4. **Oberstufe:** wie bisher entschieden (sachlicher Hinweis in der Lernstand-Ansicht). Vor dem Umsetzen mit PROBESTUNDE.md abgleichen.
+5. **Zählung „Probestunden-Link angetippt“:** nur anonym, ohne Thema und ohne Lernstand. Dafür `probestunde_klick` ohne `thema`-Parameter.
+6. **Meldung:** mit „Rechtsbezug: ja (V15)“.
+
 ## 19.11.2026 – Neue Einheit Kl. 9/10 „Potenz-, Wurzel- und Bruchgleichungen“ (Marcel: Di-Update 24.11.)
 
 - **Anlass:** Marcels Arbeitsblatt „Potenzen und Wurzeln“. Heute fehlen Potenz-, Wurzel- und Bruchgleichungen; n-te Wurzel und rationale Hochzahlen werden nur in der Oberstufe geübt.
