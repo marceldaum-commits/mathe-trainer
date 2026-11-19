@@ -2,6 +2,19 @@
 
 Neuester Beitrag oben.
 
+## 19.11.2026 – Familien-Speicher v1.7: Beitreten und Sicherheitshinweis (Recht V8 freigegeben, mit Auflage)
+
+- **Beitreten per Familien-Link oder QR-Code:**
+  - Hinter dem Eltern-Tor erscheint derselbe Pflichttext wie beim Anlegen.
+  - Der Knopf heißt „Einverstanden – Familie beitreten“. Nichts ist vorausgewählt.
+  - Wer abbricht, lädt nichts hoch.
+- **Sicherheitshinweis:**
+  - Er steht nicht im Pflichttext.
+  - Er steht dauerhaft auf der Familien-Seite und zusätzlich direkt bei „Link teilen“, beim QR-Code und beim Notfall-Blatt.
+  - Wortlaut:
+    > Wer den Familien-Link oder den QR-Code hat, kann die Lernstände eurer Familie öffnen, ändern und löschen. Teilt ihn nur mit Personen, denen ihr vertraut, und bewahrt das Notfall-Blatt sicher auf.
+- **Meldung:** mit Commit und der Zeile „Rechtsbezug: ja (V8)“.
+
 ## 19.11.2026 – Schloss-Text geändert (Marcel auf Empfehlung von Recht, ELTERN-TOR.md aktualisiert)
 
 - **Kinderansicht Kl. 5–10:** Dort steht nur noch „Das gehört zu Mathe-Trainer Pro.“
