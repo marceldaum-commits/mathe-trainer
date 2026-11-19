@@ -1373,5 +1373,9 @@ ok(nextStreak({ n: 3, last: '2026-11-10' }, D('2026-11-12')).n === 1, 'Serie: au
   const lade = (html.split('<body>')[1].match(/<svg class="lade-logo"[\s\S]*?<\/svg>/) || [''])[0];
   ok(farbig(lade), 'Logo: Ladebild zeigt das farbige Symbol'); }
 
+// Recht N1 (19.11.2026): Einlösefrist der 30-Tage-Codes nie „12 Monate“, sondern bis 31.12. des dritten Jahres nach dem Kauf
+{ const fs = await import('node:fs'); const pro = fs.readFileSync(new URL('../app/js/pro.js', import.meta.url), 'utf8');
+  ok(!/12 Monate/.test(pro) && /einlösbar bis zum 31\.12\. des dritten Jahres nach dem Kauf/.test(pro), 'Pro-Seite: Einlösefrist nach Recht N1, keine „12 Monate“'); }
+
 console.log(fails ? `${fails} verschiedene Fehler bei ${n} Prüfungen` : `tests: alle ${n} Prüfungen bestanden`);
 process.exit(fails ? 1 : 0);
