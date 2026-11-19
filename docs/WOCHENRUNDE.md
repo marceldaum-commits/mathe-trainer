@@ -124,3 +124,4 @@ Ablauf von nun an jede Woche: (1) was jede App herausnimmt oder abgibt und an we
 - Tagesmeldung Mo–Fr ab Fr 20.11. um 9:43 Uhr: gestern fertig, heute, Fragen/Ideen, Blockaden. Zusammenfassung um 12 Uhr.
 - Die Wochenrunde des Leitstands bleibt montags.
 - Bestätigt am 19.11., dazu die Frage zu unseren Geometrie-Einheiten gestellt.
+- **Entscheidung Marcel (19.11., über AppZentrale):** Die 9 Raumgeometrie-Einheiten bleiben beim Mathe-Trainer (Rechentraining). Raumlicht zeigt dasselbe räumlich; gegenseitige Querverweise nach der Montagsrunde.
