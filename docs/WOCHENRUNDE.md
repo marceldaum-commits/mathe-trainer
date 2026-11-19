@@ -2,6 +2,19 @@
 
 Neuester Beitrag oben.
 
+## 19.11.2026 – Vorlesen später mit eigener Stimme (Recht V13; nur zur Info, keine Änderung jetzt)
+
+- Kommerziell erlaubte deutsche Piper-Stimmen:
+  - thorsten MEDIUM und thorsten_emotional (CC0)
+  - mls de (CC BY)
+- NICHT erlaubt: thorsten HIGH, kerstin, karlsson, pavoque.
+- Kokoro hat kein Deutsch.
+- Piper bzw. espeak (GPL) laufen nur auf dem Server. Ausgeliefert werden nur Audiodateien.
+- Kennzeichnung:
+  - Die Audios sind maschinenlesbar als KI-generiert markiert.
+  - Sichtbar steht „KI-generierte Stimme“.
+- Stand Mathe-Trainer: Vorlesen ist aus (`VORLESEN = false` in ui.js). Die App würde nur den Stimmennamen wechseln, die Adresse stimmen.… bliebe.
+
 ## 19.11.2026 – Familien-Speicher v1.7: Beitreten und Sicherheitshinweis (Recht V8 freigegeben, mit Auflage)
 
 - **Beitreten per Familien-Link oder QR-Code:**
