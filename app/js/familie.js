@@ -129,7 +129,8 @@ export const geraetKindId = (id) => `geraet-${String(id).replace(/[^\w-]/g, '').
 /* ───────────── Server ───────────── */
 /** Fehler-Kennungen des Servers → grund (SCHNITTSTELLE.md). */
 const FEHLER = { veraltet: 'konflikt', gibt_es_schon: 'gibt-es-schon', schreibrecht: 'schreibrecht', code_unbekannt: 'code-unbekannt', code_gesperrt: 'code-gesperrt',
-  code_vergeben: 'code-vergeben', familie_voll: 'zu-gross', zu_viele: 'zu-oft', noch_nicht_live: 'noch-nicht-live' };
+  code_vergeben: 'code-vergeben', familie_voll: 'zu-gross', zu_viele: 'zu-oft', noch_nicht_live: 'noch-nicht-live',
+  leer: 'keine', unbekannt: 'familie-weg' };   // 404: „leer“ = Familie da, aber noch kein Stand; „unbekannt“ = Familie gibt es nicht (mehr)
 /**
  * Zugang zum Familien-Speicher. basis: z. B. '' (gleiche Herkunft) oder 'https://trainer-test.mathenachhilfe-online.com';
  * f: fetch (für Tests austauschbar). Alle Aufrufe werfen nie; sie liefern { ok, … } bzw. { ok: false, grund }.
@@ -169,7 +170,8 @@ export function familie(fam, { basis = '', f = globalThis.fetch } = {}) {
     },
     indexLaden: () => blobLaden('/index', INFO_INDEX),
     indexSichern: (index, rev) => blobSichern('/index', INFO_INDEX, index, rev),
-    /** Stand laden → { ok, daten, stand, rev, t } (daten = App-Format, stand = ISO-Zeit des Sicherns). */
+    /** Stand laden → { ok, daten, stand, rev, t } (daten = App-Format, stand = ISO-Zeit des Sicherns).
+     *  404: grund 'keine' = für dieses Kind noch kein Stand; 'familie-weg' = Familie gelöscht (Text: „Diese Familie gibt es nicht mehr. Lernstand bleibt auf diesem Gerät.“). */
     async standLaden(app, kindId) {
       if (!APP.test(app) || !KIND.test(kindId)) return { ok: false, grund: 'ungueltig' };
       const r = await blobLaden(`/s/${app}/${kindId}`, infoStand(app, kindId)); if (!r.ok) return r;

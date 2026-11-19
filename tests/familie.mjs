@@ -26,7 +26,7 @@ function server() {
     log.push(`${meth} ${pfad || '/'}`);
     const darf = async () => e && e.schreib === await sha(h['X-Schreib'] || '');
     if (pfad === '' && meth === 'PUT') { if (!/^[\w-]{43}$/.test(h['X-Notfall-Pruef'] || '')) return antwort(400, { fehler: 'notfall_pruef' }); if (e) return antwort(409, { fehler: 'gibt_es_schon' }); fam.set(id, { schreib: await sha(h['X-Schreib']), notfall: o.body, pruef: h['X-Notfall-Pruef'], blobs: new Map(), rechte: [] }); return antwort(201, {}); }
-    if (!e) return antwort(404, {});
+    if (!e) return antwort(404, { fehler: 'unbekannt' });
     if (pfad === '' && meth === 'DELETE') { if (!(await darf())) return antwort(403, {}); fam.delete(id); return antwort(204, null); }
     if (pfad === '/liste') return antwort(200, { blobs: [...e.blobs].map(([k, b]) => ({ pfad: k, rev: b.rev, t: b.t })) });
     if (pfad === '/rechte') return antwort(200, { rechte: e.rechte });
@@ -41,7 +41,7 @@ function server() {
     }
     if (/^\/(index|s\/[a-z][a-z0-9-]+\/([\w-]{22}|geraet-[\w-]+))$/.test(pfad)) {
       const b = e.blobs.get(pfad);
-      if (meth === 'GET') return b ? antwort(200, { d: b.d, rev: b.rev, t: b.t }) : antwort(404, {});
+      if (meth === 'GET') return b ? antwort(200, { d: b.d, rev: b.rev, t: b.t }) : antwort(404, { fehler: 'leer' });
       if (meth === 'PUT') {
         if (!(await darf())) return antwort(403, {});
         if (String(b ? b.rev : 0) !== String(h['If-Match'])) return antwort(409, { fehler: 'veraltet', rev: b?.rev ?? 0, d: b?.d, t: b?.t });
@@ -137,7 +137,7 @@ await X.loeschen();
 ok((await A.protokoll()).ok, 'Protokoll abrufbar');
 ok(!(await ohneRecht.loeschen()).ok && S.fam.has(fam.famId), 'Löschen ohne Schreibrecht: nichts gelöscht');
 ok((await A.loeschen()).ok && !S.fam.has(fam.famId), 'Löschknopf: Familie samt Notfall-Kopie weg');
-ok((await A.indexLaden()).grund === 'keine', 'Nach dem Löschen: nichts mehr da');
+ok((await A.indexLaden()).grund === 'familie-weg' && (await B.standLaden('mathetrainer', lea.kindId)).grund === 'familie-weg', 'Nach dem Löschen: anderes Gerät bekommt „familie-weg“ (Server 404 unbekannt), nicht „keine“');
 ok((await F.familie(fam, { f: async () => { throw new Error('offline'); } }).liste()).grund === 'netz', 'Offline: „netz“, kein Absturz');
 let ungueltig = false; try { F.familie({ famId: 'x', famKey: 'y', schreib: 'z' }); } catch { ungueltig = true; }
 ok(ungueltig && (await A.standLaden('../x', lea.kindId)).grund === 'ungueltig', 'Ungültige Familie bzw. App-Name abgewiesen');

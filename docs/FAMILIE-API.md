@@ -8,7 +8,8 @@ Alle Netz-Funktionen **werfen nie**: Sie liefern `{ ok: true, … }` oder `{ ok:
 | grund | bedeutet |
 | --- | --- |
 | `netz` | offline |
-| `keine` | 404 |
+| `keine` | 404, Familie da, aber noch kein Stand (Server `leer`) |
+| `familie-weg` | 404, Familie gibt es nicht (mehr) (Server `unbekannt`) |
 | `konflikt` | 409 |
 | `schreibrecht` | 403 |
 | `zu-gross` | 413 |
