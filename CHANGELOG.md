@@ -2,6 +2,9 @@
 
 Kurzfassung für Nutzer und Leitstand. Einzelheiten: `docs/PLAN.md` (Baulog) und `MELDUNG_AN_LEITSTAND.md`.
 
+## 2.4.1 – 19.11.2026
+- Am PC stehen Formulare und Textkarten wieder untereinander statt im Zickzack (Lernkarten „Eigene Karte anlegen“, Eltern-Kopplung, Bericht für Eltern, Einstellungen).
+
 ## 2.4.0 – 20.11.2026
 - **Neue Oberstufen-Einheit „Integral anwenden“** (Analysis): Mittelwert einer Funktion, Bestand aus der Änderungsrate (z. B. Wasser im Becken, Bakterien), größter und kleinster Bestand. Drei Aufgaben-Arten mit je fünf Stufen, jede mit vollständigem Lösungsweg; dazu Theorie mit Formel, Bedeutung der Größen und durchgerechneten Beispielen und ein Endgegner.
 - **Knopf „← Alle Apps“** auf der Startseite und der Lernen-Seite: führt zur Übersicht aller Lern-Apps von Mathenachhilfe Online (nicht in Aufgaben, Prüfungen und Spielen).
