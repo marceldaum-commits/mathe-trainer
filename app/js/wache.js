@@ -2,11 +2,11 @@
 // lädt sie einmal von selbst neu. Hilft das nicht, erscheint ein klarer Hinweis mit Knopf – nie eine leere Seite.
 // Bewusst ein einfaches Skript ohne Abhängigkeiten: Es muss auch dann laufen, wenn sonst nichts geladen wurde.
 (function () {
-  var MERK = 'mt.wache', warte = window.__mtWacheMs || 12000;
+  var MERK = 'mathetrainer.wache', warte = window.__mtWacheMs || 12000;
   function zahl() { try { return +sessionStorage.getItem(MERK) || 0; } catch (e) { return 1; } }
   function merke(n) { try { sessionStorage.setItem(MERK, String(n)); } catch (e) { /* privater Modus */ } }
   // Ladebild (steht in index.html): Der Balken zeigt, wie viele der Programm-Dateien schon da sind.
-  var SOLL = 'mt.ladeN', lade = document.getElementById('lade'), balken = document.getElementById('lade-balken'), da = 0, soll = 85, weit = 4, schau = null;
+  var SOLL = 'mathetrainer.ladeN', lade = document.getElementById('lade'), balken = document.getElementById('lade-balken'), da = 0, soll = 85, weit = 4, schau = null;
   try { soll = +localStorage.getItem(SOLL) || soll; } catch (e) { /* privater Modus */ }
   function zeig() {
     if (!balken) return;

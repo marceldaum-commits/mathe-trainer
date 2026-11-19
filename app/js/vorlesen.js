@@ -11,7 +11,7 @@ import { vorlese } from './ui.js';
 import { htmlSprech, normal, stuecke } from './sprech.js';
 
 export const STIMMEN = 'https://stimmen.mathenachhilfe-online.com';
-const FEST_MAX = 1500, JETZT_MAX = 300, SPEICHER = 'stimme-nova';   // ohne „mt-“: der Service Worker räumt bei Updates nur mt-Speicher auf
+const FEST_MAX = 1500, JETZT_MAX = 300, SPEICHER = 'stimme-mathetrainer';   // eindeutig (gemeinsame Adresse), aber ohne „mathetrainer-“: der Service Worker räumt bei Updates nur diese Speicher auf
 const AUS = { credentials: 'omit', referrerPolicy: 'no-referrer' };   // keine Cookies, keine Herkunftsangabe
 
 /** Kennung einer Audiodatei: SHA-256 von "nova|de|" + Text (Normalform), die ersten 32 Hex-Zeichen. */

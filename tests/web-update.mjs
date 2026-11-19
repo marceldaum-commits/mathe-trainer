@@ -14,7 +14,7 @@ function fassung(nr) {
   const ziel = path.join(tmp, nr); fs.cpSync(APP, ziel, { recursive: true });
   if (nr === ALT) return ziel;
   for (const f of ['sw.js', 'stand.json', ...fs.readdirSync(path.join(ziel, 'b')).map((x) => `b/${x}`)]) {
-    const p = path.join(ziel, f); const t = fs.readFileSync(p, 'utf8'); if (t.includes(ALT)) fs.writeFileSync(p, t.split(`"${ALT}"`).join(`"${nr}"`).split(`'${ALT}'`).join(`'${nr}'`).split(`mt-${ALT}`).join(`mt-${nr}`));
+    const p = path.join(ziel, f); const t = fs.readFileSync(p, 'utf8'); if (t.includes(ALT)) fs.writeFileSync(p, t.split(`"${ALT}"`).join(`"${nr}"`).split(`'${ALT}'`).join(`'${nr}'`).split(`mathetrainer-${ALT}`).join(`mathetrainer-${nr}`));
   }
   return ziel;
 }
@@ -58,7 +58,7 @@ try {
   ok(daten.ls === 'bleibt', 'Spielstand/Einstellungen (localStorage) bleiben');
   const { VORLESEN } = await import('../app/js/ui.js');
   ok(VORLESEN ? daten.nova : !daten.nova, VORLESEN ? 'Nova-Offline-Dateien bleiben' : 'Vorlesen aus: alte Nova-Dateien aufgeräumt');
-  ok(!daten.speicher.includes(`mt-${ALT}`) && daten.speicher.includes('mt-9.9.8'), `Alter App-Speicher aufgeräumt (${daten.speicher.join(', ')})`);
+  ok(!daten.speicher.includes(`mathetrainer-${ALT}`) && daten.speicher.includes("mathetrainer-9.9.8"), `Alter App-Speicher aufgeräumt (${daten.speicher.join(', ')})`);
   // Seite zu, neue Fassung kommt, später wieder öffnen
   await p.close(); aktiv = '9.9.9';
   p = await ctx.newPage(); p.on('pageerror', (e) => fehlerSeite.push(String(e)));

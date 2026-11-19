@@ -1083,6 +1083,25 @@ ok(nextStreak({ n: 3, last: '2026-11-10' }, D('2026-11-12')).n === 1, 'Serie: au
   const bald = JSON.stringify((await import('../app/js/units-m.js')).MITTEL_BALD) + (((t) => t.slice(t.indexOf('const OBER_AREAS'), t.indexOf('];', t.indexOf('const OBER_AREAS'))))((await import('node:fs')).readFileSync(new URL('../app/js/units.js', import.meta.url), 'utf8')));
   ok(!/Zehnerpotenzen und wiss|Potenzfunktionen|Maßstab: Karten|Schattenwurf|Zufall simulieren|Transformationen a/.test(bald), 'Kommt bald: abgegebene Themen gestrichen (Abgleich 19.11.)');
 }
+{ const O = await import('../app/js/ort.js'), U = await import('../app/js/umzug.js'), fs = await import('node:fs');   // Umzug auf lernen.… (19.11.2026)
+  ok(O.istTest('lernen-test.mathenachhilfe-online.com') && O.istTest('trainer-test.mathenachhilfe-online.com') && O.istTest('localhost') && !O.istTest('lernen.mathenachhilfe-online.com') && !O.istTest('trainer.mathenachhilfe-online.com'), 'Umzug: Test-Stufe an einer Stelle erkannt (lernen-test., trainer-test., lokal)');
+  ok(O.neueAdresse('trainer.mathenachhilfe-online.com') === 'https://lernen.mathenachhilfe-online.com/mathetrainer/' && O.neueAdresse('trainer-test.mathenachhilfe-online.com') === 'https://lernen-test.mathenachhilfe-online.com/mathetrainer/', 'Umzug: Ziel je Stufe');
+  ok(O.serverBasis('lernen.mathenachhilfe-online.com') === 'https://trainer.mathenachhilfe-online.com' && O.serverBasis('lernen-test.mathenachhilfe-online.com') === 'https://trainer-test.mathenachhilfe-online.com' && O.serverBasis('trainer.mathenachhilfe-online.com') === '' && O.serverBasis('localhost') === '', 'Umzug: Server-Teil auf lernen.… beim Trainer-Server, sonst gleiche Herkunft');
+  ok(U.zielAdresse('A.B', { ziel: 'https://x/m/', search: '?src=y', hash: '#/u/k8-lgs' }) === 'https://x/m/?src=y#umzug=A.B&/u/k8-lgs' && U.zielAdresse('', { ziel: 'https://x/m/', search: '', hash: '#pro=MT-1' }) === 'https://x/m/#pro=MT-1' && U.zielAdresse('fehler', { ziel: 'https://x/m/', search: '', hash: '' }) === 'https://x/m/#umzug=fehler', 'Umzug: Weiterleitung mit #umzug und bisherigem Hash');
+  const mem = new Map([['mathetrainer.v1', '{"xp":3}'], ['mathetrainer.kirest', '1'], ['andere.v1', 'x']]); const ls = { get length() { return mem.size; }, key: (i) => [...mem.keys()][i], getItem: (k) => mem.get(k) ?? null };
+  ok(JSON.stringify(U.eigeneDaten(ls)) === '{"mathetrainer.v1":"{\\"xp\\":3}"}', 'Umzug: nur eigene Schlüssel, ohne KI-Tageszähler');
+  let gesendet = null; const tok = await U.einpacken({ ls, f: async (url, o) => { gesendet = { url, o }; return { status: 204, ok: true }; } });
+  ok(/^[\w-]{22}\.[\w-]{43}$/.test(tok) && /\/eltern\/v1\/s\/[\w-]{22}$/.test(gesendet.url) && gesendet.o.method === 'PUT' && /^[\w-]{16}\.[\w-]+$/.test(gesendet.o.body) && !/xp|mathetrainer/.test(gesendet.o.body) && /^[\w-]{22}$/.test(gesendet.o.headers['X-Schreib']), 'Umzug: Einmal-Sicherung verschlüsselt (kein Klartext beim Server), Schlüssel nur im Link');
+  ok(await U.einpacken({ ls: { length: 0, key: () => null, getItem: () => null }, f: async () => { throw new Error('darf nicht'); } }) === '', 'Umzug: ohne Lernstand keine Sicherung');
+  const app = fs.readdirSync(new URL('../app/js/', import.meta.url)).filter((f) => f.endsWith('.js')).map((f) => fs.readFileSync(new URL(`../app/js/${f}`, import.meta.url), 'utf8')).join('\n');
+  const look = fs.readFileSync(new URL('../app/js/look.js', import.meta.url), 'utf8'), sw = fs.readFileSync(new URL('../app/sw.js', import.meta.url), 'utf8');
+  ok(!/(localStorage|sessionStorage)\.(get|set|remove)Item\(['"`]mt[.-]/.test(app.replace(look, '')) && !/['"`]mt\.(v1|eltern|kirest|klang|ladeN|look|sound|vorlesen|wache|zaehlung)['"`]/.test(app.replace(look, '')), 'Umzug: alle Speicher-Schlüssel mit Präfix „mathetrainer.“');
+  ok(/var alt = \['v1', 'eltern', 'kirest', 'klang', 'ladeN', 'look', 'sound', 'vorlesen', 'wache', 'zaehlung'\]/.test(look) && look.indexOf('mt.') < look.indexOf("matchMedia"), 'Umzug: alte Schlüssel werden als Erstes einmalig umbenannt (look.js)');
+  ok(!/localStorage\.clear|sessionStorage\.clear|getRegistrations/.test(app + sw), 'Umzug: kein clear(), kein getRegistrations() (gemeinsame Adresse)');
+  ok(/const CACHE = 'mathetrainer-/.test(sw) && /k\.startsWith\('mathetrainer-'\)/.test(sw) && !/[^.]caches\.match\(/.test(sw), 'Umzug: Service Worker nur mit eigenem Cache-Präfix, caches.open(CACHE).match');
+  const html = fs.readFileSync(new URL('../app/index.html', import.meta.url), 'utf8');
+  ok(/img-src [^;]*https:\/\/lernen\.mathenachhilfe-online\.com/.test(html) && /connect-src [^;]*https:\/\/trainer\.mathenachhilfe-online\.com/.test(html), 'Umzug: Sicherheitsregel erlaubt Bild-Probe auf lernen.… und Abrufe zum Trainer-Server');
+}
 { const P = await import('../app/js/prolink.js');   // Freischalt-Link #pro= (neu) und ?pro= (alt)
   ok(P.codeAusAdresse({ hash: '#pro=mt-ab12-cd34-ef56', search: '' }) === 'MT-AB12-CD34-EF56' && P.codeAusAdresse({ hash: '', search: '?pro=MT-AB12-CD34-EF56' }) === 'MT-AB12-CD34-EF56' && P.codeAusAdresse({ hash: '#/einstellungen', search: '' }) === null && P.codeAusAdresse({ hash: '#pro=quatsch', search: '' }) === '', 'Freischalt-Link: #pro= und ?pro= werden gelesen');
   ok(P.adresseOhneCode('https://trainer.example/?pro=MT-AB12-CD34-EF56#/') === '/#/' && P.adresseOhneCode('https://trainer.example/#pro=MT-AB12-CD34-EF56') === '/#/einstellungen', 'Freischalt-Link: Code verschwindet aus der Adresse'); }
@@ -1100,7 +1119,7 @@ ok(nextStreak({ n: 3, last: '2026-11-10' }, D('2026-11-12')).n === 1, 'Serie: au
   ok(I.istIos({ userAgent: 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X)' }) && I.istIos({ userAgent: 'Mozilla/5.0 (Macintosh)', platform: 'MacIntel', maxTouchPoints: 5 }) && !I.istIos({ userAgent: 'Mozilla/5.0 (Linux; Android 14)' }), 'Installieren: iPhone/iPad werden erkannt (Anleitung statt Knopf)');
   ok(M.name && M.display === 'standalone' && M.start_url && M.theme_color && M.icons.some((i) => i.purpose === 'maskable' && i.sizes === '512x512') && M.icons.some((i) => i.sizes === '192x192'), 'Installieren: Manifest mit Name, Symbolen (auch maskable), eigenem Fenster, Start-Adresse und Farbe');
   const sw = fs.readFileSync(new URL('../app/sw.js', import.meta.url), 'utf8');
-  ok(/c\.add\('\.\/'\)/.test(sw) && /caches\.match\('\.\/'\)/.test(sw), 'Installieren: startet auch offline (Startseite im Speicher)'); }
+  ok(/c\.add\('\.\/'\)/.test(sw) && /c\.match\('\.\/'\)/.test(sw) && /caches\.open\(CACHE\)\.then\(\(c\) => c\.match\(req/.test(sw), 'Installieren: startet auch offline (Startseite im eigenen Speicher, caches.open(CACHE).match)'); }
 { const U = await import('../app/js/update.js');
   const app = (o) => ({ updateStand: () => (typeof o === 'string' ? o : JSON.stringify(o)) });
   ok(U.updateStand(undefined) === null && U.updateStand({}) === null, 'Update: im Browser gibt es keinen Stand');
@@ -1280,7 +1299,7 @@ ok(nextStreak({ n: 3, last: '2026-11-10' }, D('2026-11-12')).n === 1, 'Serie: au
   ok(JSON.stringify((await import('../app/js/ui.js')).TEMPI) === '[0.75,0.9,1,1.15,1.3,1.5]' && /preservesPitch = true/.test(vl) && /u\.rate = vorlese\.tempo/.test(vl), 'Vorlesen: Sprechtempo in sechs Stufen, gleiche Tonhöhe, auch für die Gerätestimme');
   ok(/d\.fehler === 'netz' && navigator\.onLine === false\) \{ start\(\); if \(await geraet\(/.test(vl) && (vl.match(/geraet\(/g) || []).length === 2 && !/'ki'/.test(vl), 'Vorlesen: Gerätestimme nur ohne Netz (Leitstand 17.11.), KI-Antworten nicht vorgelesen');
   ok(/stuecke\(stueck, JETZT_MAX\)/.test(vl) && /versuch < 2/.test(vl) && /einmalMelden/.test(vl), 'Vorlesen: fehlende feste Texte als ganze Sätze über /jetzt, ein zweiter Versuch, Hinweis einmal je Sitzung');
-  ok(/stand-\$\{standHost\(\)\}\.json/.test(vl) && (vl.match(/arbeiter\(\)/g) || []).length === 4 && /SPEICHER = 'stimme-nova'/.test(vl), 'Vorlesen offline: Größe vom Server, 4 Downloads gleichzeitig, eigener Speicher');
+  ok(/stand-\$\{standHost\(\)\}\.json/.test(vl) && (vl.match(/arbeiter\(\)/g) || []).length === 4 && /SPEICHER = 'stimme-mathetrainer'/.test(vl), 'Vorlesen offline: Größe vom Server, 4 Downloads gleichzeitig, eigener Speicher');
   ok(!new RegExp(['openai\\.com', 'api\\.openai', 'thor' + 'sten', 'sh' + 'erpa', 'espeak'].join('|'), 'i').test(vl) && /credentials: 'omit'/.test(vl) && /JETZT_MAX = 300/.test(vl), 'Vorlesen: nichts an OpenAI, keine Angaben zur Person, Stücke bis 300 Zeichen'); }
 // Abschlussprüfung 17.11.2026: alte Abi-Einträge ohne „richtig von gesamt“ zeigen kein undefined/NaN
 { const { examText } = await import('../app/js/exam.js');

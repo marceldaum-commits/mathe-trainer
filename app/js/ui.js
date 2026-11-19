@@ -83,7 +83,7 @@ export function toast(msg, action, { sticky = false } = {}) {
 /* Klang: alles wird im Browser erzeugt (Web Audio) – selbst komponiert, keine Sounddateien, keine fremden Samples, keine Lizenzen.
    Klang-Identität: ruhig, konzentriert, erwachsen – weiches Piano in D-Dur mit sanften Flächen. Web und Android klingen gleich (dieselbe Seite).
    sound.on ist die Stummschaltung oben (gilt für alles). klang regelt Effekte und Lernmusik getrennt, jeweils mit eigener Lautstärke. */
-const SOUND_KEY = 'mt.sound', KLANG_KEY = 'mt.klang';
+const SOUND_KEY = 'mathetrainer.sound', KLANG_KEY = 'mathetrainer.klang';
 let soundOn = (() => { try { return localStorage.getItem(SOUND_KEY) !== '0'; } catch { return true; } })();
 // Musik ab Werk an (Marcel, 17.11.2026: „beim Start direkt laufen“) – „Musik aus“ in den Einstellungen bleibt gemerkt.
 const KLANG_VORGABE = { fx: true, fxVol: 0.7, musik: true, musikVol: 0.5, pruefung: false };
@@ -114,7 +114,7 @@ export const klang = {
  *  vorlesen/texte.json bleibt leer (das Stimmen-Werk spricht nichts mehr) und alte Nova-Dateien im Gerät werden aufgeräumt.
  *  Der Code bleibt – zum Wiedereinschalten genügt true. */
 export const VORLESEN = false;
-const VORLESE_KEY = 'mt.vorlesen';
+const VORLESE_KEY = 'mathetrainer.vorlesen';
 export const TEMPI = [0.75, 0.9, 1, 1.15, 1.3, 1.5];
 let vorleseWerte = (() => { try { return { an: false, ...JSON.parse(localStorage.getItem(VORLESE_KEY) || '{}') }; } catch { return { an: false }; } })();
 export const vorlese = {
@@ -267,7 +267,7 @@ export function drucken(titel = 'Mathe-Trainer') {
 export const cssVar = (name) => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
 
 /* Hell/Dunkel: gleiche Logik wie auf der Website (gespeicherte Wahl, sonst Geräte-Einstellung). */
-const LOOK_KEY = 'mt.look';
+const LOOK_KEY = 'mathetrainer.look';
 const storedLook = () => { try { const v = localStorage.getItem(LOOK_KEY); return v === 'hell' || v === 'dunkel' ? v : null; } catch { return null; } };
 export const look = {
   get dark() { return document.documentElement.getAttribute('data-look') === 'dunkel'; },

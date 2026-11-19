@@ -19,7 +19,7 @@ try {
   for (const [name, engine] of [['Chromium', chromium], ['WebKit', webkit]]) {
     zaehl.length = 0;
     const b = await engine.launch(); const c = await b.newContext({ viewport: { width: 390, height: 844 }, serviceWorkers: 'block' });
-    await c.addInitScript(() => { if (!localStorage.getItem('mt.v1')) localStorage.setItem('mt.v1', JSON.stringify({ jahrgangGewaehlt: true, jahrgang: '9', geraet: 'GERAETEKENNUNG1234567', xp: 99, stats: { Brüche: { ok: 1, bad: 5 } } })); });
+    await c.addInitScript(() => { if (!localStorage.getItem('mathetrainer.v1')) localStorage.setItem('mathetrainer.v1', JSON.stringify({ jahrgangGewaehlt: true, jahrgang: '9', geraet: 'GERAETEKENNUNG1234567', xp: 99, stats: { Brüche: { ok: 1, bad: 5 } } })); });
     const p = await c.newPage(); const err = []; p.on('pageerror', (e) => err.push(String(e)));
     await p.route('**/www.mathenachhilfe-online.com/**', (r) => r.fulfill({ status: 200, body: 'ok' }));
     await p.goto(`${BASE}#/pro=x`.replace('#/pro=x', `#pro=MT-AB12-CD34-EF56`)); await p.waitForTimeout(1500);

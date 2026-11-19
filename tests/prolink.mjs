@@ -18,8 +18,8 @@ try {
     for (const [art, url] of [['#pro=', `${BASE}#pro=${CODE}`], ['?pro=', `${BASE}?pro=${CODE}#/`]]) {
       adressen.length = 0;
       const c = await b.newContext({ serviceWorkers: 'block' }); const p = await c.newPage(); const err = []; p.on('pageerror', (e) => err.push(String(e)));
-      await p.goto(url); await p.waitForFunction(() => !!JSON.parse(localStorage.getItem('mt.v1') || '{}').zugang, null, { timeout: 10000 }).catch(() => {});
-      const z = await p.evaluate(() => ({ href: location.href, zugang: JSON.parse(localStorage.getItem('mt.v1') || '{}').zugang, text: document.body.innerText }));
+      await p.goto(url); await p.waitForFunction(() => !!JSON.parse(localStorage.getItem('mathetrainer.v1') || '{}').zugang, null, { timeout: 10000 }).catch(() => {});
+      const z = await p.evaluate(() => ({ href: location.href, zugang: JSON.parse(localStorage.getItem('mathetrainer.v1') || '{}').zugang, text: document.body.innerText }));
       ok(z.zugang?.code === CODE && z.zugang.ki === true, `${name} ${art}: Code eingelöst`);
       ok(!z.href.includes(CODE) && !z.href.includes('pro='), `${name} ${art}: Code aus der Adresse entfernt (${z.href})`);
       ok(/freigeschaltet/.test(z.text), `${name} ${art}: Hinweis „freigeschaltet“`);
