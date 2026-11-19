@@ -2,6 +2,19 @@
 
 Neuester Beitrag oben.
 
+## 19.11.2026 – KI-Kennzeichnung nach KI-Verordnung Art. 50 (Nebenbefund von Recht, über die AppZentrale)
+
+- **Prüfung am 19.11.:**
+  - Gekennzeichnet sind:
+    - der Einstieg zu allen fünf KI-Stellen: Tutor-Rückfrage, „Die KI erklärt es anders“, Rechenweg-Prüfung, KI-Auswertung im Übungsblatt, KI-Aufgaben;
+    - die Stimme Nova („KI-generierte Stimme“).
+  - Es fehlt überall der Satz, dass Antworten Fehler enthalten können.
+- **Umsetzung Di 24.11.:**
+  - Unter jeder KI-Antwort (Tutor, Erklärung, Rechenweg, Auswertung) steht klein: „Antwort einer KI – sie kann Fehler enthalten.“
+  - KI-Aufgaben bekommen „Von einer KI erstellt und im Gerät nachgerechnet.“ (Das Nachrechnen über toQuestion/verify gibt es schon.)
+  - Ein Test prüft, dass beide Sätze bei jeder KI-Antwort sichtbar sind.
+- Rechtsbezug: ja (KI-Kennzeichnung) – geht vor live an „Recht“.
+
 ## 19.11.2026 – Neuer Raum „Recht“ (AppZentrale, auf Wunsch von Marcel)
 
 - Alles mit Rechtsbezug prüft der Raum „Recht“, bevor es live geht. Dazu gehören:
