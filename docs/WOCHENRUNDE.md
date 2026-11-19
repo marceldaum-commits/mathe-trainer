@@ -2,6 +2,13 @@
 
 Neuester Beitrag oben.
 
+## 19.11.2026 – Schloss-Text geändert (Marcel auf Empfehlung von Recht, ELTERN-TOR.md aktualisiert)
+
+- **Kinderansicht Kl. 5–10:** Dort steht nur noch „Das gehört zu Mathe-Trainer Pro.“
+- **Entfällt:** der Zusatz „Deine Eltern können im Elternbereich nachsehen.“ Er käme einer mittelbaren Kaufaufforderung über die Eltern zu nahe.
+- **Weg zum Eltern-Tor:** nur über einen neutralen Knopf „Für Eltern“.
+- **Umsetzung Di 24.11.:** Ein Test prüft, dass der alte Zusatz nirgends mehr vorkommt.
+
 ## 19.11.2026 – KI-Kennzeichnung nach KI-Verordnung Art. 50 (Nebenbefund von Recht, über die AppZentrale)
 
 - **Prüfung am 19.11.:**
