@@ -2,6 +2,28 @@
 
 Neueste Meldung oben. Keine Geheimnisse, keine Personendaten (dieses Repo ist öffentlich, siehe Punkt 1).
 
+## 19.11.2026 (115) – 2.5.0 auf test: Umzug auf lernen.mathenachhilfe-online.com/mathetrainer/ (für live)
+
+- **Was:** die Umzugs-Version nach UMZUG-LERNEN.md. Einzelheiten stehen im Baulog (docs/PLAN.md) und im CHANGELOG.
+  - Die alte Adresse packt den Lernstand verschlüsselt ein (PUT /eltern/v1/s/<id>, text/plain) und leitet mit `#umzug=<id>.<key>.<schreib>&<Hash>` weiter.
+  - Die neue Adresse übernimmt nur in leeren Speicher, löscht danach (DELETE) und entfernt den Hash.
+  - Unter lernen. wird nie weitergeleitet. Weitergeleitet wird nur, wenn `…/mathetrainer/img/icon-192.png` lädt. Bei Fehlern wird nicht weitergeleitet.
+- **Echter Rundlauf auf der Test-Stufe** (Chromium und WebKit):
+  - trainer-test (Lernstand xp 4242, Klasse 9, offen #/u/k8-lgs) → lernen-test.…/mathetrainer/#/u/k8-lgs.
+  - Lernstand da, Umzugs-Merker weg; PUT, GET und DELETE gegen trainer-test, keine Skriptfehler.
+- **Geprüft:**
+  - e2e auf allen fünf Stufen grün, npm run check
+  - umzug 22 (Chromium und WebKit: Umzug, Ziel hat Daten, Ziel fehlt/offline, PUT-Fehler, Hash reist mit, fremde Schlüssel unberührt, kein Klartext beim Server)
+  - WebKit 104, Eltern 40, Pro-Link 22, Zählung 18, Update 12
+- **Speicherfelder geändert:** `mt.…` → `mathetrainer.…` (einmalige Umbenennung beim Start). Cache `mt-…` → `mathetrainer-…`.
+- **Abrufe:** Auf lernen.… gehen sie direkt an trainer(-test).… (CORS ist vorhanden). Die CSP ist erweitert (img-src lernen.…, connect-src trainer.…).
+- **Commit für live:** siehe Nachricht an die AppZentrale (main = test).
+- **Rückweg – wichtig:**
+  - NICHT auf 2.4.3 zurück, sobald Nutzer 2.5.0 geöffnet haben. 2.4.3 liest die umbenannten Schlüssel nicht und zeigt dann einen leeren Lernstand.
+  - Sicherer Rückweg: Zweig `rueckweg-ohne-umzug`, Commit ba65a2f (2.5.1 = 2.5.0 ohne Weiterleitung, Speicher-Namen bleiben).
+  - Nur wenn noch niemand 2.5.0 geöffnet hat, geht 0849dfc (2.4.3).
+- **Für Nutzer:** Installierte Apps sehen auf der alten Adresse einen Hinweis mit Knopf („bitte neu installieren“). Push-Erinnerungen müssen an der neuen Adresse neu eingeschaltet werden.
+
 ## 19.11.2026 (114) – 2.4.3 auf test: Spezialisierung und Aufräumen (für live heute)
 
 - **Neu seit 2.4.1:**
