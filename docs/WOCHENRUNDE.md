@@ -141,3 +141,4 @@ Ablauf von nun an jede Woche: (1) was jede App herausnimmt oder abgibt und an we
 - **Schloss-Texte (UWG Anh. Nr. 28):** Geprüft am 19.11.: Kein „Frag deine Eltern“ oder „Kauf dir“ in der App. Offen ist aber: Die Pro-Seite zeigt Preise sowie „Pro holen ↗“ und „KI dazubuchen ↗“ auch in Kl. 5–10, und es gibt noch kein Eltern-Tor.
   - Plan für Di 24.11.: Für Kl. 5–10 keine Preise und keine Kaufknöpfe; sachlicher Satz; Kauf nur hinter dem Eltern-Tor. Die Oberstufe bleibt sachlich mit Pass-Hinweis.
   - Gemeinsame Vorgabe für das Eltern-Tor bei der AppZentrale angefragt.
+- **Entscheidung Marcel (19.11.), „Alle drei so“:** Kurven-Flug → **Sinus-Slalom**, Vektor-Lotse → **Vektor-Kompass**, Raum-Blick → **Geraden-Drehbühne**. Am Ende jeweils der Hinweis „Mehr davon in KurvenFlug“ bzw. „… in Raumlicht“ (nur freie Ziele). Umsetzung im Update Di 24.11.; Schritt-IDs (`flug`, `lotse`, `raum`) bleiben, damit der Fortschritt erhalten bleibt.
