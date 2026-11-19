@@ -2,6 +2,15 @@
 
 Neueste Meldung oben. Keine Geheimnisse, keine Personendaten (dieses Repo ist öffentlich, siehe Punkt 1).
 
+## 19.11.2026 (116) – 2.5.2 auf test: Startseite am PC symmetrisch; Familien-Speicher gegen den Test-Server geprüft
+
+- **2.5.2 (7ba0321):** Am PC ist die Karte „Klassen-Wahl“ jetzt so breit wie die anderen Karten (Wunsch von Marcel). Handy und iPad bleiben unverändert. Alle Prüfungen sind grün: e2e auf allen fünf Stufen, check, tests. Liegt auf main/test, live bleibt beim Leitstand.
+- **familie.js @ 1f4b377** (sha256 3016aabd…e640) ist an alle Lern-App-Räume verteilt. Die AppZentrale hat sie geprüft und abgelegt.
+- **Echter Rundlauf auf lernen-test** (Mathe-Trainer allein und zusammen mit Rechenblitz):
+  - grün: anlegen, Index, Stände je App und Kind, zweites Gerät, 409 und Zusammenführen, Sperrliste, Protokoll, Löschen.
+  - teilweise: Einlösen, nur mit einem ausgedachten Code geprüft (code-unbekannt). Für die Test-Stufe brauchen wir einen echten Test-Code. Die Anfrage läuft über die AppZentrale und Marcel.
+  - Die Test-Familien sind wieder gelöscht.
+
 ## 19.11.2026 (115) – 2.5.0 auf test: Umzug auf lernen.mathenachhilfe-online.com/mathetrainer/ (für live)
 
 - **Was:** die Umzugs-Version nach UMZUG-LERNEN.md. Einzelheiten stehen im Baulog (docs/PLAN.md) und im CHANGELOG.
