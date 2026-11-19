@@ -2,6 +2,23 @@
 
 Neuester Beitrag oben.
 
+## 19.11.2026 – Familien-Oberfläche: Eltern-Hinweis und Lösch-Regel (AppZentrale, FAMILIEN-SPEICHER.md v1.5, gilt für alle Apps)
+
+Umsetzung am Di 24.11. im Elternbereich (alles hinter dem Eltern-Tor).
+
+- **Hinweis.** Pflicht beim ersten Koppeln und im Bereich „Familie“. Darunter der Link zur Datenschutzerklärung und der Knopf „Einverstanden“:
+  > Eure Lernstände werden verschlüsselt auf unserem Server in Deutschland gespeichert. Der Schlüssel liegt auf euren Geräten. Damit wir euch helfen können, falls ihr den Familien-Zugang verliert, hinterlegen wir zusätzlich eine verschlüsselte Notfall-Kopie. Sie lässt sich nur mit einem getrennt und offline aufbewahrten Schlüssel von Mathenachhilfe Online öffnen. Technisch könnten wir damit eure Lernstände lesen; wir tun das nicht und nutzen ihn nur, wenn ihr uns um Wiederherstellung bittet. Jede Wiederherstellung seht ihr hier im Protokoll.
+- **Löschen.** Nur hinter dem Tor, in drei Schritten:
+  1. Zuerst die Warnung:
+     > Das löscht die Familie in ALLEN Lern-Apps: alle Lernstände aller Kinder auf unserem Server, die Notfall-Kopie und das Protokoll. Gekaufte Codes werden wieder frei und lassen sich in einer neuen Familie erneut einlösen. Die Lernstände auf diesem Gerät bleiben erhalten.
+  2. Dann die Familien-Nummer eintippen lassen.
+  3. Dann `fa.loeschen()` aufrufen. Auf dem Gerät nur die Familien-Schlüssel entfernen.
+- **Andere Geräte.** Bekommen sie danach 404, zeigen sie: „Diese Familie gibt es nicht mehr. Lernstand bleibt auf diesem Gerät.“
+- **Noch nicht anbieten:** ein einzelnes Kind entfernen.
+- **Geprüft am 19.11.:**
+  - Rundlauf mit Rechenblitz auf lernen-test, 9/9 grün, einschließlich Einlösen mit echten Test-Codes.
+  - Nach dem Löschen werden die Codes tatsächlich wieder frei.
+
 ## 18.11.2026 – erste Abstimmung (auf Wunsch von Marcel)
 
 
