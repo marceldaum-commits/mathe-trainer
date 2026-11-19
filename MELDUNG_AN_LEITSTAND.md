@@ -2,6 +2,22 @@
 
 Neueste Meldung oben. Keine Geheimnisse, keine Personendaten (dieses Repo ist öffentlich, siehe Punkt 1).
 
+## 19.11.2026 (113) – 2.4.1 auf test: Tagesroutine, ein Fehler am PC behoben
+
+- **Nutzer-Meldungen:** keine neuen (Abruf 200, Liste leer).
+- **Stichprobe:** 12 Aufgabenarten, je Stufe 1, 3 und 5, wie ein Lehrer gelesen und nachgerechnet:
+  - Koordinaten, Spiegeln, Parallelogramm, Geradengleichung, kollinear;
+  - Mittelwert, Bestand, größter/kleinster Bestand;
+  - e-Integral, ln-Kurve, Ableiten und Integrieren.
+  - Alles richtig, kein Fund.
+- **Bildschirm des Tages – Lernkarten:**
+  - Handy (360, 393 dunkel, 360 mit großer Schrift): in Ordnung.
+  - **Fund am PC (1440 px):** Formular- und Textkarten wurden zweispaltig gesetzt. Die Felder standen im Zickzack, der Knopf „Karte speichern“ war riesig. Betroffen waren auch Eltern-Kopplung, Bericht für Eltern und Einstellungen.
+  - Behoben: Diese Karten sind jetzt einspaltig, Test in run.mjs.
+- **Geprüft:** `npm run check` grün, WebKit 104, e2e alle fünf Stufen: grün (erster Lauf: Stufe 3 einmal abgebrochen – beim schnellen Neuladen im Test wurden nachgeladene Programmteile abgebrochen, die App zeigte ihre Fehlerkarte; Wiederholung auf allen fünf Stufen grün).
+- Keine Änderung an Speicherfeldern, Schnittstelle oder Abrufen. live bleibt beim Leitstand.
+- **Hinweis zur täglichen Routine:** Ihr gespeicherter Text ist veraltet. Er verlangt noch täglich ein großes Paket, den APK-Bau und den Drive-Upload. Nach Marcels neueren Regeln gilt: nur Web-App; großer Inhalt am Di und Fr; täglich Fehlersuche. Danach habe ich heute gearbeitet. Den Routine-Text anzupassen, ist für Marcel als Frage vorgemerkt.
+
 ## 18.11.2026 (112) – 2.4.0 auf test: „Integral anwenden“, Knopf „← Alle Apps“, Abstimmung der Lern-Apps
 
 **2.4.0 (Freitags-Update 20.11., vorzeitig auf test)**
