@@ -42,7 +42,7 @@ const inApp = () => typeof window !== 'undefined' && !!window.MTApp;
 /** Gültiges „Pro“ ohne KI – hier kann KI dazugebucht werden. */
 export const proOhneKi = () => store.zugangGilt() && store.zugang?.ki === false;
 /** Knopf „KI dazubuchen“ (leer in der Android-App und ohne gültiges Pro ohne KI). */
-export const kiDazuKnopf = (klasse = 'btn small') => (proOhneKi() && !inApp() && codeNorm(store.zugang.code)
+export const kiDazuKnopf = (klasse = 'btn small') => (store.jahrgang === 'os' && proOhneKi() && !inApp() && codeNorm(store.zugang.code)
   ? `<a class="${klasse} ki-dazu" href="${KI_UPGRADE}?code=${encodeURIComponent(codeNorm(store.zugang.code))}" target="_blank" rel="noopener">KI dazubuchen ↗</a>` : '');
 let zuletztGeprueft = 0;
 /** Hat der Shop KI für den eigenen Code freigeschaltet? Fragt POST /zugang erneut (höchstens alle 20 s, nur bei Pro ohne KI).
@@ -56,7 +56,7 @@ export async function kiNachpruefen() {
   try { window.dispatchEvent(new Event('mt-ruhig')); } catch { /* ohne Fenster */ }
   return true;
 }
-export const kaufLinks = () => (proOhneKi() ? (inApp() ? '' : ` ${kiDazuKnopf('btn small line')}`) : `${premiumOn() ? ' <a href="#/einstellungen">Zugangscode eingeben</a>' : ''}${typeof window !== 'undefined' && window.MTApp ? '' : ` <a href="${CONFIG.shop}" target="_blank" rel="noopener">Pro holen</a>`}`);
+export const kaufLinks = () => (store.jahrgang !== 'os' ? '' : proOhneKi() ? (inApp() ? '' : ` ${kiDazuKnopf('btn small line')}`) : `${premiumOn() ? ' <a href="#/einstellungen">Zugangscode eingeben</a>' : ''}${typeof window !== 'undefined' && window.MTApp ? '' : ` <a href="${CONFIG.shop}" target="_blank" rel="noopener">Pro holen</a>`}`);
 export const ZUGANG_ART = { pass: 'Abi-Pass', tage30: '30-Tage-Pass', frei: 'Freier Zugang' };
 
 /** Übrige KI-Punkte von heute: der letzte Stand, den der Server gemeldet hat (null = heute noch keiner gemeldet). */

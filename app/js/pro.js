@@ -50,7 +50,19 @@ export function proAbzeichen() {
 /** Gültigkeit in Worten. */
 export const gueltig = (z = store.zugang) => (!z ? '' : z.bis >= '9999' ? 'unbefristet gültig' : `gültig bis ${z.bis.split('-').reverse().join('.')}`);
 
+/** Kl. 5–10 (Sofortkorrektur 2.5.2-1, Recht/UWG Anh. I Nr. 28, Marcel 19.11.: „Heute ausblenden“): keine Preise, kein Kaufknopf –
+ *  auch nicht über einen direkten Link oder ein Lesezeichen auf #/pro. Nur die eigene Stufe bzw. „Das gehört zu Mathe-Trainer Pro.“ */
+function proKind() {
+  const z = store.zugang, st = store.stufe;
+  return { el: h(`<div class="view stack" id="pro-kind">
+    <a class="back" href="#/">${ICON.left} Start</a>
+    <section class="card stack"><h2 id="pro-stufe">${st === 'proki' ? 'Pro + KI' : st === 'pro' ? 'Pro' : 'Das gehört zu Mathe-Trainer Pro.'}</h2>
+      ${st ? `<p>${esc(ZUGANG_ART[z.art] || 'Zugang')} · ${esc(gueltig(z))}</p>` : ''}</section>
+  </div>`) };
+}
+
 export function proView() {
+  if (store.jahrgang !== 'os') return proKind();
   const z = store.zugang, st = store.stufe;
   const el = h(`<div class="view stack">
     <a class="back" href="#/mehr">${ICON.left} Mehr</a>
