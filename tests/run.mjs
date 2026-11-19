@@ -1102,6 +1102,10 @@ ok(nextStreak({ n: 3, last: '2026-11-10' }, D('2026-11-12')).n === 1, 'Serie: au
   const html = fs.readFileSync(new URL('../app/index.html', import.meta.url), 'utf8');
   ok(/img-src [^;]*https:\/\/lernen\.mathenachhilfe-online\.com/.test(html) && /connect-src [^;]*https:\/\/trainer\.mathenachhilfe-online\.com/.test(html), 'Umzug: Sicherheitsregel erlaubt Bild-Probe auf lernen.… und Abrufe zum Trainer-Server');
 }
+{ const css = (await import('node:fs')).readFileSync(new URL('../app/css/app.css', import.meta.url), 'utf8');   // Startseite symmetrisch (Marcel 19.11.)
+  const pc = css.slice(css.indexOf('@media (min-width:900px){'));
+  ok(/#home>section\.card\{max-width:none\}/.test(pc) && pc.indexOf('#home>section.card{max-width:none}') > pc.indexOf('.view.stack>section.card,.view.stack>details.card{max-width:760px}'), 'PC: Startseite – Klassen-Wahl so breit wie die anderen Karten');
+}
 { const P = await import('../app/js/prolink.js');   // Freischalt-Link #pro= (neu) und ?pro= (alt)
   ok(P.codeAusAdresse({ hash: '#pro=mt-ab12-cd34-ef56', search: '' }) === 'MT-AB12-CD34-EF56' && P.codeAusAdresse({ hash: '', search: '?pro=MT-AB12-CD34-EF56' }) === 'MT-AB12-CD34-EF56' && P.codeAusAdresse({ hash: '#/einstellungen', search: '' }) === null && P.codeAusAdresse({ hash: '#pro=quatsch', search: '' }) === '', 'Freischalt-Link: #pro= und ?pro= werden gelesen');
   ok(P.adresseOhneCode('https://trainer.example/?pro=MT-AB12-CD34-EF56#/') === '/#/' && P.adresseOhneCode('https://trainer.example/#pro=MT-AB12-CD34-EF56') === '/#/einstellungen', 'Freischalt-Link: Code verschwindet aus der Adresse'); }

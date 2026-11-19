@@ -2,6 +2,9 @@
 
 Kurzfassung für Nutzer und Leitstand. Einzelheiten: `docs/PLAN.md` (Baulog) und `MELDUNG_AN_LEITSTAND.md`.
 
+## 2.5.2 – 19.11.2026
+- Startseite am PC: Die Klassen-Wahl ist jetzt so breit wie die Karten darunter (vorher schmaler, wirkte schief).
+
 ## 2.5.0 – 19.11.2026
 - **Neue Adresse:** Der Mathe-Trainer zieht zu den anderen Lern-Apps nach **lernen.mathenachhilfe-online.com/mathetrainer**. Wer die alte Adresse öffnet, wird von selbst hingebracht – der Fortschritt kommt verschlüsselt mit (er liegt dafür kurz beim Server und wird gleich danach gelöscht). Liegt an der neuen Adresse schon ein Fortschritt, bleibt er. Installierte Apps bitte an der neuen Adresse neu installieren; Handy-Erinnerungen dort neu einschalten.
 - Technisch: eigene Namen für gespeicherte Daten und den Offline-Speicher, damit sich die Lern-Apps unter einer Adresse nicht in die Quere kommen.
