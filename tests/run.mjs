@@ -1076,6 +1076,9 @@ ok(nextStreak({ n: 3, last: '2026-11-10' }, D('2026-11-12')).n === 1, 'Serie: au
   ok(Q.appAdresse('rechenblitz', 'lgs', 'trainer.mathenachhilfe-online.com') === 'https://rechenblitz.mathenachhilfe-online.com/?thema=lgs&stufe=auto&modus=training&src=mathetrainer-theorie', 'Querverweise: Rechenblitz-Format ?thema=…&stufe=…&modus=training');
   const kasten = Q.verweisKasten('k8-lgs', 'trainer.mathenachhilfe-online.com');
   ok(/Passt dazu in anderen Apps/.test(kasten) && /KurvenFlug/.test(kasten) && /Rechenblitz/.test(kasten) && /Wissensgarten/.test(kasten) && /noprint/.test(kasten) && !/target=/.test(kasten), 'Querverweise: Kasten unter der Theorie, nicht im Druck, gleicher Tab');
+  const mids = new Set((await import('../app/js/units-m.js')).MITTEL.map((u) => u.id));
+  ok(Object.values(Q.PAKETE).flat().every((id) => mids.has(id)) && !Object.keys(Q.PAKETE).includes('ob-mathe-analysis'), 'Wissensgarten: alle Paket-Einheiten gibt es, kein Plus-Paket verlinkt');
+  ok(Q.appAdresse('wissensgarten', 's1-mathe-gleichungen', 'trainer.mathenachhilfe-online.com') === 'https://wissensgarten.mathenachhilfe-online.com/?src=mathetrainer-theorie#paket=s1-mathe-gleichungen' && /#paket=s1-mathe-gleichungen/.test(Q.verweisKasten('k8-lgs', 'x')), 'Wissensgarten: Paket-Link #paket=<ID>');
   ok(Q.verweisKasten('a-numerik') === '', 'Querverweise: Einheit ohne passende App → kein Kasten');
   const bald = JSON.stringify((await import('../app/js/units-m.js')).MITTEL_BALD) + (((t) => t.slice(t.indexOf('const OBER_AREAS'), t.indexOf('];', t.indexOf('const OBER_AREAS'))))((await import('node:fs')).readFileSync(new URL('../app/js/units.js', import.meta.url), 'utf8')));
   ok(!/Zehnerpotenzen und wiss|Potenzfunktionen|Maßstab: Karten|Schattenwurf|Zufall simulieren|Transformationen a/.test(bald), 'Kommt bald: abgegebene Themen gestrichen (Abgleich 19.11.)');

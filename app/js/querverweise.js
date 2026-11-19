@@ -10,7 +10,7 @@ export const APPS = {
   rechenblitz: { name: 'Rechenblitz', text: 'Im Kopf trainieren', link: (k) => `/?thema=${k}&stufe=auto&modus=training` },
   raumlicht: { name: 'Raumlicht', text: 'Im Raum erleben', link: (k) => `/?ziel=${k}` },
   experimentopia: { name: 'Experimentopia', text: 'Im Experiment erleben', link: (k) => `/#thema=${k}` },
-  wissensgarten: { name: 'Wissensgarten', text: 'Formeln und Begriffe wiederholen', link: () => '/' },
+  wissensgarten: { name: 'Wissensgarten', text: 'Formeln und Begriffe wiederholen', link: (k) => (k ? `/#paket=${k}` : '/') },
 };
 
 /** Einheit → [[App, Kennung], …] */
@@ -67,10 +67,23 @@ export function appAdresse(app, kennung, host = globalThis.location?.hostname ||
   return linkMitHerkunft(`https://${app}${test ? '-test' : ''}.mathenachhilfe-online.com${a.link(kennung)}`, 'theorie');
 }
 
-/** Liste der Verweise einer Einheit; Klasse 5–10 bekommt zusätzlich den Wissensgarten. */
+/** Wissensgarten-Pakete (freie Pakete Kl. 5–10; das Analysis-Paket ist Plus und wird nicht verlinkt). */
+export const PAKETE = {
+  's1-mathe-algebra': ['k7-terme', 'k8-linear', 'k8-binom', 'k9-parabel', 'k10-funktionen'],
+  's1-mathe-brueche-prozent': ['k6-bruch', 'k6-bruchmal', 'k6-dezimal', 'k6-prozent', 'k7-prozent', 'k7-zinsen'],
+  's1-mathe-geometrie-formeln': ['k5-groessen', 'k6-quader', 'k8-kreis', 'k8-flaechen'],
+  's1-mathe-gleichungen': ['k7-gleichungen', 'k8-lgs', 'k9-quadrat'],
+  's1-mathe-kopfrechnen': ['k5-rechnen'],
+  's1-mathe-negative-zahlen': ['k5-ganz', 'k7-rational'],
+  's1-mathe-pythagoras-trigo': ['k9-pythagoras', 'k10-koerper', 'k10-sinussatz'],
+  's1-mathe-wahrscheinlichkeit': ['k6-daten', 'k6-zufall', 'k8-zufall', 'k10-daten'],
+};
+const paketVon = (unitId) => Object.keys(PAKETE).find((p) => PAKETE[p].includes(unitId)) || '';
+
+/** Liste der Verweise einer Einheit; Klasse 5–10 bekommt zusätzlich den Wissensgarten (passendes Paket, sonst die Startseite). */
 export function verweiseFuer(unitId) {
   const v = [...(VERWEISE[unitId] || [])];
-  if (/^k\d+-/.test(unitId)) v.push(['wissensgarten', '']);
+  if (/^k\d+-/.test(unitId)) v.push(['wissensgarten', paketVon(unitId)]);
   return v;
 }
 
