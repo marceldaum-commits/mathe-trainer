@@ -138,3 +138,6 @@ Ablauf von nun an jede Woche: (1) was jede App herausnimmt oder abgibt und an we
   - Texte für beide Punkte kommen mit dem Update am Di 24.11.
 - **Spiel „Kurven-Flug“ wird umbenannt.** Vorschläge: „Sinus-Slalom“, außerdem „Vektor-Kompass“ statt „Vektor-Lotse“ und „Geraden-Drehbühne“ statt „Raum-Blick“, jeweils mit Hinweis auf KurvenFlug bzw. Raumlicht. Antwort bis Montag.
 - **Neue Beschreibung** statt „nur Oberstufe Bayern/Hessen“: in einem späteren Di/Fr-Update.
+- **Schloss-Texte (UWG Anh. Nr. 28):** Geprüft am 19.11.: Kein „Frag deine Eltern“ oder „Kauf dir“ in der App. Offen ist aber: Die Pro-Seite zeigt Preise sowie „Pro holen ↗“ und „KI dazubuchen ↗“ auch in Kl. 5–10, und es gibt noch kein Eltern-Tor.
+  - Plan für Di 24.11.: Für Kl. 5–10 keine Preise und keine Kaufknöpfe; sachlicher Satz; Kauf nur hinter dem Eltern-Tor. Die Oberstufe bleibt sachlich mit Pass-Hinweis.
+  - Gemeinsame Vorgabe für das Eltern-Tor bei der AppZentrale angefragt.
