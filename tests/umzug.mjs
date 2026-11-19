@@ -22,7 +22,7 @@ async function lauf(engine, name, { neuBereit = true, neuHatSchon = false, putFe
     if (m && u.host.startsWith('trainer-test')) {
       log.push(`${req.method()} s`);
       if (req.method() === 'PUT' && putFehler) return route.fulfill({ status: 500, headers: CORS });
-      if (req.method() === 'PUT') { if (!/^[\w-]{16}\.[\w-]+$/.test(req.postData() || '') || /xp|GERAET/.test(req.postData())) log.push('KLARTEXT'); ablage.set(m[1], { d: req.postData(), schreib: req.headers()['x-schreib'] }); return route.fulfill({ status: 204, headers: CORS }); }
+      if (req.method() === 'PUT') { if (!/^[\w-]{16}\.[\w-]+$/.test(req.postData() || '')) log.push('KLARTEXT'); ablage.set(m[1], { d: req.postData(), schreib: req.headers()['x-schreib'] }); return route.fulfill({ status: 204, headers: CORS }); }
       if (req.method() === 'GET') { const e = ablage.get(m[1]); return e ? route.fulfill({ status: 200, headers: { ...CORS, 'content-type': 'application/json' }, body: JSON.stringify({ d: e.d }) }) : route.fulfill({ status: 404, headers: CORS }); }
       if (req.method() === 'DELETE') { const e = ablage.get(m[1]); if (e && e.schreib === req.headers()['x-schreib']) ablage.delete(m[1]); return route.fulfill({ status: 204, headers: CORS }); }
     }

@@ -23,7 +23,8 @@ Alle Netz-Funktionen **werfen nie**: Sie liefern `{ ok: true, … }` oder `{ ok:
 | `neueFamilie()` | `{ famId, famKey, schreib }` (base64url; 16/32/16 Byte) |
 | `familieLink(fam, app, basis?)` | `https://lernen.mathenachhilfe-online.com/<app>/#familie=<famId>.<famKey>.<schreib>` |
 | `familieLesen(textOderHash)` | `{ famId, famKey, schreib }` oder `null`. Ein angehängtes `&…` ist erlaubt. |
-| `familienNummer(famId)` | `"XXXX-XXXX"` (erste 8 Zeichen, zum Finden bei der Wiederherstellung) |
+| `familienNummer(famId)` | `"XXXX-XXXX"`: erste 5 Byte der famId in Crockford-Base32 (groß, ohne I/L/O/U), zum Vorlesen am Telefon |
+| `nummerNormal(text)` | Eingabe normalisiert wie der Server (ohne Bindestrich, groß, O→0, I/L→1) |
 | `notfallBlatt(fam, app, basis?)` | `{ link, nummer, text }` – den QR erzeugt die App aus `link` |
 | `neueKindId()` | 16 Byte base64url (22 Zeichen) |
 | `geraetKindId(id)` | `"geraet-<id>"` für Gerätedaten |

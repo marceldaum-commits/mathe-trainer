@@ -52,7 +52,9 @@ const fam = F.neueFamilie();
 ok(/^[\w-]{22}$/.test(fam.famId) && /^[\w-]{43}$/.test(fam.famKey) && /^[\w-]{22}$/.test(fam.schreib), 'Neue Familie: famId 16 B, famKey 32 B, schreib 16 B (base64url)');
 const link = F.familieLink(fam, 'mathetrainer');
 ok(link === `https://lernen.mathenachhilfe-online.com/mathetrainer/#familie=${fam.famId}.${fam.famKey}.${fam.schreib}` && JSON.stringify(F.familieLesen(link)) === JSON.stringify(fam) && JSON.stringify(F.familieLesen(`#familie=${fam.famId}.${fam.famKey}.${fam.schreib}&/u/k8-lgs`)) === JSON.stringify(fam) && F.familieLesen('#familie=kaputt') === null, 'Familien-Link hin und zurück, auch mit angehängtem Hash');
-ok(F.familienNummer(fam.famId) === `${fam.famId.slice(0, 4)}-${fam.famId.slice(4, 8)}`, 'Familien-Nummer = erste 8 Zeichen');
+ok(/^[0-9A-HJKMNP-TV-Z]{4}-[0-9A-HJKMNP-TV-Z]{4}$/.test(F.familienNummer(fam.famId)), `Familien-Nummer: Crockford-Base32, groß, ohne Verwechsler (${F.familienNummer(fam.famId)})`);
+ok(F.familienNummer(F.b64url(Uint8Array.from([0, 0, 0, 0, 0, ...new Array(11).fill(9)]))) === '0000-0000' && F.familienNummer(F.b64url(Uint8Array.from([255, 255, 255, 255, 255, ...new Array(11).fill(0)]))) === 'ZZZZ-ZZZZ' && F.familienNummer(F.b64url(Uint8Array.from([0x84, 0x21, 0x08, 0x42, 0x10, ...new Array(11).fill(0)]))) === 'GGGG-GGGG', 'Familien-Nummer: Randwerte und bekanntes Muster (je 5 Bit = 16 → G)');
+ok(F.nummerNormal('k7qx-2mfa') === 'K7QX2MFA' && F.nummerNormal('O1LI') === '0111', 'Familien-Nummer: Eingabe vom Telefon normalisiert (O→0, I/L→1)');
 
 const A = F.familie(fam, { f: S.f });
 ok((await A.anlegen(testPub)).ok, 'Familie anlegen (PUT mit Notfall-Kopie)');
@@ -71,7 +73,7 @@ const i1 = await A.indexSichern(index, 0);
 ok(i1.ok && i1.rev === 1, 'Index sichern (If-Match: 0) → rev 1');
 const il = await A.indexLaden();
 ok(il.ok && il.rev === 1 && il.daten.kinder[1].name === 'Tim', 'Index laden und entschlüsseln');
-ok(!JSON.stringify([...S.fam.get(fam.famId).blobs.values()]).includes('Tim'), 'Server sieht keine Spitznamen');
+ok([...S.fam.get(fam.famId).blobs.values()].every((b) => /^[\w-]{16}\.[\w-]+$/.test(b.d)) && (await F.entschluesseln(S.fam.get(fam.famId).blobs.get('/index').d, fam.famKey, 'lernapps/v1/index')).kinder[1].name === 'Tim', 'Server sieht keine Spitznamen (Index nur verschlüsselt)');
 
 // Stand je App und Kind, Konflikt zwischen zwei Geräten
 const stand = { 'mathetrainer.v1': JSON.stringify({ xp: 4242, jahrgang: '8', stats: { Brüche: { ok: 9, bad: 1 } } }) };
@@ -86,7 +88,7 @@ ok(s2.ok && s2.rev === 2, 'Zweites Gerät sichert mit rev 1 → rev 2');
 const s3 = await A.standSichern('mathetrainer', lea.kindId, { ...stand, extra: 1 }, 1);
 ok(!s3.ok && s3.grund === 'konflikt' && s3.rev === 2 && s3.daten['mathetrainer.look'] === 'dunkel', 'Veraltetes rev → 409 mit aktuellem Stand zum Zusammenführen (nie still überschreiben)');
 const blobs = JSON.stringify([...S.fam.get(fam.famId).blobs.values()]);
-ok(!/4242|xp|Brüche|mathetrainer\.v1/.test(blobs), 'Server sieht keinen Klartext der Stände');
+ok(!/Brüche|mathetrainer\.v1|"xp"/.test(blobs) && [...S.fam.get(fam.famId).blobs.values()].every((b) => /^[\w-]{16}\.[\w-]+$/.test(b.d)), 'Server sieht keinen Klartext der Stände (nur „<iv>.<ct>“ in base64url)');   // nur Zeichen prüfen, die in base64url nicht vorkommen können
 
 // Schlüssel je App und Kind getrennt: Blob von Lea lässt sich nicht als Tims Blob lesen
 const leaBlob = S.fam.get(fam.famId).blobs.get(`/s/mathetrainer/${lea.kindId}`).d;

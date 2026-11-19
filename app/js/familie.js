@@ -98,8 +98,16 @@ export function familieLesen(textOderHash) {
   const m = /#?familie=([\w-]{22})\.([\w-]{43})\.([\w-]{22})(?:$|&)/.exec(String(textOderHash).trim());
   return m ? { famId: m[1], famKey: m[2], schreib: m[3] } : null;
 }
-/** Familien-Nummer zum Finden bei einer Wiederherstellung (öffnet nichts): die ersten 8 Zeichen der famId. */
-export const familienNummer = (famId) => `${famId.slice(0, 4)}-${famId.slice(4, 8)}`;
+/** Familien-Nummer zum Finden bei einer Wiederherstellung (öffnet nichts): die ersten 5 Byte der famId in Crockford-Base32
+ *  (8 Zeichen, Großbuchstaben, ohne I, L, O, U), Anzeige „XXXX-XXXX“. Der Server sucht ohne Groß/Klein, O→0, I/L→1 (Bauplan v1.3). */
+const CROCKFORD = '0123456789ABCDEFGHJKMNPQRSTVWXYZ';
+export function familienNummer(famId) {
+  const b = b64urlLesen(famId).subarray(0, 5); let n = 0n; for (const x of b) n = (n << 8n) + BigInt(x);
+  let z = ''; for (let i = 7; i >= 0; i--) z += CROCKFORD[Number((n >> BigInt(5 * i)) & 31n)];
+  return `${z.slice(0, 4)}-${z.slice(4)}`;
+}
+/** Eingabe vom Telefon normalisieren (wie der Server): ohne Bindestrich/Leerzeichen, groß, O→0, I/L→1. */
+export const nummerNormal = (t) => String(t).toUpperCase().replace(/[\s-]/g, '').replace(/O/g, '0').replace(/[IL]/g, '1');
 export const neueFamilie = () => ({ famId: b64url(zufall(16)), famKey: b64url(zufall(32)), schreib: b64url(zufall(16)) });
 export const neueKindId = () => b64url(zufall(16));
 /** Kennung für Gerätedaten (Einstellungen, die keinem Kind gehören). */
