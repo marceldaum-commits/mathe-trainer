@@ -13,7 +13,13 @@
 //            info "lernapps/v1/notfall"); Kopie = „<eph.pub>.<iv>.<AES-GCM(k, famKey)>“ (base64url).
 // Server:    /familie/v1/<famId>[/index|/s/<app>/<kindId>|/liste|/rechte|/einloesen|/protokoll] (Bauplan).
 //            GET liefert { d, rev, t }, PUT liefert { rev }; PUT mit If-Match: <rev> (neu: If-Match: 0), 409 → { rev, d, t }.
-//            Sperrliste: GET /familie/v1/sperrliste → { hashes: [SHA-256(Code) base64url, …] } (Bauplan v1.2).
+//            Sperrliste: GET /familie/v1/sperrliste → { sperrliste: [base64url(SHA-256(codeNr)), …] }.
+//            Code-Nummer: „L<app>.<produkt>.<serie>“ (Lern-App-Code, serie dezimal ohne führende Nullen) bzw.
+//            „M.<erste 16 Hex von sha256(codeNorm)>“ (Mathe-Trainer-Zugang MT-…).
+//            Verbindlich: ops/familie/SCHNITTSTELLE.md (website_backup, Branch ops-status).
+
+/** Öffentlicher Wiederherstellungs-Schlüssel (X25519), erzeugt von Marcel am 19.11.2026; der private Teil liegt nur offline. */
+export const REC_PUB = 'vMrORj9yObM3Ijd9sGStjUB9I3f6ot9E8M-70yGeQ0M';
 
 /* ───────────── Grundbausteine ───────────── */
 export const b64url = (bytes) => { let s = ''; for (const b of bytes) s += String.fromCharCode(b); return btoa(s).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, ''); };
@@ -84,6 +90,13 @@ export async function notfallKopie(famKey, pubB64) {
   const salt = new Uint8Array(64); salt.set(ephPub, 0); salt.set(pub, 32);
   return `${b64url(ephPub)}.${await aesZu(await hkdf(geteilt, INFO_NOTFALL, salt), b64urlLesen(famKey))}`;
 }
+/** Notfall-Prüfwert für den Header X-Notfall-Pruef: base64url(SHA-256(HKDF-SHA256(famKey, salt leer, info "lernapps/v1/notfall-pruef", 32 B))).
+ *  Damit beweist das Werkzeug bei einer Wiederherstellung, dass es famKey kennt. */
+export async function notfallPruef(famKey) {
+  const k = await crypto.subtle.importKey('raw', b64urlLesen(famKey), 'HKDF', false, ['deriveBits']);
+  const t = new Uint8Array(await crypto.subtle.deriveBits({ name: 'HKDF', hash: 'SHA-256', salt: new Uint8Array(32), info: text.encode('lernapps/v1/notfall-pruef') }, k, 256));
+  return b64url(new Uint8Array(await crypto.subtle.digest('SHA-256', t)));
+}
 /** Gegenstück (nur für das Werkzeug „familie-wiederherstellen“ und die Tests – der private Schlüssel ist nie in einer App). */
 export async function notfallOeffnen(kopie, privB64) {
   const [eph, iv, ct] = String(kopie).split('.'), priv = b64urlLesen(privB64), ephPub = b64urlLesen(eph), pub = x25519Oeffentlich(priv);
@@ -114,6 +127,9 @@ export const neueKindId = () => b64url(zufall(16));
 export const geraetKindId = (id) => `geraet-${String(id).replace(/[^\w-]/g, '').slice(0, 40)}`;
 
 /* ───────────── Server ───────────── */
+/** Fehler-Kennungen des Servers → grund (SCHNITTSTELLE.md). */
+const FEHLER = { veraltet: 'konflikt', gibt_es_schon: 'gibt-es-schon', schreibrecht: 'schreibrecht', code_unbekannt: 'code-unbekannt', code_gesperrt: 'code-gesperrt',
+  code_vergeben: 'code-vergeben', familie_voll: 'zu-gross', zu_viele: 'zu-oft', noch_nicht_live: 'noch-nicht-live' };
 /**
  * Zugang zum Familien-Speicher. basis: z. B. '' (gleiche Herkunft) oder 'https://trainer-test.mathenachhilfe-online.com';
  * f: fetch (für Tests austauschbar). Alle Aufrufe werfen nie; sie liefern { ok, … } bzw. { ok: false, grund }.
@@ -126,7 +142,8 @@ export function familie(fam, { basis = '', f = globalThis.fetch } = {}) {
     let r; try { r = await f(url(pfad), { cache: 'no-store', ...o }); } catch { return { ok: false, grund: 'netz' }; }
     let daten = null; try { daten = r.status === 204 ? null : await r.json(); } catch { /* ohne Inhalt */ }
     if (r.ok) return { ok: true, status: r.status, daten };
-    return { ok: false, status: r.status, daten, grund: r.status === 404 ? 'keine' : r.status === 409 ? 'konflikt' : r.status === 403 ? 'schreibrecht' : r.status === 413 ? 'zu-gross' : r.status === 429 ? 'zu-oft' : 'fehler' };
+    const genau = FEHLER[daten?.fehler];   // Server nennt den Grund ({ fehler: '…' }), sonst nach Status
+    return { ok: false, status: r.status, daten, grund: genau || (r.status === 404 ? 'keine' : r.status === 409 ? 'konflikt' : r.status === 403 ? 'schreibrecht' : r.status === 413 ? 'zu-gross' : r.status === 429 ? 'zu-oft' : 'fehler') };
   };
   const blobLaden = async (pfad, info) => {
     const r = await ruf(pfad); if (!r.ok) return r;
@@ -145,8 +162,11 @@ export function familie(fam, { basis = '', f = globalThis.fetch } = {}) {
     fam,
     nummer: familienNummer(fam.famId),
     link: (app, b) => familieLink(fam, app, b),
-    /** Familie beim Server anlegen (einmalig), mit Notfall-Kopie für den öffentlichen Wiederherstellungs-Schlüssel. */
-    async anlegen(wiederherstellPub) { return ruf('', { method: 'PUT', headers: { ...schreibKopf, 'Content-Type': 'text/plain' }, body: await notfallKopie(fam.famKey, wiederherstellPub) }); },
+    /** Familie beim Server anlegen (einmalig) → { ok } (201) | { ok: false, grund: 'gibt-es-schon' | … }.
+     *  Body = Notfall-Kopie für den Wiederherstellungs-Schlüssel (Standard REC_PUB), Header X-Notfall-Pruef. */
+    async anlegen(wiederherstellPub = REC_PUB) {
+      return ruf('', { method: 'PUT', headers: { ...schreibKopf, 'Content-Type': 'text/plain', 'X-Notfall-Pruef': await notfallPruef(fam.famKey) }, body: await notfallKopie(fam.famKey, wiederherstellPub) });
+    },
     indexLaden: () => blobLaden('/index', INFO_INDEX),
     indexSichern: (index, rev) => blobSichern('/index', INFO_INDEX, index, rev),
     /** Stand laden → { ok, daten, stand, rev, t } (daten = App-Format, stand = ISO-Zeit des Sicherns). */
@@ -164,6 +184,8 @@ export function familie(fam, { basis = '', f = globalThis.fetch } = {}) {
     },
     liste: () => ruf('/liste'),
     rechte: () => ruf('/rechte'),
+    /** Code einlösen (nur hinter dem Eltern-Tor) → { ok, daten: { rechte, recht } } (recht.codeNr) |
+     *  { ok: false, grund: 'code-unbekannt' | 'code-gesperrt' | 'code-vergeben' | 'schreibrecht' | 'zu-oft' | … }. */
     einloesen: (code) => ruf('/einloesen', { method: 'POST', headers: { ...schreibKopf, 'Content-Type': 'application/json' }, body: JSON.stringify({ code: String(code).trim().toUpperCase() }) }),
     protokoll: () => ruf('/protokoll'),
     loeschen: () => ruf('', { method: 'DELETE', headers: schreibKopf }),
@@ -185,9 +207,28 @@ export function notfallBlatt(fam, app, basis) {
     text: `Familien-Zugang für die Lern-Apps von Mathenachhilfe Online.\nFamilien-Nummer: ${familienNummer(fam.famId)}\nLink: ${familieLink(fam, app, basis)}\nGut aufbewahren: Wer diesen Link hat, kann die Lernstände öffnen.` };
 }
 
-/* ───────────── Sperrliste (erstattete bzw. gesperrte Codes, Bauplan v1.2) ───────────── */
-/** SHA-256 eines Codes (getrimmt, groß), base64url. */
-export async function codeHash(code) { return b64url(new Uint8Array(await crypto.subtle.digest('SHA-256', text.encode(String(code).trim().toUpperCase())))); }
+/* ───────────── Sperrliste (erstattete bzw. gesperrte Codes) ───────────── */
+const CROCK = '0123456789ABCDEFGHJKMNPQRSTVWXYZ';
+const hex = (u) => [...u].map((b) => b.toString(16).padStart(2, '0')).join('');
+/**
+ * Code-Nummer eines Codes (wie der Server sie bildet), ohne die Signatur zu prüfen – das macht die App selbst:
+ * Mathe-Trainer-Zugang „MT-XXXX-XXXX-XXXX“ → „M.<erste 16 Hex von sha256(codeNorm)>“ (codeNorm = groß, nur A–Z/0–9);
+ * Lern-App-Code (Crockford-Base32, 73 Byte: Inhalt 9 B + Ed25519-Signatur) → „L<app>.<produkt>.<serie>“ (serie dezimal).
+ * Unbekannt → ''.
+ */
+export async function codeNummer(code) {
+  const norm = String(code ?? '').toUpperCase().replace(/[^A-Z0-9]/g, '');
+  if (/^MT[A-HJ-NP-Z2-9]{12}$/.test(norm)) return `M.${hex(new Uint8Array(await crypto.subtle.digest('SHA-256', text.encode(norm)))).slice(0, 16)}`;
+  const t = String(code ?? '').trim().toUpperCase().replace(/^(KF|RB|WG|RL|EX|QQ|MT)(?=[-\s0-9A-Z])/, '').replace(/[^0-9A-Z]/g, '').replace(/O/g, '0').replace(/[IL]/g, '1');
+  const bytes = []; let puffer = 0, bits = 0;
+  for (const z of t) { const v = CROCK.indexOf(z); if (v < 0) return ''; puffer = (puffer << 5) | v; bits += 5; if (bits >= 8) { bytes.push((puffer >> (bits - 8)) & 255); bits -= 8; puffer &= (1 << bits) - 1; } }
+  if (bytes.length !== 73 || bytes[0] !== 1 || bytes[1] < 1 || bytes[1] > 7 || bytes[2] < 1 || bytes[2] > 4) return '';
+  const serie = ((bytes[3] << 24) >>> 0) + (bytes[4] << 16) + (bytes[5] << 8) + bytes[6];
+  return `L${bytes[1]}.${bytes[2]}.${serie}`;
+}
+const CODE_NR = /^(L\d\.\d\.\d{1,10}|M\.[0-9a-f]{16})$/;
+/** base64url(SHA-256(codeNr)) – so steht ein gesperrter Code in der Sperrliste. */
+export async function codeNrHash(codeNr) { return b64url(new Uint8Array(await crypto.subtle.digest('SHA-256', text.encode(String(codeNr))))); }
 /**
  * Sperrliste laden, wenn online, und im Gerät zwischenspeichern (Schlüssel z. B. „mathetrainer.sperrliste“).
  * Liefert { ok, anzahl } – bei Fehlern bleibt die zuletzt gespeicherte Liste gültig.
@@ -196,14 +237,15 @@ export async function sperrlisteLaden({ basis = '', f = globalThis.fetch, speich
   if (!schluessel) throw new Error('schluessel fehlt (z. B. „<app>.sperrliste“)');
   let r; try { r = await f(`${basis}/familie/v1/sperrliste`, { cache: 'no-store' }); } catch { return { ok: false, grund: 'netz' }; }
   if (!r.ok) return { ok: false, grund: 'fehler' };
-  let hashes; try { hashes = (await r.json()).hashes; } catch { return { ok: false, grund: 'fehler' }; }
-  if (!Array.isArray(hashes)) return { ok: false, grund: 'fehler' };
-  const liste = hashes.filter((h) => /^[\w-]{43}$/.test(h));
-  try { speicher?.setItem(schluessel, JSON.stringify({ t: Date.now(), hashes: liste })); } catch { /* ohne Speicher */ }
-  return { ok: true, anzahl: liste.length };
+  let liste; try { liste = (await r.json()).sperrliste; } catch { return { ok: false, grund: 'fehler' }; }
+  if (!Array.isArray(liste)) return { ok: false, grund: 'fehler' };
+  const gut = liste.filter((h) => /^[\w-]{43}$/.test(h));
+  try { speicher?.setItem(schluessel, JSON.stringify({ t: Date.now(), sperrliste: gut })); } catch { /* ohne Speicher */ }
+  return { ok: true, anzahl: gut.length };
 }
-/** Ist der Code gesperrt? Prüft die zwischengespeicherte Liste (offline nutzbar). */
-export async function codeGesperrt(code, { speicher = globalThis.localStorage, schluessel } = {}) {
-  let liste = []; try { liste = JSON.parse(speicher?.getItem(schluessel) || '{}').hashes || []; } catch { /* leer */ }
-  return liste.includes(await codeHash(code));
+/** Ist der Code gesperrt? Nimmt einen Code (MT-… oder Lern-App-Code) oder direkt eine Code-Nummer; prüft die gespeicherte Liste (offline). */
+export async function codeGesperrt(codeOderNr, { speicher = globalThis.localStorage, schluessel } = {}) {
+  const nr = CODE_NR.test(String(codeOderNr)) ? String(codeOderNr) : await codeNummer(codeOderNr); if (!nr) return false;
+  let liste = []; try { liste = JSON.parse(speicher?.getItem(schluessel) || '{}').sperrliste || []; } catch { /* leer */ }
+  return liste.includes(await codeNrHash(nr));
 }

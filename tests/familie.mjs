@@ -3,6 +3,7 @@
 // Anlegen, Index, Stände je App und Kind mit rev/If-Match und 409, Liste, Löschen, kein Klartext beim Server,
 // falscher Schlüssel, ohne gzip lesbar. Aufruf: node tests/familie.mjs
 const F = await import('../app/js/familie.js');
+const NC = await import('node:crypto');   // unabhängige Gegenrechnung (Node-eigene Krypto)
 let n = 0, fehler = 0; const ok = (b, t) => { n++; if (!b) { fehler++; console.error('FEHLER:', t); } };
 const hex = (s) => Uint8Array.from(s.match(/../g), (x) => parseInt(x, 16));
 const zuHex = (u) => [...u].map((b) => b.toString(16).padStart(2, '0')).join('');
@@ -13,7 +14,8 @@ const aPriv = hex('77076d0a7318a57d3c16c17251b26645df4c2f87ebc0992ab177fba51db92
 ok(zuHex(F.x25519Oeffentlich(aPriv)) === '8520f0098930a754748b7ddcb43ef75a0dbf3a0d26381af4eba4a98eaa9b4e6a' && zuHex(F.x25519Oeffentlich(bPriv)) === 'de9edb7d7b7dc1b4d35b61c2ece435373f8343c85b78674dadfc7e146f882b4f', 'X25519: öffentliche Schlüssel nach RFC 7748');
 ok(zuHex(F.x25519(aPriv, F.x25519Oeffentlich(bPriv))) === '4a5d9d5ba4ce2de1728e3bf480350f25e07e21c947d19e3376f09b3c1e161742' && zuHex(F.x25519(bPriv, F.x25519Oeffentlich(aPriv))) === '4a5d9d5ba4ce2de1728e3bf480350f25e07e21c947d19e3376f09b3c1e161742', 'X25519: gemeinsames Geheimnis nach RFC 7748');
 
-/* ───────────── nachgebauter Server ───────────── */
+/* ───────────── nachgebauter Server (nach ops/familie/SCHNITTSTELLE.md) ───────────── */
+const GESPERRT = [], VERGEBEN = new Map();
 const sha = async (s) => F.b64url(new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(s))));
 function server() {
   const fam = new Map(); let uhr = 0; const log = [];
@@ -23,20 +25,26 @@ function server() {
     const [, id, pfad = ''] = m, meth = o.method || 'GET', h = o.headers || {}, e = fam.get(id);
     log.push(`${meth} ${pfad || '/'}`);
     const darf = async () => e && e.schreib === await sha(h['X-Schreib'] || '');
-    if (pfad === '' && meth === 'PUT') { if (e) return antwort(409, {}); fam.set(id, { schreib: await sha(h['X-Schreib']), notfall: o.body, blobs: new Map(), rechte: [] }); return antwort(204, null); }
+    if (pfad === '' && meth === 'PUT') { if (!/^[\w-]{43}$/.test(h['X-Notfall-Pruef'] || '')) return antwort(400, { fehler: 'notfall_pruef' }); if (e) return antwort(409, { fehler: 'gibt_es_schon' }); fam.set(id, { schreib: await sha(h['X-Schreib']), notfall: o.body, pruef: h['X-Notfall-Pruef'], blobs: new Map(), rechte: [] }); return antwort(201, {}); }
     if (!e) return antwort(404, {});
     if (pfad === '' && meth === 'DELETE') { if (!(await darf())) return antwort(403, {}); fam.delete(id); return antwort(204, null); }
     if (pfad === '/liste') return antwort(200, { blobs: [...e.blobs].map(([k, b]) => ({ pfad: k, rev: b.rev, t: b.t })) });
     if (pfad === '/rechte') return antwort(200, { rechte: e.rechte });
     if (pfad === '/protokoll') return antwort(200, { eintraege: [] });
-    if (pfad === '/einloesen' && meth === 'POST') { if (!(await darf())) return antwort(403, {}); const { code } = JSON.parse(o.body); if (!/^MT-/.test(code)) return antwort(400, { grund: 'code' }); e.rechte.push({ produkt: 'pro', app: 'mathetrainer', bis: null }); return antwort(200, { rechte: e.rechte }); }
-    if (pfad === '/sperrliste') return antwort(200, { hashes: [await F.codeHash('MT-GESP-ERRT-0001')] });
+    if (pfad === '/einloesen' && meth === 'POST') {
+      if (!(await darf())) return antwort(403, { fehler: 'schreibrecht' });
+      const nr = await F.codeNummer(JSON.parse(o.body).code); if (!nr) return antwort(404, { fehler: 'code_unbekannt' });
+      if (GESPERRT.includes(nr)) return antwort(403, { fehler: 'code_gesperrt' });
+      if (VERGEBEN.has(nr) && VERGEBEN.get(nr) !== id) return antwort(409, { fehler: 'code_vergeben' });
+      VERGEBEN.set(nr, id); const recht = { app: 'mathetrainer', produkt: 'pass', codeNr: nr, bis: '2027-07-31', ki: true }; e.rechte = [...e.rechte.filter((r) => r.codeNr !== nr), recht];
+      return antwort(200, { rechte: e.rechte, recht });
+    }
     if (/^\/(index|s\/[a-z][a-z0-9-]+\/([\w-]{22}|geraet-[\w-]+))$/.test(pfad)) {
       const b = e.blobs.get(pfad);
       if (meth === 'GET') return b ? antwort(200, { d: b.d, rev: b.rev, t: b.t }) : antwort(404, {});
       if (meth === 'PUT') {
         if (!(await darf())) return antwort(403, {});
-        if (String(b ? b.rev : 0) !== String(h['If-Match'])) return antwort(409, { rev: b?.rev ?? 0, d: b?.d, t: b?.t });
+        if (String(b ? b.rev : 0) !== String(h['If-Match'])) return antwort(409, { fehler: 'veraltet', rev: b?.rev ?? 0, d: b?.d, t: b?.t });
         const nb = { d: o.body, rev: (b?.rev || 0) + 1, t: ++uhr }; e.blobs.set(pfad, nb); return antwort(200, { rev: nb.rev });
       }
     }
@@ -63,7 +71,17 @@ ok(/^[\w-]{43}\.[\w-]{16}\.[\w-]+$/.test(kopie) && !kopie.includes(fam.famKey), 
 ok(await F.notfallOeffnen(kopie, testPriv) === fam.famKey, 'Notfall-Kopie mit dem privaten Wiederherstellungs-Schlüssel geöffnet → famKey');
 let falsch = false; try { await F.notfallOeffnen(kopie, F.b64url(crypto.getRandomValues(new Uint8Array(32)))); } catch { falsch = true; }
 ok(falsch, 'Notfall-Kopie mit falschem Schlüssel: nicht lesbar');
-ok(!(await A.anlegen(testPub)).ok, 'Familie kein zweites Mal anlegen');
+ok((await A.anlegen(testPub)).grund === 'gibt-es-schon', 'Familie kein zweites Mal anlegen (409 → „gibt-es-schon“)');
+const t = NC.hkdfSync('sha256', Buffer.from(F.b64urlLesen(fam.famKey)), Buffer.alloc(0), 'lernapps/v1/notfall-pruef', 32);
+ok(S.fam.get(fam.famId).pruef === NC.createHash('sha256').update(Buffer.from(t)).digest('base64url') && await F.notfallPruef(fam.famKey) === S.fam.get(fam.famId).pruef, 'X-Notfall-Pruef = base64url(SHA-256(HKDF(famKey, „lernapps/v1/notfall-pruef“))) – mit Node-Krypto gegengerechnet');
+const blobKey = Buffer.from(NC.hkdfSync('sha256', Buffer.from(F.b64urlLesen(fam.famKey)), Buffer.alloc(0), 'lernapps/v1/index', 32));
+const probe = await F.verschluesseln({ hallo: 1 }, fam.famKey, 'lernapps/v1/index', { gzip: false }), [piv, pct] = probe.split('.').map((x) => Buffer.from(F.b64urlLesen(x)));
+const dec = NC.createDecipheriv('aes-256-gcm', blobKey, piv); dec.setAuthTag(pct.subarray(-16));
+ok(Buffer.concat([dec.update(pct.subarray(0, -16)), dec.final()]).toString() === 'j{"hallo":1}', 'Blob-Schlüssel HKDF(salt leer) = Node-Krypto; Klartext „j“ + JSON');
+ok(F.REC_PUB === 'vMrORj9yObM3Ijd9sGStjUB9I3f6ot9E8M-70yGeQ0M' && F.b64urlLesen(F.REC_PUB).length === 32, 'REC_PUB fest eingetragen (32 B)');
+const famR = F.neueFamilie(), R = F.familie(famR, { f: S.f });
+ok((await R.anlegen()).ok && /^[\w-]{43}\.[\w-]{16}\.[\w-]{64}$/.test(S.fam.get(famR.famId).notfall), 'anlegen() ohne Parameter nutzt REC_PUB; Notfall-Kopie 43.16.64 Zeichen');
+await R.loeschen();
 
 // Index mit zwei Kindern
 let { index, kind: lea } = F.kindHinzu(F.neuerIndex(), { name: 'Lea', klasse: '8' });
@@ -108,7 +126,14 @@ ok(JSON.stringify(await F.auspacken(ohneZ)) === JSON.stringify(gross) && JSON.st
 // Liste, Rechte, Einlösen, Protokoll, Löschen
 const li = await A.liste();
 ok(li.ok && li.daten.blobs.length === 2 && li.daten.blobs.some((b) => b.pfad === `/s/mathetrainer/${lea.kindId}` && b.rev === 2), 'Liste: rev aller Blobs');
-ok((await A.einloesen(' mt-ab12-cd34-ef56 ')).ok && (await A.rechte()).daten.rechte[0].produkt === 'pro', 'Code einlösen (getrimmt, groß) und Rechte lesen');
+const ein = await A.einloesen(' mt-ab23-cd45-ef67 ');
+ok(ein.ok && /^M\.[0-9a-f]{16}$/.test(ein.daten.recht.codeNr) && (await A.rechte()).daten.rechte[0].codeNr === ein.daten.recht.codeNr, 'Code einlösen → { rechte, recht } mit recht.codeNr');
+ok((await A.einloesen('XY-UNSINN')).grund === 'code-unbekannt', 'Einlösen: unbekannter Code → „code-unbekannt“');
+const famX = F.neueFamilie(), X = F.familie(famX, { f: S.f }); await X.anlegen(testPub);
+ok((await X.einloesen('MT-AB23-CD45-EF67')).grund === 'code-vergeben', 'Einlösen: an andere Familie gebunden → „code-vergeben“');
+GESPERRT.push(await F.codeNummer('MT-ZZ22-ZZ22-ZZ22'));
+ok((await X.einloesen('MT-ZZ22-ZZ22-ZZ22')).grund === 'code-gesperrt' && (await ohneRecht.einloesen('MT-AB23-CD45-EF67')).grund === 'schreibrecht', 'Einlösen: gesperrt → „code-gesperrt“, ohne Schreibrecht → „schreibrecht“ (beide 403, am Fehlertext unterschieden)');
+await X.loeschen();
 ok((await A.protokoll()).ok, 'Protokoll abrufbar');
 ok(!(await ohneRecht.loeschen()).ok && S.fam.has(fam.famId), 'Löschen ohne Schreibrecht: nichts gelöscht');
 ok((await A.loeschen()).ok && !S.fam.has(fam.famId), 'Löschknopf: Familie samt Notfall-Kopie weg');
@@ -119,11 +144,19 @@ ok(ungueltig && (await A.standLaden('../x', lea.kindId)).grund === 'ungueltig', 
 ok(/Familien-Nummer: /.test(F.notfallBlatt(fam, 'mathetrainer').text), 'Notfall-Blatt mit Familien-Nummer und Link');
 
 const S2 = server(), mem = new Map(), sp = { getItem: (k) => mem.get(k) ?? null, setItem: (k, v) => mem.set(k, v) };
-// Sperrliste braucht keine Familie: eigener kleiner Server-Aufruf
-const sperr = await F.sperrlisteLaden({ f: async (u) => (/\/familie\/v1\/sperrliste$/.test(u) ? { ok: true, status: 200, json: async () => ({ hashes: [await F.codeHash('MT-GESP-ERRT-0001'), 'kaputt'] }) } : { ok: false, status: 404 }), speicher: sp, schluessel: 'mathetrainer.sperrliste' });
-ok(sperr.ok && sperr.anzahl === 1, 'Sperrliste geladen, ungültige Einträge verworfen, im Gerät gespeichert');
-ok(await F.codeGesperrt(' mt-gesp-errt-0001 ', { speicher: sp, schluessel: 'mathetrainer.sperrliste' }) && !(await F.codeGesperrt('MT-AB12-CD34-EF56', { speicher: sp, schluessel: 'mathetrainer.sperrliste' })), 'Offline-Prüfung: gesperrter Code erkannt (getrimmt, groß), anderer nicht');
-ok((await F.sperrlisteLaden({ f: async () => { throw new Error('offline'); }, speicher: sp, schluessel: 'mathetrainer.sperrliste' })).grund === 'netz' && await F.codeGesperrt('MT-GESP-ERRT-0001', { speicher: sp, schluessel: 'mathetrainer.sperrliste' }), 'Offline: alte Sperrliste bleibt gültig');
+// Code-Nummern wie der Server (ops/trainer-api/server.mjs): MT-Zugang und Lern-App-Code
+const mtNr = `M.${NC.createHash('sha256').update('MTAB23CD45EF67').digest('hex').slice(0, 16)}`;
+ok(await F.codeNummer(' mt-ab23-cd45-ef67 ') === mtNr && await F.codeNummer('MT AB23 CD45 EF67') === mtNr, `Code-Nummer MT: „M.<16 Hex>“ von sha256(codeNorm) (${mtNr})`);
+const CR = '0123456789ABCDEFGHJKMNPQRSTVWXYZ', crock = (bytes) => { let out = '', p = 0, b = 0; for (const x of bytes) { p = (p << 8) | x; b += 8; while (b >= 5) { out += CR[(p >> (b - 5)) & 31]; b -= 5; p &= (1 << b) - 1; } } if (b) out += CR[(p << (5 - b)) & 31]; return out; };
+const inhalt = [1, 5, 4, 0x00, 0x01, 0xE2, 0x40, 0x0B, 0xB8], lp = crock([...inhalt, ...new Array(64).fill(7)]);
+ok(await F.codeNummer(`MT-${lp}`) === 'L5.4.123456' && await F.codeNummer(lp.toLowerCase()) === 'L5.4.123456', 'Code-Nummer Lern-App: „L<app>.<produkt>.<serie>“, serie dezimal (123456), mit Präfix und klein geschrieben');
+ok(await F.codeNummer('KF-ZZZZ') === '' && await F.codeNummer('') === '', 'Unbekannter Code → leere Code-Nummer');
+const sperrSrv = async (u) => (/\/familie\/v1\/sperrliste$/.test(u) ? { ok: true, status: 200, json: async () => ({ sperrliste: [NC.createHash('sha256').update('M.' + NC.createHash('sha256').update('MTGESPERRT2222').digest('hex').slice(0, 16)).digest('base64url'), NC.createHash('sha256').update('L5.4.123456').digest('base64url'), 'kaputt'] }) } : { ok: false, status: 404 });
+const sperr = await F.sperrlisteLaden({ f: sperrSrv, speicher: sp, schluessel: 'mathetrainer.sperrliste' });
+ok(sperr.ok && sperr.anzahl === 2, 'Sperrliste { sperrliste: [SHA-256(codeNr)] } geladen, ungültige Einträge verworfen, im Gerät gespeichert');
+const gs = (c) => F.codeGesperrt(c, { speicher: sp, schluessel: 'mathetrainer.sperrliste' });
+ok(await gs(' mt-gesp-errt-2222 ') && await gs(`RB-${lp}`) && await gs('L5.4.123456') && !(await gs('MT-AB23-CD45-EF67')) && !(await gs('L5.4.123457')), 'Offline-Prüfung: gesperrt per Code oder Code-Nummer erkannt, andere nicht');
+ok((await F.sperrlisteLaden({ f: async () => { throw new Error('offline'); }, speicher: sp, schluessel: 'mathetrainer.sperrliste' })).grund === 'netz' && await gs('L5.4.123456'), 'Offline: alte Sperrliste bleibt gültig');
 const fam2 = F.neueFamilie(), C = F.familie(fam2, { f: S2.f }); await C.anlegen(testPub);
 const gid = F.geraetKindId('tablet 1');
 ok(gid === 'geraet-tablet1' && (await C.standSichern('mathetrainer', gid, { look: 'dunkel' }, 0)).ok && (await C.standLaden('mathetrainer', gid)).daten.look === 'dunkel', 'Gerätedaten unter kindId „geraet-<id>“');
