@@ -1,7 +1,7 @@
 // Querverweise zu den anderen Lern-Apps (AppZentrale 19.11.2026: Spezialisierung und Aufräumen vorgezogen; Marcel).
 // Nur unter der Theorie, nur auf freie Inhalte, nie auf Kaufseiten. Gleicher Tab, Herkunft src=mathetrainer-theorie.
 // Kennungen aus den Absprachen der Räume (docs/WOCHENRUNDE.md); Rechenblitz-Themen in der App selbst nachgesehen.
-// Raumlicht: nur freie Ziele (erleben, rotation, galton, zufall); binomial und baumeister sind Raumlicht Pro – nicht verlinken.
+// Raumlicht: nur freie Ziele (erleben, rotation, galton, zufall, raumflug – Marcel 19.11.); binomial und baumeister sind Raumlicht Pro – nicht verlinken.
 // Unbekannte Kennungen öffnen bei allen Apps die Startseite – es gibt also nie einen toten Link.
 import { linkMitHerkunft } from './zaehler.js';
 import { esc } from './ui.js';
@@ -61,6 +61,10 @@ export const VERWEISE = {
   's-verteilung': [['raumlicht', 'galton']],
   's-test': [['raumlicht', 'galton']],
   's-test2': [['raumlicht', 'galton']],
+  'g-vektor': [['raumlicht', 'raumflug']],
+  'g-gerade': [['raumlicht', 'raumflug']],
+  'g-ebene': [['raumlicht', 'raumflug']],
+  'g-mass': [['raumlicht', 'raumflug']],
 };
 
 /** Adresse einer App: auf der Test-Stufe die Test-Fassung, sonst die Live-Fassung. */

@@ -3,7 +3,7 @@
 Kurzfassung für Nutzer und Leitstand. Einzelheiten: `docs/PLAN.md` (Baulog) und `MELDUNG_AN_LEITSTAND.md`.
 
 ## 2.4.3 – 19.11.2026
-- Wissensgarten-Links führen direkt ins passende Lernkarten-Paket. Zu Raumlicht wird nur auf freie Bereiche verlinkt (Analysis & Zufall erleben, Rotationskörper-Labor, Galton-Brett, Zufallsmaschine).
+- Wissensgarten-Links führen direkt ins passende Lernkarten-Paket. Zu Raumlicht wird nur auf freie Bereiche verlinkt (Analysis & Zufall erleben, Rotationskörper-Labor, Galton-Brett, Zufallsmaschine, Flug durch den Raum).
 
 ## 2.4.2 – 19.11.2026 (nur intern, nicht auf test)
 - **Passt dazu in anderen Apps:** Unter der Theorie vieler Themen stehen jetzt Links zu den anderen Lern-Apps – Graph ausprobieren in KurvenFlug, Kopfrechnen bei Rechenblitz, im Raum erleben in Raumlicht, Experimente in Experimentopia, Formeln wiederholen im Wissensgarten.
