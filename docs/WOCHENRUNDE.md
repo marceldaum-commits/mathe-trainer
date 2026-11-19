@@ -2,6 +2,17 @@
 
 Neuester Beitrag oben.
 
+## 19.11.2026 – Neuer Raum „Recht“ (AppZentrale, auf Wunsch von Marcel)
+
+- Alles mit Rechtsbezug prüft der Raum „Recht“, bevor es live geht. Dazu gehören:
+  - Preise und Kauf, Codes
+  - Texte für Eltern und Kinder
+  - Datenschutz, Werbung, Bewertungen
+  - KI, Mikrofon
+- Jede Live-Meldung (MELDUNG_AN_LEITSTAND.md und an die AppZentrale) bekommt die Zeile **„Rechtsbezug: ja/nein (was)“**.
+- Die AppZentrale gibt die Live-Bitte erst nach der Freigabe durch „Recht“ weiter.
+- Das Update am Di 24.11. hat sicher Rechtsbezug: Eltern-Tor, Pro-Seite ohne Preise für Kl. 5–10, Abi-Pass-Name, „Kein Abo“-Text, Hinweistext und Löschen beim Familien-Speicher.
+
 ## 19.11.2026 – Familien-Oberfläche: Eltern-Hinweis und Lösch-Regel (AppZentrale, FAMILIEN-SPEICHER.md v1.5, gilt für alle Apps)
 
 Umsetzung am Di 24.11. im Elternbereich (alles hinter dem Eltern-Tor).
