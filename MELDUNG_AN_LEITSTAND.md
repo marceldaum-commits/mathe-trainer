@@ -2,6 +2,22 @@
 
 Neueste Meldung oben. Keine Geheimnisse, keine Personendaten (dieses Repo ist öffentlich, siehe Punkt 1).
 
+## 19.11.2026 (114) – 2.4.3 auf test: Spezialisierung und Aufräumen (für live heute)
+
+- **Neu seit 2.4.1:**
+  - Kasten „Passt dazu in anderen Apps“ unter der Theorie von 47 Einheiten. Ziele: KurvenFlug `#kapitel=`, Rechenblitz `?thema=…&stufe=auto&modus=training`, Raumlicht nur freie Ziele (`erleben`, `rotation`, `galton`, `zufall`, `raumflug`), Experimentopia `#thema=`, Wissensgarten `#paket=` (8 freie Pakete).
+  - Keine Kaufseiten, kein binomial/baumeister. Gleicher Tab, `src=mathetrainer-theorie`; auf der Test-Stufe die Test-Apps.
+- **„Kommt bald“ abgeglichen:** Maßstab, Potenzfunktionen und Transformationen → KurvenFlug; Zehnerpotenzen → Rechenblitz; Zufall simulieren, Körper im Raum und Schattenwurf → Raumlicht. Roadmap Di 8.12. Konfidenzintervalle.
+- **Am PC:** Formular- und Textkarten einspaltig (aus 2.4.1).
+- **Marcels Entscheidung:** Die Raumgeometrie bleibt beim Mathe-Trainer.
+- **Geprüft:**
+  - `npm run check` (1,31 Mio. Prüfungen, darunter alle Link-Kennungen gegen die Listen der Apps und keine Kaufseiten)
+  - WebKit 104, Zählung 18
+  - e2e auf allen fünf Stufen grün
+- **Für live:** Commit siehe unten (main = test). Mit 2.4.3 kommen auch 2.3.11–2.4.1 live (anonyme Zählung abschaltbar, „Integral anwenden“, „← Alle Apps“, Probestunden-Link). Server-Teile auf live geprüft: POST /zaehler/v1/e 204, /eltern/v1/ antwortet; www /lern-apps/, /probestunde/ und /eltern-bericht/ 200. Keine Änderung an Speicherfeldern.
+- **Rückweg:** live auf 9735207 (2.3.10).
+- **Umzugs-Version 2.5.0** (lernen.…/mathetrainer/) liegt im Zweig `umzug-lernen`. Nach eigenem e2e kommt sie auf test. Live erst nach Freigabe durch den Leitstand.
+
 ## 19.11.2026 (113) – 2.4.1 auf test: Tagesroutine, ein Fehler am PC behoben
 
 - **Nutzer-Meldungen:** keine neuen (Abruf 200, Liste leer).
