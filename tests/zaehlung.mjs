@@ -19,16 +19,21 @@ try {
   for (const [name, engine] of [['Chromium', chromium], ['WebKit', webkit]]) {
     zaehl.length = 0;
     const b = await engine.launch(); const c = await b.newContext({ viewport: { width: 390, height: 844 }, serviceWorkers: 'block' });
-    await c.addInitScript(() => { if (!localStorage.getItem('mathetrainer.v1')) localStorage.setItem('mathetrainer.v1', JSON.stringify({ jahrgangGewaehlt: true, jahrgang: '9', geraet: 'GERAETEKENNUNG1234567', xp: 99, stats: { Brüche: { ok: 1, bad: 5 } } })); });
+    await c.addInitScript(() => { if (!localStorage.getItem('mathetrainer.v1')) localStorage.setItem('mathetrainer.v1', JSON.stringify({ jahrgangGewaehlt: true, jahrgang: 'os', geraet: 'GERAETEKENNUNG1234567', xp: 99, stats: { Brüche: { ok: 1, bad: 5 } } })); });
     const p = await c.newPage(); const err = []; p.on('pageerror', (e) => err.push(String(e)));
     await p.route('**/www.mathenachhilfe-online.com/**', (r) => r.fulfill({ status: 200, body: 'ok' }));
     await p.goto(`${BASE}#/pro=x`.replace('#/pro=x', `#pro=MT-AB12-CD34-EF56`)); await p.waitForTimeout(1500);
     await p.goto(`${BASE}#/mehr`); await p.waitForTimeout(800);
     // Probestunde aus dem Lernstand (Bericht für Eltern)
     await p.goto(`${BASE}#/bericht`); await p.waitForSelector('a[href*="probestunde"]');
-    const [neu] = await Promise.all([c.waitForEvent('page', { timeout: 5000 }).catch(() => null), p.click('a[href*="probestunde"]')]);
+    // Seit 2.5.3: Probestunden-Hinweis nur Oberstufe (Lernstand) und Link nur über das Eltern-Tor (ELTERN-TOR.md)
+    await p.click('a[href*="probestunde"]'); await p.waitForSelector('#eltern-tor');
+    const WORT = { dreizehn: 13, vierzehn: 14, 'fünfzehn': 15, sechzehn: 16, siebzehn: 17, achtzehn: 18, neunzehn: 19, sechs: 6, sieben: 7, acht: 8, neun: 9 };
+    const [x, y] = (await p.textContent('#tor-aufgabe')).toLowerCase().split(' mal ');
+    for (const z of String(WORT[x] * WORT[y])) await p.click(`#eltern-tor [data-z="${z}"]`);
+    const [neu] = await Promise.all([c.waitForEvent('page', { timeout: 5000 }).catch(() => null), p.click('#eltern-tor [data-z="ok"]')]);
     const ziel = neu ? neu.url() : await p.evaluate(() => document.querySelector('a[href*="probestunde"]').href);
-    ok(/src=mathetrainer-lernstand/.test(ziel) && /klasse=9/.test(ziel), `${name}: Probestunden-Link mit src=mathetrainer-lernstand und klasse (${ziel})`);
+    ok(/src=mathetrainer-lernstand/.test(ziel), `${name}: Probestunden-Link (nach dem Eltern-Tor) mit src=mathetrainer-lernstand (${ziel})`);
     if (neu) await neu.close();
     await p.goto(`${BASE}#/eltern`); await p.waitForTimeout(500);
     await p.goto(`${BASE}#/theorie/k9-quadrat`); await p.waitForTimeout(500);
