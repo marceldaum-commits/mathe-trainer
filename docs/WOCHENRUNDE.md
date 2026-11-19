@@ -2,6 +2,20 @@
 
 Neuester Beitrag oben.
 
+## 19.11.2026 – Einstellungen und Eltern-Tor (AppZentrale, ab Di 24.11.)
+
+- **Ohne Tor:** Ton, Musik, Lautstärke, Vorlesen an/aus und Tempo, Schriftgröße, Hell/Dunkel.
+- **Hinter das Tor:**
+  - Pro, KI, Zugangscode
+  - Updates
+  - Daten zurücksetzen, Profile löschen
+  - Datenschutz- und Zähl-Schalter
+  - Familie bzw. Kopplung
+  - Hinweise auf Nachhilfe
+  - Klassen-Code bzw. Kamera
+  - Teilen nach außen
+- **Umsetzung im Mathe-Trainer:** Die Einstellungen-Seite (extras.js) wird geteilt. Die Schnell-Schalter bleiben frei, die übrigen Abschnitte liegen hinter einem Knopf „Für Eltern“ (data-tor). Ebenso #/eltern und der Bericht-Teilen-Knopf.
+
 ## 19.11.2026 – Weg zur Probestunde (Recht V15; Marcel: „Ja, alles so umsetzen“; ab Di 24.11.)
 
 Verbindlich mit Wortlaut: PROBESTUNDE.md (website_backup, Branch appzentrale, d672374).
