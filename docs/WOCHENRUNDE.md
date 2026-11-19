@@ -2,6 +2,22 @@
 
 Neuester Beitrag oben.
 
+## 19.11.2026 – Neue Einheit Kl. 9/10 „Potenz-, Wurzel- und Bruchgleichungen“ (Marcel: Di-Update 24.11.)
+
+- **Anlass:** Marcels Arbeitsblatt „Potenzen und Wurzeln“. Heute fehlen Potenz-, Wurzel- und Bruchgleichungen; n-te Wurzel und rationale Hochzahlen werden nur in der Oberstufe geübt.
+- **Inhalt:**
+  - Potenzgleichungen x^n = a (gerade und ungerade n, keine Lösung).
+  - Wurzelgleichungen mit Quadrieren und Pflicht-Probe, Scheinlösungen als typischer Fehler.
+  - Bruchgleichungen: zuerst die Definitionsmenge, dann der Hauptnenner, ausgeschlossene Lösung.
+  - Rationale Hochzahlen als Übung.
+  - Theorie mit allen Formeln und Beispielen, jede Aufgabe unabhängig nachgerechnet (tests/hart).
+- **Prüfstein (Marcels Blatt):**
+  - a) 2√x = 6 → x = 9
+  - b) 5√x = −1/16 → keine Lösung
+  - c) √(−x+5) = 10 → x = −95
+  - d) 2·√(5x) = 10x → x = 0 oder x = 1/5 (Probe)
+- „Kommt bald: Wurzelgleichungen“ (Kl. 9) entfällt dann.
+
 ## 19.11.2026 – Tonstudio statt „Nova“ (Marcel; AppZentrale)
 
 - Der Leitstand betreibt ein gemeinsames Tonstudio mit einer deutschen Frauenstimme (Chatterbox oder Zonos, Marcel wählt).
