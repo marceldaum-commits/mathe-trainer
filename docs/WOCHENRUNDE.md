@@ -147,3 +147,13 @@ Ablauf von nun an jede Woche: (1) was jede App herausnimmt oder abgibt und an we
   - Hinter das Eltern-Tor kommen Preise, „Pro holen“, „KI dazubuchen“ und für Kl. 5–10 auch „Nachhilfe buchen“ in der Kopfzeile. Nach Marcels Regel für Rechenblitz gehen alle Website-Links außer Impressum und Datenschutz über das Tor.
   - Die gemeinsame Vorgabe für das Tor kommt nach der Beschreibung durch Wissensgarten. Umsetzung Di 24.11.
 - **Abi-Bündel freigegeben:** 24,99 € (unser Abi-Pass + Raumlicht Pro + KI-Abi-Pass), Verkauf 1.2.–30.4.2027.
+- **Eltern-Tor, gemeinsamer Standard** (ELTERN-TOR.md, AppZentrale 2aa413c):
+  - Malaufgabe 13–19 × 6–9 in Worten mit Vorlese-Knopf, eigene Ziffern-Tastatur, nach einem Fehler sofort neue Aufgabe.
+  - 10 Minuten offen (nur im Arbeitsspeicher).
+  - Pflicht vor jedem Kauf-/Shop-Weg, jeder Preisliste in Kl. 5–10, allen Links nach außen außer Impressum/Datenschutz, Elternbereich, Einstellungen, Kopplung, Löschen, Teilen.
+  - Oberstufe: Preise sichtbar, aber „Pro holen“ und „KI dazubuchen“ übers Tor, mit „Wer unter 18 ist, kauft nicht selbst.“
+  - Ein gelöstes Tor zählt als `elternbereich`. Umsetzung Di 24.11.
+- **PC-Vollbild (Marcel 19.11.: „alle prüfen“):** Live geprüft bei 1920/1366/1280.
+  - Start/Lernen/Theorie stehen in einer Spalte von 952 px (bei 1920 viel Rand).
+  - Aufgaben und Spiele sind nur 572 px breit und wirken verloren.
+  - Verbesserung im Update Fr 20.11.: ab 1200 px breiter, Raster, Aufgaben zweispaltig. Handy und iPad bleiben unverändert.
