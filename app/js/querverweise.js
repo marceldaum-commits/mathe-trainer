@@ -1,6 +1,7 @@
 // Querverweise zu den anderen Lern-Apps (AppZentrale 19.11.2026: Spezialisierung und Aufräumen vorgezogen; Marcel).
 // Nur unter der Theorie, nur auf freie Inhalte, nie auf Kaufseiten. Gleicher Tab, Herkunft src=mathetrainer-theorie.
 // Kennungen aus den Absprachen der Räume (docs/WOCHENRUNDE.md); Rechenblitz-Themen in der App selbst nachgesehen.
+// Raumlicht: nur freie Ziele (erleben, rotation, galton, zufall); binomial und baumeister sind Raumlicht Pro – nicht verlinken.
 // Unbekannte Kennungen öffnen bei allen Apps die Startseite – es gibt also nie einen toten Link.
 import { linkMitHerkunft } from './zaehler.js';
 import { esc } from './ui.js';
@@ -47,17 +48,19 @@ export const VERWEISE = {
   'k10-sinussatz': [['kurvenflug', 'trigonometrie']],
   'k10-log': [['kurvenflug', 'logarithmus'], ['experimentopia', 'saeure']],
   'k10-funktionen': [['kurvenflug', 'wellen']],
-  'extremwert': [['raumlicht', 'baumeister']],
-  'anwenden': [['raumlicht', 'baumeister']],
+  'regeln': [['raumlicht', 'erleben']],
+  'kurve': [['raumlicht', 'erleben']],
+  'extremwert': [['raumlicht', 'erleben']],
+  'integral': [['raumlicht', 'erleben']],
+  'expln': [['raumlicht', 'erleben']],
+  'a-rotation': [['raumlicht', 'rotation']],
+  's-baum': [['raumlicht', 'zufall']],
+  's-bedingt': [['raumlicht', 'zufall']],
   's-labor': [['raumlicht', 'zufall']],
   's-zufall': [['raumlicht', 'zufall']],
   's-verteilung': [['raumlicht', 'galton']],
-  's-test': [['raumlicht', 'binomial']],
-  's-test2': [['raumlicht', 'binomial']],
-  'g-vektor': [['raumlicht', 'raumflug']],
-  'g-gerade': [['raumlicht', 'raumflug']],
-  'g-ebene': [['raumlicht', 'raumflug']],
-  'g-mass': [['raumlicht', 'raumflug']],
+  's-test': [['raumlicht', 'galton']],
+  's-test2': [['raumlicht', 'galton']],
 };
 
 /** Adresse einer App: auf der Test-Stufe die Test-Fassung, sonst die Live-Fassung. */
