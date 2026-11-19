@@ -50,7 +50,7 @@ export function proAbzeichen() {
 /** Gültigkeit in Worten. */
 export const gueltig = (z = store.zugang) => (!z ? '' : z.bis >= '9999' ? 'unbefristet gültig' : `gültig bis ${z.bis.split('-').reverse().join('.')}`);
 
-/** Kl. 5–10 (Sofortkorrektur 2.5.2-1, Recht/UWG Anh. I Nr. 28, Marcel 19.11.: „Heute ausblenden“): keine Preise, kein Kaufknopf –
+/** Kl. 5–10 (Sofortkorrektur 2.5.3, Recht/UWG Anh. I Nr. 28, Marcel 19.11.: „Heute ausblenden“): keine Preise, kein Kaufknopf –
  *  auch nicht über einen direkten Link oder ein Lesezeichen auf #/pro. Nur die eigene Stufe bzw. „Das gehört zu Mathe-Trainer Pro.“ */
 function proKind() {
   const z = store.zugang, st = store.stufe;

@@ -1,4 +1,4 @@
-// Sofortkorrektur 2.5.2-1 (Recht, UWG Anh. I Nr. 28; Marcel 19.11.: „Heute ausblenden“): In Kl. 5–10 keine Pro-Karte, #/pro auch per
+// Sofortkorrektur 2.5.3 (Recht, UWG Anh. I Nr. 28; Marcel 19.11.: „Heute ausblenden“): In Kl. 5–10 keine Pro-Karte, #/pro auch per
 // direktem Link ohne Preise und Kaufknöpfe; Oberstufe unverändert. Chromium (PC) und WebKit (iPhone). Aufruf: node tests/kinderpro.mjs
 import { createRequire } from 'node:module'; const { chromium, webkit, devices } = createRequire(import.meta.url)('playwright');
 import http from 'node:http'; import fs from 'node:fs'; import path from 'node:path';

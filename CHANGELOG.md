@@ -2,7 +2,7 @@
 
 Kurzfassung für Nutzer und Leitstand. Einzelheiten: `docs/PLAN.md` (Baulog) und `MELDUNG_AN_LEITSTAND.md`.
 
-## 2.5.2-1 – 19.11.2026 (Sofortkorrektur, Recht; Marcel: „Heute ausblenden“)
+## 2.5.3 – 19.11.2026 (Sofortkorrektur, Recht; Marcel: „Heute ausblenden“)
 - **Klasse 5–10:**
   - Die Karte „PRO“ ist ausgeblendet.
   - Die Pro-Seite zeigt keine Preise und keine Kaufknöpfe mehr, auch nicht über einen direkten Link. Dort steht nur die eigene Stufe bzw. „Das gehört zu Mathe-Trainer Pro.“
