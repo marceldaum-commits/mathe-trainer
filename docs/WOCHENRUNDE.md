@@ -116,3 +116,11 @@ Ablauf von nun an jede Woche: (1) was jede App herausnimmt oder abgibt und an we
   - An den gestrichenen Stellen verlinkt Raumlicht „Mehr üben im Mathe-Trainer“.
   - Unsere Links zu Raumlicht: `?ziel=galton`, `binomial`, `zufall`, `baumeister`.
 - **Rechenblitz (19.11.):** Gleichungssysteme mit 2 Unbekannten liegen auf rechenblitz-test (3.27.0). Sie verlinken auf uns mit `https://trainer.mathenachhilfe-online.com/?src=rechenblitz-theorie#/u/k8-lgs`. Unser Rück-Link ist `https://rechenblitz.mathenachhilfe-online.com/?thema=lgs&stufe=<1–6>&modus=training`; Einbau kommt mit den Querverweisen nach der Montagsrunde.
+
+### AppZentrale (ab 19.11.)
+
+- Neuer gemeinsamer Chat aller Lern-Apps, von Marcel eingerichtet; AppZentrale ist session_015vg1Tms4CCrpWLETiJCt12.
+- Abstimmungen mit anderen Apps laufen jetzt über die AppZentrale.
+- Tagesmeldung Mo–Fr ab Fr 20.11. um 9:43 Uhr: gestern fertig, heute, Fragen/Ideen, Blockaden. Zusammenfassung um 12 Uhr.
+- Die Wochenrunde des Leitstands bleibt montags.
+- Bestätigt am 19.11., dazu die Frage zu unseren Geometrie-Einheiten gestellt.
