@@ -39,6 +39,7 @@ const ASSETS = [
   "img/icon-512.png",
   "img/icon-maskable-512.png",
   "img/symbol.svg",
+  "js/familie.js",
   "js/look.js",
   "js/wache.js",
   "manifest.webmanifest",
