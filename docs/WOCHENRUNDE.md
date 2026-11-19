@@ -17,7 +17,12 @@ Neuester Beitrag oben.
 
 Umsetzung am Di 24.11. im Elternbereich (alles hinter dem Eltern-Tor).
 
-- **Hinweis.** Pflicht beim ersten Koppeln und im Bereich „Familie“. Darunter der Link zur Datenschutzerklärung und der Knopf „Einverstanden“:
+- **Hinweis.** Pflicht beim ersten Koppeln und im Bereich „Familie“. Recht hat das freigegeben, mit Auflage A6 (v1.6):
+  - Es gibt nur diesen einen Einwilligungstext.
+  - Darunter steht der Link „Mehr dazu in der Datenschutzerklärung (Abschnitt 10m)“.
+  - Dann folgt der Knopf „Einverstanden – Familie anlegen“. Nichts ist vorausgewählt.
+  - Anlegen und Beitreten gehen nur hinter dem Eltern-Tor.
+  - Der Text ist von Marcel wörtlich vorgegeben:
   > Eure Lernstände werden verschlüsselt auf unserem Server in Deutschland gespeichert. Der Schlüssel liegt auf euren Geräten. Damit wir euch helfen können, falls ihr den Familien-Zugang verliert, hinterlegen wir zusätzlich eine verschlüsselte Notfall-Kopie. Sie lässt sich nur mit einem getrennt und offline aufbewahrten Schlüssel von Mathenachhilfe Online öffnen. Technisch könnten wir damit eure Lernstände lesen; wir tun das nicht und nutzen ihn nur, wenn ihr uns um Wiederherstellung bittet. Jede Wiederherstellung seht ihr hier im Protokoll.
 - **Löschen.** Nur hinter dem Tor, in drei Schritten:
   1. Zuerst die Warnung:
