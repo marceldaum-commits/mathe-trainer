@@ -115,3 +115,4 @@ Ablauf von nun an jede Woche: (1) was jede App herausnimmt oder abgibt und an we
   - Stattdessen kommt ein Rotationskörper-Labor zum Erleben (voraussichtlich `?ziel=rotation`). Umbau Di 24.11.
   - An den gestrichenen Stellen verlinkt Raumlicht „Mehr üben im Mathe-Trainer“.
   - Unsere Links zu Raumlicht: `?ziel=galton`, `binomial`, `zufall`, `baumeister`.
+- **Rechenblitz (19.11.):** Gleichungssysteme mit 2 Unbekannten liegen auf rechenblitz-test (3.27.0). Sie verlinken auf uns mit `https://trainer.mathenachhilfe-online.com/?src=rechenblitz-theorie#/u/k8-lgs`. Unser Rück-Link ist `https://rechenblitz.mathenachhilfe-online.com/?thema=lgs&stufe=<1–6>&modus=training`; Einbau kommt mit den Querverweisen nach der Montagsrunde.
