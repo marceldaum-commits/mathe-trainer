@@ -1,11 +1,9 @@
 // Service Worker: macht die App offline nutzbar und liefert Updates aus.
 // CACHE muss zur VERSION in js/config.js passen; ASSETS pflegt `npm run fix` (tools/check.mjs).
-const CACHE = 'mathetrainer-2.5.2';
+const CACHE = 'mathetrainer-2.5.3';
 const ASSETS = [
   "./",
   "b/app.js",
-  "b/teil-3KTIR62P.js",
-  "b/teil-64WTEASP.js",
   "b/teil-6YPP5Y2A.js",
   "b/teil-AEZ25ZGF.js",
   "b/teil-AS6KYEIB.js",
@@ -13,6 +11,7 @@ const ASSETS = [
   "b/teil-FWQ24JPX.js",
   "b/teil-IDKPAFEY.js",
   "b/teil-IU2Q2TH3.js",
+  "b/teil-JJL5RFDQ.js",
   "b/teil-KTQ3GSC6.js",
   "b/teil-LCORL54V.js",
   "b/teil-LS4AAZS5.js",
@@ -20,16 +19,16 @@ const ASSETS = [
   "b/teil-MS54AG6X.js",
   "b/teil-NIO7452L.js",
   "b/teil-NXK5KEGM.js",
-  "b/teil-NYMRX6BB.js",
-  "b/teil-PS5GJQ65.js",
+  "b/teil-OX4I53YL.js",
   "b/teil-Q46Z3GML.js",
   "b/teil-Q5PUZU4U.js",
   "b/teil-RL45PKN5.js",
   "b/teil-RUYDIZ5N.js",
+  "b/teil-TUONK4RQ.js",
   "b/teil-U2NXPJCT.js",
   "b/teil-W6SVZTH4.js",
-  "b/teil-W6U5FAQ7.js",
   "b/teil-Y6JZNNOX.js",
+  "b/teil-YWWZGVWW.js",
   "b/teil-YZAHFDPL.js",
   "css/app.css",
   "fonts/inter-latin-wght-normal.woff2",

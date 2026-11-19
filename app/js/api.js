@@ -57,6 +57,19 @@ export async function kiNachpruefen() {
   return true;
 }
 export const kaufLinks = () => (proOhneKi() ? (inApp() ? '' : ` ${kiDazuKnopf('btn small line')}`) : `${premiumOn() ? ' <a href="#/einstellungen">Zugangscode eingeben</a>' : ''}${typeof window !== 'undefined' && window.MTApp ? '' : ` <a href="${CONFIG.shop}" target="_blank" rel="noopener">Pro holen</a>`}`);
+/** Oberstufe? (Kl. 11–13: sachliche Pro-Infos mit Preis erlaubt, Kauf trotzdem über das Eltern-Tor; ELTERN-TOR.md). */
+const oberstufe = () => store.jahrgang === 'os';
+export const UNTER18 = 'Wer unter 18 ist, kauft nicht selbst.';
+/** Neutraler Knopf zur Pro-Seite – in Kl. 5–10 steht diese hinter dem Eltern-Tor. */
+export const fuerEltern = () => '<a class="btn small line fuer-eltern" href="#/pro" data-ort="gesperrt">Für Eltern</a>';
+/**
+ * Schloss bei gesperrten Inhalten (Marcel 19.11. auf Empfehlung von Recht): in der Kinderansicht NUR „Das gehört zu Mathe-Trainer Pro.“
+ * und der neutrale Knopf „Für Eltern“ – kein Preis, kein Kaufknopf, keine Aufforderung. Oberstufe: sachlicher Grund, Kauf-Verweise
+ * (laufen über das Tor) und „Wer unter 18 ist, kauft nicht selbst.“
+ */
+export const schloss = (grund) => (oberstufe()
+  ? `<b>${grund}</b>${kaufLinks()}${kaufLinks().includes('https://') ? ` <small class="muted unter18">${UNTER18}</small>` : ''}`
+  : `<b>Das gehört zu Mathe-Trainer Pro.</b> ${fuerEltern()}`);
 export const ZUGANG_ART = { pass: 'Abi-Pass', tage30: '30-Tage-Pass', frei: 'Freier Zugang' };
 
 /** Übrige KI-Punkte von heute: der letzte Stand, den der Server gemeldet hat (null = heute noch keiner gemeldet). */

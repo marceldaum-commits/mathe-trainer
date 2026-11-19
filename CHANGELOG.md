@@ -2,6 +2,17 @@
 
 Kurzfassung für Nutzer und Leitstand. Einzelheiten: `docs/PLAN.md` (Baulog) und `MELDUNG_AN_LEITSTAND.md`.
 
+## 2.5.3 – 20.11.2026 (nur Korrekturen)
+- **Eltern-Tor** nach dem gemeinsamen Standard aller Lern-Apps:
+  - Eine Malaufgabe in Worten mit Vorlese-Knopf und eigenen Zifferntasten. Danach bleibt das Tor 10 Minuten offen.
+  - Davor stehen jetzt alle Links nach außen außer Impressum und Datenschutz, auch „← Alle Apps“ und der Shop.
+- **Klasse 5–10:**
+  - Die Pro-Seite zeigt Preise und Kaufknöpfe erst nach dem Tor.
+  - Gesperrte Inhalte zeigen nur „Das gehört zu Mathe-Trainer Pro.“ und den Knopf „Für Eltern“.
+  - Keine Probestunden-Hinweise mehr.
+- **Oberstufe:** Die Preise bleiben sichtbar. Kaufen geht über das Tor, dazu der Hinweis „Wer unter 18 ist, kauft nicht selbst.“
+- **Pro-Seite:** Der 30-Tage-Code ist bis zum 31.12. des dritten Jahres nach dem Kauf einlösbar (vorher stand dort „12 Monate“).
+
 ## 2.5.2 – 19.11.2026
 - Startseite am PC: Die Klassen-Wahl ist jetzt so breit wie die Karten darunter (vorher schmaler, wirkte schief).
 

@@ -691,6 +691,8 @@ for (const u of ALLE_UNITS) {
 export let UNITS = [];
 export let AREAS = [];
 export function jahrgangAnwenden(jg = store.jahrgang) {
+  // Kinderansicht (Kl. 5–10): Probestunden- und Werbehinweise ausblenden (ELTERN-TOR.md: nur im Elternbereich; Recht V10)
+  try { globalThis.document?.documentElement.classList.toggle('kinder', jg !== 'os'); } catch { /* ohne DOM */ }
   UNITS = ALLE_UNITS.filter((u) => jgVon(u) === jg);
   AREAS = jg === 'os' ? OBER_AREAS : MITTEL_AREAS.filter((a) => UNITS.some((u) => u.area === a.id)).map((a) => ({ ...a, soon: [], info: UNITS.filter((u) => u.area === a.id).map((u) => u.title).join(', ') }));
   return UNITS;

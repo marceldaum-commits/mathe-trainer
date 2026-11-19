@@ -1059,3 +1059,19 @@ button.card.unit{text-align:left;width:100%;font:inherit;color:inherit;cursor:po
 .umzug-hinweis{position:fixed;inset:0;z-index:90;display:grid;place-items:center;padding:16px;background:rgba(10,16,40,.55)}
 .umzug-hinweis .card{max-width:420px;width:100%}
 .umzug-hinweis p{font-size:calc(15px*var(--fs,1))}
+
+/* Kinderansicht Kl. 5–10: keine Probestunden- und Werbehinweise (ELTERN-TOR.md; Recht V10) */
+html.kinder .promo,html.kinder .cta,html.kinder .werbung{display:none!important}
+/* Eltern-Tor (gemeinsamer Standard aller Lern-Apps) */
+.tor-hg{position:fixed;inset:0;z-index:9999;background:rgba(8,14,30,.72);display:flex;align-items:center;justify-content:center;padding:16px}
+.tor{background:var(--card,#fff);color:var(--ink,#111);border-radius:18px;max-width:380px;width:100%;padding:20px;display:flex;flex-direction:column;gap:10px;box-shadow:0 12px 40px rgba(0,0,0,.35);max-height:100%;overflow:auto}
+.tor h2{margin:0;font-size:calc(22px*var(--fs,1))}
+.tor p{margin:0}
+.tor-aufgabe{font-size:calc(24px*var(--fs,1));font-weight:800}
+.tor-anzeige{display:block;font-size:calc(28px*var(--fs,1));font-weight:800;text-align:center;padding:8px;border-radius:12px;background:rgba(127,127,127,.12);min-height:1.6em;letter-spacing:.08em}
+.tor-fehler{color:var(--bad,#c62828);min-height:1.2em;font-size:calc(15px*var(--fs,1))}
+.tor-tasten{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.tor-taste{font:inherit;font-size:calc(24px*var(--fs,1));font-weight:700;min-height:56px;border-radius:12px;border:2px solid rgba(127,127,127,.35);background:transparent;color:inherit;cursor:pointer}
+.tor-taste.ok{background:var(--orange,#f58220);border-color:transparent;color:#fff}
+.tor-taste:focus-visible,.tor .btn:focus-visible{outline:3px solid var(--orange,#f58220);outline-offset:2px}
+.unter18{display:block;margin-top:6px}

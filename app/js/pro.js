@@ -2,7 +2,8 @@
 import { h, esc, ICON, toast } from './ui.js';
 import { store } from './store.js';
 import { CONFIG } from './config.js';
-import { premiumOn, premiumBereit, ZUGANG_ART, kiRestHeute, kiLimitHeute, kiRestHolen, kiDazuKnopf, kiNachpruefen } from './api.js';
+import { premiumOn, premiumBereit, ZUGANG_ART, kiRestHeute, kiLimitHeute, kiRestHolen, kiDazuKnopf, kiNachpruefen, UNTER18 } from './api.js';
+import { torOffen } from './tor.js';
 
 /** Alle Funktionen mit ihrer Stufe. wo = Sprungziel in der App (leer: erscheint direkt bei den Aufgaben). */
 export const FUNKTIONEN = [
@@ -50,7 +51,22 @@ export function proAbzeichen() {
 /** Gültigkeit in Worten. */
 export const gueltig = (z = store.zugang) => (!z ? '' : z.bis >= '9999' ? 'unbefristet gültig' : `gültig bis ${z.bis.split('-').reverse().join('.')}`);
 
+/** Kl. 5–10 ohne gelöstes Eltern-Tor: nur die eigene Stufe und der neutrale Knopf „Für Eltern“ – keine Preise, kein Kaufknopf (ELTERN-TOR.md, Recht V10). */
+function proKind() {
+  const z = store.zugang, st = store.stufe;
+  const el = h(`<div class="view stack">
+    <a class="back" href="#/mehr">${ICON.left} Mehr</a>
+    <section class="board pro-stand"><div class="board-top"><span>DEINE STUFE</span><b>● ${st === 'proki' ? 'PRO + KI' : st === 'pro' ? 'PRO' : 'FREI'}</b></div>
+      <h2 id="pro-stufe">${st === 'proki' ? 'Pro + KI' : st === 'pro' ? 'Pro' : 'Frei'}</h2>
+      <p>${st ? `${esc(ZUGANG_ART[z.art] || 'Zugang')} · ${esc(gueltig(z))}` : 'Alles zum Lernen und Spielen ist frei.'}</p>
+      <button class="btn small line" type="button" id="pro-eltern" data-tor="Hier stehen Preise und Kaufmöglichkeiten.">Für Eltern</button></section>
+  </div>`);
+  el.querySelector('#pro-eltern').addEventListener('click', () => { if (torOffen()) window.dispatchEvent(new HashChangeEvent('hashchange')); });
+  return { el };
+}
+
 export function proView() {
+  if (store.jahrgang !== 'os' && !torOffen()) return proKind();
   const z = store.zugang, st = store.stufe;
   const el = h(`<div class="view stack">
     <a class="back" href="#/mehr">${ICON.left} Mehr</a>
@@ -65,7 +81,7 @@ export function proView() {
   const ak = el.querySelector('#pro-aktion');
   premiumBereit().then((an) => {
     if (!el.isConnected) return;
-    if (an || z) ak.innerHTML = `<a class="btn small" href="#/einstellungen">${z ? 'Zugangscode ändern' : 'Zugangscode eingeben'}</a>${!st && !window.MTApp ? ` <a class="btn small line" href="${CONFIG.shop}" target="_blank" rel="noopener">Pro holen ↗</a>` : ''}${kiDazuKnopf() ? ` ${kiDazuKnopf()}` : ''}`;
+    if (an || z) ak.innerHTML = `<a class="btn small" href="#/einstellungen">${z ? 'Zugangscode ändern' : 'Zugangscode eingeben'}</a>${!st && !window.MTApp ? ` <a class="btn small line" href="${CONFIG.shop}" target="_blank" rel="noopener">Pro holen ↗</a>` : ''}${kiDazuKnopf() ? ` ${kiDazuKnopf()}` : ''}${(!st && !window.MTApp) || kiDazuKnopf() ? `<small class="muted unter18">${UNTER18}</small>` : ''}`;
     else ak.innerHTML = '<small>Die Pro-Fassung startet bald. Bis dahin sind die Pro-Funktionen hier zum Ausprobieren frei.</small>';
   });
   // Nach dem Dazubuchen im Shop: Code neu prüfen, KI sofort freischalten

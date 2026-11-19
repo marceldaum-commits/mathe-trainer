@@ -7,7 +7,7 @@ import { MEHR } from './theorie-mehr.js';
 import { store } from './store.js';
 import { UNITS, AREAS, unitExtra, NICHT_TEXT } from './units.js';
 import { CONFIG } from './config.js';
-import { premiumOn, premiumBereit } from './api.js';
+import { premiumOn, premiumBereit, schloss } from './api.js';
 import { merkbilderEinsetzen, hatMerkbild } from './merkbild.js';
 import { marke } from './pro.js';
 
@@ -398,12 +398,12 @@ function kapitelView(u, startLang) {
   el.querySelectorAll('#t-art .pick').forEach((b) => { b.onclick = async () => {
     const will = b.dataset.l === '1'; sfx('tap'); pro.innerHTML = '';
     if (will && !hatLang(u)) { pro.innerHTML = '<div class="note tip">Die ausführliche Fassung zu diesem Thema ist in Arbeit. Die kurze Fassung enthält schon alles Wichtige.</div>'; return; }
-    if (will) { await premiumBereit(); if (!proOffen()) { pro.innerHTML = '<div class="note tip"><b>Die ausführliche Fassung gehört zur Pro-Fassung.</b> <a href="#/einstellungen">Zugangscode eingeben</a></div>'; return; } }
+    if (will) { await premiumBereit(); if (!proOffen()) { pro.innerHTML = `<div class="note tip">${schloss('Die ausführliche Fassung gehört zur Pro-Fassung.')}</div>`; return; } }
     lang = will; paint();
   }; });
   $('#t-druck', el).onclick = async () => {
     await premiumBereit();
-    if (!proOffen()) { pro.innerHTML = '<div class="note tip"><b>Drucken und PDF gehören zur Pro-Fassung.</b> <a href="#/einstellungen">Zugangscode eingeben</a></div>'; return; }
+    if (!proOffen()) { pro.innerHTML = `<div class="note tip">${schloss('Drucken und PDF gehören zur Pro-Fassung.')}</div>`; return; }
     drucken(`Theorie-${u.title}`);
   };
   premiumBereit().then(() => { if (el.isConnected && !premiumOn() && !pro.innerHTML) pro.innerHTML = '<small class="muted">„Ausführlich“ und PDF gehören später zur Pro-Fassung. In der Testphase sind sie für alle frei.</small>'; });

@@ -5,7 +5,7 @@ import { store, LEVELS } from './store.js';
 import { shuffle } from './math.js';
 import { UNITS } from './units.js';
 import { quiz } from './quiz.js';
-import { api, kiBereit, kiArt, kaufLinks } from './api.js';
+import { api, kiBereit, kiArt, kaufLinks, schloss } from './api.js';
 import { toQuestion } from './ki/verify.js';
 
 const GEBIETE = [['analysis', 'Analysis'], ['stochastik', 'Stochastik'], ['geometrie', 'Analytische Geometrie']];
@@ -65,7 +65,7 @@ export function kiAufgabeView() {
       return;
     }
     go.disabled = r.status === 402;
-    note.innerHTML = r.status === 402 ? `<div class="note tip"><b>KI-Aufgaben gehören zur Stufe „Pro + KI“.</b>${kaufLinks()}</div>`
+    note.innerHTML = r.status === 402 ? `<div class="note tip">${schloss('KI-Aufgaben gehören zur Stufe „Pro + KI“.')}</div>`
       : `<div class="note ${r.status === 429 ? 'tip' : 'bad'}">${r.status === 429 ? 'Dein KI-Guthaben für heute ist aufgebraucht. Morgen geht es weiter.' : esc(r.error || 'Die Aufgabe konnte gerade nicht geholt werden.')}</div>`;
   }
   function zeige(q, rest) {

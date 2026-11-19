@@ -5,7 +5,7 @@ import { store } from './store.js';
 import { CONFIG } from './config.js';
 import { ft } from './math.js';
 import { inputSpec, parseInput, isRight, diagnose } from './eingabe.js';
-import { api, kiBereit, premiumOn, kiArt, proOhneKi, kaufLinks } from './api.js';
+import { api, kiBereit, premiumOn, kiArt, proOhneKi, kaufLinks, schloss } from './api.js';
 import { rechenwegFeld } from './rechenweg.js';
 import { merkZuTitel, merkbilderEinsetzen } from './merkbild.js';
 import { marke } from './pro.js';
@@ -34,7 +34,6 @@ export function quiz(sequence, opts = {}) {
       // „Erklär's mir anders“ (KI, nur mit eingeschaltetem Server): bekommt nur die Aufgabe und die gewählte Antwort.
       let gewaehlt = '';
       const richtigTex = () => q.options?.find((o) => o.correct)?.tex || '';
-      const kauf = () => (proOhneKi() ? kaufLinks() : `${premiumOn() ? ' <a href="#/einstellungen">Zugangscode eingeben</a>' : ''}${window.MTApp ? '' : ` <a href="${CONFIG.website}" target="_blank" rel="noopener">Zur Website</a>`}`);
       // KI-Tutor: Rückfragen zur selben Aufgabe (Stufe „Pro + KI“). Der Verlauf bleibt nur hier im Bild, gespeichert wird nichts.
       const nachfragen = (out, erste) => {
         const verlauf = [{ wer: 'ki', text: erste }];
@@ -50,7 +49,7 @@ export function quiz(sequence, opts = {}) {
             verlauf: verlauf.slice(-6), text, geraet: store.geraet, ...(store.zugangGilt() ? { zugang: store.zugang.code } : {}) });
           const div = h('<div class="note"></div>'); div.className = `note ${r.ok && r.text ? 'ok' : 'tip'}`;
           if (r.ok && r.text) { div.textContent = String(r.text).replace(/<[^>]*>/g, '').slice(0, 900); verlauf.push({ wer: 'ich', text }, { wer: 'ki', text: div.textContent }); feld.value = ''; }
-          else if (r.status === 402) div.innerHTML = `<b>Rückfragen an den Tutor gehören zur Stufe „Pro + KI“.</b>${kauf()}`;
+          else if (r.status === 402) div.innerHTML = schloss('Rückfragen an den Tutor gehören zur Stufe „Pro + KI“.');
           else div.textContent = r.status === 429 ? 'Dein KI-Guthaben für heute ist aufgebraucht. Morgen geht es weiter.' : (r.error || 'Der Tutor ist gerade nicht erreichbar.');
           warte.replaceWith(div);
           if (r.ok && Number.isInteger(r.rest)) { form.querySelector('.ki-rest')?.remove(); form.append(h(`<small class="muted ki-rest">Heute noch ${r.rest} ${r.rest === 1 ? 'KI-Punkt' : 'KI-Punkte'}.</small>`)); }
@@ -70,7 +69,7 @@ export function quiz(sequence, opts = {}) {
           div.className = `note ${r.ok && r.text ? 'ok' : 'tip'}`;
           if (r.status === 402) {   // die drei kostenlosen Proben sind verbraucht
             // In der Android-App kein Verweis auf einen Kauf außerhalb (Regel des Play Store) – dort nur das Code-Feld.
-            div.innerHTML = `<b>Deine drei kostenlosen Erklärungen sind aufgebraucht.</b> Mit „Pro + KI“ geht es weiter.${kauf()}`;
+            div.innerHTML = `<b>Deine drei kostenlosen Erklärungen sind aufgebraucht.</b> ${schloss('Weitere Erklärungen gehören zur Stufe „Pro + KI“.')}`;
           } else div.textContent = r.ok && r.text ? String(r.text).replace(/<[^>]*>/g, '').slice(0, 900) : r.status === 429 ? 'Dein KI-Guthaben für heute ist aufgebraucht. Morgen geht es weiter.' : (r.error || 'Die Erklärung ist gerade nicht erreichbar.');
           const rest = r.ok && Number.isInteger(r.rest) && r.rest >= 0 ? h(`<small class="muted ki-rest">${r.art === 'probe' ? (r.rest === 0 ? 'Das war deine letzte kostenlose Erklärung.' : `Noch ${r.rest} von 3 kostenlosen Erklärungen.`) : `Heute noch ${r.rest} ${r.rest === 1 ? 'KI-Punkt' : 'KI-Punkte'}.`}</small>`) : '';
           out.replaceChildren(div, rest);

@@ -7,7 +7,7 @@ import { store } from './store.js';
 import { shuffle, ri } from './math.js';
 import { figurFor } from './figuren.js';
 import { kopf, proOffen } from './blatt.js';
-import { premiumBereit, premiumOn } from './api.js';
+import { premiumBereit, premiumOn, schloss } from './api.js';
 import { marke } from './pro.js';
 import { CONFIG } from './config.js';
 import { aufgabe, falle, auswahl, zuege, gleichungTex, ergebnisTex, probeTex, fertig, blattAufgaben } from './umform.js';
@@ -75,7 +75,7 @@ export function dungeonView(after) {
     const pro = $('#dg-pro', el);
     $('#dg-druck', el).onclick = async () => {
       await premiumBereit();
-      if (!proOffen()) { pro.innerHTML = '<div class="note tip"><b>Drucken und PDF gehören zur Pro-Fassung.</b> Ansehen und im Dungeon üben kannst du trotzdem. <a href="#/einstellungen">Zugangscode eingeben</a></div>'; return; }
+      if (!proOffen()) { pro.innerHTML = `<div class="note tip">${schloss('Drucken und PDF gehören zur Pro-Fassung.')} Ansehen und im Dungeon üben kannst du trotzdem.</div>`; return; }
       drucken(`Umstell-Blatt-${nr}`);
     };
     premiumBereit().then(() => { if (el.isConnected && !premiumOn()) pro.innerHTML = '<small class="muted">Drucken und PDF gehören später zur Pro-Fassung. In der Testphase sind sie für alle frei.</small>'; });

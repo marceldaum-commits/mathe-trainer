@@ -2,7 +2,7 @@
 // Die Runde bleibt darunter stehen – nach dem Schließen geht es genau dort weiter (kein Seitenwechsel, kein verlorener Fortschritt).
 import { h, esc, sfx, formelnEinpassen, vorleseKnoepfe, vorleseStopp } from './ui.js';
 import { UNITS } from './units.js';
-import { premiumBereit } from './api.js';
+import { premiumBereit, schloss } from './api.js';
 import { merkbilderEinsetzen } from './merkbild.js';
 import { marke } from './pro.js';
 
@@ -40,7 +40,7 @@ export async function theorieOeffnen(id, zurueck = null) {
   };
   fenster.querySelectorAll('#tf-art .pick').forEach((b) => { b.onclick = async () => {
     const will = b.dataset.l === '1'; pro.innerHTML = '';
-    if (will) { await premiumBereit(); if (!T.proOffen()) { pro.innerHTML = '<div class="note tip"><b>Die ausführliche Fassung gehört zur Pro-Fassung.</b> Die kurze Fassung enthält schon alles Wichtige.</div>'; return; } }
+    if (will) { await premiumBereit(); if (!T.proOffen()) { pro.innerHTML = `<div class="note tip">${schloss('Die ausführliche Fassung gehört zur Pro-Fassung.')} Die kurze Fassung enthält schon alles Wichtige.</div>`; return; } }
     zeige(will);
   }; });
   const zu = () => { vorleseStopp(); fenster.remove(); removeEventListener('hashchange', zu); removeEventListener('keydown', taste); if (zurueck?.isConnected) zurueck.focus(); };

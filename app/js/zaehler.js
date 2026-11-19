@@ -83,7 +83,7 @@ export function hinweiseBeobachten(w = globalThis.window) {
   if (typeof w?.MutationObserver !== 'function') return;
   const gesehen = new WeakSet();
   const pruefe = () => w.document.querySelectorAll('.promo, [data-hinweis]').forEach((el) => {
-    if (gesehen.has(el) || !el.querySelector('a[href*="probestunde"]') || !el.isConnected || el.closest('[hidden]')) return;
+    if (gesehen.has(el) || !el.querySelector('a[href*="probestunde"]') || !el.isConnected || el.closest('[hidden]') || !el.getClientRects?.().length) return;   // ausgeblendet (z. B. Kinderansicht) zählt nicht
     gesehen.add(el); zaehle('nachhilfe_hinweis', el.dataset.hinweis || ortVon(el, w.location.hash));
   });
   new w.MutationObserver(pruefe).observe(w.document.body, { childList: true, subtree: true }); pruefe();

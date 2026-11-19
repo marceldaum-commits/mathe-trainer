@@ -12,7 +12,8 @@
     "test:prolink": "node tests/prolink.mjs",
     "test:zaehlung": "node tests/zaehlung.mjs",
     "test:umzug": "node tests/umzug.mjs",
-    "test:familie": "node tests/familie.mjs"
+    "test:familie": "node tests/familie.mjs",
+    "test:tor": "node tests/tor.mjs"
   },
   "devDependencies": {
     "esbuild": "0.28.2"

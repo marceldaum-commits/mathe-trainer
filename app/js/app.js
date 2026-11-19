@@ -26,6 +26,7 @@ import { elternView } from './eltern-ui.js';
 import { freischaltLink } from './prolink.js';
 import { umzugBeimStart } from './umzug.js';
 import { aufLernen } from './ort.js';
+import { torStarten } from './tor.js';
 import { zaehle, zaehlungStarten, hinweiseBeobachten, linkMitHerkunft, alleAppsKnopf } from './zaehler.js';
 import { elternAutomatik } from './eltern.js';
 import { theorieKnopf, theorieKnoepfe, hatTheorie } from './theoriefenster.js';
@@ -526,6 +527,7 @@ document.addEventListener('visibilitychange', () => { if (document.visibilitySta
 elternAutomatik();   // gekoppeltes Eltern-Handy: Bericht und Sicherung nach jeder Lern-Sitzung (höchstens alle 10 Minuten)
 beiInstallWechsel(() => { if (['#/mehr', '', '#/', '#/einstellungen'].includes(location.hash)) route(); });   // „App installieren“ (install.js)
 // Anonyme Nutzungszählung (abschaltbar in den Einstellungen): „start“, Links mit Herkunft, Nachhilfe-Hinweise, Eltern-Seite, Theorie
+torStarten();   // Eltern-Tor vor Links nach außen und [data-tor] – vor der Zählung (Fenster, Erfassungsphase)
 zaehlungStarten(() => { const m = /^#\/(?:u|theorie)\/([\w-]+)/.exec(location.hash), u = m && ALLE_UNITS.find((x) => x.id === m[1].replace(/-lang$/, ''));
   return { klasse: store.jahrgang, unitTitel: u ? u.title : '', ober: istOber() }; });
 window.addEventListener('hashchange', () => { if (/^#\/eltern\b/.test(location.hash)) zaehle('elternbereich'); else if (/^#\/theorie\/[\w-]+/.test(location.hash)) zaehle('theorie'); });

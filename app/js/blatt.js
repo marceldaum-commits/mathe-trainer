@@ -8,7 +8,7 @@ import { UNITS, AREAS, landList, unitExtra, istOber } from './units.js';
 import { quiz } from './quiz.js';
 import { marke } from './pro.js';
 import { CONFIG } from './config.js';
-import { api, premiumOn, premiumBereit, kiBereit, kiArt, kaufLinks } from './api.js';
+import { api, premiumOn, premiumBereit, kiBereit, kiArt, kaufLinks, schloss } from './api.js';
 import { stelle } from './stufe.js';
 
 export const ANZAHL = [5, 8, 10, 12];
@@ -192,7 +192,7 @@ function vorschauView(c) {
     premiumBereit().then(() => {
       if (!tor.isConnected) return;
       if (proOffen()) tor.replaceWith(vorschau(c, fragen));
-      else tor.innerHTML = `<a class="back" href="#/blatt">${ICON.left} Arbeitsblatt</a><section class="card stack" id="b-tor"><h3>${blattName(c)} ${marke('pro')}</h3><p>${c.klausur ? `Die ${blattName(c)}` : 'Das Schwächen-Blatt'} gehört zur Pro-Fassung.</p><a class="btn" href="#/pro">Was ist in Pro?</a></section>`;
+      else tor.innerHTML = `<a class="back" href="#/blatt">${ICON.left} Arbeitsblatt</a><section class="card stack" id="b-tor"><h3>${blattName(c)} ${marke('pro')}</h3><p>${schloss(`${c.klausur ? `Die ${blattName(c)}` : 'Das Schwächen-Blatt'} gehört zur Pro-Fassung.`)}</p></section>`;
     });
     return { el: tor };
   }
@@ -211,7 +211,7 @@ function vorschau(c, fragen) {
   const pro = $('#b-pro', el);
   $('#b-druck', el).onclick = async () => {
     await premiumBereit();
-    if (!proOffen()) { pro.innerHTML = '<div class="note tip"><b>Drucken und PDF gehören zur Pro-Fassung.</b> In der App lösen kannst du das Blatt trotzdem. <a href="#/einstellungen">Zugangscode eingeben</a></div>'; return; }
+    if (!proOffen()) { pro.innerHTML = `<div class="note tip">${schloss('Drucken und PDF gehören zur Pro-Fassung.')} In der App lösen kannst du das Blatt trotzdem.</div>`; return; }
     drucken(`${blattName(c)}-${c.seed}`);
   };
   premiumBereit().then(() => { if (el.isConnected && !premiumOn()) pro.innerHTML = '<small class="muted">Drucken und PDF gehören später zur Pro-Fassung. In der Testphase sind sie für alle frei.</small>'; });
@@ -243,7 +243,7 @@ function loesenView(c) {
           const r = await api.auswertung({ ergebnis: fragen.slice(0, 60).map((q) => ({ thema: String(q.topic || q.unit || '').slice(0, 60), richtig: gut.has(q) })), geraet: store.geraet, ...(store.zugangGilt() ? { zugang: store.zugang.code } : {}) });
           const div = h('<div class="note ki-auswertung"></div>'); div.className = `note ki-auswertung ${r.ok && r.text ? 'ok' : 'tip'}`;
           if (r.ok && r.text) div.textContent = String(r.text).replace(/<[^>]*>/g, '').slice(0, 900);
-          else if (r.status === 402) div.innerHTML = `<b>Die KI-Auswertung gehört zur Stufe „Pro + KI“.</b>${kaufLinks()}`;
+          else if (r.status === 402) div.innerHTML = schloss('Die KI-Auswertung gehört zur Stufe „Pro + KI“.');
           else div.textContent = r.status === 429 ? 'Dein KI-Guthaben für heute reicht dafür nicht mehr. Morgen geht es weiter.' : (r.error || 'Die Auswertung ist gerade nicht erreichbar.');
           out.replaceChildren(div); if (r.ok && Number.isInteger(r.rest)) out.append(h(`<small class="muted ki-rest">Heute noch ${r.rest} ${r.rest === 1 ? 'KI-Punkt' : 'KI-Punkte'}.</small>`));
           go.disabled = r.ok || r.status === 402;
