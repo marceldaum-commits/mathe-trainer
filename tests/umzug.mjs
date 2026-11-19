@@ -11,7 +11,7 @@ const typ = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css'
 let n = 0, fehler = 0; const ok = (b, t) => { n++; if (!b) { fehler++; console.error('FEHLER:', t); } };
 const CORS = { 'access-control-allow-origin': '*', 'access-control-allow-headers': 'Content-Type, X-Schreib', 'access-control-allow-methods': 'GET, PUT, DELETE, OPTIONS' };
 
-async function lauf(engine, name, { neuBereit = true, neuHatSchon = false } = {}) {
+async function lauf(engine, name, { neuBereit = true, neuHatSchon = false, putFehler = false, start = '#/einstellungen' } = {}) {
   const ablage = new Map(), log = [];
   const b = await engine.launch(); const c = await b.newContext({ viewport: { width: 390, height: 844 }, serviceWorkers: 'block' });
   const datei = (route, rel) => { const f = path.join(APP, rel || 'index.html'); if (!fs.existsSync(f) || fs.statSync(f).isDirectory()) return route.fulfill({ status: 404, body: '' }); return route.fulfill({ status: 200, headers: { 'content-type': typ[path.extname(f)] || 'application/octet-stream' }, body: fs.readFileSync(f) }); };
@@ -21,7 +21,8 @@ async function lauf(engine, name, { neuBereit = true, neuHatSchon = false } = {}
     const m = /^\/eltern\/v1\/s\/([\w-]{22})$/.exec(u.pathname);
     if (m && u.host.startsWith('trainer-test')) {
       log.push(`${req.method()} s`);
-      if (req.method() === 'PUT') { ablage.set(m[1], { d: req.postData(), schreib: req.headers()['x-schreib'] }); return route.fulfill({ status: 204, headers: CORS }); }
+      if (req.method() === 'PUT' && putFehler) return route.fulfill({ status: 500, headers: CORS });
+      if (req.method() === 'PUT') { if (!/^[\w-]{16}\.[\w-]+$/.test(req.postData() || '') || /xp|GERAET/.test(req.postData())) log.push('KLARTEXT'); ablage.set(m[1], { d: req.postData(), schreib: req.headers()['x-schreib'] }); return route.fulfill({ status: 204, headers: CORS }); }
       if (req.method() === 'GET') { const e = ablage.get(m[1]); return e ? route.fulfill({ status: 200, headers: { ...CORS, 'content-type': 'application/json' }, body: JSON.stringify({ d: e.d }) }) : route.fulfill({ status: 404, headers: CORS }); }
       if (req.method() === 'DELETE') { const e = ablage.get(m[1]); if (e && e.schreib === req.headers()['x-schreib']) ablage.delete(m[1]); return route.fulfill({ status: 204, headers: CORS }); }
     }
@@ -45,7 +46,7 @@ async function lauf(engine, name, { neuBereit = true, neuHatSchon = false } = {}
     if (location.host.startsWith('lernen-test')) localStorage.setItem('andereapp.v1', 'fremd');
   }, [ALT, neuHatSchon]);
   const p = await c.newPage(); const err = []; p.on('pageerror', (e) => err.push(String(e)));
-  await p.goto(`${ALT}/#/einstellungen`);
+  await p.goto(`${ALT}/${start}`);
   let neuSeite = false;
   try { await p.waitForURL((u) => u.host.startsWith('lernen-test'), { timeout: neuBereit ? 20000 : 6000 }); neuSeite = true; } catch { /* bleibt */ }
   await p.waitForTimeout(neuBereit ? 3500 : 500);
@@ -66,7 +67,7 @@ for (const [name, engine] of [['Chromium', chromium], ['WebKit', webkit]]) {
   ok(a.neuSeite && /^https:\/\/lernen-test\.mathenachhilfe-online\.com\/mathetrainer\/#\/einstellungen$/.test(a.url), `${name}: weitergeleitet, #umzug weg, bisheriger Hash bleibt (${a.url})`);
   ok(a.speicher?.v1?.xp === 77 && a.speicher.v1.jahrgang === '9' && a.speicher.look === 'dunkel', `${name}: Lernstand und Einstellungen übernommen (xp ${a.speicher?.v1?.xp})`);
   ok(a.speicher?.fremd === 'fremd' && a.speicher?.alt === null && a.speicher?.umzug === null, `${name}: Schlüssel anderer Apps unberührt, kein „mt.“-Schlüssel, Umzugs-Merker weg`);
-  ok(a.log.join(',') === 'PUT s,GET s,DELETE s' && a.ablage === 0, `${name}: Einmal-Sicherung PUT → GET → DELETE (${a.log.join(',')}, übrig ${a.ablage})`);
+  ok(a.log.join(',') === 'PUT s,GET s,DELETE s' && a.ablage === 0 && !a.log.includes('KLARTEXT'), `${name}: Einmal-Sicherung PUT → GET → DELETE (${a.log.join(',')}, übrig ${a.ablage})`);
   ok(!a.err.length, `${name}: keine Skriptfehler (${a.err.slice(0, 2).join(' | ')})`);
   // 2) neue Adresse hat schon einen Lernstand: nichts überschreiben
   const b = await lauf(engine, name, { neuHatSchon: true });
@@ -76,6 +77,12 @@ for (const [name, engine] of [['Chromium', chromium], ['WebKit', webkit]]) {
   const c = await lauf(engine, name, { neuBereit: false });
   ok(!c.neuSeite && c.log.length === 0, `${name}: ohne bereite neue Adresse keine Weiterleitung und kein Upload (${c.url})`);
   ok(c.alt?.mt === null && JSON.parse(c.alt?.v1 || '{}').xp === 77 && c.alt?.fremd === 'bleibt', `${name}: alte Schlüssel umbenannt („mt.v1“ → „mathetrainer.v1“), fremde unberührt`);
+  // 4) Server-Fehler beim Einpacken: NICHT weiterleiten (nächster Start versucht es erneut)
+  const d = await lauf(engine, name, { putFehler: true });
+  ok(!d.neuSeite && d.log.join(',') === 'PUT s' && JSON.parse(d.alt?.v1 || '{}').xp === 77, `${name}: Fehler beim Hochladen → bleibt auf der alten Adresse, Lernstand unverändert (${d.log.join(',')})`);
+  // 5) Hash einer Einheit reist mit
+  const e = await lauf(engine, name, { start: '#/u/k8-lgs' });
+  ok(e.neuSeite && /\/mathetrainer\/#\/u\/k8-lgs$/.test(e.url) && e.speicher?.v1?.xp === 77, `${name}: #/u/… bleibt beim Umzug erhalten (${e.url})`);
 }
 // Klartext darf nie beim Server liegen: Format der Sicherung „iv.geheimtext“ – geprüft in run.mjs über einpacken()
 console.log(fehler ? `${fehler} Fehler` : `umzug: ${n} Prüfungen bestanden (Chromium und WebKit)`);

@@ -3,8 +3,8 @@
 // Dieselbe Version läuft auf der alten und der neuen Adresse:
 //  • alt (trainer. / trainer-test.): eigene Schlüssel einsammeln, verschlüsseln (AES-GCM-256, neuer Zufallsschlüssel),
 //    als Einmal-Sicherung PUT /eltern/v1/s/<id> ablegen, eigenen Service Worker abmelden, weiterleiten mit #umzug=<id>.<key>
-//    (bisheriger Hash wie #/u/… oder #pro=… bleibt, mit „&“ angehängt). Ohne Lernstand: weiterleiten ohne #umzug.
-//    Bei einem Fehler trotzdem weiterleiten (#umzug=fehler) – dort steht dann ein Hinweis auf „Wiederherstellen“.
+//    (#umzug=<id>.<key>.<schreib>; bisheriger Hash wie #/u/… oder #pro=… bleibt, mit „&“ angehängt). Ohne Lernstand: ohne #umzug.
+//    Bei einem Fehler NICHT weiterleiten – beim nächsten Start wird es erneut versucht (Standard, bestätigt vom Leitstand).
 //    Weitergeleitet wird nur, wenn die neue Adresse die App schon ausliefert (Bild-Probe auf eine eigene Datei).
 //  • neu (lernen. / lernen-test.): look.js hat #umzug=… schon beim Laden aus der Adresse genommen (sessionStorage) und
 //    vermerkt, ob hier vorher ein Lernstand lag. Holen, entschlüsseln, NUR schreiben, wenn vorher leer, dann DELETE.
@@ -12,7 +12,7 @@
 import { alteAdresse, aufLernen, neueAdresse, serverBasis } from './ort.js';
 import { b64url, b64urlLesen, verschluesseln } from './eltern.js';
 
-export const MERK = 'mathetrainer-umzug';   // sessionStorage: { t: '<id>.<key>' | 'fehler', leer: true|false }
+export const MERK = 'mathetrainer-umzug';   // sessionStorage: { t: '<id>.<key>.<schreib>', leer: true|false }
 const zufall = (n) => b64url(crypto.getRandomValues(new Uint8Array(n)));
 
 /** Alle eigenen Schlüssel („mathetrainer.…“; die Eltern-Kopplung reist mit, der KI-Zähler des Tages nicht). */
@@ -44,41 +44,42 @@ export function zielBereit(ziel = neueAdresse(), Bild = globalThis.Image, ms = 8
   });
 }
 
-/** Einmal-Sicherung ablegen. Liefert '<id>.<key>' oder '' (kein Lernstand) – wirft bei Fehlern. */
+/** Einmal-Sicherung ablegen (Body text/plain „<iv>.<ct>“). Liefert '<id>.<key>.<schreib>' oder '' (kein Lernstand) – wirft bei Fehlern. */
 export async function einpacken({ ls = globalThis.localStorage, f = globalThis.fetch } = {}) {
   const daten = eigeneDaten(ls);
   if (!daten['mathetrainer.v1']) return '';
   const id = zufall(16), schreib = zufall(16), key = zufall(32);
-  const body = await verschluesseln({ app: 'mathetrainer', v: 1, umzug: true, schreib, daten }, key);
+  const body = await verschluesseln({ app: 'mathetrainer', v: 1, umzug: true, daten }, key);
   const r = await f(`${serverBasis()}/eltern/v1/s/${id}`, { method: 'PUT', headers: { 'Content-Type': 'text/plain', 'X-Schreib': schreib }, body });
   if (!(r.status === 204 || r.ok)) throw new Error(`Sicherung ${r.status}`);
-  return `${id}.${key}`;
+  return `${id}.${key}.${schreib}`;
 }
 
 const installiert = () => { try { return globalThis.matchMedia?.('(display-mode: standalone)').matches || globalThis.navigator?.standalone === true; } catch { return false; } };
 
-/** Alte Adresse: umziehen. hinweis(html) zeigt bei installierter App zuerst eine Erklärung mit Knopf. */
-export async function umziehen({ hinweis = null } = {}) {
+/** Alte Adresse: umziehen. hinweis(los) zeigt bei installierter App zuerst eine Erklärung mit Knopf; warten(an) den Hinweis „Wir ziehen um …“. */
+export async function umziehen({ hinweis = null, warten = () => {} } = {}) {
   if (!alteAdresse()) return 'nicht-alt';
   const ziel = neueAdresse();
   if (!(await zielBereit(ziel))) return 'ziel-fehlt';
   const los = async () => {
+    warten(true);
     let token = '';
-    try { token = await einpacken(); } catch { token = 'fehler'; }
+    try { token = await einpacken(); } catch { warten(false); return 'fehler'; }   // nicht weiterleiten, beim nächsten Start erneut
     try { const reg = await navigator.serviceWorker?.getRegistration?.(); await reg?.unregister(); } catch { /* nur die eigene Registrierung */ }
     location.replace(zielAdresse(token, { ziel }));
+    return 'weiter';
   };
   if (installiert() && typeof hinweis === 'function') { hinweis(los); return 'hinweis'; }
-  await los(); return 'weiter';
+  return los();
 }
 
 /** Neue Adresse: mitgebrachten Lernstand übernehmen. melde(text) zeigt eine kurze Nachricht. */
 export async function empfangen({ melde = () => {}, ls = globalThis.localStorage, ss = globalThis.sessionStorage, f = globalThis.fetch, neuLaden = () => location.reload() } = {}) {
   let m = null; try { m = JSON.parse(ss.getItem(MERK) || 'null'); ss.removeItem(MERK); } catch { return 'nichts'; }
   if (!m?.t) return 'nichts';
-  if (m.t === 'fehler') { melde('Willkommen an der neuen Adresse! Deinen Fortschritt holst du über „Wiederherstellen“ im Elternbereich.'); return 'fehler'; }
-  const [id, key] = String(m.t).split('.');
-  if (!/^[\w-]{22}$/.test(id || '') || !/^[\w-]{43}$/.test(key || '')) return 'ungueltig';
+  const [id, key, schreib] = String(m.t).split('.');
+  if (!/^[\w-]{22}$/.test(id || '') || !/^[\w-]{43}$/.test(key || '') || !/^[\w-]{22}$/.test(schreib || '')) return 'ungueltig';
   const url = `${serverBasis()}/eltern/v1/s/${id}`;
   let klar;
   try {
@@ -94,15 +95,15 @@ export async function empfangen({ melde = () => {}, ls = globalThis.localStorage
     for (const [name, wert] of Object.entries(klar.daten)) if (/^mathetrainer\./.test(name) && typeof wert === 'string') ls.setItem(name, wert);
     geschrieben = true;
   }
-  try { await f(url, { method: 'DELETE', headers: { 'X-Schreib': klar.schreib } }); } catch { /* läuft serverseitig ohnehin ab */ }
+  try { await f(url, { method: 'DELETE', headers: { 'X-Schreib': schreib } }); } catch { /* läuft serverseitig ohnehin ab */ }
   if (geschrieben) { neuLaden(); return 'uebernommen'; }
   melde('Hier gab es schon einen Lernstand – er bleibt, wie er ist.');
   return 'schon-da';
 }
 
 /** Beim Start: auf der alten Adresse umziehen, auf der neuen übernehmen. */
-export function umzugBeimStart({ toast = () => {}, hinweis = null } = {}) {
+export function umzugBeimStart({ toast = () => {}, hinweis = null, warten = () => {} } = {}) {
   if (aufLernen()) return empfangen({ melde: toast });
-  if (alteAdresse()) return umziehen({ hinweis });
+  if (alteAdresse()) return umziehen({ hinweis, warten });
   return Promise.resolve('lokal');
 }
