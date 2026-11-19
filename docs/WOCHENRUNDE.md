@@ -22,6 +22,9 @@ Verbindlich mit Wortlaut: PROBESTUNDE.md (website_backup, Branch appzentrale, d6
    - Höchstens 1× pro Woche, wegklickbar, kein Preis. Der Link führt zur Probestunden-Seite.
    - Kl. 5–8: der Probestunden-Hinweis nur hinter dem Tor.
 4. **Oberstufe:** wie bisher entschieden (sachlicher Hinweis in der Lernstand-Ansicht). Vor dem Umsetzen mit PROBESTUNDE.md abgleichen.
+- **Links:** [Probestunde anfragen] bzw. [Mehr erfahren] führen auf https://www.mathenachhilfe-online.com/probestunde/ (optional ?src=mathetrainer).
+- **Website ohne Tor:** erlaubt sind „← Alle Apps“, „Website von Nachhilfe Online“ und „Über uns“. Ziel ist die Startseite oder /lern-apps/, NIE Shop, Produkt, Warenkorb oder Kasse.
+- **Kinderansicht:** keine Kaufsprache („Pro holen“, „Shop“, „Rabatt“, „Jetzt freischalten“), keine Figur, die auf einen Link zeigt, kein Link als Belohnung.
 5. **Zählung „Probestunden-Link angetippt“:** nur anonym, ohne Thema und ohne Lernstand. Dafür `probestunde_klick` ohne `thema`-Parameter.
 6. **Meldung:** mit „Rechtsbezug: ja (V15)“.
 
