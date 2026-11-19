@@ -2,6 +2,16 @@
 
 Kurzfassung für Nutzer und Leitstand. Einzelheiten: `docs/PLAN.md` (Baulog) und `MELDUNG_AN_LEITSTAND.md`.
 
+## 2.5.4 – 19.11.2026 (Fehlerbehebung, enthält 2.5.3)
+- **Server-Verbindung auf der neuen Adresse repariert:** Seit dem Umzug (2.5.0) hat der Browser auf lernen.mathenachhilfe-online.com alle Abrufe an trainer.…/api blockiert. Ursache: Der Server schickt dafür keine CORS-Erlaubnis. Betroffen waren:
+  - KI-Funktionen
+  - Prüfung und Einlösen von Zugangscodes
+  - Pro-Status
+  - Fehlermeldungen
+  - Handy-Erinnerungen
+
+  Jetzt laufen diese Abrufe über den Weiterleiter auf derselben Adresse (…/mathetrainer/api). Zählung, Eltern-Kopplung und Familien-Speicher waren nicht betroffen, weil der Server für sie CORS schickt.
+
 ## 2.5.3 – 19.11.2026 (Sofortkorrektur, Recht; Marcel: „Heute ausblenden“)
 - **Klasse 5–10:**
   - Die Karte „PRO“ ist ausgeblendet.

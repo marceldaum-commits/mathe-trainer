@@ -1,7 +1,7 @@
 // Verbindung zum Server-Teil (Klassen-Bestenliste, später Liga und KI). Ohne Server ist alles hier abgeschaltet:
 // CONFIG.api ist dann leer, und die App zeigt die Server-Funktionen gar nicht erst an.
 // Vertrag (Adressen, Felder, Regeln): docs/SERVER.md und docs/KI.md.
-import { serverBasis } from './ort.js';
+import { apiBasis } from './ort.js';
 import { CONFIG } from './config.js';
 import { store } from './store.js';
 
@@ -83,7 +83,7 @@ export async function kiRestHolen(zugang, geraet) {
 async function call(path, body) {
   if (!serverOn()) return { ok: false, off: true };
   try {
-    const res = await fetch(`${serverBasis()}${CONFIG.api}${path}`, body === undefined ? { headers: { Accept: 'application/json' } }
+    const res = await fetch(`${apiBasis()}${CONFIG.api}${path}`, body === undefined ? { headers: { Accept: 'application/json' } }
       : { method: 'POST', headers: { 'Content-Type': 'application/json', Accept: 'application/json' }, body: JSON.stringify(body) });
     const data = await res.json().catch(() => ({}));
     if (path === '/ki/rest') { if (res.ok && Number.isInteger(data.rest) && data.rest >= 0) kiRestMerken(data.rest, data.limit); }   // 429 heißt hier nur „zu oft gefragt“

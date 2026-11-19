@@ -19,6 +19,12 @@ export function serverBasis(h = host()) {
   if (/^lernen\./.test(h)) return 'https://trainer.mathenachhilfe-online.com';
   return '';
 }
+/**
+ * Adresse für /api (Status, Zugang, KI, Meldungen, Push): auf lernen.… über den Weiterleiter derselben Herkunft
+ * (…/mathetrainer/api/ → Trainer-Server, eingerichtet vom Leitstand). Der Trainer-Server schickt für /api keine CORS-Kopfzeilen –
+ * direkte Abrufe von lernen.… nach trainer.…/api scheitern im Browser (Fund 19.11.2026, seit 2.5.0). Sonst gleiche Herkunft ('').
+ */
+export function apiBasis(h = host()) { return aufLernen(h) ? '/mathetrainer' : ''; }
 /** Eindeutiges Präfix aller Speicher-Schlüssel und Caches (gemeinsame Domain mit anderen Apps). */
 export const PRAEFIX = 'mathetrainer.';
 export const CACHE_PRAEFIX = 'mathetrainer-';
