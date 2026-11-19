@@ -2,6 +2,16 @@
 
 Neuester Beitrag oben.
 
+## 19.11.2026 – Tonstudio statt „Nova“ (Marcel; AppZentrale)
+
+- Der Leitstand betreibt ein gemeinsames Tonstudio mit einer deutschen Frauenstimme (Chatterbox oder Zonos, Marcel wählt).
+- Tempo 1,0 und 0,8, MP3 mit ID3-Kennzeichnung „KI-generiert“.
+- Für Sätze mit Zufallszahlen gibt es den Bedarfs-Weg „Tonstudio live“: **/stimme/v1** mit Cache (wie bisher /jetzt).
+- Die App fragt zuerst die feste Datei an. Sonst geht der ganze Satz ohne Personendaten an /stimme/v1.
+- **Ab Mi 25.11. liefern:** Textliste im Quasselquest-Format (quasselquest/VERTONUNG.md, textliste.json): ID, Text, Sprache, Tempo-Varianten, Zielpfad. Grundlage ist tools/vorlesetexte.mjs: 880 feste Texte (ca. 300 000 Zeichen) und 1 503 häufige Aufgaben-Sätze (ca. 139 000 Zeichen).
+- Sichtbar „🤖 KI-generierte Stimme“, Lizenzliste nach Recht V13.
+- `VORLESEN = true` erst, wenn die deutsche Stimme steht.
+
 ## 19.11.2026 – Vorlesen später mit eigener Stimme (Recht V13; nur zur Info, keine Änderung jetzt)
 
 - Kommerziell erlaubte deutsche Piper-Stimmen:
