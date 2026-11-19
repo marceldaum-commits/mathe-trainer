@@ -357,7 +357,7 @@ await page.click('#hp-form button[type="submit"]'); await page.waitForSelector('
 await page.fill('#hp-text', 'Testmeldung aus dem Browser-Test <b>ohne HTML</b>'); await shot('68-hilfe-formular');
 await page.click('#hp-form button[type="submit"]'); await page.waitForSelector('#help', { state: 'hidden' });
 await page.waitForSelector('#toast:not([hidden])');
-const wartend = await page.evaluate(() => JSON.parse(localStorage.getItem('mt.v1')).meldungen);
+const wartend = await page.evaluate(() => JSON.parse(localStorage.getItem('mathetrainer.v1')).meldungen);
 if (wartend?.length !== 1 || wartend[0].art !== 'idee' || !wartend[0].version || 'aufgabe' in wartend[0]) fail('Meldung wurde nicht richtig gespeichert');
 if (!versuche) fail('Meldung: kein Sende-Versuch an /api/meldung');
 if (LEVEL === 3) { await page.goto(`${BASE}#/einstellungen`); await page.click('#st-tipp [data-k="an"]'); await page.reload(); await page.waitForSelector('#st-tipp [data-k="an"].sel'); }
@@ -397,7 +397,7 @@ await page.route('**/api/meldung', (r) => { gesendet.push(JSON.parse(r.request()
 await page.click('.stephead .help-x'); await page.click('#hp-menu button[data-art="aufgabe"]');
 if (!(await page.textContent('#hp-ctx')).includes('Zuletzt gezeigte Aufgabe')) fail('Meldung: Aufgabe wird nicht mitgenommen');
 await page.fill('#hp-text', 'Diese Aufgabe prüfen'); await page.click('#hp-form button[type="submit"]'); await page.waitForSelector('#help', { state: 'hidden' });
-await page.waitForFunction(() => JSON.parse(localStorage.getItem('mt.v1')).meldungen.length === 0, null, { timeout: 5000 }).catch(() => fail('Meldungen wurden nicht gesendet'));
+await page.waitForFunction(() => JSON.parse(localStorage.getItem('mathetrainer.v1')).meldungen.length === 0, null, { timeout: 5000 }).catch(() => fail('Meldungen wurden nicht gesendet'));
 if (gesendet.length !== 2 || gesendet[0].art !== 'idee' || !gesendet[1].aufgabe?.gen || !gesendet[1].ort.startsWith('#/u/regeln') || Object.keys(gesendet[1]).some((k) => !['art', 'text', 'version', 'ort', 'stufe', 'zeit', 'aufgabe'].includes(k))) fail('Gesendete Meldungen unvollständig oder mit fremden Feldern');
 if (!(await page.textContent('#toast')).includes('angekommen')) fail('Meldung: Bestätigung fehlt');
 await page.unroute('**/api/meldung');
@@ -409,13 +409,13 @@ for (const a of ['analysis', 'stochastik', 'geometrie']) {
   if (!(await page.locator(`a[href="#/ueben/${a}-grund"]`).count()) || !(await page.locator(`a[href="#/ueben/${a}"]`).count())) fail(`${a}: Freies Üben fehlt`);
 }
 await shot('62-gebiet-grundlagen');
-const xpVor = await page.evaluate(() => JSON.parse(localStorage.getItem('mt.v1')).xp);
+const xpVor = await page.evaluate(() => JSON.parse(localStorage.getItem('mathetrainer.v1')).xp);
 await page.click('a[href="#/ueben/geometrie-grund"]'); await page.waitForSelector('#stage .q');
 if (await page.locator('#nav').isVisible()) fail('Üben: Menü muss ausgeblendet sein');
 await shot('63-ueben');
 await quiz();
 if (!/von 10 auf Anhieb/.test(await page.textContent('#sheet'))) fail('Üben: Ergebnis fehlt');
-if ((await page.evaluate(() => JSON.parse(localStorage.getItem('mt.v1')).xp)) <= xpVor) fail('Üben: keine Punkte gutgeschrieben');
+if ((await page.evaluate(() => JSON.parse(localStorage.getItem('mathetrainer.v1')).xp)) <= xpVor) fail('Üben: keine Punkte gutgeschrieben');
 await shot('64-ueben-ergebnis');
 await page.click('#sh-go'); await page.waitForSelector('#stage .q');   // „Noch eine Runde" startet neu
 if (await page.locator('#sheet').isVisible()) fail('Üben: neue Runde startet nicht');
@@ -444,7 +444,7 @@ await page.click('#sh-go'); await page.waitForSelector('#stage .kopf');
 await page.goto(`${BASE}#/mehr`); await page.click('a[href="#/zertifikat"]'); await page.waitForSelector('a[href="#/zertifikat/analysis"]');
 await page.click('a[href="#/zertifikat/analysis"]'); await page.waitForSelector('#zert');
 await page.fill('#zt-name', 'Test Person'); if ((await page.textContent('#zt-out')) !== 'Test Person') fail('Zertifikat: Name erscheint nicht');
-if (await page.evaluate(() => localStorage.getItem('mt.v1').includes('Test Person'))) fail('Zertifikat: Name darf nicht gespeichert werden');
+if (await page.evaluate(() => localStorage.getItem('mathetrainer.v1').includes('Test Person'))) fail('Zertifikat: Name darf nicht gespeichert werden');
 await shot('74-zertifikat');
 
 /* ───────────── Arbeitsblatt, Probeklausur, Theorie, Lernkarten ───────────── */
@@ -471,7 +471,7 @@ if ((await page.textContent('#pro-stufe')) !== 'Frei' || (await page.locator('.p
 if (await page.evaluate(() => document.documentElement.scrollWidth - innerWidth > 1)) fail('Stufen-Übersicht: Seite zu breit');
 await page.goto(`${BASE}#/blatt`); await page.waitForSelector('#b-go');
 // Schwächen-Blatt: entsteht aus der Fehler-Kartei (der Test hat bis hierher absichtlich Fehler gemacht)
-if (await page.evaluate(() => Object.keys(JSON.parse(localStorage.getItem('mt.v1')).kartei || {}).length) === 0) fail('Schwächen-Blatt: Fehler-Kartei ist leer, obwohl der Test Fehler gemacht hat');
+if (await page.evaluate(() => Object.keys(JSON.parse(localStorage.getItem('mathetrainer.v1')).kartei || {}).length) === 0) fail('Schwächen-Blatt: Fehler-Kartei ist leer, obwohl der Test Fehler gemacht hat');
 if (await page.locator('#b-schwach').isHidden()) fail('Schwächen-Blatt: Knopf fehlt trotz gefüllter Fehler-Kartei');
 await page.click('#b-schwach'); await page.waitForSelector('#blatt');
 if (!/Schwächen-Blatt/.test(await page.textContent('.b-titel')) || !(await page.locator('.b-schritte').count()) || !(await page.locator('.b-aufgabe').count())) fail('Schwächen-Blatt: Titel, Aufgaben oder Rechenweg fehlen');
@@ -542,7 +542,7 @@ await page.click('.ab-geb [data-g="analysis"]'); await page.click('#ab-start'); 
   }
   if (!/besiegt/.test(await page.textContent('#ab-ende'))) fail('Abenteuer: Reise mit lauter richtigen Antworten nicht gewonnen');
   if (raeume < 5 || wahl < 4) fail(`Abenteuer: zu wenig Türen (${raeume}) oder Belohnungen (${wahl})`);
-  const c = await page.evaluate(() => JSON.parse(localStorage.getItem('mt.v1')).count);
+  const c = await page.evaluate(() => JSON.parse(localStorage.getItem('mathetrainer.v1')).count);
   if (!(c.abenteuerSieg >= 1 && c.abenteuerRekord > 20 && c.abenteuerRaum === 7)) fail('Abenteuer: Sieg oder Rekord nicht gespeichert'); }
 await shot('76-abenteuer');
 await page.goto(`${BASE}#/einstellungen`); await page.waitForSelector('#st-ruhig');
@@ -639,7 +639,7 @@ if (!/\.png$/.test(dl.suggestedFilename())) fail('Erfolgskarte wird nicht als Bi
 await shot('48-blitz-ergebnis');
 
 /* ───────────── Fehler-Kartei, Bericht, Erfolge, Formeln, Wochen-Ziel ───────────── */
-const kn = await page.evaluate(() => { const m = JSON.parse(localStorage.getItem('mt.v1')); for (const k of Object.values(m.kartei)) k.due = '2020-01-01'; localStorage.setItem('mt.v1', JSON.stringify(m)); return Object.keys(m.kartei).length; });
+const kn = await page.evaluate(() => { const m = JSON.parse(localStorage.getItem('mathetrainer.v1')); for (const k of Object.values(m.kartei)) k.due = '2020-01-01'; localStorage.setItem('mathetrainer.v1', JSON.stringify(m)); return Object.keys(m.kartei).length; });
 if (!kn) fail('Fehler-Kartei ist leer, obwohl Fehler gemacht wurden');
 await page.goto(BASE); await page.reload(); await page.waitForSelector('a[href="#/wiederholen"]');
 await page.click('a[href="#/wiederholen"]'); await page.waitForSelector('#stage > *');
@@ -651,14 +651,14 @@ await page.goto(`${BASE}#/erfolge`); await page.waitForSelector('.badges'); awai
 const got = await page.locator('.badge.on').count();
 if (!(got >= 12 && got < BADGES.length)) fail(`Abzeichen unplausibel: ${got} von ${BADGES.length}`);
 for (const id of ['start', 'einheit1', 'alles', 'boss1', 'boss10', 'bossPerfekt', 'blitz10', 'tag1', 'kombo5']) {
-  if (!(await page.evaluate((k) => !!JSON.parse(localStorage.getItem('mt.v1')).badges[k], id))) fail(`Abzeichen „${id}" fehlt`);
+  if (!(await page.evaluate((k) => !!JSON.parse(localStorage.getItem('mathetrainer.v1')).badges[k], id))) fail(`Abzeichen „${id}" fehlt`);
 }
 if (!kombo && LEVEL >= 3) fail('Kombo-Anzeige in den Aufgaben-Runden nie gesehen');   // auf leichter Stufe rät der Test und trifft selten zweimal in Folge
 await page.goto(`${BASE}#/formeln`); await page.waitForSelector('.fcard'); await shot('50-formeln');
 if (await page.locator('.fcard.locked').count()) fail('Formelkarten sind trotz abgeschlossener Einheiten gesperrt');
 if (await page.locator('.katex-error').count()) fail('Eine Formel lässt sich nicht darstellen');
 // Wochen-Ziel: fünf Tage → Truhe genau einmal
-await page.evaluate(() => { const m = JSON.parse(localStorage.getItem('mt.v1')); const d = new Date(); d.setDate(d.getDate() - ((d.getDay() + 6) % 7)); const key = (x) => `${x.getFullYear()}-${String(x.getMonth() + 1).padStart(2, '0')}-${String(x.getDate()).padStart(2, '0')}`; const days = []; for (let i = 0; i < 5; i++) { const x = new Date(d); x.setDate(d.getDate() + i); days.push(key(x)); } m.week = { key: key(d), days, claimed: false }; localStorage.setItem('mt.v1', JSON.stringify(m)); });
+await page.evaluate(() => { const m = JSON.parse(localStorage.getItem('mathetrainer.v1')); const d = new Date(); d.setDate(d.getDate() - ((d.getDay() + 6) % 7)); const key = (x) => `${x.getFullYear()}-${String(x.getMonth() + 1).padStart(2, '0')}-${String(x.getDate()).padStart(2, '0')}`; const days = []; for (let i = 0; i < 5; i++) { const x = new Date(d); x.setDate(d.getDate() + i); days.push(key(x)); } m.week = { key: key(d), days, claimed: false }; localStorage.setItem('mathetrainer.v1', JSON.stringify(m)); });
 await page.goto(BASE); await page.reload(); await page.waitForSelector('#wk-claim'); await shot('51-wochenziel');
 const xpBefore = +(await page.textContent('.chip.xp'));
 await page.click('#wk-claim'); await page.waitForSelector('#wk-claim', { state: 'detached' });
@@ -809,11 +809,11 @@ await p2.goto(`${BASE}#/pro`); await p2.waitForSelector('#pro-stufe');
 if ((await p2.textContent('#pro-stufe')) !== 'Pro + KI' || !/gültig bis 31\.12\.2099/.test(await p2.textContent('.pro-stand')) || await p2.locator('.pro-zeile.zu').count() || (await p2.locator('.pro-zeile.offen').count()) < 12) fail('Pro: Übersicht zeigt Stufe, Gültigkeit oder freigeschaltete Funktionen falsch');
 await p2.goto(`${BASE}#/theorie/regeln`); await p2.waitForSelector('#t-art .marke.an'); if (!(await p2.locator('#t-druck .marke.an').count())) fail('Pro: Marke am PDF-Knopf zeigt die Freischaltung nicht');
 await p2.goto(`${BASE}#/einstellungen`); await p2.waitForSelector('#st-pro:not([hidden])');
-if ((await p2.evaluate(() => JSON.parse(localStorage.getItem('mt.v1')).zugang?.code)) !== 'MT-AB12-CD34-EF56') fail('Pro: Zugangscode nicht gespeichert');
+if ((await p2.evaluate(() => JSON.parse(localStorage.getItem('mathetrainer.v1')).zugang?.code)) !== 'MT-AB12-CD34-EF56') fail('Pro: Zugangscode nicht gespeichert');
 await p2.reload(); await p2.waitForSelector('#st-pro:not([hidden])'); if (!/30-Tage-Pass/.test(await p2.textContent('#st-pro-stand'))) fail('Pro: Zugang nach Neuladen vergessen');
-await p2.evaluate(() => { const m = JSON.parse(localStorage.getItem('mt.v1')); m.zugang.bis = '9999-12-31'; localStorage.setItem('mt.v1', JSON.stringify(m)); }); await p2.reload(); await p2.waitForSelector('#st-pro-weg');
+await p2.evaluate(() => { const m = JSON.parse(localStorage.getItem('mathetrainer.v1')); m.zugang.bis = '9999-12-31'; localStorage.setItem('mathetrainer.v1', JSON.stringify(m)); }); await p2.reload(); await p2.waitForSelector('#st-pro-weg');
 if (!/unbefristet/.test(await p2.textContent('#st-pro-stand')) || /9999/.test(await p2.textContent('#st-pro-stand'))) fail('Pro: Zugang ohne Ablauf muss „unbefristet“ heißen');
-await p2.click('#st-pro-weg'); if (await p2.evaluate(() => JSON.parse(localStorage.getItem('mt.v1')).zugang)) fail('Pro: Code lässt sich nicht entfernen');
+await p2.click('#st-pro-weg'); if (await p2.evaluate(() => JSON.parse(localStorage.getItem('mathetrainer.v1')).zugang)) fail('Pro: Code lässt sich nicht entfernen');
 // Erinnerung: freie Uhrzeit wird gesendet, ändern überschreibt, ausschalten meldet ab; gesperrte Erlaubnis wird erklärt.
 // Der Testbrowser hat keinen Mitteilungs-Dienst – Erlaubnis und Anmeldung des Geräts sind deshalb nachgestellt.
 for (const erlaubnis of ['granted', 'denied']) {
@@ -849,7 +849,7 @@ for (const erlaubnis of ['granted', 'denied']) {
     if ((await p3.inputValue('#st-push-time')) !== '17:35') fail('Erinnerung: Uhrzeit nach Neuladen vergessen');
     // Der Browser hat die Anmeldung gelöscht (wie bei Marcels Test): Der Schalter muss das beim Öffnen merken und auf „aus“ stehen.
     await p3.evaluate(() => sessionStorage.removeItem('test-abo')); await p3.reload(); await p3.waitForSelector('#st-push-schalter'); await p3.waitForTimeout(500);
-    if ((await schalter()) !== 'false' || (await p3.evaluate(() => JSON.parse(localStorage.getItem('mt.v1')).erinnern.an)) !== false) fail('Erinnerung: gelöschte Anmeldung wird nicht erkannt – der Schalter zeigt fälschlich „an“');
+    if ((await schalter()) !== 'false' || (await p3.evaluate(() => JSON.parse(localStorage.getItem('mathetrainer.v1')).erinnern.an)) !== false) fail('Erinnerung: gelöschte Anmeldung wird nicht erkannt – der Schalter zeigt fälschlich „an“');
     await p3.click('#st-push-schalter'); await p3.waitForFunction(() => document.querySelector('#st-push-schalter').getAttribute('aria-checked') === 'true');
     if (zeiten() !== '18:00,17:35,17:35') fail(`Erinnerung: erneutes Einschalten meldet nicht mit der gemerkten Uhrzeit an (${zeiten()})`);
     await p3.click('#st-push-schalter'); await p3.waitForFunction(() => document.querySelector('#st-push-schalter').getAttribute('aria-checked') === 'false');
@@ -861,7 +861,7 @@ p2.on('dialog', (d) => d.accept());
 await p2.goto(`${BASE}#/klasse`); await p2.waitForSelector('#kl-leave'); await p2.click('#kl-leave'); await p2.waitForSelector('#kl-code');
 const raus = calls.find(([path]) => path === '/api/klasse/verlassen');
 if (!raus || raus[1].code !== 'K7M2QX' || raus[1].spieler !== 'p-123') fail('Klasse verlassen wird dem Server nicht gemeldet');
-if (await p2.evaluate(() => JSON.parse(localStorage.getItem('mt.v1')).klasse)) fail('Klasse verlassen: Eintrag bleibt im Gerät');
+if (await p2.evaluate(() => JSON.parse(localStorage.getItem('mathetrainer.v1')).klasse)) fail('Klasse verlassen: Eintrag bleibt im Gerät');
 await ctx2.close();
 
 /* ───────────── Breiter Bildschirm (PC): Menü oben, Karten nebeneinander, Knopf im Spiel ohne Scrollen ───────────── */
@@ -1015,7 +1015,7 @@ await ctx2.close();
   if (abrufe < 2) fail('Start-Wache: kein eigener Neu-Lade-Versuch vor dem Hinweis');
   if (shots) await wp.screenshot({ path: `${shots}/88-start-wache.png` });
   sperre = false; await wp.click('#wache-neu'); await wp.waitForSelector('#home');
-  if (!(await wp.evaluate(() => window.__mtBereit === true && sessionStorage.getItem('mt.wache') === null))) fail('Start-Wache: nach geglücktem Start nicht zurückgesetzt');
+  if (!(await wp.evaluate(() => window.__mtBereit === true && sessionStorage.getItem('mathetrainer.wache') === null))) fail('Start-Wache: nach geglücktem Start nicht zurückgesetzt');
   await wp.waitForTimeout(2500); if (await wp.locator('#wache').count()) fail('Start-Wache: Hinweis erscheint, obwohl die App läuft');
   await wc.close();
 }
@@ -1024,7 +1024,7 @@ await ctx2.close();
   dp.on('pageerror', (e) => errors.push(`Dungeon: ${e}`));
   await dc.addInitScript(() => { window.__mtTest = true; });
   const breit = async (wo) => { if (await dp.evaluate(() => document.documentElement.scrollWidth - innerWidth > 1)) fail(`Dungeon ${wo}: Seite ist zu breit`); };
-  await dp.goto(BASE); await dp.evaluate(() => localStorage.setItem('mt.v1', JSON.stringify({ jahrgang: '5', xp: 10 })));
+  await dp.goto(BASE); await dp.evaluate(() => localStorage.setItem('mathetrainer.v1', JSON.stringify({ jahrgang: '5', xp: 10 })));
   await dp.goto(`${BASE}#/pruefung`); await dp.reload(); await dp.waitForSelector('a[href="#/dungeon"]'); await dp.click('a[href="#/dungeon"]'); await dp.waitForSelector('#dg-stock');
   if ((await dp.locator('.dg-wahl:not([disabled])').count()) !== 1) fail('Dungeon: Klasse 5 soll nur Stockwerk 1 offen haben');
   await dp.click('#dg-spick summary'); await breit('Start'); if (shots) await dp.screenshot({ path: `${shots}/90-dungeon-start.png` });
@@ -1046,7 +1046,7 @@ await ctx2.close();
   if (!(await dp.locator('#dg-tiefer').count())) fail('Dungeon: Stockwerk 1 lässt sich nicht abschließen');
   if ((await dp.locator('.ab-leben .on').count()) !== 3) fail('Dungeon: Nach dem Wächter soll es ein Leben dazu geben');
   await dp.click('#dg-stop'); await dp.waitForSelector('#dg-ende');
-  const st = await dp.evaluate(() => JSON.parse(localStorage.getItem('mt.v1')));
+  const st = await dp.evaluate(() => JSON.parse(localStorage.getItem('mathetrainer.v1')));
   if (!(st.count?.dungeonRekord > 0) || st.count?.dungeonTiefe !== 2) fail(`Dungeon: Rekord oder Stockwerk nicht gespeichert (${JSON.stringify(st.count)})`);
   await dp.click('#dg-again'); await dp.waitForSelector('#dg-stock');
   // Umstell-Blatt (Pro): acht Aufgaben, Lösungsblatt mit jedem Schritt
@@ -1056,7 +1056,7 @@ await ctx2.close();
   await dp.click('#dg-zurueck'); await dp.waitForSelector('#dg-stock');
   if ((await dp.locator('.dg-wahl:not([disabled])').count()) !== 2) fail('Dungeon: Nach Stockwerk 1 soll Stockwerk 2 offen sein');
   // Oberstufe: tiefste Stockwerke mit Formeln, schmaler Bildschirm
-  await dp.evaluate(() => { const m = JSON.parse(localStorage.getItem('mt.v1')); m.jahrgang = 'os'; m.count.dungeonTiefe = 5; localStorage.setItem('mt.v1', JSON.stringify(m)); });
+  await dp.evaluate(() => { const m = JSON.parse(localStorage.getItem('mathetrainer.v1')); m.jahrgang = 'os'; m.count.dungeonTiefe = 5; localStorage.setItem('mathetrainer.v1', JSON.stringify(m)); });
   await dp.reload(); await dp.waitForSelector('#dg-stock'); await dp.click('.dg-wahl[data-s="5"]');
   for (let k = 0; k < 14; k++) {
     if (await dp.locator('#dg-weiter').count()) { await breit('Stockwerk 5'); await dp.click('#dg-weiter'); continue; }
@@ -1089,7 +1089,7 @@ await ctx2.close();
   await kc.addInitScript(() => { window.__mtTest = true; window.__mtKopfSek = 6; });
   const breit = async (wo) => { if (await kp.evaluate(() => document.documentElement.scrollWidth - innerWidth > 1)) fail(`${wo}: Seite ist zu breit`); };
   const tippe = async (box, zahl) => { for (const z of String(zahl)) await kp.click(`${box} [data-t="${z === '-' ? '±' : z}"]`); };
-  await kp.goto(BASE); await kp.evaluate(() => { const done = {}; for (const s of ['waage', 'terme', 'term', 'klammer', 'gleichung', 'loesen', 'mix']) done[`k7-terme/${s}`] = 3; localStorage.setItem('mt.v1', JSON.stringify({ jahrgang: '7', done, xp: 100, stats: { Terme: { ok: 3, bad: 2 } }, runs: [{ kind: 'blitz', score: 5 }] })); });
+  await kp.goto(BASE); await kp.evaluate(() => { const done = {}; for (const s of ['waage', 'terme', 'term', 'klammer', 'gleichung', 'loesen', 'mix']) done[`k7-terme/${s}`] = 3; localStorage.setItem('mathetrainer.v1', JSON.stringify({ jahrgang: '7', done, xp: 100, stats: { Terme: { ok: 3, bad: 2 } }, runs: [{ kind: 'blitz', score: 5 }] })); });
   await kp.goto(`${BASE}#/pruefung`); await kp.reload(); await kp.waitForSelector('a[href="#/kopf"]'); await kp.click('a[href="#/kopf"]'); await kp.waitForSelector('#kopf-arten');
   if ((await kp.locator('.kopf-art').count()) !== 6) fail('Kopfrechnen: Klasse 7 soll sechs Disziplinen sehen');
   await breit('Kopfrechen-Arena'); if (shots) await kp.screenshot({ path: `${shots}/84-kopfrechnen.png` });
@@ -1098,7 +1098,7 @@ await ctx2.close();
   if ((await kp.textContent('#knobel-text')) !== kn.text) fail('Knobelaufgabe: Text passt nicht zum Tag');
   await tippe('#knobel-tasten', kn.sol + 1); await kp.click('#knobel-go'); await kp.waitForSelector('#knobel-note .note.tip');
   await tippe('#knobel-tasten', kn.sol); await kp.click('#knobel-go'); await kp.waitForSelector('#knobel-ok');
-  if ((await kp.evaluate(() => JSON.parse(localStorage.getItem('mt.v1')).xp)) !== 105) fail('Knobelaufgabe: Punkte nach zweitem Versuch stimmen nicht');
+  if ((await kp.evaluate(() => JSON.parse(localStorage.getItem('mathetrainer.v1')).xp)) !== 105) fail('Knobelaufgabe: Punkte nach zweitem Versuch stimmen nicht');
   // Eine Runde: zwei richtige, eine falsche, dann läuft die Zeit ab
   await kp.click(`.kopf-art[data-a="${LEVEL % 2 ? 'mal' : 'minus'}"]`); await kp.waitForSelector('#kopf-q');
   if (await kp.locator('#kopf-serie').isVisible()) fail('Kopfrechnen: Serie darf erst ab drei richtigen in Folge erscheinen');
@@ -1106,7 +1106,7 @@ await ctx2.close();
   if (await kp.locator('#kopf-q').count()) { const sol = +(await kp.getAttribute('#kopf-q', 'data-sol')); await tippe('#kopf-tasten', String(Math.abs(sol) + 1).padStart(String(Math.abs(sol)).length, '1')); if (shots) await kp.screenshot({ path: `${shots}/85-kopfrechnen-runde.png` }); }
   await kp.waitForSelector('#kopf-end', { timeout: 15000 });
   if (+(await kp.textContent('#kopf-end')) < 1) fail('Kopfrechnen: richtige Antworten werden nicht gezählt');
-  if (!(await kp.evaluate((a) => JSON.parse(localStorage.getItem('mt.v1')).count[`kopf_${a}`] >= 1, LEVEL % 2 ? 'mal' : 'minus'))) fail('Kopfrechnen: Rekord wird nicht gespeichert');
+  if (!(await kp.evaluate((a) => JSON.parse(localStorage.getItem('mathetrainer.v1')).count[`kopf_${a}`] >= 1, LEVEL % 2 ? 'mal' : 'minus'))) fail('Kopfrechnen: Rekord wird nicht gespeichert');
   // Klassenarbeits-Trainer
   await kp.goto(`${BASE}#/arbeit`); await kp.waitForSelector('#ar-datum');
   await kp.click('#ar-los'); await kp.waitForSelector('#ar-note .note.tip');
@@ -1127,17 +1127,17 @@ await ctx2.close();
   await kp.goto(`${BASE}#/einstellungen`); await kp.waitForSelector('#st-hut');
   if (!(await kp.locator('#st-hut [data-k="krone"]').isDisabled()) || (await kp.locator('#st-hut [data-k="kappe"]').isDisabled())) fail('Pi-Outfit: Freischaltung nach Sternen stimmt nicht');
   const vorher = await kp.innerHTML('#st-pi-bild'); await kp.click('#st-hut [data-k="kappe"]'); await kp.click('#st-brille [data-k="rund"]');
-  if ((await kp.innerHTML('#st-pi-bild')) === vorher || (await kp.evaluate(() => JSON.parse(localStorage.getItem('mt.v1')).outfit.hut)) !== 'kappe') fail('Pi-Outfit: Auswahl wird nicht übernommen');
+  if ((await kp.innerHTML('#st-pi-bild')) === vorher || (await kp.evaluate(() => JSON.parse(localStorage.getItem('mathetrainer.v1')).outfit.hut)) !== 'kappe') fail('Pi-Outfit: Auswahl wird nicht übernommen');
   if (shots) { await kp.locator('#st-pi-bild').scrollIntoViewIfNeeded(); await kp.screenshot({ path: `${shots}/87-pi-outfit.png` }); }
   // Zurücksetzen mit Auswahl
   await kp.click('#st-reset'); await kp.click('#st-reset-wahl [data-r="geuebt"]'); await kp.waitForSelector('#home');
-  let m = await kp.evaluate(() => JSON.parse(localStorage.getItem('mt.v1')));
+  let m = await kp.evaluate(() => JSON.parse(localStorage.getItem('mathetrainer.v1')));
   if (Object.keys(m.stats).length || m.runs.length || Object.keys(m.done).length !== 7 || m.xp < 100) fail('Zurücksetzen „Nur das Geübte“: löscht zu viel oder zu wenig');
   await kp.goto(`${BASE}#/einstellungen`); await kp.waitForSelector('#st-reset'); await kp.click('#st-reset'); await kp.click('#st-reset-wahl [data-r="klasse"]'); await kp.waitForSelector('#home');
-  m = await kp.evaluate(() => JSON.parse(localStorage.getItem('mt.v1')));
+  m = await kp.evaluate(() => JSON.parse(localStorage.getItem('mathetrainer.v1')));
   if (Object.keys(m.done).length || m.xp < 100 || m.outfit.hut !== 'kappe' || !m.arbeit) fail('Zurücksetzen „Nur diese Klasse“: Sterne der Stufe bleiben oder anderes geht verloren');
   await kp.goto(`${BASE}#/einstellungen`); await kp.waitForSelector('#st-reset'); await kp.click('#st-reset'); await kp.click('#st-reset-wahl [data-r="alles"]'); await kp.waitForSelector('#home');
-  m = await kp.evaluate(() => JSON.parse(localStorage.getItem('mt.v1')));
+  m = await kp.evaluate(() => JSON.parse(localStorage.getItem('mathetrainer.v1')));
   if (m.xp !== 0 || m.arbeit || m.jahrgang !== '7') fail('Zurücksetzen „Alles“: Fortschritt bleibt oder Klassenstufe geht verloren');
   await kc.close();
 }

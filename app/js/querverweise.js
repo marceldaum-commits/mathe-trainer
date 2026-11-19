@@ -3,6 +3,7 @@
 // Kennungen aus den Absprachen der Räume (docs/WOCHENRUNDE.md); Rechenblitz-Themen in der App selbst nachgesehen.
 // Raumlicht: nur freie Ziele (erleben, rotation, galton, zufall, raumflug – Marcel 19.11.); binomial und baumeister sind Raumlicht Pro – nicht verlinken.
 // Unbekannte Kennungen öffnen bei allen Apps die Startseite – es gibt also nie einen toten Link.
+import { istTest } from './ort.js';
 import { linkMitHerkunft } from './zaehler.js';
 import { esc } from './ui.js';
 
@@ -70,7 +71,7 @@ export const VERWEISE = {
 /** Adresse einer App: auf der Test-Stufe die Test-Fassung, sonst die Live-Fassung. */
 export function appAdresse(app, kennung, host = globalThis.location?.hostname || '') {
   const a = APPS[app]; if (!a) return '';
-  const test = /^(trainer-test\.|localhost$|127\.)/.test(host);
+  const test = istTest(host);
   return linkMitHerkunft(`https://${app}${test ? '-test' : ''}.mathenachhilfe-online.com${a.link(kennung)}`, 'theorie');
 }
 

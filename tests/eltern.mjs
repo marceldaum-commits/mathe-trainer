@@ -39,13 +39,13 @@ try {
     ablage.clear(); sicher.clear(); log.length = 0;
     const b = await engine.launch(); const c = await b.newContext({ viewport: { width: 390, height: 844 }, serviceWorkers: 'block' }); const p = await c.newPage();
     const err = []; p.on('pageerror', (e) => err.push(String(e)));
-    await c.addInitScript(() => { if (!localStorage.getItem('mt.v1')) localStorage.setItem('mt.v1', JSON.stringify({ jahrgangGewaehlt: true, jahrgang: 'os', stats: { Ableitung: { ok: 9, bad: 1 }, Binomialverteilung: { ok: 2, bad: 4 } }, xp: 420, geraet: 'GERAET-KENNUNG-ALT-12345', monate: { '2026-10': { ms: 1800000, aufgaben: 40, richtig: 30 } } })); });
+    await c.addInitScript(() => { if (!localStorage.getItem('mathetrainer.v1')) localStorage.setItem('mathetrainer.v1', JSON.stringify({ jahrgangGewaehlt: true, jahrgang: 'os', stats: { Ableitung: { ok: 9, bad: 1 }, Binomialverteilung: { ok: 2, bad: 4 } }, xp: 420, geraet: 'GERAET-KENNUNG-ALT-12345', monate: { '2026-10': { ms: 1800000, aufgaben: 40, richtig: 30 } } })); });
     await p.goto(`${BASE}#/mehr`); await p.waitForSelector('a[href="#/eltern"]');
     await p.click('a[href="#/eltern"]'); await p.waitForSelector('#el-los');
     await p.fill('#el-name', 'Lea'); await p.click('#el-los');
     await p.waitForSelector('#el-qr svg', { timeout: 10000 });
     await p.waitForFunction(() => /Zuletzt gesendet/.test(document.querySelector('#el-status')?.textContent || ''), null, { timeout: 10000 });
-    const k = await p.evaluate(() => JSON.parse(localStorage.getItem('mt.eltern')));
+    const k = await p.evaluate(() => JSON.parse(localStorage.getItem('mathetrainer.eltern')));
     const link = await p.evaluate(async () => (await import('./js/eltern.js')).elternLink());
     ok(/^[\w-]{22}$/.test(k.id) && /^[\w-]{22}$/.test(k.schreib) && /^[\w-]{43}$/.test(k.key), `${name}: id 22, schreib 22, key 43 Zeichen (base64url)`);
     ok(link === `https://staging.mathenachhilfe-online.com/eltern-bericht/#${k.id}.${k.key}`, `${name}: Eltern-Link auf der Test-Stufe (${link.slice(0, 60)}…)`);
@@ -63,7 +63,7 @@ try {
     // Sicherung: ging mit dem Bericht hoch, verschlüsselt, mit schreib, ohne Geräte-Kennung
     ok(sicher.has(k.id) && !/Ableitung|GERAET/.test(sicher.get(k.id).body), `${name}: Sicherung hochgeladen (nur Geheimtext)`);
     const S = await entschluesseln(sicher.get(k.id).body, k.key);
-    ok(S.format === 1 && S.app === 'mathe-trainer' && S.schreib === k.schreib && S.daten['mt.v1']?.stats?.Ableitung?.ok === 9 && !S.daten['mt.v1'].geraet && !S.daten['mt.eltern'], `${name}: Sicherung enthält Lernstand und schreib, keine Geräte-Kennung, keine Kopplungsschlüssel`);
+    ok(S.format === 1 && S.app === 'mathe-trainer' && S.schreib === k.schreib && S.daten['mathetrainer.v1']?.stats?.Ableitung?.ok === 9 && !S.daten['mathetrainer.v1'].geraet && !S.daten['mathetrainer.eltern'], `${name}: Sicherung enthält Lernstand und schreib, keine Geräte-Kennung, keine Kopplungsschlüssel`);
     const vorher = log.filter((x) => x.art === 'S-PUT').length; await p.click('#el-senden'); await p.waitForTimeout(800);
     ok(log.filter((x) => x.art === 'S-PUT').length === vorher, `${name}: Sicherung nur bei Änderung`);
     // zweites Gerät (anderes Profil): Link einfügen → derselbe Lernstand → schreibt weiter
@@ -73,21 +73,21 @@ try {
     await p2.waitForFunction(() => /Keine Sicherung gefunden/.test(document.querySelector('#el-wieder-note')?.textContent || ''));
     ok(true, `${name}: unbekannter Link → „Keine Sicherung gefunden“`);
     await p2.fill('#el-wieder-link', link); await p2.click('#el-wieder-los');
-    await p2.waitForFunction(() => document.readyState === 'complete' && !!localStorage.getItem('mt.eltern') && /Eltern-Handy gekoppelt/.test(document.body.innerText), null, { timeout: 15000 }).catch(() => {});
+    await p2.waitForFunction(() => document.readyState === 'complete' && !!localStorage.getItem('mathetrainer.eltern') && /Eltern-Handy gekoppelt/.test(document.body.innerText), null, { timeout: 15000 }).catch(() => {});
     await p2.waitForTimeout(1200); await p2.goto(`${BASE}#/eltern`); await p2.waitForSelector('#el-senden', { timeout: 10000 });
-    const v2 = await p2.evaluate(() => ({ v: JSON.parse(localStorage.getItem('mt.v1')), e: JSON.parse(localStorage.getItem('mt.eltern')) }));
+    const v2 = await p2.evaluate(() => ({ v: JSON.parse(localStorage.getItem('mathetrainer.v1')), e: JSON.parse(localStorage.getItem('mathetrainer.eltern')) }));
     ok(v2.v.stats?.Ableitung?.ok === 9 && v2.v.xp === 420 && v2.v.geraet !== 'GERAET-KENNUNG-ALT-12345' && v2.e.id === k.id && v2.e.schreib === k.schreib, `${name}: neues Gerät hat denselben Lernstand und ist wieder gekoppelt`);
     const puts = log.filter((x) => x.art === 'PUT').length; await p2.click('#el-senden');
     await p2.waitForFunction(() => /Zuletzt gesendet/.test(document.querySelector('#el-status')?.textContent || ''), null, { timeout: 10000 });
     ok(log.filter((x) => x.art === 'PUT').length === puts + 1, `${name}: neues Gerät schreibt weiter (204)`);
     await c2.close();
     // fremdes schreib → 403 → „gilt nicht mehr“
-    await p.evaluate(() => { const k = JSON.parse(localStorage.getItem('mt.eltern')); k.schreib = 'AAAAAAAAAAAAAAAAAAAAAA'; localStorage.setItem('mt.eltern', JSON.stringify(k)); });
+    await p.evaluate(() => { const k = JSON.parse(localStorage.getItem('mathetrainer.eltern')); k.schreib = 'AAAAAAAAAAAAAAAAAAAAAA'; localStorage.setItem('mathetrainer.eltern', JSON.stringify(k)); });
     await p.click('#el-senden'); await p.waitForFunction(() => /gilt nicht mehr/.test(document.querySelector('#el-status')?.textContent || ''), null, { timeout: 10000 });
     ok(ablage.get(k.id)?.body !== undefined, `${name}: fremdes „schreib“ wird abgewiesen (403), der Bericht bleibt unverändert`);
-    await p.evaluate((s) => { const k = JSON.parse(localStorage.getItem('mt.eltern')); k.schreib = s; localStorage.setItem('mt.eltern', JSON.stringify(k)); }, k.schreib);
+    await p.evaluate((s) => { const k = JSON.parse(localStorage.getItem('mathetrainer.eltern')); k.schreib = s; localStorage.setItem('mathetrainer.eltern', JSON.stringify(k)); }, k.schreib);
     await p.click('#el-weg'); await p.waitForSelector('#el-los', { timeout: 10000 });
-    ok(log.some((x) => x.art === 'DELETE' && x.id === k.id) && !ablage.has(k.id) && !sicher.has(k.id) && !(await p.evaluate(() => localStorage.getItem('mt.eltern'))), `${name}: Kopplung aufheben löscht Bericht und Sicherung (DELETE) und die Schlüssel im Gerät`);
+    ok(log.some((x) => x.art === 'DELETE' && x.id === k.id) && !ablage.has(k.id) && !sicher.has(k.id) && !(await p.evaluate(() => localStorage.getItem('mathetrainer.eltern'))), `${name}: Kopplung aufheben löscht Bericht und Sicherung (DELETE) und die Schlüssel im Gerät`);
     // Einstellungen zeigen die Karte auch
     await p.goto(`${BASE}#/einstellungen`); await p.waitForSelector('#eltern #el-los');
     ok(!(await p.evaluate(() => document.documentElement.scrollWidth - innerWidth > 1)), `${name}: nichts ragt über den Rand`);

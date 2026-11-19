@@ -9,10 +9,11 @@
 //   der ganze Lernstand mit DEMSELBEN Schlüssel verschlüsselt per PUT /eltern/v1/s/<id>. Wiederherstellen auf einem neuen Gerät
 //   über den Kopplungs-Link (GET /eltern/v1/s/<id>); „schreib“ steht nur IN der verschlüsselten Sicherung.
 // Im Bericht steht nichts außer Lernstand und – nur wenn eingetragen – ein Spitzname. Keine weiteren Personendaten, keine Geräte-Kennung.
+import { serverBasis, istTest } from './ort.js';
 import { store, dayKey } from './store.js';
 import { UNITS, AREAS, ALLE_UNITS, jgName, istOber } from './units.js';
 
-const SPEICHER = 'mt.eltern', ABSTAND = 10 * 60 * 1000, MAX_BYTES = 24 * 1024, MAX_SICHERUNG = 512 * 1024;
+const SPEICHER = 'mathetrainer.eltern', ABSTAND = 10 * 60 * 1000, MAX_BYTES = 24 * 1024, MAX_SICHERUNG = 512 * 1024;
 import { VERSION } from './config.js';
 /** Bytes → base64url ohne Auffüllzeichen. */
 export const b64url = (bytes) => btoa(String.fromCharCode(...bytes)).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
@@ -35,7 +36,7 @@ export function koppeln(name = '') {
 }
 /** Wo die Eltern-Seite liegt: Test-Stufe → staging, sonst die Website. */
 export function elternBasis(host = globalThis.location?.hostname || '') {
-  return /^(trainer-test\.|localhost$|127\.)/.test(host) ? 'https://staging.mathenachhilfe-online.com/eltern-bericht/' : 'https://www.mathenachhilfe-online.com/eltern-bericht/';
+  return istTest(host) ? 'https://staging.mathenachhilfe-online.com/eltern-bericht/' : 'https://www.mathenachhilfe-online.com/eltern-bericht/';
 }
 export const elternLink = (k = kopplung()) => (k ? `${elternBasis()}#${k.id}.${k.key}` : '');
 
@@ -116,8 +117,8 @@ export async function verschluesseln(obj, keyB64) {
   const ct = new Uint8Array(await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, key, new TextEncoder().encode(JSON.stringify(obj))));
   return `${b64url(iv)}.${b64url(ct)}`;
 }
-const adresse = (k) => `/eltern/v1/b/${k.id}`;
-const adresseS = (id) => `/eltern/v1/s/${id}`;
+const adresse = (k) => `${serverBasis()}/eltern/v1/b/${k.id}`;
+const adresseS = (id) => `${serverBasis()}/eltern/v1/s/${id}`;
 
 /* ───────────── Sicherung des Lernstands ───────────── */
 /** Alles, was die App zum Weiterlernen braucht: Lernstand (mt.v1) und Einstellungen – ohne Geräte-Kennung, ohne Zwischenspeicher. */
@@ -125,16 +126,16 @@ export function sicherungDaten(ls = globalThis.localStorage) {
   const daten = {};
   for (let i = 0; i < ls.length; i++) {
     const name = ls.key(i);
-    if (!/^mt\./.test(name) || ['mt.eltern', 'mt.kirest'].includes(name)) continue;
+    if (!/^mathetrainer\./.test(name) || ['mathetrainer.eltern', 'mathetrainer.kirest'].includes(name)) continue;
     try { daten[name] = JSON.parse(ls.getItem(name)); } catch { daten[name] = ls.getItem(name); }
   }
-  if (daten['mt.v1'] && typeof daten['mt.v1'] === 'object') { const v = { ...daten['mt.v1'] }; delete v.geraet; daten['mt.v1'] = v; }
+  if (daten['mathetrainer.v1'] && typeof daten['mathetrainer.v1'] === 'object') { const v = { ...daten['mathetrainer.v1'] }; delete v.geraet; daten['mathetrainer.v1'] = v; }
   return daten;
 }
 /** Zu groß? Erst Rohdaten kürzen: Läufe und Abi-Versuche auf das Nötigste, die Tagesliste auf 35 Tage (Monatssummen bleiben). */
 function kuerzen(daten) {
-  const v = daten['mt.v1']; if (!v || typeof v !== 'object') return daten;
-  return { ...daten, 'mt.v1': { ...v, runs: (v.runs || []).slice(0, 5), exams: (v.exams || []).slice(0, 5), tage: Object.fromEntries(Object.entries(v.tage || {}).sort().slice(-35)) } };
+  const v = daten['mathetrainer.v1']; if (!v || typeof v !== 'object') return daten;
+  return { ...daten, 'mathetrainer.v1': { ...v, runs: (v.runs || []).slice(0, 5), exams: (v.exams || []).slice(0, 5), tage: Object.fromEntries(Object.entries(v.tage || {}).sort().slice(-35)) } };
 }
 const hash = async (text) => b64url(new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(text)))).slice(0, 22);
 /** Sicherung hochladen, wenn sich etwas geändert hat. 'ok' | 'gleich' | 'noch-nicht' (Server kennt sie noch nicht, 404) | 'ungueltig' | 'netz' | 'fehler'. */
@@ -175,9 +176,11 @@ export async function sicherungHolen(text) {
 export const hatLernstand = () => store.xp > 0 || Object.keys(store.stats).length > 0;
 /** Gesicherten Lernstand übernehmen: Speicher ersetzen, Kopplung übernehmen (das Gerät schreibt danach weiter). Danach neu laden. */
 export function uebernehmen(s, ls = globalThis.localStorage) {
-  const geraet = (() => { try { return JSON.parse(ls.getItem('mt.v1') || '{}').geraet; } catch { return undefined; } })();
-  for (const name of Object.keys(s.daten)) if (/^mt\./.test(name) && name !== 'mt.eltern') {
-    let v = s.daten[name]; if (name === 'mt.v1' && v && typeof v === 'object' && geraet) v = { ...v, geraet };   // eigene Geräte-Kennung behalten
+  const geraet = (() => { try { return JSON.parse(ls.getItem('mathetrainer.v1') || '{}').geraet; } catch { return undefined; } })();
+  for (const alt of Object.keys(s.daten)) if (/^(mt|mathetrainer)\./.test(alt)) {
+    const name = alt.replace(/^mt\./, 'mathetrainer.');   // Sicherungen vor dem Umzug (19.11.2026) tragen noch „mt.…“
+    if (['mathetrainer.eltern', 'mathetrainer.kirest'].includes(name)) continue;
+    let v = s.daten[alt]; if (name === 'mathetrainer.v1' && v && typeof v === 'object' && geraet) v = { ...v, geraet };   // eigene Geräte-Kennung behalten
     ls.setItem(name, typeof v === 'string' ? v : JSON.stringify(v));
   }
   merke({ id: s.id, schreib: s.schreib, key: s.key, name: '', seit: new Date().toISOString(), gesendet: '', fehler: '', sicherung: '' });

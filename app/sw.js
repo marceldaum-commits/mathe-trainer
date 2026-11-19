@@ -1,36 +1,36 @@
 // Service Worker: macht die App offline nutzbar und liefert Updates aus.
 // CACHE muss zur VERSION in js/config.js passen; ASSETS pflegt `npm run fix` (tools/check.mjs).
-const CACHE = 'mt-2.4.3';
+const CACHE = 'mathetrainer-2.5.0';
 const ASSETS = [
   "./",
   "b/app.js",
-  "b/teil-2RYMFMXV.js",
-  "b/teil-2VQ6QBR7.js",
-  "b/teil-3GH3CDPQ.js",
-  "b/teil-65JHAA57.js",
+  "b/teil-4DNH54WM.js",
   "b/teil-6YPP5Y2A.js",
-  "b/teil-7NOMZFZR.js",
-  "b/teil-7P2IKPOK.js",
-  "b/teil-B4ZSPYDO.js",
-  "b/teil-BE4KAE7D.js",
-  "b/teil-CGI23OVS.js",
-  "b/teil-D6HXN5EY.js",
-  "b/teil-E4AERY2N.js",
-  "b/teil-EEJFCJAN.js",
-  "b/teil-FDFAJOSF.js",
-  "b/teil-FWPOC3JP.js",
-  "b/teil-HZSTWP7V.js",
-  "b/teil-KNOAJIBK.js",
-  "b/teil-KPY5VR6J.js",
+  "b/teil-AEZ25ZGF.js",
+  "b/teil-AS6KYEIB.js",
+  "b/teil-AUE25XH7.js",
+  "b/teil-EXVSNO3V.js",
+  "b/teil-FUHIS4Z2.js",
+  "b/teil-FWQ24JPX.js",
+  "b/teil-IDKPAFEY.js",
+  "b/teil-IU2Q2TH3.js",
   "b/teil-KTQ3GSC6.js",
-  "b/teil-M22RTSPX.js",
-  "b/teil-MFPG2WXE.js",
-  "b/teil-ML4KX4U3.js",
+  "b/teil-LCORL54V.js",
+  "b/teil-LS4AAZS5.js",
+  "b/teil-MHDY67UO.js",
+  "b/teil-MS54AG6X.js",
   "b/teil-NIO7452L.js",
-  "b/teil-PTMSKPAF.js",
-  "b/teil-QE432YP7.js",
-  "b/teil-TIA3CUYO.js",
-  "b/teil-V4VWKKQP.js",
+  "b/teil-NXK5KEGM.js",
+  "b/teil-PYU5DGYG.js",
+  "b/teil-Q46Z3GML.js",
+  "b/teil-Q5PUZU4U.js",
+  "b/teil-RL45PKN5.js",
+  "b/teil-RUYDIZ5N.js",
+  "b/teil-TDTE7ZFJ.js",
+  "b/teil-U2NXPJCT.js",
+  "b/teil-W6SVZTH4.js",
+  "b/teil-Y6JZNNOX.js",
+  "b/teil-YZAHFDPL.js",
   "css/app.css",
   "fonts/inter-latin-wght-normal.woff2",
   "img/apple-touch-icon.png",
@@ -80,7 +80,9 @@ self.addEventListener('install', (ev) => {
 self.addEventListener('activate', (ev) => {
   ev.waitUntil(
     caches.keys()
-      .then((keys) => Promise.all(keys.filter((k) => k.startsWith('mt-') && k !== CACHE).map((k) => caches.delete(k))))
+      // Nur eigene Caches löschen (gemeinsame Adresse lernen.… mit anderen Apps). „mt-“ ist das alte Präfix und wird nur auf der
+      // alten Adresse aufgeräumt, wo kein anderer Cache liegen kann.
+      .then((keys) => Promise.all(keys.filter((k) => k !== CACHE && (k.startsWith('mathetrainer-') || (k.startsWith('mt-') && !/^lernen(-test)?\./.test(location.hostname)))).map((k) => caches.delete(k))))
       .then(() => self.clients.claim()),
   );
 });
@@ -91,9 +93,9 @@ self.addEventListener('fetch', (ev) => {
   const req = ev.request;
   const ziel = new URL(req.url);
   // Anfragen an den Server-Teil (/api/…) fasst der Service Worker nicht an: nie aus dem Speicher, immer direkt.
-  if (req.method !== 'GET' || ziel.origin !== location.origin || ziel.pathname.startsWith('/api/')) return;
+  if (req.method !== 'GET' || ziel.origin !== location.origin || ziel.pathname.startsWith('/api/') || ziel.pathname.startsWith('/zaehler/') || ziel.pathname.startsWith('/eltern/')) return;
   ev.respondWith(
-    caches.match(req, { ignoreSearch: true }).then((hit) => hit || fetch(req).catch(() => (req.mode === 'navigate' ? caches.match('./') : Response.error()))),
+    caches.open(CACHE).then((c) => c.match(req, { ignoreSearch: true }).then((hit) => hit || fetch(req).catch(() => (req.mode === 'navigate' ? c.match('./') : Response.error())))),
   );
 });
 

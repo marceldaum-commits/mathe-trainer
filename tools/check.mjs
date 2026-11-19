@@ -39,7 +39,7 @@ const swPath = join(APP, 'sw.js');
 let sw = readFileSync(swPath, 'utf8');
 const version = readFileSync(join(APP, 'js/config.js'), 'utf8').match(/VERSION = '([^']+)'/)[1];
 const want = `const ASSETS = ${JSON.stringify(assets, null, 2)};`;
-const wantCache = `const CACHE = 'mt-${version}';`;
+const wantCache = `const CACHE = 'mathetrainer-${version}';`;
 
 const errors = [...errors0];
 // Datum der Version: Wird die VERSION erhöht (sw.js trägt noch die alte), setzt --fix das heutige Datum (deutsche Zeit).

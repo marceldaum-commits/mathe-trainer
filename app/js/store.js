@@ -1,5 +1,5 @@
 // Lernfortschritt – liegt nur auf dem Gerät (localStorage), kein Konto.
-const KEY = 'mt.v1';
+const KEY = 'mathetrainer.v1';
 const XP_STEP = 10;
 
 function load() {
@@ -17,6 +17,7 @@ const addDays = (d, n) => { const x = new Date(d); x.setDate(x.getDate() + n); r
 export const LEVELS = ['Sehr leicht', 'Leicht', 'Mittel', 'Schwer', 'Sehr schwer'];
 
 function save() {
+  if (globalThis.__mtUmzugSperre) return;   // Umzug übernimmt gerade den mitgebrachten Lernstand (umzug.js)
   try { localStorage.setItem(KEY, JSON.stringify(mem)); } catch { /* privater Modus: läuft ohne Speichern weiter */ }
 }
 

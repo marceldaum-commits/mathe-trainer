@@ -1,5 +1,6 @@
 // Erinnerung aufs Handy (Web-Push), siehe docs/SERVER.md. Der Server schickt höchstens einmal am Tag eine Mitteilung ohne Inhalt;
 // den Text setzt der Service Worker. Den öffentlichen Schlüssel holt die App vom Server (GET /api/push/schluessel).
+import { serverBasis } from './ort.js';
 import { CONFIG } from './config.js';
 import { store } from './store.js';
 
@@ -50,7 +51,7 @@ export async function pushStand() {
 }
 /** Service Worker abwarten – aber nicht ewig (ohne ihn gibt es keine Mitteilungen). */
 function bereit() { return Promise.race([navigator.serviceWorker.ready, new Promise((_, no) => setTimeout(() => no(new Error('kein Service Worker')), 5000))]); }
-const post = (path, body) => fetch(`${CONFIG.api}${path}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+const post = (path, body) => fetch(`${serverBasis()}${CONFIG.api}${path}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
 
 /** Einschalten oder Uhrzeit ändern: Erlaubnis einholen, Abo anlegen, dem Server melden. Liefert { ok, grund, gesperrt? }. */
 export async function pushAn(zeit) {
@@ -71,7 +72,7 @@ export async function pushAn(zeit) {
     const reg = await bereit();
     let abo = await reg.pushManager.getSubscription();
     if (!abo) {
-      const k = await (await fetch(`${CONFIG.api}/push/schluessel`, { headers: { Accept: 'application/json' } })).json();
+      const k = await (await fetch(`${serverBasis()}${CONFIG.api}/push/schluessel`, { headers: { Accept: 'application/json' } })).json();
       if (typeof k?.key !== 'string' || k.key.length < 20) return { ok: false, grund: 'Der Server hat keinen Schlüssel geliefert.' };
       abo = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: keyBytes(k.key) });
     }

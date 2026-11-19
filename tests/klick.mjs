@@ -9,13 +9,13 @@ const b = await chromium.launch();
 const neu = async (jg) => { const c = await b.newContext({ ...devices['Pixel 7'], serviceWorkers: 'block' }); await c.route('**/api/**', (r) => r.fulfill({ json: { ok: true, stufe: 'live', ki: false } }));
   const p = await c.newPage(); p.wo = ''; p.on('pageerror', (e) => probleme.push(`[${jg}] FEHLER ${p.wo}: ${e.message.slice(0, 160)}`)); p.on('console', (m) => { if (m.type() === 'error' && !/Failed to load resource/.test(m.text())) probleme.push(`[${jg}] Konsole ${p.wo}: ${m.text().slice(0, 160)}`); });
   p.on('dialog', (d) => d.dismiss());
-  await p.goto(B); await p.evaluate((x) => localStorage.setItem('mt.v1', JSON.stringify({ jahrgang: x })), jg); await p.reload(); await p.waitForSelector('#home');
+  await p.goto(B); await p.evaluate((x) => localStorage.setItem('mathetrainer.v1', JSON.stringify({ jahrgang: x })), jg); await p.reload(); await p.waitForSelector('#home');
   if (process.env.STAND) { await p.evaluate(async () => { const U = await import('./js/units.js'); const done = {}; U.UNITS.slice(0, 2).forEach((u, k) => u.steps.forEach((s, i) => { if (k === 0 || i < 3) done[`${u.id}/${s.id}`] = 1 + ((i + k) % 3); }));
       const d = new Date(), tag = (n) => { const x = new Date(d); x.setDate(x.getDate() + n); return `${x.getFullYear()}-${String(x.getMonth() + 1).padStart(2, '0')}-${String(x.getDate()).padStart(2, '0')}`; };
-      const m = JSON.parse(localStorage.getItem('mt.v1')); Object.assign(m, { done, xp: 640, last: U.UNITS[1].id, streak: { n: 3, last: tag(0) }, stats: { Terme: { ok: 2, bad: 5, last: tag(0) }, Prozent: { ok: 6, bad: 1, last: tag(-1) } }, kartei: { genLinGl: { topic: 'Gleichungen', step: 0, due: tag(0) }, genProzent: { topic: 'Prozent', step: 1, due: tag(-1) } },
+      const m = JSON.parse(localStorage.getItem('mathetrainer.v1')); Object.assign(m, { done, xp: 640, last: U.UNITS[1].id, streak: { n: 3, last: tag(0) }, stats: { Terme: { ok: 2, bad: 5, last: tag(0) }, Prozent: { ok: 6, bad: 1, last: tag(-1) } }, kartei: { genLinGl: { topic: 'Gleichungen', step: 0, due: tag(0) }, genProzent: { topic: 'Prozent', step: 1, due: tag(-1) } },
         runs: [{ kind: 'blitz', score: 120, correct: 9, total: 11, date: tag(-1) }], exams: [{ date: tag(-2), np: 9, part: 'A', score: 60 }], badges: { erster: tag(-3) }, count: { ueben: 4, kopf_mal: 12, knobelTag: 20200101 }, outfit: { hut: 'kappe', brille: 'rund' }, abi: tag(40), land: 'BY',
         arbeit: { datum: tag(4), units: U.UNITS.slice(0, 3).map((u) => u.id) }, week: { key: '', days: [], claimed: false }, lernStand: {}, einstufung: null });
-      localStorage.setItem('mt.v1', JSON.stringify(m)); }); await p.reload(); await p.waitForSelector('#home'); }
+      localStorage.setItem('mathetrainer.v1', JSON.stringify(m)); }); await p.reload(); await p.waitForSelector('#home'); }
   return p; };
 const zustand = (p) => p.evaluate(() => { const v = document.querySelector('#app .view, main .view, .view'); const sheet = document.querySelector('#sheet');
   return { hash: location.hash, text: (v?.innerText || '').trim().length, breit: document.documentElement.scrollWidth - innerWidth, undef: /undefined|NaN|\[object/.test(v?.innerText || ''), sheet: sheet && !sheet.hidden,

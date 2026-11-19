@@ -2,10 +2,11 @@
 // (POST /zaehler/v1/e, gleiche Herkunft). Keine Kennung, keine Geräte-ID, kein Lernstand, kein Code. Abschaltbar in den Einstellungen
 // (Standard: an); aus = kein einziger Aufruf. Fehler werden ignoriert, nie gewartet, nie wiederholt. Kein sendBeacon.
 // Links zur Website und zum Shop bekommen ?src=mathetrainer-<ort> (dazu thema und klasse, wo bekannt).
+import { serverBasis, istTest } from './ort.js';
 import { VERSION, CONFIG } from './config.js';
 import { THEMEN, themaVon } from './eltern.js';
 
-const SCHALTER = 'mt.zaehlung';
+const SCHALTER = 'mathetrainer.zaehlung';
 export const EREIGNISSE = ['start', 'elternbereich', 'pro_ansehen', 'pro_kasse', 'code_eingeloest', 'probestunde_klick', 'neukunde_klick', 'crashkurs_klick', 'nachhilfe_hinweis', 'geschenk_klick', 'level_start', 'level_geschafft', 'theorie'];
 export const ORTE = ['elternbericht', 'elternbereich', 'lernstand', 'gesperrt', 'klassenarbeit', 'geschenk', 'einstellungen', 'fusszeile', 'link', 'eingabe', 'kopf', 'theorie'];
 
@@ -18,7 +19,7 @@ export function zaehle(ev, ort = '', thema = '', f = globalThis.fetch) {
   const body = { app: 'mathetrainer', v: VERSION, ev };
   if (ORTE.includes(ort)) body.ort = ort;
   if (THEMEN.includes(thema)) body.thema = thema;
-  try { const p = f('/zaehler/v1/e', { method: 'POST', body: JSON.stringify(body), keepalive: true, credentials: 'omit', headers: { 'Content-Type': 'text/plain' } }); p?.catch?.(() => {}); } catch { /* egal */ }
+  try { const p = f(`${serverBasis()}/zaehler/v1/e`, { method: 'POST', body: JSON.stringify(body), keepalive: true, credentials: 'omit', headers: { 'Content-Type': 'text/plain' } }); p?.catch?.(() => {}); } catch { /* egal */ }
   return body;
 }
 
@@ -44,7 +45,7 @@ export function linkMitHerkunft(href, ort, { thema = '', klasse = '' } = {}) {
 }
 /** Übersicht aller Lern-Apps (Website). Test-Stufe → staging, sonst www. Gleicher Tab, Herkunft src=mathetrainer-kopf. */
 export function alleAppsLink(host = globalThis.location?.hostname || '') {
-  const basis = /^(trainer-test\.|localhost$|127\.)/.test(host) ? 'https://staging.mathenachhilfe-online.com' : 'https://www.mathenachhilfe-online.com';
+  const basis = istTest(host) ? 'https://staging.mathenachhilfe-online.com' : 'https://www.mathenachhilfe-online.com';
   return linkMitHerkunft(`${basis}/lern-apps/`, 'kopf');
 }
 /** Knopf „← Alle Apps“ – nur auf Start und Übersicht, nie in Aufgaben, Prüfungen oder Spielen. */

@@ -24,6 +24,8 @@ import { updateLeiste } from './update.js';
 import { installKarte, beiInstallWechsel } from './install.js';
 import { elternView } from './eltern-ui.js';
 import { freischaltLink } from './prolink.js';
+import { umzugBeimStart } from './umzug.js';
+import { aufLernen } from './ort.js';
 import { zaehle, zaehlungStarten, hinweiseBeobachten, linkMitHerkunft, alleAppsKnopf } from './zaehler.js';
 import { elternAutomatik } from './eltern.js';
 import { theorieKnopf, theorieKnoepfe, hatTheorie } from './theoriefenster.js';
@@ -529,7 +531,17 @@ zaehlungStarten(() => { const m = /^#\/(?:u|theorie)\/([\w-]+)/.exec(location.ha
 window.addEventListener('hashchange', () => { if (/^#\/eltern\b/.test(location.hash)) zaehle('elternbereich'); else if (/^#\/theorie\/[\w-]+/.test(location.hash)) zaehle('theorie'); });
 if (/^#\/eltern\b/.test(location.hash)) zaehle('elternbereich'); else if (/^#\/theorie\/[\w-]+/.test(location.hash)) zaehle('theorie');
 hinweiseBeobachten();
-freischaltLink((text) => toast(text));   // #pro=CODE (neu) bzw. ?pro=CODE (alte Mails): sofort aus der Adresse, dann einlösen
+freischaltLink((text) => toast(text));
+// Umzug auf lernen.mathenachhilfe-online.com/mathetrainer/ (19.11.2026): alte Adresse → einpacken und weiterleiten,
+// neue Adresse → mitgebrachten Lernstand übernehmen. Lokal und in Tests passiert nichts.
+umzugBeimStart({ toast: (t) => toast(t), hinweis: (los) => {
+  const box = h(`<div class="umzug-hinweis" role="dialog" aria-label="Neue Adresse"><div class="card stack"><h3>Der Mathe-Trainer ist umgezogen</h3>
+    <p>Neue Adresse: <b>lernen.mathenachhilfe-online.com/mathetrainer</b>. Dein Fortschritt kommt mit.</p>
+    <p class="muted">Danach bitte die App vom Home-Bildschirm löschen und an der neuen Adresse neu installieren.</p>
+    <button class="btn block" type="button">Zur neuen Adresse</button></div></div>`);
+  box.querySelector('button').onclick = () => { box.querySelector('button').disabled = true; los(); };
+  document.body.append(box);
+} }).catch(() => {});   // #pro=CODE (neu) bzw. ?pro=CODE (alte Mails): sofort aus der Adresse, dann einlösen
 route();
 window.__mtGestartet?.();
 ladeAufgaben().catch(() => {});   // Aufgaben-Erzeuger (rund 1,5 MB) gleich nach dem ersten Bild im Hintergrund holen
@@ -550,16 +562,16 @@ if (window.MTApp) document.getElementById('view').before(updateLeiste());
 // Die Web-App aktualisiert sich von selbst, ohne Knopf (Marcel, 15.11.2026): Eine neue Fassung wird im Hintergrund geladen
 // und übernommen, sobald gerade keine Aufgabe und kein Spiel läuft – mittendrin wird nie neu geladen.
 // Vorlesen ist abgeschaltet (Marcel 18.11.2026): früher geladene Nova-Dateien im Gerät aufräumen.
-if (!VORLESEN) { try { globalThis.caches?.delete('stimme-nova').catch(() => {}); } catch { /* ohne Cache Storage */ } }
+if (!VORLESEN) { try { if (!aufLernen()) globalThis.caches?.delete('stimme-nova').catch(() => {}); globalThis.caches?.delete('stimme-mathetrainer').catch(() => {}); } catch { /* ohne Cache Storage */ } }   // alter Name nur auf der alten Adresse (dort gehört er sicher uns)
 // Nach dem automatischen Neuladen kurz sagen, was jetzt läuft.
-try { const alt = sessionStorage.getItem('mt-alte-version'); sessionStorage.removeItem('mt-alte-version'); if (alt && alt !== VERSION) setTimeout(() => toast(`Neue Version ${VERSION} geladen.`), 800); } catch { /* ohne sessionStorage */ }
+try { const alt = sessionStorage.getItem('mathetrainer-alte-version'); sessionStorage.removeItem('mathetrainer-alte-version'); if (alt && alt !== VERSION) setTimeout(() => toast(`Neue Version ${VERSION} geladen.`), 800); } catch { /* ohne sessionStorage */ }
 if (!window.MTApp && 'serviceWorker' in navigator && (location.protocol === 'https:' || ['localhost', '127.0.0.1'].includes(location.hostname))) {
   let hadController = !!navigator.serviceWorker.controller;
   const mittendrin = () => !!view.querySelector('.stephead') || !$('#sheet').hidden;
   let wartet = null, ladeNeu = false, reloaded = false;
   const jetzt = () => {
     if (mittendrin()) return;
-    if (ladeNeu && !reloaded) { reloaded = true; try { sessionStorage.setItem('mt-alte-version', VERSION); } catch { /* egal */ } location.reload(); return; }
+    if (ladeNeu && !reloaded) { reloaded = true; try { sessionStorage.setItem('mathetrainer-alte-version', VERSION); } catch { /* egal */ } location.reload(); return; }
     if (wartet) { const w = wartet; wartet = null; w.postMessage('skip'); }
   };
   navigator.serviceWorker.register('sw.js').then((reg) => {

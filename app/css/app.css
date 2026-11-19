@@ -1053,3 +1053,7 @@ button.card.unit{text-align:left;width:100%;font:inherit;color:inherit;cursor:po
 .t-app b{font-size:calc(15px*var(--fs,1));color:var(--head)}
 .t-app small{font-size:calc(13px*var(--fs,1));color:var(--muted)}
 .t-app:hover,.t-app:focus-visible{border-color:var(--orange)}
+/* Umzug auf lernen.… (19.11.): Hinweis für installierte Apps auf der alten Adresse */
+.umzug-hinweis{position:fixed;inset:0;z-index:90;display:grid;place-items:center;padding:16px;background:rgba(10,16,40,.55)}
+.umzug-hinweis .card{max-width:420px;width:100%}
+.umzug-hinweis p{font-size:calc(15px*var(--fs,1))}
