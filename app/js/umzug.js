@@ -12,6 +12,7 @@
 import { alteAdresse, aufLernen, neueAdresse, serverBasis } from './ort.js';
 import { b64url, b64urlLesen, verschluesseln } from './eltern.js';
 
+export const UMZUG_AUS = true;   // NUR im Zweig rueckweg-ohne-umzug
 export const MERK = 'mathetrainer-umzug';   // sessionStorage: { t: '<id>.<key>.<schreib>', leer: true|false }
 const zufall = (n) => b64url(crypto.getRandomValues(new Uint8Array(n)));
 
@@ -59,6 +60,7 @@ const installiert = () => { try { return globalThis.matchMedia?.('(display-mode:
 
 /** Alte Adresse: umziehen. hinweis(los) zeigt bei installierter App zuerst eine Erklärung mit Knopf; warten(an) den Hinweis „Wir ziehen um …“. */
 export async function umziehen({ hinweis = null, warten = () => {} } = {}) {
+  if (UMZUG_AUS) return 'aus';   // Rückweg-Fassung: keine Weiterleitung, Speicher-Namen bleiben „mathetrainer.…“
   if (!alteAdresse()) return 'nicht-alt';
   const ziel = neueAdresse();
   if (!(await zielBereit(ziel))) return 'ziel-fehlt';
