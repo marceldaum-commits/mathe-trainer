@@ -28,21 +28,22 @@ try {
       ok(kinder === (jg !== 'os'), `${name} Kl. ${jg}: Klasse „kinder“ ${jg !== 'os' ? 'gesetzt' : 'nicht gesetzt'}`);
       const promo = await p.evaluate(() => [...document.querySelectorAll('.cta, .promo, .werbung')].filter((e) => e.getClientRects().length).length);
       ok(jg === 'os' ? true : promo === 0, `${name} Kl. ${jg}: keine sichtbaren Probestunden-Hinweise (${promo})`);
-      // „← Alle Apps“ → Tor
-      await p.click('.alle-apps'); await p.waitForSelector('#eltern-tor');
-      ok(/Hier geht es zur Website\./.test(await p.textContent('#tor-grund')), `${name} Kl. ${jg}: Grund „Hier geht es zur Website.“`);
+      // „← Alle Apps“ (Website, neutral) ohne Tor – Marcel 19.11.: „Ohne Tor, neutral“
+      await p.click('.alle-apps'); await p.waitForURL(/\/lern-apps\//, { timeout: 8000 }).catch(() => {});
+      ok(/\/lern-apps\//.test(p.url()), `${name} Kl. ${jg}: „Alle Apps“ öffnet ohne Tor (${p.url()})`);
+      await p.goto(`${BASE}#/`); await p.waitForSelector('#home');
+      // Tor-Mechanik am Shop-Knopf der Pro-Seite (Kl. 5–10: erst „Für Eltern“) bzw. direkt (Oberstufe)
+      await p.goto(`${BASE}#/pro`); await p.waitForSelector('#pro-stufe');
+      await p.click(jg === 'os' ? '#pro-aktion a[href*="/produkt/"]' : '#pro-eltern'); await p.waitForSelector('#eltern-tor');
       ok(/^(Dreizehn|Vierzehn|Fünfzehn|Sechzehn|Siebzehn|Achtzehn|Neunzehn) mal (sechs|sieben|acht|neun)$/.test(await p.textContent('#tor-aufgabe')), `${name} Kl. ${jg}: Aufgabe in Worten`);
       ok(await p.locator('#eltern-tor input').count() === 0 && await p.locator('#eltern-tor .tor-taste').count() === 12, `${name} Kl. ${jg}: eigene Ziffern-Tasten, kein Eingabefeld`);
       await p.click('#tor-abbrechen');
       ok(await p.locator('#eltern-tor').count() === 0 && p.url().startsWith(BASE), `${name} Kl. ${jg}: Abbrechen schließt das Tor, keine Weiterleitung`);
-      // Fehler → neue Aufgabe
-      await p.click('.alle-apps'); await p.waitForSelector('#eltern-tor');
-      const vorher = await p.textContent('#tor-aufgabe'); const falsch = (await loesung(p)) + 1; await tippe(p, falsch);
+      await p.click(jg === 'os' ? '#pro-aktion a[href*="/produkt/"]' : '#pro-eltern'); await p.waitForSelector('#eltern-tor');
+      const vorher = await p.textContent('#tor-aufgabe'); await tippe(p, (await loesung(p)) + 1);
       ok(/Leider falsch – hier ist eine neue Aufgabe\./.test(await p.textContent('#tor-fehler')) && await p.locator('#eltern-tor').count() === 1, `${name} Kl. ${jg}: Fehler → Hinweis und neue Aufgabe (${vorher})`);
-      await tippe(p, await loesung(p));
-      await p.waitForURL(/mathenachhilfe-online\.com\/lern-apps\//, { timeout: 8000 }).catch(() => {});
-      ok(/\/lern-apps\//.test(p.url()), `${name} Kl. ${jg}: richtig gelöst → „Alle Apps“ öffnet (${p.url()})`);
-      await p.goto(`${BASE}#/`); await p.waitForSelector('#home');   // neu geladen: Tor wieder zu (nur Arbeitsspeicher)
+      await p.click('#tor-abbrechen');
+      await p.goto(`${BASE}#/`); await p.waitForSelector('#home');
       // Impressum frei
       const vorNeu = neu.length; await p.click('footer a[href*="impressum"]'); await p.waitForTimeout(400);
       ok(await p.locator('#eltern-tor').count() === 0 && neu.length > vorNeu, `${name} Kl. ${jg}: Impressum ohne Tor`);

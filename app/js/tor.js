@@ -2,7 +2,7 @@
 // Malaufgabe 13–19 × 6–9 in Worten, Vorlese-Knopf, eigene Ziffern-Tasten, nach einem Fehler sofort eine neue Aufgabe,
 // kein Zeitdruck, jederzeit abbrechen. Gelöst bleibt das Tor 10 Minuten offen – nur im Arbeitsspeicher (nach dem Neuladen fragt es wieder).
 // Ein gelöstes Tor zählt als anonymes Ereignis „elternbereich“.
-// Steht vor: allen Links nach außen außer Impressum und Datenschutz (Website, Shop, Probestunde, „← Alle Apps“) und vor
+// Steht vor: Shop, Kasse, Probestunde und fremden Seiten (eigene Website neutral, „← Alle Apps“, Impressum, Datenschutz: frei – Marcel 19.11.) und vor
 // Elementen mit data-tor (z. B. Pro-Seite mit Preisen in Kl. 5–10). Links zu den anderen Lern-Apps brauchen kein Tor (V10 b).
 import { CONFIG } from './config.js';
 import { esc } from './ui.js';
@@ -41,7 +41,9 @@ export function torGrund(href, basis = globalThis.location?.href || 'https://ler
   if (LERNEN.test(u.hostname) && /^\/[a-z][a-z-]+\//.test(u.pathname) && !/^\/lern-apps\b/.test(u.pathname)) return '';   // …/<app>/
   if (/\/produkt\/|\/shop\b|warenkorb|kasse/.test(u.pathname)) return 'Hier geht es zum Shop.';
   if (/probestunde/.test(u.pathname)) return 'Hier geht es zur Probestunde.';
-  return 'Hier geht es zur Website.';
+  // Eigene Website neutral (ohne Kaufsprache, nicht in Warenkorb/Kasse): ohne Tor – Marcel 19.11.: „Ohne Tor, neutral“ (ELTERN-TOR.md 0d1c53b)
+  if (/(^|\.)mathenachhilfe-online\.com$/.test(u.hostname)) return '';
+  return 'Hier geht es nach außen.';
 }
 
 /** Tor zeigen → Promise<boolean> (true = gelöst bzw. schon offen). */
