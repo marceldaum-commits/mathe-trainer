@@ -125,3 +125,5 @@ Ablauf von nun an jede Woche: (1) was jede App herausnimmt oder abgibt und an we
 - Die Wochenrunde des Leitstands bleibt montags.
 - Bestätigt am 19.11., dazu die Frage zu unseren Geometrie-Einheiten gestellt.
 - **Entscheidung Marcel (19.11., über AppZentrale):** Die 9 Raumgeometrie-Einheiten bleiben beim Mathe-Trainer (Rechentraining). Raumlicht zeigt dasselbe räumlich; gegenseitige Querverweise nach der Montagsrunde.
+- **Ökosystem-Ideen (Marcel 19.11.: erst sammeln, Montag planen, bis dahin nichts bauen):** Unser Beitrag (Aufwand, Wiederverwendbares, Ideen „Zurück, wo du warst“ / gemeinsame Klassen-Wahl per Link / Tagesmission, Bedenken Datenschutz/WebKit) ist an die AppZentrale geschickt.
+- **Wissensgarten:** Paket-Links `#paket=<ID>` ab Fr 20.11. auf test; Paket-IDs bei der AppZentrale erfragt.
