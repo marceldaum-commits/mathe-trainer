@@ -648,6 +648,12 @@ const EX = await import('../app/js/exam.js');
   { const t = abl(); t.frage = 'Hallo <script>alert(1)</script> Welt'; ok(!K.verify(t).ok, 'KI-Prüfer: eingeschleuster Code abgelehnt'); }
   { const t = abl(); t.funktion = 'fetch(1)'; ok(!K.verify(t).ok, 'KI-Prüfer: unlesbarer Ausdruck abgelehnt'); }
   { let thrown = false; try { const t = abl(); t.antworten[0].ausdruck = 'x'; K.toQuestion(t); } catch { thrown = true; } ok(thrown, 'KI-Prüfer: ungeprüfte Aufgabe kommt nicht in die App'); }
+  { const M = await import('../app/js/kimarke.js'); const kt = K.toQuestion(abl());
+    ok(kt.geprueft === true && /im Gerät nachgerechnet/.test(M.kiAufgabeText(kt.geprueft)) && !/nicht nachgerechnet/.test(M.kiAufgabeText(kt.geprueft)), 'KI-Kennzeichnung V7: Aufgabe mit bestandener Prüfung trägt „im Gerät nachgerechnet“');
+    ok(/nicht nachgerechnet/.test(M.kiAufgabeText(undefined)) && /nicht nachgerechnet/.test(M.kiAufgabeText(false)) && !/im Gerät nachgerechnet/.test(M.kiAufgabeText(undefined)), 'KI-Kennzeichnung V7 (Auflage Recht): ohne bestätigte Prüfung nie „nachgerechnet“');
+    ok(M.KI_ANTWORT === 'Antwort einer KI – sie kann Fehler enthalten.', 'KI-Kennzeichnung V7: Wortlaut der KI-Antwort-Marke'); }
+  { const fs2 = await import('node:fs'); for (const f of ['quiz.js', 'rechenweg.js', 'blatt.js']) { const q = fs2.readFileSync(new URL(`../app/js/${f}`, import.meta.url), 'utf8'); ok(/kiHinweis\(\)/.test(q) && /from '\.\/kimarke\.js'/.test(q), `KI-Kennzeichnung V7: ${f} hängt kiHinweis() an jede KI-Antwort`); }
+    const ka = fs2.readFileSync(new URL('../app/js/kiaufgabe.js', import.meta.url), 'utf8'); ok(/kiAufgabeText\(q\.geprueft\)/.test(ka), 'KI-Kennzeichnung V7: KI-Aufgaben zeigen den Hinweis mit dem Prüfergebnis'); }
   const st = { ...base, art: 'stammfunktion', thema: 'Stammfunktion', funktion: '3*x^2+2', antworten: [{ tex: 'x^3+2x', ausdruck: 'x^3+2*x', richtig: true }, { tex: '6x', ausdruck: '6*x', fehler: 'Das ist die Ableitung.' }, { tex: '3x^3+2x', ausdruck: '3*x^3+2*x', fehler: 'Durch den neuen Exponenten teilen.' }, { tex: 'x^2+2', ausdruck: 'x^2+2', fehler: 'Exponent muss steigen.' }] };
   ok(K.verify(st).ok, 'KI-Prüfer: Stammfunktion angenommen');
   const ig = { ...base, art: 'integral', thema: 'Integral', funktion: '2*x', von: 0, bis: 3, antworten: [{ tex: '9', wert: 9, richtig: true }, { tex: '6', wert: 6, fehler: 'f statt F eingesetzt.' }, { tex: '-9', wert: -9, fehler: 'Grenzen vertauscht.' }, { tex: '3', wert: 3, fehler: 'Nur die Grenze eingesetzt.' }] };

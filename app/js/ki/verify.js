@@ -69,7 +69,7 @@ export function toQuestion(t) {
   const v = verify(t);
   if (!v.ok) throw new Error(`KI-Aufgabe abgelehnt: ${v.errors.join('; ')}`);
   return {
-    prompt: plain(t.frage), formula: t.formel || undefined, topic: t.thema, gen: 'ki', ki: true,
+    prompt: plain(t.frage), formula: t.formel || undefined, topic: t.thema, gen: 'ki', ki: true, geprueft: true,   // geprueft: verify() ist bestanden – nur dann darf in der App „im Gerät nachgerechnet“ stehen (Recht V7)
     options: t.antworten.map((a) => ({ tex: a.tex, correct: a.richtig === true, why: plain(a.fehler) })),
     hints: t.tipps.map(plain), explain: plain(t.erklaerung),
   };

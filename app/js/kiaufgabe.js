@@ -1,6 +1,7 @@
 // KI-Aufgaben (Stufe „Pro + KI“): immer neue Aufgaben vom Server. Jede Aufgabe ist dort nachgerechnet und wird
 // hier im Gerät ein zweites Mal geprüft (toQuestion), bevor sie jemand sieht.
 import { $, h, esc, ICON, sfx } from './ui.js';
+import { kiAufgabeText } from './kimarke.js';
 import { store, LEVELS } from './store.js';
 import { shuffle } from './math.js';
 import { UNITS } from './units.js';
@@ -70,7 +71,7 @@ export function kiAufgabeView() {
   }
   function zeige(q, rest) {
     el.className = 'view';
-    el.innerHTML = `<div class="stephead"><a class="x" href="#/kiaufgabe" id="ka-x" aria-label="Schließen">${ICON.close}</a><div class="prog"><i></i></div></div><div id="stage"></div>`;
+    el.innerHTML = `<div class="stephead"><a class="x" href="#/kiaufgabe" id="ka-x" aria-label="Schließen">${ICON.close}</a><div class="prog"><i></i></div></div><div id="stage"></div><small class="muted ki-marke" id="ka-marke" style="display:block">${kiAufgabeText(q.geprueft)}</small>`;
     $('#ka-x', el).onclick = (ev) => { ev.preventDefault(); wahl(); };
     let richtig = false;
     const ctx = { progress: (f) => { $('.prog i', el).style.width = `${Math.round(f * 100)}%`; },

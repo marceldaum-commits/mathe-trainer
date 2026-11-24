@@ -1,5 +1,6 @@
 // Aufgaben-Runde: Auswahl- und Lücken-Aufgaben mit gestuften Tipps und Fehler-Diagnose.
 import { Plot } from './plot.js';
+import { kiHinweis } from './kimarke.js';
 import { h, tex, cssVar, buzz, sfx, funken, vorleseKnopf, vorlies, vorleseStopp } from './ui.js';
 import { store } from './store.js';
 import { CONFIG } from './config.js';
@@ -48,7 +49,7 @@ export function quiz(sequence, opts = {}) {
           const r = await api.frage({ frage: String(q.prompt).replace(/<[^>]+>/g, '').slice(0, 400), formel: String(q.formula || '').slice(0, 300), richtig: richtigTex().slice(0, 200), gewaehlt: gewaehlt.slice(0, 200),
             verlauf: verlauf.slice(-6), text, geraet: store.geraet, ...(store.zugangGilt() ? { zugang: store.zugang.code } : {}) });
           const div = h('<div class="note"></div>'); div.className = `note ${r.ok && r.text ? 'ok' : 'tip'}`;
-          if (r.ok && r.text) { div.textContent = String(r.text).replace(/<[^>]*>/g, '').slice(0, 900); verlauf.push({ wer: 'ich', text }, { wer: 'ki', text: div.textContent }); feld.value = ''; }
+          if (r.ok && r.text) { div.textContent = String(r.text).replace(/<[^>]*>/g, '').slice(0, 900); verlauf.push({ wer: 'ich', text }, { wer: 'ki', text: div.textContent }); div.append(kiHinweis()); feld.value = ''; }
           else if (r.status === 402) div.innerHTML = schloss('Rückfragen an den Tutor gehören zur Stufe „Pro + KI“.');
           else div.textContent = r.status === 429 ? 'Dein KI-Guthaben für heute ist aufgebraucht. Morgen geht es weiter.' : (r.error || 'Der Tutor ist gerade nicht erreichbar.');
           warte.replaceWith(div);
@@ -71,6 +72,7 @@ export function quiz(sequence, opts = {}) {
             // In der Android-App kein Verweis auf einen Kauf außerhalb (Regel des Play Store) – dort nur das Code-Feld.
             div.innerHTML = `<b>Deine drei kostenlosen Erklärungen sind aufgebraucht.</b> ${schloss('Weitere Erklärungen gehören zur Stufe „Pro + KI“.')}`;
           } else div.textContent = r.ok && r.text ? String(r.text).replace(/<[^>]*>/g, '').slice(0, 900) : r.status === 429 ? 'Dein KI-Guthaben für heute ist aufgebraucht. Morgen geht es weiter.' : (r.error || 'Die Erklärung ist gerade nicht erreichbar.');
+          if (r.ok && r.text && r.status !== 402) div.append(kiHinweis());
           const rest = r.ok && Number.isInteger(r.rest) && r.rest >= 0 ? h(`<small class="muted ki-rest">${r.art === 'probe' ? (r.rest === 0 ? 'Das war deine letzte kostenlose Erklärung.' : `Noch ${r.rest} von 3 kostenlosen Erklärungen.`) : `Heute noch ${r.rest} ${r.rest === 1 ? 'KI-Punkt' : 'KI-Punkte'}.`}</small>`) : '';
           out.replaceChildren(div, rest);
           if (r.ok && r.text && kiArt('frage')) nachfragen(out, String(r.text).slice(0, 900), b.dataset.k); box.querySelectorAll('button').forEach((x) => { x.disabled = false; });
