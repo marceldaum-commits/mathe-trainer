@@ -1,7 +1,7 @@
 // Spielt die ganze App im Handy-Browser durch (Playwright). Aufruf: node tests/e2e.mjs [Bilder-Ordner]
 // Erwartet die App unter http://localhost:8123 (npm start). LEVEL=1..5 wählt die Schwierigkeit, DARK=1 das dunkle Gerät.
 import { createRequire } from 'node:module';
-import { torFalls } from './tor-hilfe.mjs';
+import { torFalls, einstellungenAuf } from './tor-hilfe.mjs';
 const { chromium, devices } = createRequire(import.meta.url)('playwright');
 globalThis.window = { katex: { renderToString: (s) => s } };
 const LEVEL = +(process.env.LEVEL || 3);
@@ -799,7 +799,7 @@ await p2.waitForSelector('#b-ki-go'); await p2.click('#b-ki-go'); await p2.waitF
   if (Object.keys(aw).sort().join() !== 'ergebnis,geraet' || aw.ergebnis.length !== 5 || !aw.ergebnis.every((x) => Object.keys(x).sort().join() === 'richtig,thema' && typeof x.richtig === 'boolean' && x.thema)) fail(`KI-Auswertung: Anfrage enthält andere Felder: ${JSON.stringify(aw).slice(0, 200)}`);
   if (!/10 KI-Punkte/.test(await p2.textContent('#b-ki-out'))) fail('KI-Auswertung: Rest-Guthaben fehlt'); }
 // Zugangscode: Feld erscheint, weil der Server „premium“ meldet; falsche Form und unbekannter Code werden erklärt, der richtige wird gespeichert
-await p2.goto(`${BASE}#/einstellungen`); await p2.waitForSelector('#st-pro:not([hidden])');
+await p2.goto(`${BASE}#/einstellungen`); await einstellungenAuf(p2); await p2.waitForSelector('#st-pro:not([hidden])');
 await p2.fill('#st-pro-code', 'abc'); await p2.click('#st-pro-go'); if (!/Form MT-/.test(await p2.textContent('#st-pro-note'))) fail('Pro: falsche Code-Form wird nicht erklärt');
 await p2.fill('#st-pro-code', 'MT-ZZZZ-ZZZZ-ZZZZ'); await p2.click('#st-pro-go'); await p2.waitForFunction(() => /kennen wir nicht/.test(document.querySelector('#st-pro-note').textContent));
 await p2.fill('#st-pro-code', ' mt ab12 cd34 ef56 '); await p2.click('#st-pro-go'); await p2.waitForFunction(() => /30-Tage-Pass/.test(document.querySelector('#st-pro-stand').textContent));
@@ -809,9 +809,9 @@ if ((await p2.textContent('#stufe')) !== 'PRO + KI') fail(`Pro: Stufe steht nich
 await p2.goto(`${BASE}#/pro`); await p2.waitForSelector('#pro-stufe');
 if ((await p2.textContent('#pro-stufe')) !== 'Pro + KI' || !/gültig bis 31\.12\.2099/.test(await p2.textContent('.pro-stand')) || await p2.locator('.pro-zeile.zu').count() || (await p2.locator('.pro-zeile.offen').count()) < 12) fail('Pro: Übersicht zeigt Stufe, Gültigkeit oder freigeschaltete Funktionen falsch');
 await p2.goto(`${BASE}#/theorie/regeln`); await p2.waitForSelector('#t-art .marke.an'); if (!(await p2.locator('#t-druck .marke.an').count())) fail('Pro: Marke am PDF-Knopf zeigt die Freischaltung nicht');
-await p2.goto(`${BASE}#/einstellungen`); await p2.waitForSelector('#st-pro:not([hidden])');
+await p2.goto(`${BASE}#/einstellungen`); await einstellungenAuf(p2); await p2.waitForSelector('#st-pro:not([hidden])');
 if ((await p2.evaluate(() => JSON.parse(localStorage.getItem('mathetrainer.v1')).zugang?.code)) !== 'MT-AB12-CD34-EF56') fail('Pro: Zugangscode nicht gespeichert');
-await p2.reload(); await p2.waitForSelector('#st-pro:not([hidden])'); if (!/30-Tage-Pass/.test(await p2.textContent('#st-pro-stand'))) fail('Pro: Zugang nach Neuladen vergessen');
+await p2.reload(); await einstellungenAuf(p2); await p2.waitForSelector('#st-pro:not([hidden])'); if (!/30-Tage-Pass/.test(await p2.textContent('#st-pro-stand'))) fail('Pro: Zugang nach Neuladen vergessen');
 await p2.evaluate(() => { const m = JSON.parse(localStorage.getItem('mathetrainer.v1')); m.zugang.bis = '9999-12-31'; localStorage.setItem('mathetrainer.v1', JSON.stringify(m)); }); await p2.reload(); await p2.waitForSelector('#st-pro-weg');
 if (!/unbefristet/.test(await p2.textContent('#st-pro-stand')) || /9999/.test(await p2.textContent('#st-pro-stand'))) fail('Pro: Zugang ohne Ablauf muss „unbefristet“ heißen');
 await p2.click('#st-pro-weg'); if (await p2.evaluate(() => JSON.parse(localStorage.getItem('mathetrainer.v1')).zugang)) fail('Pro: Code lässt sich nicht entfernen');
@@ -1134,10 +1134,10 @@ await ctx2.close();
   await kp.click('#st-reset'); await kp.click('#st-reset-wahl [data-r="geuebt"]'); await kp.waitForSelector('#home');
   let m = await kp.evaluate(() => JSON.parse(localStorage.getItem('mathetrainer.v1')));
   if (Object.keys(m.stats).length || m.runs.length || Object.keys(m.done).length !== 7 || m.xp < 100) fail('Zurücksetzen „Nur das Geübte“: löscht zu viel oder zu wenig');
-  await kp.goto(`${BASE}#/einstellungen`); await kp.waitForSelector('#st-reset'); await kp.click('#st-reset'); await kp.click('#st-reset-wahl [data-r="klasse"]'); await kp.waitForSelector('#home');
+  await kp.goto(`${BASE}#/einstellungen`); await einstellungenAuf(kp); await kp.waitForSelector('#st-reset'); await kp.click('#st-reset'); await kp.click('#st-reset-wahl [data-r="klasse"]'); await kp.waitForSelector('#home');
   m = await kp.evaluate(() => JSON.parse(localStorage.getItem('mathetrainer.v1')));
   if (Object.keys(m.done).length || m.xp < 100 || m.outfit.hut !== 'kappe' || !m.arbeit) fail('Zurücksetzen „Nur diese Klasse“: Sterne der Stufe bleiben oder anderes geht verloren');
-  await kp.goto(`${BASE}#/einstellungen`); await kp.waitForSelector('#st-reset'); await kp.click('#st-reset'); await kp.click('#st-reset-wahl [data-r="alles"]'); await kp.waitForSelector('#home');
+  await kp.goto(`${BASE}#/einstellungen`); await einstellungenAuf(kp); await kp.waitForSelector('#st-reset'); await kp.click('#st-reset'); await kp.click('#st-reset-wahl [data-r="alles"]'); await kp.waitForSelector('#home');
   m = await kp.evaluate(() => JSON.parse(localStorage.getItem('mathetrainer.v1')));
   if (m.xp !== 0 || m.arbeit || m.jahrgang !== '7') fail('Zurücksetzen „Alles“: Fortschritt bleibt oder Klassenstufe geht verloren');
   await kc.close();
