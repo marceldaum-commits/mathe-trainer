@@ -28,6 +28,7 @@ import { umzugBeimStart } from './umzug.js';
 import { aufLernen } from './ort.js';
 import { torStarten, torOffen, elternTor } from './tor.js';
 import { hilfeKind, tippKl910, hinweiseStarten } from './hinweise.js';
+import { familieAutomatik } from './familie-sync.js';
 import { zaehle, zaehlungStarten, hinweiseBeobachten, linkMitHerkunft, alleAppsKnopf } from './zaehler.js';
 import { elternAutomatik } from './eltern.js';
 import { theorieKnopf, theorieKnoepfe, hatTheorie } from './theoriefenster.js';
@@ -535,6 +536,7 @@ elternAutomatik();   // gekoppeltes Eltern-Handy: Bericht und Sicherung nach jed
 beiInstallWechsel(() => { if (['#/mehr', '', '#/', '#/einstellungen'].includes(location.hash)) route(); });   // „App installieren“ (install.js)
 // Anonyme Nutzungszählung (abschaltbar in den Einstellungen): „start“, Links mit Herkunft, Nachhilfe-Hinweise, Eltern-Seite, Theorie
 hinweiseStarten(window, (t) => toast(t));
+familieAutomatik();
 torStarten();   // Eltern-Tor vor Links nach außen und [data-tor] – vor der Zählung (Fenster, Erfassungsphase)
 zaehlungStarten(() => { const m = /^#\/(?:u|theorie)\/([\w-]+)/.exec(location.hash), u = m && ALLE_UNITS.find((x) => x.id === m[1].replace(/-lang$/, ''));
   return { klasse: store.jahrgang, unitTitel: u ? u.title : '', ober: istOber() }; });

@@ -1,5 +1,6 @@
 // Karte „Eltern-Handy koppeln“ (Einstellungen und eigene Seite #/eltern, erreichbar über „Mehr“). Logik: eltern.js.
 import { $, h, esc, ICON, toast, sfx } from './ui.js';
+import { familieKarte } from './familie-ui.js';
 import { kopplung, koppeln, elternLink, senden, aufheben, sicherungHolen, uebernehmen, hatLernstand } from './eltern.js';
 
 const zeit = (iso) => { try { return new Date(iso).toLocaleString('de-DE', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }); } catch { return ''; } };
@@ -74,6 +75,6 @@ const WIEDER = `<details class="el-wieder"><summary>Neues Gerät? Fortschritt wi
 export function elternView() {
   const el = h(`<div class="view stack"><a class="back" href="#/mehr">${ICON.left} Mehr</a>
     <div><span class="eyebrow">Für Eltern</span><h1 style="margin-top:8px">Eltern-Handy koppeln</h1></div></div>`);
-  el.append(elternKarte());
+  el.append(familieKarte(), elternKarte());
   return { el };
 }

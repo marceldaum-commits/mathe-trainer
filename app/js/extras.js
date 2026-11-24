@@ -22,6 +22,7 @@ import { BADGES, TITLES, SKINS, titleOf, skinOpen, checkBadges } from './badges.
 import { tex } from './ui.js';
 import { installKarte, installAngebot } from './install.js';
 import { elternKarte } from './eltern-ui.js';
+import { familieKarte } from './familie-ui.js';
 import { zaehle, zaehlungAn, zaehlungSetzen } from './zaehler.js';
 import { torOffen } from './tor.js';
 import { elternHinweis, hinweiseAus, hinweiseSetzen } from './hinweise.js';
@@ -195,7 +196,7 @@ export function settingsView() {
     ub.onclick = () => { ub.disabled = true; un.textContent = 'Suche …';
       updateSuchen().then((r) => { ub.disabled = false; un.textContent = r.text; if (r.art === 'neu') window.dispatchEvent(new Event('mt-update')); }); }; }
   { const k = installKarte('einstellungen'); if (k) $('#st-install', el).append(k); }
-  $('#st-eltern', el).append(elternKarte());
+  $('#st-eltern', el).append(familieKarte(), elternKarte());
   { const sw = $('#st-zaehl', el), zeichne = () => { const an = zaehlungAn(); sw.setAttribute('aria-checked', an); sw.classList.toggle('an', an); };
     sw.onclick = () => { zaehlungSetzen(!zaehlungAn()); sfx('tap'); zeichne(); }; zeichne(); }
   if (VORLESEN) { // Vorlesen: an/aus (Stimme Nova, KI-generiert – Pflicht-Kennzeichnung), Probe; die Wahl wird gemerkt

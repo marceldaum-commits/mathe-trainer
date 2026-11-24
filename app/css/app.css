@@ -1081,3 +1081,9 @@ html.kinder .site-top{display:none}
 .hilfe-kind p,.tipp-910 p{margin:0}
 .hilfe-kind .row,.tipp-910 .row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
 .elternhinweis p{margin:0}
+
+.fa-teil{border:1px solid var(--line);border-radius:12px;padding:8px 12px}
+.fa-teil summary{cursor:pointer;min-height:44px;display:flex;align-items:center}
+.fa-einw{display:grid;gap:10px;border:1px solid var(--line);border-radius:14px;padding:12px;margin-top:8px}
+.fa-einw p{margin:0}
+.fa-sicher{display:block;border-left:3px solid var(--orange);padding-left:8px}
