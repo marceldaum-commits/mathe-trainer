@@ -243,7 +243,7 @@ function loesenView(c) {
           out.innerHTML = '<div class="note tip ki-laedt">Die Auswertung wird geschrieben<span aria-hidden="true"></span></div>';
           const r = await api.auswertung({ ergebnis: fragen.slice(0, 60).map((q) => ({ thema: String(q.topic || q.unit || '').slice(0, 60), richtig: gut.has(q) })), geraet: store.geraet, ...(store.zugangGilt() ? { zugang: store.zugang.code } : {}) });
           const div = h('<div class="note ki-auswertung"></div>'); div.className = `note ki-auswertung ${r.ok && r.text ? 'ok' : 'tip'}`;
-          if (r.ok && r.text) { div.textContent = String(r.text).replace(/<[^>]*>/g, '').slice(0, 900); div.append(kiHinweis()); }
+          if (r.ok && r.text) { div.textContent = String(r.text).replace(/<[^>]*>/g, '').slice(0, 900); div.append(kiHinweis(r)); }
           else if (r.status === 402) div.innerHTML = schloss('Die KI-Auswertung gehört zur Stufe „Pro + KI“.');
           else div.textContent = r.status === 429 ? 'Dein KI-Guthaben für heute reicht dafür nicht mehr. Morgen geht es weiter.' : (r.error || 'Die Auswertung ist gerade nicht erreichbar.');
           out.replaceChildren(div); if (r.ok && Number.isInteger(r.rest)) out.append(h(`<small class="muted ki-rest">Heute noch ${r.rest} ${r.rest === 1 ? 'KI-Punkt' : 'KI-Punkte'}.</small>`));

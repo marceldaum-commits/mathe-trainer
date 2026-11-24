@@ -58,7 +58,7 @@ export function rechenwegFeld(q, richtigTex) {
       ...(bild ? { bild } : { text: t.slice(0, TEXT_MAX) }), geraet: store.geraet, ...(store.zugangGilt() ? { zugang: store.zugang.code } : {}) });
     const div = h('<div class="note"></div>'); div.className = `note ${r.ok && r.text ? 'ok' : 'tip'}`;
     if (r.ok && r.text) {
-      div.textContent = String(r.text).replace(/<[^>]*>/g, '').slice(0, 1200); div.append(kiHinweis());
+      div.textContent = String(r.text).replace(/<[^>]*>/g, '').slice(0, 1200); div.append(kiHinweis(r));
       if (Number.isInteger(r.zeile) && r.zeile > 0) div.prepend(h(`<b class="rw-zeile">Erster Fehler in Zeile ${r.zeile}. </b>`));
     } else if (r.status === 402) div.innerHTML = schloss('Der Rechenweg-Prüfer gehört zur Stufe „Pro + KI“.');
     else div.textContent = r.status === 429 ? 'Dein KI-Guthaben für heute reicht dafür nicht mehr. Morgen geht es weiter.' : r.status === 413 ? 'Das Bild ist zu groß. Bitte näher herangehen oder den Rechenweg abtippen.' : (r.error || 'Der Prüfer ist gerade nicht erreichbar.');

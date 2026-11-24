@@ -90,3 +90,11 @@ Hinweis und keine Bewertung. Nicht vorbereitet.
 | P1 | 200 Aufgaben je Art erzeugen, mit `verify()` prüfen, Fehlerquote und Kosten messen; nichts geht an Schüler | KI-Schlüssel (Geheimnis – ein Schritt von Marcel), kleiner Server-Teil |
 | P2 | Vorrat, Zugang über den Shop, Tageslimit | Leitstand/Verwaltung, Datenschutz |
 | P3 | KI-Aufgaben und „Erklär's mir anders" für Premium | Preis/Angebot (Marketing-Raum) |
+
+## Kennzeichnung nach Art. 50 KI-VO (Recht V36/K4, 24.11.2026)
+
+- **Sichtbar:** Jede KI-Antwort (Tutor, Erklärung, Rechenweg-Prüfer, Auswertung) trägt „Antwort einer KI – sie kann Fehler enthalten.“ KI-Aufgaben sagen, ob sie im Gerät nachgerechnet wurden.
+- **Maschinenlesbar:** Das Antwort-Feld und der Hinweis tragen `data-ki-erzeugt="true"`. `data-ki-modell` steht nur, wenn der Server den Modellnamen mitschickt (`modell` in der Antwort); die App erfindet keinen.
+- **Kopieren:** Beim Kopieren von KI-Text hängt die App den Vermerk „[KI-erzeugt]“ an (`kiKopierVermerk` in `kimarke.js`). Einen Export oder Druck von KI-Text gibt es nicht; das Zertifikat und der Lernplan enthalten keinen KI-Text.
+- **Kein Text-Wasserzeichen:** Unsichtbare Zeichen im Text würden Vorlesen, Bildschirmleser, Kopieren und die Prüfung der Antwort stören und lassen sich leicht entfernen. Sichtbarer Hinweis, Attribut und Kopiervermerk sind verlässlicher.
+- **Audio (K1):** Die App liefert zurzeit kein Audio (Vorlesen aus). Sobald die Stimme steht, gehört der ID3-Kommentar „KI-generiert …“ zur Abnahme.
