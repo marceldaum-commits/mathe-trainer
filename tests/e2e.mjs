@@ -1,6 +1,7 @@
 // Spielt die ganze App im Handy-Browser durch (Playwright). Aufruf: node tests/e2e.mjs [Bilder-Ordner]
 // Erwartet die App unter http://localhost:8123 (npm start). LEVEL=1..5 wählt die Schwierigkeit, DARK=1 das dunkle Gerät.
 import { createRequire } from 'node:module';
+import { torFalls } from './tor-hilfe.mjs';
 const { chromium, devices } = createRequire(import.meta.url)('playwright');
 globalThis.window = { katex: { renderToString: (s) => s } };
 const LEVEL = +(process.env.LEVEL || 3);
@@ -644,7 +645,7 @@ if (!kn) fail('Fehler-Kartei ist leer, obwohl Fehler gemacht wurden');
 await page.goto(BASE); await page.reload(); await page.waitForSelector('a[href="#/wiederholen"]');
 await page.click('a[href="#/wiederholen"]'); await page.waitForSelector('#stage > *');
 await quiz('#kt-done');
-await page.goto(`${BASE}#/bericht`); await page.waitForSelector('.rep-grid'); await shot('42-bericht');
+await page.goto(`${BASE}#/bericht`); await torFalls(page, 3000); await page.waitForSelector('.rep-grid'); await shot('42-bericht');
 const rep = await page.textContent('.report');
 if (!rep.includes('Bericht für Eltern') || !rep.includes('Abi-Modus') || !rep.includes('Hier hakt es noch')) fail('Bericht unvollständig');
 await page.goto(`${BASE}#/erfolge`); await page.waitForSelector('.badges'); await shot('49-erfolge');
@@ -723,7 +724,7 @@ await ctx2.route('**/api/**', async (route) => {
   if (u.pathname.endsWith('/rangliste')) return route.fulfill({ json: { woche: '2026-11-09', liste: [{ name: 'Mia', punkte: 540 }, { name: 'Testfuchs', punkte: 480, ich: true }, { name: '<b>Frech</b>', punkte: 10 }] } });
   return route.fulfill({ json: { ok: true } });
 });
-await p2.goto(`${BASE}#/pruefung`); await p2.waitForSelector('a[href="#/klasse"]'); await p2.click('a[href="#/klasse"]'); await p2.waitForSelector('#kl-code');
+await p2.goto(`${BASE}#/pruefung`); await p2.waitForSelector('a[href="#/klasse"]'); await p2.click('a[href="#/klasse"]'); await torFalls(p2, 3000); await p2.waitForSelector('#kl-code');
 await p2.click('details summary'); await p2.fill('#kl-new', 'Q12 Mathe'); await p2.click('#kl-make'); await p2.waitForSelector('#kl-newnote .note.ok');
 if ((await p2.inputValue('#kl-code')) !== 'K7M2QX') fail('Klasse anlegen: Code wird nicht übernommen');
 await p2.fill('#kl-code', 'abc'); await p2.fill('#kl-name', 'Testfuchs'); await p2.click('#kl-join'); await p2.waitForSelector('#kl-note .note.bad');
@@ -858,7 +859,7 @@ for (const erlaubnis of ['granted', 'denied']) {
   await p3.close();
 }
 p2.on('dialog', (d) => d.accept());
-await p2.goto(`${BASE}#/klasse`); await p2.waitForSelector('#kl-leave'); await p2.click('#kl-leave'); await p2.waitForSelector('#kl-code');
+await p2.goto(`${BASE}#/klasse`); await torFalls(p2, 3000); await p2.waitForSelector('#kl-leave'); await p2.click('#kl-leave'); await p2.waitForSelector('#kl-code');
 const raus = calls.find(([path]) => path === '/api/klasse/verlassen');
 if (!raus || raus[1].code !== 'K7M2QX' || raus[1].spieler !== 'p-123') fail('Klasse verlassen wird dem Server nicht gemeldet');
 if (await p2.evaluate(() => JSON.parse(localStorage.getItem('mathetrainer.v1')).klasse)) fail('Klasse verlassen: Eintrag bleibt im Gerät');
