@@ -828,7 +828,7 @@ for (const erlaubnis of ['granted', 'denied']) {
     // die erteilte Erlaubnis übersteht das Neuladen – wie im echten Browser
     window.Notification = { permission: perm === 'denied' ? 'denied' : (sessionStorage.getItem('test-erlaubt') ? 'granted' : 'default'), requestPermission: async () => { if (perm === 'granted') sessionStorage.setItem('test-erlaubt', '1'); window.Notification.permission = perm; return perm; } };
   }, erlaubnis);
-  await p3.goto(`${BASE}#/einstellungen`); await p3.waitForSelector('#st-push-schalter');
+  await p3.goto(`${BASE}#/einstellungen`); await einstellungenAuf(p3); await p3.waitForSelector('#st-push-schalter');
   const schalter = () => p3.getAttribute('#st-push-schalter', 'aria-checked');
   const zeiten = () => calls.filter(([path]) => path === '/api/push').map(([, body]) => body.zeit).join();
   if (erlaubnis === 'denied') {
@@ -972,7 +972,7 @@ await ctx2.close();
   await ap.evaluate(() => { delete window.MTApp.apkLaden; });
   await ap.click('#upd-los');
   if (!(await ap.evaluate(() => window.__los === true))) fail('Update: Knopf ruft die App-Hülle nicht');
-  await ap.goto(`${BASE}#/einstellungen`); await ap.waitForSelector('#st-info');
+  await ap.goto(`${BASE}#/einstellungen`); await einstellungenAuf(ap); await ap.waitForSelector('#st-info');
   if (!/App-Datei/.test(await ap.textContent('#st-info')) || !/9\.8\.7 ist geladen/.test(await ap.textContent('#st-info'))) fail('Einstellungen (App): App-Datei und Aktualisierung fehlen');
   await ap.click('#st-update'); await ap.waitForFunction(() => /9\.8\.7 ist geladen/.test(document.querySelector('#st-update-note').textContent));
   if ((await ap.evaluate(() => window.__gesucht)) !== 1) fail('Update suchen: Knopf ruft die App-Hülle nicht');
@@ -1123,9 +1123,9 @@ await ctx2.close();
   // Oberstufen-Seiten sind in Klasse 5 bis 10 nicht erreichbar (alte Links, Lesezeichen): Umleitung auf „Testen“
   for (const alt of ['aufgabe', 'abi', 'blitz', 'karte', 'einstufung']) { await kp.goto(`${BASE}#/${alt}`); await kp.waitForFunction(() => location.hash === '#/pruefung'); await kp.waitForSelector('a[href="#/kopf"]'); }
   // Web-App: kein Knopf zum Aktualisieren – sie aktualisiert sich von selbst
-  await kp.goto(`${BASE}#/einstellungen`); await kp.waitForSelector('#st-auto'); if (await kp.locator('#st-update').isVisible()) fail('Web-App: Knopf „Nach Update suchen“ soll nur in der Android-App erscheinen');
+  await kp.goto(`${BASE}#/einstellungen`); await einstellungenAuf(kp); await kp.waitForSelector('#st-auto'); if (await kp.locator('#st-update').isVisible()) fail('Web-App: Knopf „Nach Update suchen“ soll nur in der Android-App erscheinen');
   // Pi anziehen: Kappe ist frei (21 Sterne), Krone nicht
-  await kp.goto(`${BASE}#/einstellungen`); await kp.waitForSelector('#st-hut');
+  await kp.goto(`${BASE}#/einstellungen`); await einstellungenAuf(kp); await kp.waitForSelector('#st-hut');
   if (!(await kp.locator('#st-hut [data-k="krone"]').isDisabled()) || (await kp.locator('#st-hut [data-k="kappe"]').isDisabled())) fail('Pi-Outfit: Freischaltung nach Sternen stimmt nicht');
   const vorher = await kp.innerHTML('#st-pi-bild'); await kp.click('#st-hut [data-k="kappe"]'); await kp.click('#st-brille [data-k="rund"]');
   if ((await kp.innerHTML('#st-pi-bild')) === vorher || (await kp.evaluate(() => JSON.parse(localStorage.getItem('mathetrainer.v1')).outfit.hut)) !== 'kappe') fail('Pi-Outfit: Auswahl wird nicht übernommen');
