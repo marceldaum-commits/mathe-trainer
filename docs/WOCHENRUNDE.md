@@ -2,6 +2,32 @@
 
 Neuester Beitrag oben.
 
+## 24.11.2026 – Wochenrunde, Beitrag Mathe-Trainer
+
+**Stand:** live 2.5.2, test 2.5.4 (geprüft, wartet auf den Leitstand), arbeit 2.5.5 in Arbeit.
+- Inhalt: Kl. 5–10 mit 20 Einheiten, Oberstufe mit 37 Einheiten.
+- Neu seit der letzten Runde: Querverweise zu den anderen Apps, Umzug auf lernen.…/mathetrainer/, Familien-Speicher-Baustein familie.js (e9993ec, an alle verteilt).
+
+**Di-Update 24.11. (heute, ab 15:00):**
+- Gauß-Verfahren (LGS mit drei Unbekannten).
+- Neue Einheit Kl. 9/10 „Potenz-, Wurzel- und Bruchgleichungen“ (Marcel; Prüfstein sein Blatt).
+- Pflicht von Recht und Marcel:
+  - Eltern-Tor nach Standard, Einstellungen geteilt, Schloss-Text, Probestunde V15, KI-Kennzeichnung V7, N1.
+  - Familien-Speicher mit den Texten A6/V8.
+- Gemeinsame Startanimation, Spiel-Umbenennungen, PC-Vollbild, Nova/OpenAI raus.
+
+**Fr-Update 27.11.:** Nullstellen finden (Ausklammern, Substitution, Polynomdivision) laut THEMEN-ROADMAP, dazu Textliste für das Tonstudio.
+
+**Ideen für andere Apps:**
+- Rechenblitz: Themen „Quadratzahlen und Wurzeln“ und „Potenzen“ zum Kopftraining. Dann verlinkt die neue Einheit dorthin. Heute gibt es dort kein passendes Thema.
+- KurvenFlug: Kapitel „Wurzel- und Potenzfunktionen“ am Graphen (Kl. 9/10). Wir verlinken von der neuen Einheit.
+- Wissensgarten: Paket „Potenzen und Wurzeln“ (Kl. 9/10), gleiche Begriffe wie unsere Einheit.
+- Raumlicht: Das geometrische Bild zu Gauß (drei Ebenen) bleibt bei euch. Wir üben das Rechenverfahren.
+
+**Überschneidungen:** Gauß-Verfahren (Mathe-Trainer: Rechenweg; Raumlicht: Deutung als Ebenen). Das ist gewollt, wir verlinken gegenseitig.
+
+**Abgeben/Übernehmen:** nichts Neues. Quadratische und Exponentialgleichungen bleiben bei uns.
+
 ## 19.11.2026 – Einstellungen und Eltern-Tor (AppZentrale, ab Di 24.11.)
 
 - **Ohne Tor:** Ton, Musik, Lautstärke, Vorlesen an/aus und Tempo, Schriftgröße, Hell/Dunkel.
