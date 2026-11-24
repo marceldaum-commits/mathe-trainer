@@ -154,7 +154,8 @@ ok(await F.codeNummer('KF-ZZZZ') === '' && await F.codeNummer('') === '', 'Unbek
 // Hörlehrer (App 8) und höhere App-Nummern (Fund Tafel-Raum 21.11.): vorher kam '' zurück, codeGesperrt war immer false
 const hl = crock([1, 8, 2, 0x00, 0x00, 0x00, 0x4D, 0x00, 0x00, ...new Array(64).fill(9)]);
 ok(await F.codeNummer(`HL-${hl}`) === 'L8.2.77' && await F.codeNummer(hl) === 'L8.2.77' && await F.codeNummer(crock([1, 12, 1, 0, 0, 0, 1, 0, 0, ...new Array(64).fill(3)])) === 'L12.1.1', 'Code-Nummer Hörlehrer: App 8 (Präfix HL) und App-Nummern über 7 werden erkannt');
-ok(await F.codeNummer(crock([1, 0, 1, 0, 0, 0, 1, 0, 0, ...new Array(64).fill(3)])) === '' && await F.codeNummer(crock([1, 5, 9, 0, 0, 0, 1, 0, 0, ...new Array(64).fill(3)])) === '', 'Code-Nummer: App-Nummer 0 und unbekanntes Produkt bleiben abgewiesen');
+ok(await F.codeNummer(crock([1, 0, 1, 0, 0, 0, 1, 0, 0, ...new Array(64).fill(3)])) === '' && await F.codeNummer(crock([1, 5, 10, 0, 0, 0, 1, 0, 0, ...new Array(64).fill(3)])) === '', 'Code-Nummer: App-Nummer 0 und Produkt über 9 bleiben abgewiesen');
+ok(await F.codeNummer(crock([1, 1, 5, 0, 0, 0, 7, 0, 0, ...new Array(64).fill(3)])) === 'L1.5.7' && await F.codeNummer(crock([1, 1, 9, 0, 0, 0, 7, 0, 0, ...new Array(64).fill(3)])) === 'L1.9.7', 'Code-Nummer: Produkt-Byte 5 (Spanisch) und 9 (alle Sprachen) werden gelesen');
 { const mem2 = new Map(), sp2 = { getItem: (k) => mem2.get(k) ?? null, setItem: (k, v) => mem2.set(k, v) };
   await F.sperrlisteLaden({ f: async () => ({ ok: true, status: 200, json: async () => ({ sperrliste: [NC.createHash('sha256').update('L8.2.77').digest('base64url')] }) }), speicher: sp2, schluessel: 'x' });
   ok(await F.codeGesperrt(`HL-${hl}`, { speicher: sp2, schluessel: 'x' }) && await F.codeGesperrt('L8.2.77', { speicher: sp2, schluessel: 'x' }) && !(await F.codeGesperrt('L8.2.78', { speicher: sp2, schluessel: 'x' })), 'Hörlehrer-Code: gesperrt erkannt (HL-Code und Code-Nummer), andere nicht'); }

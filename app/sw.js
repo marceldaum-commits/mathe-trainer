@@ -6,7 +6,7 @@ const ASSETS = [
   "b/app.js",
   "b/teil-4NDRJLYW.js",
   "b/teil-4NNKG2XO.js",
-  "b/teil-5BJGFBWY.js",
+  "b/teil-5E7PLSZE.js",
   "b/teil-64FMII4G.js",
   "b/teil-6YPP5Y2A.js",
   "b/teil-BEQ6WYJL.js",
