@@ -54,12 +54,11 @@ export const gueltig = (z = store.zugang) => (!z ? '' : z.bis >= '9999' ? 'unbef
 /** Kl. 5–10 ohne gelöstes Eltern-Tor: nur die eigene Stufe und der neutrale Knopf „Für Eltern“ – keine Preise, kein Kaufknopf (ELTERN-TOR.md, Recht V10). */
 function proKind() {
   const z = store.zugang, st = store.stufe;
-  const el = h(`<div class="view stack">
+  const el = h(`<div class="view stack" id="pro-kind">
     <a class="back" href="#/mehr">${ICON.left} Mehr</a>
-    <section class="board pro-stand"><div class="board-top"><span>DEINE STUFE</span><b>● ${st === 'proki' ? 'PRO + KI' : st === 'pro' ? 'PRO' : 'FREI'}</b></div>
-      <h2 id="pro-stufe">${st === 'proki' ? 'Pro + KI' : st === 'pro' ? 'Pro' : 'Frei'}</h2>
-      <p>${st ? `${esc(ZUGANG_ART[z.art] || 'Zugang')} · ${esc(gueltig(z))}` : 'Alles zum Lernen und Spielen ist frei.'}</p>
-      <button class="btn small line" type="button" id="pro-eltern" data-tor="Hier stehen Preise und Kaufmöglichkeiten.">Für Eltern</button></section>
+    <section class="card stack"><h2 id="pro-stufe">${st === 'proki' ? 'Pro + KI' : st === 'pro' ? 'Pro' : 'Das gehört zu Mathe-Trainer Pro.'}</h2>
+      ${st ? `<p>${esc(ZUGANG_ART[z.art] || 'Zugang')} · ${esc(gueltig(z))}</p>` : ''}
+      <button class="btn small line" type="button" id="pro-eltern" data-tor="Dieser Bereich ist für Eltern.">Für Eltern</button></section>
   </div>`);
   el.querySelector('#pro-eltern').addEventListener('click', () => { if (torOffen()) window.dispatchEvent(new HashChangeEvent('hashchange')); });
   return { el };

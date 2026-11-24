@@ -1,7 +1,7 @@
 // Verbindung zum Server-Teil (Klassen-Bestenliste, später Liga und KI). Ohne Server ist alles hier abgeschaltet:
 // CONFIG.api ist dann leer, und die App zeigt die Server-Funktionen gar nicht erst an.
 // Vertrag (Adressen, Felder, Regeln): docs/SERVER.md und docs/KI.md.
-import { serverBasis } from './ort.js';
+import { apiBasis } from './ort.js';
 import { CONFIG } from './config.js';
 import { store } from './store.js';
 
@@ -42,7 +42,7 @@ const inApp = () => typeof window !== 'undefined' && !!window.MTApp;
 /** Gültiges „Pro“ ohne KI – hier kann KI dazugebucht werden. */
 export const proOhneKi = () => store.zugangGilt() && store.zugang?.ki === false;
 /** Knopf „KI dazubuchen“ (leer in der Android-App und ohne gültiges Pro ohne KI). */
-export const kiDazuKnopf = (klasse = 'btn small') => (proOhneKi() && !inApp() && codeNorm(store.zugang.code)
+export const kiDazuKnopf = (klasse = 'btn small') => (store.jahrgang === 'os' && proOhneKi() && !inApp() && codeNorm(store.zugang.code)
   ? `<a class="${klasse} ki-dazu" href="${KI_UPGRADE}?code=${encodeURIComponent(codeNorm(store.zugang.code))}" target="_blank" rel="noopener">KI dazubuchen ↗</a>` : '');
 let zuletztGeprueft = 0;
 /** Hat der Shop KI für den eigenen Code freigeschaltet? Fragt POST /zugang erneut (höchstens alle 20 s, nur bei Pro ohne KI).
@@ -56,7 +56,7 @@ export async function kiNachpruefen() {
   try { window.dispatchEvent(new Event('mt-ruhig')); } catch { /* ohne Fenster */ }
   return true;
 }
-export const kaufLinks = () => (proOhneKi() ? (inApp() ? '' : ` ${kiDazuKnopf('btn small line')}`) : `${premiumOn() ? ' <a href="#/einstellungen">Zugangscode eingeben</a>' : ''}${typeof window !== 'undefined' && window.MTApp ? '' : ` <a href="${CONFIG.shop}" target="_blank" rel="noopener">Pro holen</a>`}`);
+export const kaufLinks = () => (store.jahrgang !== 'os' ? '' : proOhneKi() ? (inApp() ? '' : ` ${kiDazuKnopf('btn small line')}`) : `${premiumOn() ? ' <a href="#/einstellungen">Zugangscode eingeben</a>' : ''}${typeof window !== 'undefined' && window.MTApp ? '' : ` <a href="${CONFIG.shop}" target="_blank" rel="noopener">Pro holen</a>`}`);
 /** Oberstufe? (Kl. 11–13: sachliche Pro-Infos mit Preis erlaubt, Kauf trotzdem über das Eltern-Tor; ELTERN-TOR.md). */
 const oberstufe = () => store.jahrgang === 'os';
 export const UNTER18 = 'Wer unter 18 ist, kauft nicht selbst.';
@@ -96,7 +96,7 @@ export async function kiRestHolen(zugang, geraet) {
 async function call(path, body) {
   if (!serverOn()) return { ok: false, off: true };
   try {
-    const res = await fetch(`${serverBasis()}${CONFIG.api}${path}`, body === undefined ? { headers: { Accept: 'application/json' } }
+    const res = await fetch(`${apiBasis()}${CONFIG.api}${path}`, body === undefined ? { headers: { Accept: 'application/json' } }
       : { method: 'POST', headers: { 'Content-Type': 'application/json', Accept: 'application/json' }, body: JSON.stringify(body) });
     const data = await res.json().catch(() => ({}));
     if (path === '/ki/rest') { if (res.ok && Number.isInteger(data.rest) && data.rest >= 0) kiRestMerken(data.rest, data.limit); }   // 429 heißt hier nur „zu oft gefragt“

@@ -1,6 +1,6 @@
 // Service Worker: macht die App offline nutzbar und liefert Updates aus.
 // CACHE muss zur VERSION in js/config.js passen; ASSETS pflegt `npm run fix` (tools/check.mjs).
-const CACHE = 'mathetrainer-2.5.3';
+const CACHE = 'mathetrainer-2.5.5';
 const ASSETS = [
   "./",
   "b/app.js",
@@ -8,16 +8,18 @@ const ASSETS = [
   "b/teil-AEZ25ZGF.js",
   "b/teil-AS6KYEIB.js",
   "b/teil-AUE25XH7.js",
+  "b/teil-CW6VCDQE.js",
+  "b/teil-FAGQB2FD.js",
   "b/teil-FWQ24JPX.js",
-  "b/teil-IBHCA3YF.js",
+  "b/teil-GVCPNSZT.js",
   "b/teil-IDKPAFEY.js",
   "b/teil-IU2Q2TH3.js",
+  "b/teil-JKAPOTAB.js",
   "b/teil-KTQ3GSC6.js",
   "b/teil-LCORL54V.js",
   "b/teil-LS4AAZS5.js",
   "b/teil-MHDY67UO.js",
   "b/teil-MS54AG6X.js",
-  "b/teil-NFXR3RI3.js",
   "b/teil-NIO7452L.js",
   "b/teil-NXK5KEGM.js",
   "b/teil-Q46Z3GML.js",
@@ -25,9 +27,7 @@ const ASSETS = [
   "b/teil-RL45PKN5.js",
   "b/teil-RUYDIZ5N.js",
   "b/teil-U2NXPJCT.js",
-  "b/teil-VALM26MF.js",
   "b/teil-W6SVZTH4.js",
-  "b/teil-WU7CUQMI.js",
   "b/teil-Y6JZNNOX.js",
   "b/teil-YZAHFDPL.js",
   "css/app.css",

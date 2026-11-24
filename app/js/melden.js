@@ -1,7 +1,7 @@
 // Schwebender Hilfe-Knopf unten rechts: Fehler melden, Idee schicken, Probestunde.
 // Meldungen gehen an CONFIG.melden (eigene Adresse, vom Server per E-Mail weitergeleitet). Ist der Versand noch
 // nicht eingeschaltet oder das Gerät offline, wartet die Meldung im Gerät und wird später nachgereicht.
-import { serverBasis } from './ort.js';
+import { apiBasis } from './ort.js';
 import { CONFIG, VERSION } from './config.js';
 import { store } from './store.js';
 import { h, esc, sfx, toast } from './ui.js';
@@ -19,7 +19,7 @@ export function buildReport(art, text, ctx = {}) {
 }
 
 async function send(report) {
-  const res = await fetch(`${serverBasis()}${CONFIG.melden}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(report) });
+  const res = await fetch(`${apiBasis()}${CONFIG.melden}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(report) });
   if (!res.ok) throw new Error(String(res.status));
 }
 /** Reicht wartende Meldungen nach (beim Start und nach jeder neuen Meldung). */

@@ -2,7 +2,7 @@
 
 Kurzfassung für Nutzer und Leitstand. Einzelheiten: `docs/PLAN.md` (Baulog) und `MELDUNG_AN_LEITSTAND.md`.
 
-## 2.5.3 – 20.11.2026 (nur Korrekturen)
+## 2.5.5 – 24.11.2026
 - **Eltern-Tor** nach dem gemeinsamen Standard aller Lern-Apps:
   - Eine Malaufgabe in Worten mit Vorlese-Knopf und eigenen Zifferntasten. Danach bleibt das Tor 10 Minuten offen.
   - Davor stehen jetzt alle Links nach außen außer Impressum und Datenschutz, auch „← Alle Apps“ und der Shop.
@@ -12,6 +12,23 @@ Kurzfassung für Nutzer und Leitstand. Einzelheiten: `docs/PLAN.md` (Baulog) und
   - Keine Probestunden-Hinweise mehr.
 - **Oberstufe:** Die Preise bleiben sichtbar. Kaufen geht über das Tor, dazu der Hinweis „Wer unter 18 ist, kauft nicht selbst.“
 - **Pro-Seite:** Der 30-Tage-Code ist bis zum 31.12. des dritten Jahres nach dem Kauf einlösbar (vorher stand dort „12 Monate“).
+
+## 2.5.4 – 19.11.2026 (Fehlerbehebung, enthält 2.5.3)
+- **Server-Verbindung auf der neuen Adresse repariert:** Seit dem Umzug (2.5.0) hat der Browser auf lernen.mathenachhilfe-online.com alle Abrufe an trainer.…/api blockiert. Ursache: Der Server schickt dafür keine CORS-Erlaubnis. Betroffen waren:
+  - KI-Funktionen
+  - Prüfung und Einlösen von Zugangscodes
+  - Pro-Status
+  - Fehlermeldungen
+  - Handy-Erinnerungen
+
+  Jetzt laufen diese Abrufe über den Weiterleiter auf derselben Adresse (…/mathetrainer/api). Zählung, Eltern-Kopplung und Familien-Speicher waren nicht betroffen, weil der Server für sie CORS schickt.
+
+## 2.5.3 – 19.11.2026 (Sofortkorrektur, Recht; Marcel: „Heute ausblenden“)
+- **Klasse 5–10:**
+  - Die Karte „PRO“ ist ausgeblendet.
+  - Die Pro-Seite zeigt keine Preise und keine Kaufknöpfe mehr, auch nicht über einen direkten Link. Dort steht nur die eigene Stufe bzw. „Das gehört zu Mathe-Trainer Pro.“
+  - Bei gesperrten Inhalten gibt es keine Kauf-Verweise mehr.
+- Die Oberstufe bleibt unverändert.
 
 ## 2.5.2 – 19.11.2026
 - Startseite am PC: Die Klassen-Wahl ist jetzt so breit wie die Karten darunter (vorher schmaler, wirkte schief).

@@ -300,7 +300,7 @@ function mehrView() {
     <div><span class="eyebrow">Mehr</span><h1 style="margin-top:8px">Dein Trainer</h1></div>
     <section class="stack">
       ${linkCard('#/wiederholen', due || ICON.check, 'Fehler-Kartei', due ? `${due} ${due === 1 ? 'Aufgabenart ist' : 'Aufgabenarten sind'} heute fällig.` : `${store.karteCount} in der Kartei, heute nichts fällig.`)}
-      ${linkCard('#/pro', 'PRO', store.stufe ? (store.stufe === 'proki' ? 'Deine Stufe: Pro + KI' : 'Deine Stufe: Pro') : 'Pro und Pro + KI', store.stufe ? 'Was freigeschaltet ist und bis wann.' : 'Was die Pro-Fassung zusätzlich kann.')}
+      ${!istOber() ? '' : linkCard('#/pro', 'PRO', store.stufe ? (store.stufe === 'proki' ? 'Deine Stufe: Pro + KI' : 'Deine Stufe: Pro') : 'Pro und Pro + KI', store.stufe ? 'Was freigeschaltet ist und bis wann.' : 'Was die Pro-Fassung zusätzlich kann.')}
       ${linkCard('#/karten', faellig().length || ICON.check, 'Lernkarten', 'Formeln und eigene Karten – wiederholt in wachsenden Abständen.')}
       ${linkCard('#/erfolge', ICON.star, 'Erfolge', `${titleOf().title} · ${Object.keys(store.badges).length} Abzeichen`)}
       ${istOber() ? linkCard('#/plan', ICON.right, 'Lernplan bis zum Abi', store.abi ? 'Was diese Woche dran ist.' : 'Abi-Termin eintragen – die App verteilt den Stoff auf die Wochen.') : linkCard('#/stufe', '⇄', 'Klassenstufe', `${jgName(store.jahrgang)} – wechseln, wenn du etwas anderes üben willst.`)}
