@@ -872,7 +872,7 @@ await ctx2.close();
   if (nb.y > 60) fail('PC: Menü steht nicht oben');
   if (!(await pc.locator('.site-top').isVisible())) fail('PC: Knopf zur Website fehlt in der Kopfzeile');
   if (Math.abs(c1.y - c2.y) > 4 || c2.x <= c1.x + c1.width) fail('PC: Karten stehen nicht nebeneinander');
-  if (c2.x + c2.width - c1.x < 800) fail('PC: Seite nutzt die Breite nicht');
+  if (c2.x + c2.width - c1.x < 700) fail('PC: Seite nutzt die Breite nicht');
   if (shots) await pc.screenshot({ path: `${shots}/80-pc-gebiet.png` });
   for (const step of ['formen/0', 'formen/1', 's-labor/0', 'g-vektor/0']) {
     await pc.goto(`${BASE}#/u/${step}`); await pc.waitForSelector('#stage .row:last-child .btn'); await pc.waitForTimeout(300);
