@@ -19,7 +19,7 @@ const roh = new Map();
 for (const u of U.ALLE_UNITS) gehe(u, u.jg ? `Klasse 5–10` : ({ analysis: 'Analysis', stochastik: 'Stochastik', geometrie: 'Geometrie' }[u.area] || u.area));
 // Erzeuger, die nur in einzelnen Schritten oder gemischten Runden vorkommen, zählen auch mit: alle exportierten Erzeuger mit Thema.
 const GEBIET = (t) => (/Vektor|Gerade|Ebene|Punkt|Viereck|Spiegel|Abst|Winkel|Kugel|Kreuz|Lage|Skalar/.test(t) ? 'Geometrie' : 'Analysis');
-for (const datei of ['gen', 'gen2', 'gen3', 'gen4', 'gen5', 'gen6', 'gen7', 'gen8', 'gen9', 'gen10', 'gen11', 'gen12']) { const M = await import(`../app/js/${datei}.js`);
+for (const datei of ['gen', 'gen2', 'gen3', 'gen4', 'gen5', 'gen6', 'gen7', 'gen8', 'gen9', 'gen10', 'gen11', 'gen12', 'gen13']) { const M = await import(`../app/js/${datei}.js`);
   for (const fn of Object.values(M)) if (typeof fn === 'function' && /^gen[A-Z]/.test(fn.name) && fn.topic && !/Steil$|Mix$/.test(fn.name) && !roh.has(fn.name)) roh.set(fn.name, [{ fn, gebiet: ['gen6', 'gen7'].includes(datei) ? 'Klasse 5–10' : GEBIET(fn.topic) }]); }
 // Gleicher Name in zwei Fassungen (eingehängt und einfach): beide messen.
 for (const [name, fass] of roh) { const eingehaengt = fass.some((f) => f.fn.basis); for (const f of fass) arten.set(fass.length < 2 ? name : eingehaengt ? `${name}${f.fn.basis ? '' : ' (einfach)'}` : `${name} (${f.gebiet})`, f); }

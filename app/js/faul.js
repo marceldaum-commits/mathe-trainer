@@ -14,6 +14,7 @@ const DATEIEN = [
   ['gen5', () => import('./gen5.js')], ['gen6', () => import('./gen6.js')], ['gen7', () => import('./gen7.js')], ['gen8', () => import('./gen8.js')],
   ['gen9', () => import('./gen9.js')], ['gen10', () => import('./gen10.js')], ['gen11', () => import('./gen11.js')],
   ['gen12', () => import('./gen12.js')],
+  ['gen13', () => import('./gen13.js')],
 ];
 /** Holt alle Aufgaben-Erzeuger (einmal; weitere Aufrufe bekommen dasselbe Versprechen). Schlägt das Laden fehl, darf neu versucht werden. */
 export function ladeAufgaben() {

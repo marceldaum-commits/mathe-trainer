@@ -2,6 +2,13 @@
 
 Neuester Beitrag oben.
 
+## Dauerregel Arbeitsrhythmus (Auftrag über AppZentrale, 24.11.2026)
+
+- **Gearbeitet wird von Dienstag 15:00 (Berlin) bis Sonntag**, auch nachts, ohne feste Frist. Mathe-Trainer: Dienstag und Freitag neuer Inhalt (THEMEN-ROADMAP), dazwischen Prüfen, Fehler beheben, Nacharbeiten.
+- **Montag und Dienstag bis 15:00 ist Pause.** In dieser Zeit baut der Raum nichts Neues; geplante Aufträge der Zentrale warten bis Dienstag 15:00.
+- **Der Contentplaner pausiert nur auf ausdrückliche Anweisung von Marcel**, nicht von selbst und nicht auf Zuruf eines anderen Raums.
+- Live setzt weiterhin nur der Leitstand (Zweig `live`); Entscheidungen von Marcel und alles für den Leitstand laufen über AppZentrale.
+
 ## 24.11.2026 – Wochenrunde, Beitrag Mathe-Trainer
 
 **Stand:** live 2.5.2, test 2.5.4 (geprüft, wartet auf den Leitstand), arbeit 2.5.5 in Arbeit.

@@ -4,7 +4,7 @@ import { readFileSync, writeFileSync, mkdirSync, existsSync, readdirSync, unlink
 import { join } from 'node:path';
 
 const APP = new URL('../app/', import.meta.url).pathname;
-export const NAMEN = ['gen', 'gen2', 'gen3', 'gen4', 'gen5', 'gen6', 'gen7', 'gen8', 'gen9', 'gen10', 'gen11', 'gen12'];
+export const NAMEN = ['gen', 'gen2', 'gen3', 'gen4', 'gen5', 'gen6', 'gen7', 'gen8', 'gen9', 'gen10', 'gen11', 'gen12', 'gen13'];
 const SELBST = { mixOf: 'mixOf', leiter: 'leiter' };   // diese Helfer gibt es leicht und echt in faul.js
 
 export async function zwillinge() {

@@ -41,6 +41,7 @@ import {
 import { haerter as H } from './a/gen10.js';
 import { genKoordPunkt, genKoordSpiegel, genParallelogramm, genGeradeGleich, genKollinear } from './a/gen11.js';
 import { genMittelwertFkt, genBestand, genBestandExtrem } from './a/gen12.js';
+import { genGauss } from './a/gen13.js';
 
 const T = (s) => `<div class="big">${tex(s, true)}</div>`;
 
@@ -588,9 +589,26 @@ const OBER = [
       { id: 'flug', kind: 'Festigen', title: 'Bewegungen im Raum', run: quiz([genBewegung, genBewegung, genBewegung, genBewegung]) },
     ],
   },
+  {
+    id: 'a-gauss', area: 'analysis', title: 'Gauß-Verfahren', sub: 'Drei Gleichungen, drei Unbekannte',
+    steps: [
+      { id: 'regel', kind: 'Benennen', title: 'Von oben nach unten aufräumen', run: info([
+        { title: 'Die Idee: Dreiecksform', html: `${T('\\begin{array}{ll}\\text{I}: & x+y+z=6\\\\\\text{II}: & \\phantom{x+{}}\\,y-z=-1\\\\\\text{III}: & \\phantom{x+y+{}}\\,2z=6\\end{array}')}<p>Wenn in der letzten Gleichung nur noch ${tex('z')} steht, in der mittleren nur noch ${tex('y')} und ${tex('z')}, ist das System in <b>Dreiecksform</b>. Dann rechnest du von unten nach oben: ${tex('z=3')}, dann ${tex('y=2')}, dann ${tex('x=1')}.</p><p>Das Gauß-Verfahren macht aus jedem System eine solche Dreiecksform.</p>` },
+        { title: 'Zeilen erlaubt umformen', html: `<p>Erlaubt (die Lösung bleibt gleich):</p><ul><li>eine Gleichung mit einer Zahl ${tex('\\neq 0')} malnehmen,</li><li>ein Vielfaches einer Gleichung zu einer anderen addieren oder abziehen,</li><li>zwei Gleichungen vertauschen.</li></ul><p>Immer die <b>ganze</b> Gleichung umformen – links und rechts.</p>` },
+        { title: 'Beispiel: Schritt für Schritt', html: `${T('\\begin{array}{ll}\\text{I}: & x+y+z=6\\\\\\text{II}: & 2x+y-z=1\\\\\\text{III}: & x-y+2z=5\\end{array}')}<p>${tex('\\text{II}-2\\cdot\\text{I}')}: ${tex('-y-3z=-11')}. ${tex('\\text{III}-\\text{I}')}: ${tex('-2y+z=-1')}. Jetzt fehlt noch ${tex('y')} in der dritten Zeile: ${tex('\\text{III}-2\\cdot\\text{II}')} ergibt ${tex('7z=21')}, also ${tex('z=3')}. Rückwärts: ${tex('y=2')}, ${tex('x=1')}.</p><p class="muted">Probe in allen drei Gleichungen – eine reicht nicht!</p>` },
+      ]) },
+      { id: 'dreieck', kind: 'Brücke', title: 'Dreiecksform auflösen', run: quiz([genGauss, genGauss, genGauss, genGauss]) },
+      { id: 'schritte', kind: 'Brücke', title: 'Eliminieren', run: quiz([genGauss, genGauss, genGauss, genGauss, genGauss]) },
+      { id: 'anzahl', kind: 'Benennen', title: 'Keine, eine oder unendlich viele Lösungen', run: info([
+        { title: 'Was am Ende stehen kann', html: `${T('\\begin{array}{ll}0=1&\\Rightarrow\\ \\text{keine Lösung}\\\\0=0&\\Rightarrow\\ \\text{unendlich viele Lösungen}\\\\z=3\\ \\text{usw.}&\\Rightarrow\\ \\text{genau eine Lösung}\\end{array}')}<p>Entsteht beim Eliminieren eine <b>falsche Aussage</b> wie ${tex('0=1')}, widersprechen sich die Gleichungen: keine Lösung. Entsteht ${tex('0=0')}, war eine Gleichung überflüssig: Eine Unbekannte bleibt frei, es gibt unendlich viele Lösungen. Genau zwei Lösungen gibt es nie.</p>` },
+        { title: 'Bildlich im Raum', html: `<p>Jede Gleichung ist eine Ebene. Drei Ebenen schneiden sich in einem Punkt (eine Lösung), in einer Geraden (unendlich viele) oder haben keinen gemeinsamen Punkt (keine Lösung).</p>` },
+      ]) },
+      { id: 'mix', kind: 'Festigen', title: 'Gauß-Verfahren gemischt', run: quiz([genGauss, genGauss, genGauss, genGauss, genGauss, genGauss]) },
+    ],
+  },
 ];
 const OBER_AREAS = [
-  { id: 'analysis', title: 'Analysis', soon: ['Gauß-Verfahren: drei Gleichungen, drei Unbekannte', 'Nullstellen finden: Ausklammern, Substitution, Polynomdivision', 'Abi-Pflichtteil ohne Taschenrechner', 'Stetigkeit und Differenzierbarkeit', 'Wachstum und Differentialgleichungen', 'Integrationsverfahren'] },
+  { id: 'analysis', title: 'Analysis', soon: ['Nullstellen finden: Ausklammern, Substitution, Polynomdivision', 'Abi-Pflichtteil ohne Taschenrechner', 'Stetigkeit und Differenzierbarkeit', 'Wachstum und Differentialgleichungen', 'Integrationsverfahren'] },
   { id: 'stochastik', title: 'Stochastik', soon: ['Satz von Bayes: Baum umdrehen', 'Normalverteilung rückwärts', 'Dichtefunktion: Wahrscheinlichkeit als Fläche', 'Prognose- und Konfidenzintervalle', 'Gütefunktion', 'Warten auf den ersten Treffer', 'Übergangsprozesse mit Matrizen'] },
   { id: 'geometrie', title: 'Analytische Geometrie', soon: ['Kreuzprodukt: Fläche und Volumen', 'Linear abhängig oder unabhängig?', 'Beweisen mit Vektoren', 'Matrizen und Abbildungen'] },
   { id: 'pruefung', title: 'Prüfung', soon: ['Musterlösungen lesen', 'Zeit einteilen'] },
@@ -666,6 +684,8 @@ const META = {
     formeln: [['Integralfunktion', "J_a(x)=\\displaystyle\\int_a^x f(t)\\,dt,\\quad J_a'(x)=f(x)"], ['Newton-Verfahren', "x_{n+1}=x_n-\\dfrac{f(x_n)}{f'(x_n)}"], ['Ortskurve', '\\text{Parameter eliminieren}']] },
   'a-integral2': { boss: ['Bilanz-Biber', '∫', [genMittelwertFkt, genBestand, genBestandExtrem]], why: 'Wasserwerke berechnen aus der Zuflussrate, wie voll ein Speicher ist; Ärztinnen aus der Aufnahmerate, wie viel Wirkstoff im Blut ist; Wetterdienste aus dem Temperaturverlauf die Tagesmitteltemperatur. Immer steckt ein Integral dahinter.',
     formeln: [['Mittelwert einer Funktion', 'm=\\dfrac{1}{b-a}\\displaystyle\\int_a^b f(x)\\,dx'], ['Bestand aus der Änderungsrate', 'B(t)=B(0)+\\displaystyle\\int_0^t r(s)\\,ds'], ['Gesamtänderung', '\\int_{t_1}^{t_2}r(t)\\,dt=B(t_2)-B(t_1)'], ['Größter / kleinster Bestand', 'r:\\ +\\to -\\ \\text{(Maximum)},\\quad r:\\ -\\to +\\ \\text{(Minimum)},\\ \\text{Ränder prüfen}']] },
+  'a-gauss': { boss: ['Gauß-Gnu', 'LGS', [genGauss]], why: 'Wer drei unbekannte Größen aus drei Messungen bestimmen muss, braucht das Gauß-Verfahren: die Mischung einer Legierung, die Stromstärken in einem Netz, die drei Zahlen einer Parabel durch drei Punkte (Steckbriefaufgaben im Abi). Auch Computer lösen große Gleichungssysteme so.',
+    formeln: [['Dreiecksform', '\\begin{array}{l}a_{11}x+a_{12}y+a_{13}z=b_1\\\\a_{22}y+a_{23}z=b_2\\\\a_{33}z=b_3\\end{array}'], ['Eliminieren', '\\text{II}-f\\cdot\\text{I}\\quad\\text{mit}\\quad f=\\dfrac{a_{21}}{a_{11}}'], ['Keine Lösung', '0=c\\ (c\\neq 0)\\ \\Rightarrow\\ L=\\{\\ \\}'], ['Unendlich viele', '0=0\\ \\Rightarrow\\ \\text{eine Unbekannte frei wählbar}']] },
   's-test2': { boss: ['Histo-Hydra', 'H₀', [genBinomVerteilung, genMengen, genHistogramm, genRueckwaerts, genZweiseitig, genStetig]], why: 'Ob eine Münze fair ist, ein Medikament anders wirkt oder eine Maschine falsch eingestellt ist: Abweichungen in beide Richtungen prüft man zweiseitig. Histogramme und Dichten zeigen auf einen Blick, womit zu rechnen ist – in der Qualitätskontrolle genauso wie in Wahlumfragen.',
     formeln: [['Einzelwahrscheinlichkeit', 'P(X=k)=\\binom{n}{k}p^k(1-p)^{n-k}'], ['Kumuliert', 'P(X\\ge k)=1-P(X\\le k-1)'], ['Vereinigung', 'P(A\\cup B)=P(A)+P(B)-P(A\\cap B)'], ['Annahmebereich (5 %)', '[\\mu-1{,}96\\sigma;\\ \\mu+1{,}96\\sigma]'], ['Mindestens ein Treffer', '1-(1-p)^n\\ge s'], ['Dichte', 'P(a\\le X\\le b)=\\displaystyle\\int_a^b f(x)\\,dx']] },
   'g-abstand2': { boss: ['Lot-Leopard', '⊥', [genHesse, genSchnittgerade, genWindschief, genSpiegelung, genBewegung]], why: 'Flugsicherung, Robotik und jedes 3D-Spiel rechnen ständig Abstände aus: Wie nah kommen sich zwei Flugbahnen? Wo trifft ein Lichtstrahl sein Spiegelbild? Fast immer führt der Weg über eine Senkrechte.',

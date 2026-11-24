@@ -27,6 +27,7 @@ import { genVierfelder, genBedingt } from './a/gen2.js';
 import { genBruch, genKlammer, genLinGl, genQuadGl, genPotenz, genSteigung, genHaeufigkeit, genProzent, genKennwerte, genLaplace, genGegen, genPythagoras, genTrig, genFlaeche } from './a/gen3.js';
 import { genRunden, genRechenregel, genTeiler, genEinheit, genRechteck, genKuerzen, genBruchVergleich, genDezimal, genBruchDezimal, genNegativ, genTerm, genDreisatz, genLinFunktion, genWurzel, genZinseszins, genQuader, genKoerper, genWinkel, genLGS, genBinom, genStrahlensatz, genLog, genVorteil, genBruchMal, genZuordnung, genZins, genKreis, genParabelSach, genSinussatz } from './a/gen6.js';
 import { haerter as H } from './a/gen10.js';
+import { genPotenzGl, genWurzelGl, genBruchGl, genRatPot } from './a/gen13.js';
 
 const T = (s) => `<div class="big">${tex(s, true)}</div>`;
 const mix = (...g) => quiz(Array(6).fill(mixOf([g])));
@@ -48,8 +49,8 @@ export const MITTEL_BALD = {   // Lehrplan-Abgleich 18.11.2026 (docs/LEHRPLAN-AB
   6: ['Symmetrie und Spiegeln', 'Flächen zusammengesetzter Figuren', 'Dreisatz im Alltag', 'Periodische Dezimalzahlen'],
   7: ['Dreiecke konstruieren', 'Terme aufstellen', 'Achsen- und Punktspiegelung', 'Satz des Thales', 'Umkreis, Inkreis und Höhen im Dreieck', 'Boxplot und Quartile'],
   8: ['Was ist eine Funktion?', 'Lineare Ungleichungen', 'Bruchterme', 'Hyperbeln: die Funktion a/x'],
-  9: ['Kreis und Zylinder im Sachzusammenhang', 'Parabel trifft Gerade', 'Wurzelgleichungen', 'Kathetensatz und Höhensatz'],
-  10: ['Prüfungstraining Mittlerer Abschluss', 'Trigonometrie am Einheitskreis', 'Kreisbogen und Kreisausschnitt', 'Wachstum vergleichen', 'Kugel und Kegel im Sachzusammenhang', 'Ganzrationale Funktionen', 'Potenzen mit Bruch-Hochzahlen'],
+  9: ['Kreis und Zylinder im Sachzusammenhang', 'Parabel trifft Gerade', 'Kathetensatz und Höhensatz'],
+  10: ['Prüfungstraining Mittlerer Abschluss', 'Trigonometrie am Einheitskreis', 'Kreisbogen und Kreisausschnitt', 'Wachstum vergleichen', 'Kugel und Kegel im Sachzusammenhang', 'Ganzrationale Funktionen'],
 };
 
 export const MITTEL = [
@@ -518,6 +519,36 @@ export const MITTEL = [
       { id: 'gleichung', kind: 'Brücke', title: 'Quadratische Gleichungen', run: quiz([H(genQuadGl), H(genQuadGl), H(genQuadGl), H(genQuadGl)]) },
       { id: 'parabel', kind: 'Brücke', title: 'Parabeln erkennen', run: quiz([genScheitel, genScheitel, genScheitel]) },
       { id: 'mix', kind: 'Festigen', title: 'Quadratisches gemischt', run: mix(genWurzel, H(genQuadGl), genScheitel) },
+    ] },
+  { id: 'k9-gleichungen', jg: '9', area: 'malgebra', title: 'Potenz-, Wurzel- und Bruchgleichungen', sub: 'Probe, Scheinlösungen, Definitionsmenge, Hochzahlen mit Bruch',
+    meta: { boss: ['Wurzel-Wolf', '√', [genPotenzGl, genWurzelGl, genBruchGl, genRatPot]], why: 'Wenn ein Wert unter einer Wurzel steht oder im Nenner, reicht „einfach umstellen“ nicht: Beim Quadrieren können falsche Lösungen entstehen, ein Nenner darf nie null werden. Wer das prüft, rechnet in Physik (Fallzeit, Schwingung), Technik und Wirtschaft sicher.',
+      formeln: [['Potenzgleichung', 'x^n=a:\\ \\ n\\ \\text{gerade, }a>0\\to x=\\pm\\sqrt[n]{a};\\ \\ n\\ \\text{ungerade}\\to x=\\sqrt[n]{a}'], ['Wurzel nie negativ', '\\sqrt{u}\\ge 0\\quad\\Rightarrow\\quad\\sqrt{x}=-3\\ \\text{hat keine Lösung}'], ['Quadrieren und Probe', '\\sqrt{u}=v\\ \\Rightarrow\\ u=v^2\\ \\text{(Probe: }v\\ge 0\\text{!)}'], ['Nicht durch x teilen', 'x\\,(ax-b)=0\\ \\Rightarrow\\ x=0\\ \\text{oder}\\ x=\\dfrac{b}{a}'], ['Definitionsmenge', '\\dfrac{a}{x-b}:\\ D=\\mathbb{R}\\setminus\\{b\\}'], ['Hochzahlen mit Bruch', 'a^{\\frac mn}=\\left(\\sqrt[n]{a}\\right)^{m}\\qquad a^{-\\frac mn}=\\dfrac{1}{a^{\\frac mn}}']] },
+    steps: [
+      { id: 'potenz', kind: 'Benennen', title: 'Potenzgleichungen', run: info([
+        { title: 'Wurzel ziehen – aber richtig', html: `${T('x^n=a')}<p><b>Gerade Hochzahl</b> (${tex('x^2,\\,x^4,\\,\\dots')}): Ist ${tex('a>0')}, gibt es zwei Lösungen ${tex('x=\\pm\\sqrt[n]{a}')}. Ist ${tex('a<0')}, gibt es keine Lösung, weil eine gerade Potenz nie negativ ist.</p><p><b>Ungerade Hochzahl</b> (${tex('x^3,\\,x^5,\\,\\dots')}): immer genau eine Lösung, auch für negatives ${tex('a')}.</p><p>${tex('x^2=49\\ \\Rightarrow\\ x=\\pm 7')}, ${tex('x^3=-8\\ \\Rightarrow\\ x=-2')}, ${tex('x^4=-16')}: keine Lösung.</p>` },
+        { title: 'Mit Faktor und Verschiebung', html: `<p>Erst den Faktor wegteilen, dann die Wurzel ziehen: ${tex('2x^2=50\\ \\Rightarrow\\ x^2=25\\ \\Rightarrow\\ x=\\pm 5')}.</p><p>Steht eine Klammer in der Potenz, löst man die Klammer zuletzt: ${tex('(x-3)^2=16\\ \\Rightarrow\\ x-3=\\pm 4\\ \\Rightarrow\\ x=7\\ \\text{oder}\\ x=-1')}.</p>` },
+      ]) },
+      { id: 'potenzueben', kind: 'Brücke', title: 'Potenzgleichungen lösen', run: quiz([genPotenzGl, genPotenzGl, genPotenzGl, genPotenzGl]) },
+      { id: 'wurzel', kind: 'Benennen', title: 'Wurzelgleichungen und die Probe', run: info([
+        { title: 'Eine Wurzel ist nie negativ', html: `${T('2\\sqrt{x}=6\\ \\Rightarrow\\ \\sqrt{x}=3\\ \\Rightarrow\\ x=9')}<p>Erst die Wurzel allein stellen (hier durch 2 teilen), dann quadrieren. Probe: ${tex('2\\cdot\\sqrt 9=6')} ✓. ${tex('L=\\{9\\}')}.</p><p>Aber: ${tex('5\\sqrt{x}=-\\tfrac1{16}')} hat <b>keine Lösung</b>, denn links steht etwas, das nie negativ ist. ${tex('L=\\{\\ \\}')}.</p>` },
+        { title: 'Die Wurzel mit einem Term darunter', html: `${T('\\sqrt{-x+5}=10\\ \\Rightarrow\\ -x+5=100\\ \\Rightarrow\\ x=-95')}<p>Probe: ${tex('\\sqrt{95+5}=\\sqrt{100}=10')} ✓. Also ${tex('L=\\{-95\\}')}. Auch eine negative Lösung kann stimmen: Es kommt auf den Wert unter der Wurzel an (hier ${tex('100\\ge 0')}).</p>` },
+        { title: 'Scheinlösungen entlarven', html: `${T('\\sqrt{x+6}=x\\ \\Rightarrow\\ x+6=x^2\\ \\Rightarrow\\ x^2-x-6=0')}<p>Lösungen der quadratischen Gleichung: ${tex('x=3')} oder ${tex('x=-2')}. <b>Probe:</b> ${tex('x=3')}: ${tex('\\sqrt 9=3')} ✓. ${tex('x=-2')}: ${tex('\\sqrt4=2\\neq -2')} ✗. Das Quadrieren hat eine <b>Scheinlösung</b> erzeugt. ${tex('L=\\{3\\}')}.</p><p class="muted">Quadrieren ist keine Äquivalenzumformung – darum immer die Probe in der Ausgangsgleichung.</p>` },
+        { title: 'Nicht durch x teilen', html: `${T('2\\sqrt{5x}=10x\\ \\Rightarrow\\ 20x=100x^2\\ \\Rightarrow\\ 20x\\,(5x-1)=0')}<p>Ausklammern statt teilen: ${tex('x=0')} oder ${tex('x=\\tfrac15')}. Wer durch ${tex('x')} teilt, verliert die Lösung 0.</p><p>Probe ${tex('x=\\tfrac15')}: links ${tex('2\\sqrt{1}=2')}, rechts ${tex('10\\cdot\\tfrac15=2')} ✓. Probe ${tex('x=0')}: ${tex('0=0')} ✓. ${tex('L=\\{0;\\ \\tfrac15\\}')}.</p>` },
+      ]) },
+      { id: 'wurzelueben', kind: 'Brücke', title: 'Wurzelgleichungen lösen', run: quiz([genWurzelGl, genWurzelGl, genWurzelGl, genWurzelGl, genWurzelGl]) },
+      { id: 'bruch', kind: 'Benennen', title: 'Bruchgleichungen', run: info([
+        { title: 'Erst die Definitionsmenge', html: `${T('\\dfrac{6}{x-2}=3\\qquad D=\\mathbb{R}\\setminus\\{2\\}')}<p>Ein Nenner darf nie 0 sein. Das schreibst du <b>zuerst</b> auf. Dann mit dem Nenner multiplizieren: ${tex('6=3\\,(x-2)')}, also ${tex('x=4')}. ${tex('4\\in D')} ✓. Probe: ${tex('\\tfrac{6}{4-2}=3')} ✓.</p>` },
+        { title: 'Überkreuz oder Hauptnenner', html: `${T('\\dfrac{2}{x-1}=\\dfrac{3}{x+2}\\qquad D=\\mathbb{R}\\setminus\\{-2;\\,1\\}')}<p>Überkreuz: ${tex('2\\,(x+2)=3\\,(x-1)')}, also ${tex('2x+4=3x-3')} und ${tex('x=7')}. Beide Nenner sind für ${tex('x=7')} nicht 0 ✓.</p><p>Bei mehreren Brüchen: Hauptnenner bilden (Nenner faktorisieren, zum Beispiel ${tex('x^2-9=(x-3)(x+3)')}), mit ihm multiplizieren.</p>` },
+        { title: 'Wenn die Lösung nicht erlaubt ist', html: `${T('\\dfrac{x+1}{x-3}=\\dfrac{4}{x-3}\\ \\Rightarrow\\ x+1=4\\ \\Rightarrow\\ x=3')}<p>Aber ${tex('3\\notin D=\\mathbb{R}\\setminus\\{3\\}')}: Der Nenner wäre 0. Das ist eine <b>Scheinlösung</b>, es gibt keine Lösung: ${tex('L=\\{\\ \\}')}.</p>` },
+      ]) },
+      { id: 'bruchueben', kind: 'Brücke', title: 'Bruchgleichungen lösen', run: quiz([genBruchGl, genBruchGl, genBruchGl, genBruchGl]) },
+      { id: 'hoch', kind: 'Benennen', title: 'Hochzahlen mit Bruch', run: info([
+        { title: 'Wurzel als Hochzahl', html: `${T('a^{\\frac1n}=\\sqrt[n]{a}\\qquad a^{\\frac mn}=\\left(\\sqrt[n]{a}\\right)^{m}')}<p>Der Nenner der Hochzahl ist die Wurzel, der Zähler die Potenz. Erst die Wurzel ziehen, dann potenzieren: ${tex('27^{\\frac23}=\\left(\\sqrt[3]{27}\\right)^2=3^2=9')}.</p>` },
+        { title: 'Negative Hochzahlen und Gesetze', html: `${T('a^{-\\frac mn}=\\dfrac{1}{a^{\\frac mn}}\\qquad x^{\\frac pq}\\cdot x^{\\frac rt}=x^{\\frac pq+\\frac rt}')}<p>${tex('16^{-\\frac34}=\\dfrac{1}{16^{\\frac34}}=\\dfrac{1}{2^3}=\\dfrac18')}. Die Potenzgesetze gelten weiter: gleiche Basis malnehmen → Hochzahlen addieren, teilen → subtrahieren, Potenz einer Potenz → multiplizieren.</p>` },
+        { title: 'Gleichungen mit gebrochener Hochzahl', html: `${T('x^{\\frac23}=9\\ \\Rightarrow\\ x=9^{\\frac32}=27')}<p>Mit dem <b>Kehrbruch</b> der Hochzahl potenzieren. Probe: ${tex('27^{\\frac23}=\\left(\\sqrt[3]{27}\\right)^2=9')} ✓.</p>` },
+      ]) },
+      { id: 'hochueben', kind: 'Brücke', title: 'Rationale Hochzahlen', run: quiz([genRatPot, genRatPot, genRatPot, genRatPot]) },
+      { id: 'mix', kind: 'Festigen', title: 'Gleichungen gemischt', run: mix(genPotenzGl, genWurzelGl, genBruchGl, genRatPot) },
     ] },
   { id: 'k9-pythagoras', jg: '9', area: 'mgeo', title: 'Satz des Pythagoras', sub: 'Rechtwinklige Dreiecke berechnen',
     meta: { boss: ['Dreiecks-Drache', 'c²', [H(genPythagoras)]], why: 'Wie lang muss die Leiter sein, wie groß ist die Bildschirmdiagonale, wie weit ist es quer über den Platz? Überall, wo ein rechter Winkel ist, hilft Pythagoras.',

@@ -1251,7 +1251,7 @@ ok(nextStreak({ n: 3, last: '2026-11-10' }, D('2026-11-12')).n === 1, 'Serie: au
 { const { readFileSync } = await import('fs'); const html = readFileSync(new URL('../app/index.html', import.meta.url), 'utf8'), kopf = html.split('</head>')[0], rumpf = html.split('<body>')[1];
   ok(/<style>[\s\S]*#lade\{[^}]*position:fixed[^}]*inset:0[\s\S]*<\/style>/.test(kopf), 'Schnellstart: Das Ladebild ist direkt in der Seite gestaltet (kein Warten auf eine CSS-Datei)');
   ok(!/<link rel="stylesheet"|<script/.test(kopf), 'Schnellstart: Im Kopf der Seite blockiert weder eine CSS-Datei noch ein Skript das erste Bild');
-  ok(rumpf.trimStart().startsWith('<div id="lade"') && rumpf.indexOf('id="lade-balken"') < rumpf.indexOf('<script'), 'Schnellstart: Ladebild mit Balken steht vor dem ersten Skript');
+  ok(rumpf.trimStart().replace(/^<div id="splash"[\s\S]*?<\/svg><\/div>\s*/, '').startsWith('<div id="lade"') && rumpf.indexOf('id="lade-balken"') < rumpf.indexOf('<script'), 'Schnellstart: Ladebild mit Balken steht vor dem ersten Skript');
   ok(/<svg class="lade-logo"[^>]*>/.test(rumpf) && !/lade-logo[^>]*src=/.test(rumpf), 'Schnellstart: Logo im Ladebild ist eingebettet');
   ok(!/<script(?![^>]*\bsrc=)[^>]*>/.test(html), 'Schnellstart: kein eingebettetes Skript (die Sicherheits-Regel der Seite verbietet es)');
   ok(kopf.includes('prefers-color-scheme:dark') && kopf.includes(':root[data-look="dunkel"] #lade') && kopf.includes('<noscript><style>#lade{display:none}'), 'Schnellstart: Ladebild hell und dunkel; ohne JavaScript verdeckt es nichts');
@@ -1262,7 +1262,7 @@ ok(nextStreak({ n: 3, last: '2026-11-10' }, D('2026-11-12')).n === 1, 'Serie: au
   ok(vor.length >= 1 && vor.every((f) => /^b\/teil-/.test(f)) && spaet.length === 1 && !vor.includes(`b/${spaet[0]}`), 'Schnellstart: Der Hauptteil des Bündels wird vorgeladen, der Theorie-Teil nicht');
   const alles = Object.values(text).join('\n');
   ok(['genBruch', 'genIntegralE', 'genBinomVerteilung', 'schwer_bruch', 'genAbleitenSteil'].every((n) => alles.includes(`"${n}"`) || alles.includes(`\`schwer_`)), 'Bündel: Die Namen der Aufgaben-Erzeuger bleiben erhalten (Lernstand und Fehler-Kartei hängen daran)');
-  ok(alles.length < 2.3e6 &&   // 18.11.2026: Theorie-Prüfung – 75 neue Erklärkarten, viele erweitert (Grenze von 2,1 auf 2,3 MB)
+  ok(alles.length < 2.45e6 &&   // 18.11.2026: Theorie-Prüfung – 75 neue Erklärkarten (Grenze von 2,1 auf 2,3 MB); 24.11.2026: Eltern-Tor, Familien-Speicher, Gauß, Potenz-/Wurzel-/Bruchgleichungen (auf 2,45 MB)
      !/\n {4,}\/\/ /.test(alles.slice(0, 20000)), `Bündel: verkleinert (${Math.round(alles.length / 1024)} kB)`);
   const app = readFileSync(new URL('../app/js/app.js', import.meta.url), 'utf8'), wa = readFileSync(new URL('../app/js/wache.js', import.meta.url), 'utf8');
   ok(!/^import[^\n]*theorie\.js/m.test(app) && (app.match(/import\('\.\/theorie\.js'\)/g) || []).length >= 2, 'Schnellstart: Die Theorie wird erst beim Öffnen (und in einer ruhigen Minute) geladen');
