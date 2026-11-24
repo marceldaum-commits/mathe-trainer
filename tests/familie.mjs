@@ -151,6 +151,13 @@ const CR = '0123456789ABCDEFGHJKMNPQRSTVWXYZ', crock = (bytes) => { let out = ''
 const inhalt = [1, 5, 4, 0x00, 0x01, 0xE2, 0x40, 0x0B, 0xB8], lp = crock([...inhalt, ...new Array(64).fill(7)]);
 ok(await F.codeNummer(`MT-${lp}`) === 'L5.4.123456' && await F.codeNummer(lp.toLowerCase()) === 'L5.4.123456', 'Code-Nummer Lern-App: „L<app>.<produkt>.<serie>“, serie dezimal (123456), mit Präfix und klein geschrieben');
 ok(await F.codeNummer('KF-ZZZZ') === '' && await F.codeNummer('') === '', 'Unbekannter Code → leere Code-Nummer');
+// Hörlehrer (App 8) und höhere App-Nummern (Fund Tafel-Raum 21.11.): vorher kam '' zurück, codeGesperrt war immer false
+const hl = crock([1, 8, 2, 0x00, 0x00, 0x00, 0x4D, 0x00, 0x00, ...new Array(64).fill(9)]);
+ok(await F.codeNummer(`HL-${hl}`) === 'L8.2.77' && await F.codeNummer(hl) === 'L8.2.77' && await F.codeNummer(crock([1, 12, 1, 0, 0, 0, 1, 0, 0, ...new Array(64).fill(3)])) === 'L12.1.1', 'Code-Nummer Hörlehrer: App 8 (Präfix HL) und App-Nummern über 7 werden erkannt');
+ok(await F.codeNummer(crock([1, 0, 1, 0, 0, 0, 1, 0, 0, ...new Array(64).fill(3)])) === '' && await F.codeNummer(crock([1, 5, 9, 0, 0, 0, 1, 0, 0, ...new Array(64).fill(3)])) === '', 'Code-Nummer: App-Nummer 0 und unbekanntes Produkt bleiben abgewiesen');
+{ const mem2 = new Map(), sp2 = { getItem: (k) => mem2.get(k) ?? null, setItem: (k, v) => mem2.set(k, v) };
+  await F.sperrlisteLaden({ f: async () => ({ ok: true, status: 200, json: async () => ({ sperrliste: [NC.createHash('sha256').update('L8.2.77').digest('base64url')] }) }), speicher: sp2, schluessel: 'x' });
+  ok(await F.codeGesperrt(`HL-${hl}`, { speicher: sp2, schluessel: 'x' }) && await F.codeGesperrt('L8.2.77', { speicher: sp2, schluessel: 'x' }) && !(await F.codeGesperrt('L8.2.78', { speicher: sp2, schluessel: 'x' })), 'Hörlehrer-Code: gesperrt erkannt (HL-Code und Code-Nummer), andere nicht'); }
 const sperrSrv = async (u) => (/\/familie\/v1\/sperrliste$/.test(u) ? { ok: true, status: 200, json: async () => ({ sperrliste: [NC.createHash('sha256').update('M.' + NC.createHash('sha256').update('MTGESPERRT2222').digest('hex').slice(0, 16)).digest('base64url'), NC.createHash('sha256').update('L5.4.123456').digest('base64url'), 'kaputt'] }) } : { ok: false, status: 404 });
 const sperr = await F.sperrlisteLaden({ f: sperrSrv, speicher: sp, schluessel: 'mathetrainer.sperrliste' });
 ok(sperr.ok && sperr.anzahl === 2, 'Sperrliste { sperrliste: [SHA-256(codeNr)] } geladen, ungültige Einträge verworfen, im Gerät gespeichert');

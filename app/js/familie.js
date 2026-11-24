@@ -221,14 +221,14 @@ const hex = (u) => [...u].map((b) => b.toString(16).padStart(2, '0')).join('');
 export async function codeNummer(code) {
   const norm = String(code ?? '').toUpperCase().replace(/[^A-Z0-9]/g, '');
   if (/^MT[A-HJ-NP-Z2-9]{12}$/.test(norm)) return `M.${hex(new Uint8Array(await crypto.subtle.digest('SHA-256', text.encode(norm)))).slice(0, 16)}`;
-  const t = String(code ?? '').trim().toUpperCase().replace(/^(KF|RB|WG|RL|EX|QQ|MT)(?=[-\s0-9A-Z])/, '').replace(/[^0-9A-Z]/g, '').replace(/O/g, '0').replace(/[IL]/g, '1');
+  const t = String(code ?? '').trim().toUpperCase().replace(/^(KF|RB|WG|RL|EX|QQ|HL|MT)(?=[-\s0-9A-Z])/, '').replace(/[^0-9A-Z]/g, '').replace(/O/g, '0').replace(/[IL]/g, '1');
   const bytes = []; let puffer = 0, bits = 0;
   for (const z of t) { const v = CROCK.indexOf(z); if (v < 0) return ''; puffer = (puffer << 5) | v; bits += 5; if (bits >= 8) { bytes.push((puffer >> (bits - 8)) & 255); bits -= 8; puffer &= (1 << bits) - 1; } }
-  if (bytes.length !== 73 || bytes[0] !== 1 || bytes[1] < 1 || bytes[1] > 7 || bytes[2] < 1 || bytes[2] > 4) return '';
+  if (bytes.length !== 73 || bytes[0] !== 1 || bytes[1] < 1 || bytes[2] < 1 || bytes[2] > 4) return '';   // App-Nummer ohne feste Obergrenze (Hörlehrer = 8, Tafel-Raum 21.11.)
   const serie = ((bytes[3] << 24) >>> 0) + (bytes[4] << 16) + (bytes[5] << 8) + bytes[6];
   return `L${bytes[1]}.${bytes[2]}.${serie}`;
 }
-const CODE_NR = /^(L\d\.\d\.\d{1,10}|M\.[0-9a-f]{16})$/;
+const CODE_NR = /^(L\d{1,3}\.\d\.\d{1,10}|M\.[0-9a-f]{16})$/;
 /** base64url(SHA-256(codeNr)) – so steht ein gesperrter Code in der Sperrliste. */
 export async function codeNrHash(codeNr) { return b64url(new Uint8Array(await crypto.subtle.digest('SHA-256', text.encode(String(codeNr))))); }
 /**
