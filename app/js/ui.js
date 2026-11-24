@@ -107,11 +107,11 @@ export const klang = {
   get stumm() { return !soundOn || (inPruefung && !klangWerte.pruefung); },
   beobachte(f) { klangMelder.add(f); return () => klangMelder.delete(f); },
 };
-/* Vorlesen mit der Stimme „Nova“ (KI-generiert): Einstellung an/aus wird gemerkt (von Haus aus aus).
+/* Vorlesen mit KI-generierter Stimme: Einstellung an/aus wird gemerkt (von Haus aus aus).
    Die Stimme selbst steckt in vorlesen.js und wird erst geladen, wenn jemand vorlesen lässt. */
 /** Schalter fürs Vorlesen (Marcel, 18.11.2026: „Vorlesen überall erstmal rausnehmen … später evtl. wieder einfügen“).
  *  false: keine Vorlese-Knöpfe, keine Einstellungen dazu, keine Abrufe beim Stimmen-Server, keine Gerätestimme,
- *  vorlesen/texte.json bleibt leer (das Stimmen-Werk spricht nichts mehr) und alte Nova-Dateien im Gerät werden aufgeräumt.
+ *  vorlesen/texte.json bleibt leer (das Stimmen-Werk spricht nichts mehr) und früher geladene Stimm-Dateien im Gerät werden aufgeräumt.
  *  Der Code bleibt – zum Wiedereinschalten genügt true. */
 export const VORLESEN = false;
 const VORLESE_KEY = 'mathetrainer.vorlesen';
@@ -129,7 +129,7 @@ export const vorlese = {
 export const vorleseKnopf = (was = 'Vorlesen') => (vorlese.an ? `<button class="btn ghost small vl-knopf" type="button" aria-label="${esc(was)}">${ICON.speaker || ''}<span>Vorlesen</span></button>` : '');
 let vorleseGeladen = false;
 /** Den Player fürs Vorlesen noch während des Antippens freigeben: In der Android-App (WebView) darf Ton nur nach einem Tippen starten –
- *  Nova kommt aber erst Sekunden später aus dem Netz. Einmal still angespielt, darf derselbe Player danach weiterspielen. */
+ *  Die Stimme kommt aber erst Sekunden später aus dem Netz. Einmal still angespielt, darf derselbe Player danach weiterspielen. */
 export function vorleseFreigeben() {
   try {
     let el = window.__mtVorleser; if (!el) { el = window.__mtVorleser = new Audio(); el.preservesPitch = true; }
@@ -157,7 +157,7 @@ export async function vorlies(el, knopf = null, art = 'aufgabe') {
   if (knopf?.classList.contains('spricht')) { V.stopp(); return; }
   document.querySelectorAll('.vl-knopf.spricht').forEach((b) => { b.classList.remove('spricht', 'laedt'); const t = b.querySelector('span'); if (t) t.textContent = 'Vorlesen'; });
   const wort = knopf?.querySelector('span'), setze = (t) => { if (wort) wort.textContent = t; };
-  knopf?.classList.add('spricht', 'laedt'); setze('Lädt …');   // Nova braucht für neue Sätze 2–3 Sekunden
+  knopf?.classList.add('spricht', 'laedt'); setze('Lädt …');   // die Stimme braucht für neue Sätze 2–3 Sekunden
   const { hinweis } = await V.sprich(V.sprechText(el), art, { beimStart: () => { knopf?.classList.remove('laedt'); setze('Stopp'); } });
   knopf?.classList.remove('spricht', 'laedt'); setze('Vorlesen');
   if (hinweis && knopf?.isConnected) toast(hinweis);

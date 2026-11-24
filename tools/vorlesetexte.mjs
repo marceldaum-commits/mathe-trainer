@@ -1,4 +1,4 @@
-// Liste aller FESTEN Vorlese-Texte für das Stimmen-Werk (Nova): app/vorlesen/texte.json.
+// Liste aller FESTEN Vorlese-Texte für das Stimmen-Werk (Tonstudio): app/vorlesen/texte.json.
 // Feste Texte = Theorie kurz und ausführlich (je Abschnitt; darin auch Formelkarten und „Wo brauche ich das?“) und feste Hinweise.
 // Formeln stehen so drin, wie sie gesprochen werden (app/js/sprech.js) – dieselbe Regel nutzt die App beim Vorlesen,
 // damit sie die vorab vertonte Datei wiederfindet. Je Text höchstens 1 500 Zeichen. Aufruf durch tools/check.mjs (npm run fix).
@@ -48,4 +48,10 @@ const laufzeit = [...zaehl].filter(([t, n]) => n >= MIN && t && !texte.has(t)).m
 const liste = [...[...texte].sort().map((text) => ({ text, sprache: 'de' })), ...laufzeit.map((text) => ({ text, sprache: 'de', laufzeit: true }))];
 // Vorlesen abgeschaltet (Schalter VORLESEN in app/js/ui.js): leere Liste, damit das Stimmen-Werk nichts mehr spricht.
 const { VORLESEN } = await import(`${R}ui.js`);
-process.stdout.write(`${JSON.stringify({ format: 1, app: 'mathe-trainer', texte: VORLESEN ? liste : [] }, null, 1)}\n`);
+// Mit --tonstudio: die volle Textliste (Format 1) für das Tonstudio, unabhängig vom Schalter – je Text die Tempi 1,0 und 0,8, nur Deutsch.
+// Sätze mit Zufallszahlen (Aufgabentexte) kommen nicht in die Liste; die App holt sie später einzeln über /stimme/v1.
+if (process.argv.includes('--tonstudio')) {
+  process.stdout.write(`${JSON.stringify({ format: 1, app: 'mathe-trainer', sprache: 'de', tempo: [1.0, 0.8], texte: liste.map((e) => ({ text: e.text, sprache: 'de', ...(e.laufzeit ? { laufzeit: true } : {}) })) }, null, 1)}\n`);
+} else {
+  process.stdout.write(`${JSON.stringify({ format: 1, app: 'mathe-trainer', texte: VORLESEN ? liste : [] }, null, 1)}\n`);
+}

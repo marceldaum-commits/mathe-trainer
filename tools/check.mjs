@@ -18,7 +18,7 @@ const B = await buendeln();
     else errors0.push('Das Bündel app/b/ passt nicht zum Quelltext in app/js/ → npm run fix'); } }
 const GEBUENDELT = new Set(B.quellen);   // diese Quell-Dateien stecken im Bündel: nicht in den Offline-Speicher, nicht in die Update-Liste
 
-// Feste Vorlese-Texte für das Stimmen-Werk (Nova): app/vorlesen/texte.json – aus dem Quelltext erzeugt, vor allem anderen (gehört zur Dateiliste).
+// Feste Vorlese-Texte für das Stimmen-Werk (Tonstudio): app/vorlesen/texte.json – aus dem Quelltext erzeugt, vor allem anderen (gehört zur Dateiliste).
 { const { execFileSync } = await import('node:child_process');
   const soll = execFileSync(process.execPath, [new URL('./vorlesetexte.mjs', import.meta.url).pathname], { maxBuffer: 64 << 20 }).toString();
   const pfad = join(APP, 'vorlesen/texte.json'), ist = existsSync(pfad) ? readFileSync(pfad, 'utf8') : '';

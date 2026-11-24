@@ -83,9 +83,9 @@ Vollbild; vorher zeigt sie oben eine Adressleiste.
 - Service Worker mit Offline-Betrieb und Updates.
 - Läuft vollständig über HTTPS auf eigener Adresse, kein Tracking, keine Werbung Dritter. Die App spricht nur mit dem
   eigenen Server; für die KI-Funktionen gibt dieser die Anfrage (ohne Namen, ohne Lernstand) an einen KI-Dienst weiter.
-- **Vorlesen (ab 2.2.0):** Von Haus aus aus. Stimme „Nova“ (mit KI von OpenAI erzeugt, in der App gekennzeichnet). Feste Texte
+- **Vorlesen (ab 2.2.0):** Von Haus aus aus. KI-generierte Stimme (in der App gekennzeichnet; die Stimme kommt vom Tonstudio). Feste Texte
   sind vorab vertont; Texte, die erst in der Aufgabe entstehen, schickt die App ohne Angaben zur Person an den eigenen Server
-  `stimmen.mathenachhilfe-online.com`, der sie einmalig vertonen lässt. Die App selbst spricht nie mit OpenAI. Ohne Verbindung liest
+  `stimmen.mathenachhilfe-online.com`, der sie einmalig vertonen lässt. Die App selbst spricht nie mit einem KI-Dienst. Ohne Verbindung liest
   die eingebaute Gerätestimme. Für das Formular „Datensicherheit“: Text der Aufgabe wird an den eigenen Server übertragen (keine
   Kennungen, keine Protokolle laut Leitstand) – bitte so angeben.
 - Bedienung auf kleinen Bildschirmen geprüft (360 × 640), Hell/Dunkel, Hochformat.

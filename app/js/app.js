@@ -583,7 +583,7 @@ if (window.MTApp) document.getElementById('view').before(updateLeiste());
 // In der Offline-App (Android) sind alle Dateien fest eingepackt – dort braucht es keinen Service Worker.
 // Die Web-App aktualisiert sich von selbst, ohne Knopf (Marcel, 15.11.2026): Eine neue Fassung wird im Hintergrund geladen
 // und übernommen, sobald gerade keine Aufgabe und kein Spiel läuft – mittendrin wird nie neu geladen.
-// Vorlesen ist abgeschaltet (Marcel 18.11.2026): früher geladene Nova-Dateien im Gerät aufräumen.
+// Vorlesen ist abgeschaltet (Marcel 18.11.2026): früher geladene Stimm-Dateien im Gerät aufräumen (alter Speichername „stimme-nova“).
 if (!VORLESEN) { try { if (!aufLernen()) globalThis.caches?.delete('stimme-nova').catch(() => {}); globalThis.caches?.delete('stimme-mathetrainer').catch(() => {}); } catch { /* ohne Cache Storage */ } }   // alter Name nur auf der alten Adresse (dort gehört er sicher uns)
 // Nach dem automatischen Neuladen kurz sagen, was jetzt läuft.
 try { const alt = sessionStorage.getItem('mathetrainer-alte-version'); sessionStorage.removeItem('mathetrainer-alte-version'); if (alt && alt !== VERSION) setTimeout(() => toast(`Neue Version ${VERSION} geladen.`), 800); } catch { /* ohne sessionStorage */ }

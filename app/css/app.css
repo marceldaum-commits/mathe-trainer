@@ -1087,3 +1087,27 @@ html.kinder .site-top{display:none}
 .fa-einw{display:grid;gap:10px;border:1px solid var(--line);border-radius:14px;padding:12px;margin-top:8px}
 .fa-einw p{margin:0}
 .fa-sicher{display:block;border-left:3px solid var(--orange);padding-left:8px}
+
+/* ───────────── PC-Vollbild (ab 1200 px, Marcel/AppZentrale 24.11.2026): breitere Seite, Kacheln dreispaltig, Aufgaben links Frage/rechts Antworten,
+   Theorie mit Formelspalte. Handy und iPad (unter 1200 px) bleiben unverändert. ───────────── */
+@media (min-width:1200px){
+  main{width:min(100%,1180px);padding-inline:32px}
+  .view.stack>section.stack,.steps{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .view.stack>section.card.stack{grid-template-columns:minmax(0,1fr)}
+  .view.stack>section.card,.view.stack>details.card{max-width:860px}
+  /* Aufgaben: Frage, Formel und Zeichnung links – Antworten, Hinweis und Knöpfe rechts */
+  main:has(.stephead):has(.q #q-body){width:min(100%,1060px)}
+  .q{grid-template-columns:minmax(0,1fr) minmax(0,1fr);column-gap:28px;row-gap:0;align-items:start}
+  .q>*{grid-column:2;margin-bottom:12px}
+  .q>.kopf,.q>.mission{grid-column:1 / -1}
+  .q>.formula,.q>.stage{grid-column:1;grid-row:2 / span 8}
+  .q:has(>.kopf)>.formula,.q:has(>.kopf)>.stage{grid-row:3 / span 8}
+  .q>.stage ~ .formula{grid-row:auto}
+  .q>.row:last-child{grid-column:2}
+  /* Theorie: Text links, „Formeln zum Merken“ als feste Spalte rechts */
+  main:has(.theorie){width:min(100%,1180px)}
+  .theorie .b-seite{grid-template-columns:minmax(0,1fr) 360px;column-gap:22px;row-gap:0;align-items:start}
+  .theorie .b-seite>*{grid-column:1;margin-bottom:12px}
+  .theorie .b-seite>.t-merk{grid-column:2;grid-row:1 / span 80;position:sticky;top:72px;max-height:calc(100dvh - 92px);overflow:auto}
+  .theorie .b-seite>.t-inhalt{margin-bottom:12px}
+}

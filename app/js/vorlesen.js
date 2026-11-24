@@ -1,10 +1,11 @@
-// Vorlesen mit der Stimme „Nova“ (eine mit KI von OpenAI erzeugte Stimme; Marcel, 17.11.2026: „zukünftig nur Nova“).
-// Die App spricht nie mit OpenAI. Sie holt fertige Audiodateien von unserem Server stimmen.mathenachhilfe-online.com:
+// Vorlesen mit einer KI-generierten Stimme (kommt vom Tonstudio; bis die Stimme steht, bleibt VORLESEN aus).
+// Die App spricht nie mit einem KI-Dienst. Sie holt fertige Audiodateien von unserem Server stimmen.mathenachhilfe-online.com
+// (Pfad /nova/ und Kennung „nova|…“ sind die historischen technischen Namen des Stimmen-Werks und bleiben so, damit vorhandene Dateien passen):
 //   • feste Texte (Theorie, Formelkarten, „Wo brauche ich das?“) stehen in vorlesen/texte.json und werden dort vorab vertont;
 //   • Texte, die erst in der Aufgabe entstehen, schickt die App als ganze Sätze (Stücke bis 300 Zeichen, an Satzenden geteilt)
 //     an /jetzt (ohne Angaben zur Person). Nie Schnipsel aus Wörtern und Zahlen.
 // Nie die Android-Stimme, solange Netz da ist (Leitstand, 17.11.2026): lieber warten (mit „Lädt …“ am Knopf), einmal neu versuchen,
-// und wenn Nova trotzdem nicht kommt, einmal je Sitzung „Nova ist gerade nicht erreichbar“. Die Stimme des Geräts liest nur,
+// und wenn die Stimme trotzdem nicht kommt, einmal je Sitzung „Die Stimme ist gerade nicht erreichbar“. Die Stimme des Geräts liest nur,
 // wenn wirklich kein Netz da ist und nichts offline gespeichert ist. KI-Antworten werden nicht vorgelesen.
 // Wird erst geladen, wenn jemand vorlesen lässt (kein Einfluss auf den Start).
 import { vorlese } from './ui.js';
@@ -46,8 +47,8 @@ function geraet(text) {
   });
 }
 
-/* ───────────── Nova-Dateien holen ───────────── */
-/** Adresse der Bestqualität (128 kbit/s) zu einer normalen Nova-Adresse. */
+/* ───────────── Stimm-Dateien holen ───────────── */
+/** Adresse der Bestqualität (128 kbit/s) zu einer normalen Stimm-Adresse. */
 export const original = (u) => u.replace(`${STIMMEN}/nova/`, `${STIMMEN}/nova/original/`);
 const WARTE_MS = 15000;   // so lange darf eine Datei aus dem Netz dauern (/jetzt vertont neu: meist 2–3 s)
 const warte = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -59,7 +60,7 @@ async function netz(url, o = {}) {
 async function ausSpeicher(url) {
   try { const c = await caches.open(SPEICHER); const da = (await c.match(original(url))) || (await c.match(url)); return da ? await da.arrayBuffer() : null; } catch { return null; }
 }
-/** Eine Nova-Datei holen. Liefert { roh } – oder { fehlt: true } (404) bzw. { fehler: 'netz' | 'server' }. */
+/** Eine Stimm-Datei holen. Liefert { roh } – oder { fehlt: true } (404) bzw. { fehler: 'netz' | 'server' }. */
 async function holeDatei(url) {
   const da = await ausSpeicher(url); if (da) return { roh: da };
   let r; try { r = await netz(url); } catch { return { fehler: 'netz' }; }
@@ -101,8 +102,8 @@ const log = (text, wie) => { if (window.__mtTest) (window.__mtNova ||= []).push(
 let runde = 0, quellen = [], gemeldet = false;
 const melde = (an) => { try { window.dispatchEvent(new CustomEvent('mt-spricht', { detail: an })); } catch { /* egal */ } };
 export function stopp() { runde++; quellen.forEach((q) => { try { q.pause(); } catch { /* schon aus */ } }); quellen = []; try { speechSynthesis?.cancel(); } catch { /* egal */ } melde(false); }
-/** Einmal je Sitzung: Nova kommt gerade nicht. Liefert den Hinweistext oder ''. */
-const einmalMelden = () => { if (gemeldet) return ''; gemeldet = true; return 'Nova ist gerade nicht erreichbar – bitte gleich noch einmal versuchen.'; };
+/** Einmal je Sitzung: Die Stimme kommt gerade nicht. Liefert den Hinweistext oder ''. */
+const einmalMelden = () => { if (gemeldet) return ''; gemeldet = true; return 'Die Stimme ist gerade nicht erreichbar – bitte gleich noch einmal versuchen.'; };
 
 /** Eine Datei abspielen (Tempo bei gleicher Tonhöhe). Liefert 'ok' | 'gesperrt' (Gerät verlangt ein Tippen) | 'fehler'. */
 async function abspielen(roh, meine) {
@@ -119,7 +120,7 @@ async function abspielen(roh, meine) {
 }
 
 /**
- * Liest einen Text mit Nova vor. art: 'fest' (Theorie – vorab vertont) oder 'aufgabe' (erst in der Aufgabe entstanden).
+ * Liest einen Text mit der Stimme vor. art: 'fest' (Theorie – vorab vertont) oder 'aufgabe' (erst in der Aufgabe entstanden).
  * beimStart() wird gerufen, sobald der erste Ton läuft (für „Lädt …“ am Knopf).
  * Liefert { ok, hinweis }: ok = etwas war zu hören; hinweis = Text für eine kurze Meldung (oder '').
  */
@@ -142,7 +143,7 @@ export async function sprich(text, art = 'aufgabe', { beimStart = () => {} } = {
       }
       continue;
     }
-    // Nova kam nicht. Ohne Netz (und nichts offline gespeichert): die Stimme des Geräts. Sonst lieber still als die Android-Stimme.
+    // Die Stimme kam nicht. Ohne Netz (und nichts offline gespeichert): die Stimme des Geräts. Sonst lieber still als die Android-Stimme.
     if (d.fehler === 'netz' && navigator.onLine === false) { start(); if (await geraet(teile[i])) gehoert = true; hinweis ||= einmalMelden(); continue; }
     hinweis = einmalMelden() || hinweis; break;
   }
@@ -151,7 +152,7 @@ export async function sprich(text, art = 'aufgabe', { beimStart = () => {} } = {
 }
 if (typeof window !== 'undefined') addEventListener('hashchange', stopp);
 
-/* ───────────── Alle Nova-Texte offline (Marcel, 17.11.2026) ───────────── */
+/* ───────────── Alle Vorlese-Texte offline (Marcel, 17.11.2026) ───────────── */
 // Nur die festen Texte aus vorlesen/texte.json – Laufzeit-Texte (/jetzt) gehören nicht dazu. Gespeichert im Cache Storage
 // (in der Android-App liegt der im App-Speicher). Fehlende Dateien (404) werden still übersprungen; nach einem Abbruch geht es dort weiter.
 const standHost = () => (/^(localhost|127\.)/.test(location.hostname) ? 'trainer-test.mathenachhilfe-online.com' : location.hostname);

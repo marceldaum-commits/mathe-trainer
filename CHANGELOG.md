@@ -2,16 +2,25 @@
 
 Kurzfassung für Nutzer und Leitstand. Einzelheiten: `docs/PLAN.md` (Baulog) und `MELDUNG_AN_LEITSTAND.md`.
 
-## 2.5.5 – 24.11.2026
+## 2.5.5 – 24.11.2026 (Dienstag-Update)
+- **Neue Inhalte:**
+  - Oberstufe: Einheit „Gauß-Verfahren“ (drei Gleichungen, drei Unbekannte; Dreiecksform, Eliminieren, keine/eine/unendlich viele Lösungen) mit Theorie, Formeln und Boss.
+  - Klasse 9: Einheit „Potenz-, Wurzel- und Bruchgleichungen“ (Probe, Scheinlösungen, Definitionsmenge, Hochzahlen mit Bruch). Prüfstein war Marcels Arbeitsblatt: 2√x=6, 5√x=−1/16, √(−x+5)=10 und 2·√(5x)=10x werden richtig gelöst.
+  - Jede Aufgabe wird in einem eigenen Test unabhängig nachgerechnet.
 - **Eltern-Tor** nach dem gemeinsamen Standard aller Lern-Apps:
-  - Eine Malaufgabe in Worten mit Vorlese-Knopf und eigenen Zifferntasten. Danach bleibt das Tor 10 Minuten offen.
-  - Davor stehen jetzt alle Links nach außen außer Impressum und Datenschutz, auch „← Alle Apps“ und der Shop.
-- **Klasse 5–10:**
-  - Die Pro-Seite zeigt Preise und Kaufknöpfe erst nach dem Tor.
-  - Gesperrte Inhalte zeigen nur „Das gehört zu Mathe-Trainer Pro.“ und den Knopf „Für Eltern“.
-  - Keine Probestunden-Hinweise mehr.
+  - Eine Malaufgabe in Worten mit eigenen Zifferntasten. Nach einem Fehler kommt sofort eine neue Aufgabe. Danach bleibt das Tor 10 Minuten offen.
+  - Dahinter liegen Shop, Probestunde, fremde Seiten, Elternbereich, Elternbericht, Klassen-Code und die Eltern-Einstellungen. Die eigene Website (Startseite, Lern-Apps, Impressum, Datenschutz) und die anderen Lern-Apps sind frei.
+  - Einstellungen: Schalter wie Schrift, Ton und Look bleiben frei, der Rest steht hinter „Für Eltern“.
+- **Klasse 5–10:** Die Pro-Seite zeigt Preise und Kaufknöpfe erst nach dem Tor. Gesperrte Inhalte zeigen nur „Das gehört zu Mathe-Trainer Pro.“ und „Für Eltern“. Keine Werbung für Nachhilfe in der Kinderansicht.
 - **Oberstufe:** Die Preise bleiben sichtbar. Kaufen geht über das Tor, dazu der Hinweis „Wer unter 18 ist, kauft nicht selbst.“
-- **Pro-Seite:** Der 30-Tage-Code ist bis zum 31.12. des dritten Jahres nach dem Kauf einlösbar (vorher stand dort „12 Monate“).
+- **Probestunde (V15):** Bei Schwierigkeiten sehen Kinder nur einen Hilfesatz mit „Leichter üben“ und „Erklärung ansehen“. In Klasse 9–10 gibt es höchstens einmal pro Woche einen Tipp. Im Elternbericht erscheint ein Hinweis, wenn ein Thema mit mindestens 10 Versuchen mindestens zur Hälfte falsch war (höchstens einmal in 4 Wochen je Thema, ausblendbar).
+- **KI-Kennzeichnung (V7):** Jede KI-Antwort trägt „Antwort einer KI – sie kann Fehler enthalten.“ KI-Aufgaben sagen, ob sie im Gerät nachgerechnet wurden.
+- **Familien-Speicher** hinter dem Tor: anlegen, beitreten (mit Einwilligung), Kinder, Stand abgleichen, Rechte, Protokoll, Link/QR/Notfall-Blatt, Löschen mit Familien-Nummer. `familie.js` auf af01c5c.
+- **Pro-Seite:** „Abi-Pass (bis 31.07.)“, „Kein Abo – endet automatisch.“, 30-Tage-Code einlösbar bis zum 31.12. des dritten Jahres nach dem Kauf.
+- **Spiele umbenannt:** Sinus-Slalom, Vektor-Kompass, Geraden-Drehbühne. Dazu der Hinweis „Mehr davon in KurvenFlug/Raumlicht“. Querverweise zeigen auf lernen.…/<app>/.
+- **Startanimation** wie in den anderen Lern-Apps: dunkler Start, atmendes Logo, weicher Übergang (mit Rücksicht auf „weniger Bewegung“).
+- **PC-Vollbild** ab 1200 px: breitere Seite, Kacheln in drei Spalten, Aufgaben mit Frage links und Antworten rechts, Theorie mit fester Formelspalte. Handy und iPad bleiben unverändert.
+- **Vorlesen:** Alle Hinweise auf Nova und OpenAI sind aus Code und Texten entfernt. Das Vorlesen bleibt aus, bis die Stimme vom Tonstudio steht. Die Textliste fürs Tonstudio liegt in `docs/tonstudio-texte.json` (Format 1, nur Deutsch).
 
 ## 2.5.4 – 19.11.2026 (Fehlerbehebung, enthält 2.5.3)
 - **Server-Verbindung auf der neuen Adresse repariert:** Seit dem Umzug (2.5.0) hat der Browser auf lernen.mathenachhilfe-online.com alle Abrufe an trainer.…/api blockiert. Ursache: Der Server schickt dafür keine CORS-Erlaubnis. Betroffen waren:

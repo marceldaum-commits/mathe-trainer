@@ -102,7 +102,7 @@ export function textSprech(t) {
     .replace(/\s+/g, ' ').replace(/\s+([,.:;?!])/g, '$1').trim();
 }
 
-/** HTML (Formeln als ⟦TeX⟧) → Sprechfassung. Dieselbe Regel beim Bauen der Liste für Nova (vorlesen/texte.json) und in der App –
+/** HTML (Formeln als ⟦TeX⟧) → Sprechfassung. Dieselbe Regel beim Bauen der Liste für das Tonstudio (vorlesen/texte.json) und in der App –
  *  nur so findet die App die vorab vertonte Datei wieder. */
 export function htmlSprech(html) {
   // Formeln zuerst (sie können < und > enthalten); in der App kommen sie als Text mit &lt; usw. an, beim Bauen roh

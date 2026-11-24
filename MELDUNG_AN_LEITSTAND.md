@@ -2,6 +2,13 @@
 
 Neueste Meldung oben. Keine Geheimnisse, keine Personendaten (dieses Repo ist öffentlich, siehe Punkt 1).
 
+## 24.11.2026 (117) – 2.5.5 fertig auf `arbeit`: Dienstag-Update (Gauß, Gleichungen, Eltern-Tor, Familien-Speicher, PC-Vollbild)
+
+- **Stand:** `arbeit` enthält 2.5.5. Nach den vollständigen Prüfungen geht es auf main/test (siehe Antwort an die AppZentrale). Live setzt nur der Leitstand. 2.5.4 (Hotfix) liegt unverändert auf main/test.
+- **Rechtsbezug: ja** – V10 Eltern-Tor, V15 Probestunde, V7 KI-Kennzeichnung, A6/V8 Familien-Speicher, N1 (Kinder-Pro-Seite), §10g/Abi-Pass-Texte. Alles mit Rechtsbezug geht vor Live in den Raum „Recht“ (über die AppZentrale).
+- **Neu:** Gauß-Verfahren, Einheit „Potenz-, Wurzel- und Bruchgleichungen“, Startanimation, PC-Vollbild, Spiele umbenannt, Nova/OpenAI aus Code und Texten entfernt. Textliste fürs Tonstudio: `docs/tonstudio-texte.json`.
+- **Keine Änderung** an Server, Zweig `live`, CONFIG-Adressen oder `ki-lernen/`.
+
 ## 19.11.2026 (116) – 2.5.2 auf test: Startseite am PC symmetrisch; Familien-Speicher gegen den Test-Server geprüft
 
 - **2.5.2 (7ba0321):** Am PC ist die Karte „Klassen-Wahl“ jetzt so breit wie die anderen Karten (Wunsch von Marcel). Handy und iPad bleiben unverändert. Alle Prüfungen sind grün: e2e auf allen fünf Stufen, check, tests. Liegt auf main/test, live bleibt beim Leitstand.
