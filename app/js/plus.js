@@ -1,5 +1,6 @@
 // Einstufungstest, Abi-Aufgaben am Stück, Lernplan bis zum Abi, Zertifikat.
 import { UNITS, AREAS, unitExtra } from './units.js';
+import { hilfeKind, tippKl910 } from './hinweise.js';
 import { store, LEVELS, dayKey } from './store.js';
 import { CONFIG } from './config.js';
 import { $, h, esc, tex, ICON, starsHtml, sfx, confetti, drucken } from './ui.js';
@@ -88,7 +89,7 @@ export function verbundView(areaId) {
     const s = sheet(`${starsHtml(r.stars ?? 1)}<small class="muted">${esc(area.title)} · Schwierigkeit: ${LEVELS[store.level - 1]}</small>
       <h2 id="vb-be">${be} von ${total} BE</h2><p class="muted">${right} von ${A.parts.length} Teilaufgaben auf Anhieb. Gewertet wird wie in der Prüfung nur der erste Versuch.</p>
       <div class="gain"><span class="chip xp">${ICON.bolt}+${gain} Punkte</span></div>
-      ${be < total / 2 ? `<div class="promo nur-web">Solche Aufgaben am Stück sind Übungssache. In einer <a href="${CONFIG.probestunde}" target="_blank" rel="noopener">kostenlosen Probestunde</a> rechnen wir eine gemeinsam durch.</div>` : ''}
+      ${be < total / 2 ? `${hilfeKind()}${tippKl910()}` : ''}
       <button class="btn block" id="sh-go" type="button">Neue Aufgabe</button><a class="btn ghost block" href="#/aufgabe">Zur Übersicht</a>`);
     if (be === total) confetti(40);
     $('#sh-go', s).onclick = () => { s.hidden = true; again(); };

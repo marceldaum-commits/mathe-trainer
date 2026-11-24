@@ -23,6 +23,8 @@ import { tex } from './ui.js';
 import { installKarte, installAngebot } from './install.js';
 import { elternKarte } from './eltern-ui.js';
 import { zaehle, zaehlungAn, zaehlungSetzen } from './zaehler.js';
+import { torOffen } from './tor.js';
+import { elternHinweis, hinweiseAus, hinweiseSetzen } from './hinweise.js';
 import { api, serverOn, nameOk, codeOk, codeNorm, premiumBereit, ZUGANG_ART, kiDazuKnopf, kiNachpruefen } from './api.js';
 import { pushOn, pushCan, pushAn, pushAus, pushStand, pushGesperrt, zeitOk, installiert, SPERR_HILFE, SPERR_SCHRITTE, SPERR_SCHRITTE_APP, nativ } from './erinnern.js';
 import { WOCHEN_ZIEL, WOCHEN_BONUS } from './store.js';
@@ -259,6 +261,22 @@ export function settingsView() {
         liste.forEach(([id, name, need]) => { const frei = outfitFrei(liste, id), b = h(`<button class="pick ${jetzt[key] === id ? 'sel' : ''}" type="button" role="radio" aria-checked="${jetzt[key] === id}" data-k="${id}" ${frei ? '' : 'disabled'}>${esc(name)}${frei ? '' : `<small> ab ${need} ★</small>`}</button>`);
           b.onclick = () => { store.outfit = { ...outfitJetzt(), [key]: id }; sfx('tap'); male(); }; box.append(b); }); } };
     male(); }
+  // Eltern-Tor (ELTERN-TOR.md, Präzisierung AppZentrale 20.11., Recht V10): Schnell-Schalter (Klang, Musik, Vorlesen, Schrift, Farbe, Hell/Dunkel)
+  // bleiben frei. Hinter das Tor: Pro/KI/Zugangscode, Zählung (Datenschutz-Schalter), Familie/Kopplung, Zurücksetzen/Löschen, Updates.
+  // Die Abschnitte bleiben im Dokument (Handler laufen weiter), liegen aber unsichtbar in einem Behälter, bis das Tor gelöst ist.
+  { const teile = ['#st-eltern', '#st-zaehl-box', '#st-pro', '#st-reset', '#st-update'].map((sel) => { const x = $(sel, el); return !x ? null : (sel === '#st-reset' || sel === '#st-update' ? x.closest('section') : x); }).filter(Boolean);
+    const hw = h(`<section class="card stack" id="st-hinweise"><h3>Hinweise auf Nachhilfe</h3><small class="muted">Im Elternbericht erscheint selten ein Hinweis, wenn ein Thema länger schwerfällt. Das wird nur auf diesem Gerät berechnet.</small>
+      <div class="picks" role="radiogroup" aria-label="Hinweise auf Nachhilfe"><button class="pick" type="button" role="radio" data-h="an">Anzeigen</button><button class="pick" type="button" role="radio" data-h="aus">Ausblenden</button></div></section>`);
+    const hMale = () => hw.querySelectorAll('[data-h]').forEach((b) => { const sel = (b.dataset.h === 'aus') === hinweiseAus(); b.classList.toggle('sel', sel); b.setAttribute('aria-checked', String(sel)); });
+    hw.querySelectorAll('[data-h]').forEach((b) => { b.onclick = () => { hinweiseSetzen(b.dataset.h === 'an'); sfx('tap'); hMale(); }; }); hMale();
+    teile.push(hw);
+    const wrap = h('<div class="stack" id="st-eltern-wrap" hidden></div>'), tor = h(`<section class="card stack" id="st-eltern-tor"><h3>Für Eltern</h3>
+      <small class="muted">Zugang, Familie, Datenschutz, Zurücksetzen und Updates.</small>
+      <button class="btn ghost" id="st-eltern-auf" type="button" data-tor="Dieser Bereich ist für Eltern.">Für Eltern</button></section>`);
+    teile.forEach((x) => wrap.append(x)); el.append(tor, wrap);
+    const auf = () => { tor.hidden = true; wrap.hidden = false; };
+    if (torOffen()) auf();
+    $('#st-eltern-auf', tor).addEventListener('click', () => { if (torOffen()) auf(); }); }
   return { el };
 }
 
@@ -293,9 +311,8 @@ export function berichtView() {
     <section class="card stack"><h3>Hier hakt es noch</h3>${weak.length ? `<ul class="rep-list">${weak.map((s) => `<li>${esc(s.topic)} <small class="muted">${s.bad} von ${s.ok + s.bad} nicht auf Anhieb</small></li>`).join('')}</ul>` : '<small class="muted">Bisher keine auffälligen Themen.</small>'}
       <small class="muted">In der Fehler-Kartei zum Wiederholen: ${store.karteCount} Aufgabenart${store.karteCount === 1 ? '' : 'en'}.</small></section>
     ${exams.length ? `<section class="card stack"><h3>Abi-Modus</h3>${exams.map((e) => `<div class="rep-row"><span>Teil ${esc(e.part)} · ${esc(e.date)}</span><small class="muted">${examText(e)}</small><b>${e.np} NP</b></div>`).join('')}<small class="muted">Prognose aus Auswahl-Aufgaben – eine Orientierung, kein Notenersatz.</small></section>` : ''}
-    <section class="cta nur-web" data-hinweis="lernstand"><h2>Gemeinsam geht es schneller.</h2><p>${weak.length ? `Bei ${esc(weak.slice(0, 2).map((s) => s.topic).join(' und '))} unterstützen wir gezielt.` : 'Wir zeigen in einer Probestunde, wie persönliche Nachhilfe den nächsten Schritt leichter macht.'} Die erste Stunde ist kostenlos.</p>
-      <a class="btn" href="${CONFIG.probestunde}" target="_blank" rel="noopener">Gratis Probestunde ${ICON.right}</a><small>${esc(CONFIG.website.replace(/^https?:\/\/|\/$/g, ''))}</small></section>
-    <div class="row noprint"><button class="btn ghost grow" id="rp-print" type="button">Drucken / PDF</button><button class="btn grow" id="rp-share" type="button">Teilen</button></div>
+    ${elternHinweis(store.klasse?.spieler || '')}
+    <div class="row noprint"><button class="btn ghost grow" id="rp-print" type="button">Drucken / PDF</button><button class="btn grow" id="rp-share" type="button" data-tor="Dieser Bereich ist für Eltern.">Teilen</button></div>
     <small class="muted noprint">Der Bericht entsteht nur auf diesem Gerät. Es werden keine Daten übertragen.</small>
   </div>`);
   $('#rp-print', el).onclick = () => drucken();

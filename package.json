@@ -13,7 +13,8 @@
     "test:zaehlung": "node tests/zaehlung.mjs",
     "test:umzug": "node tests/umzug.mjs",
     "test:familie": "node tests/familie.mjs",
-    "test:tor": "node tests/tor.mjs"
+    "test:tor": "node tests/tor.mjs",
+    "test:hinweise": "node tests/hinweise.mjs"
   },
   "devDependencies": {
     "esbuild": "0.28.2"

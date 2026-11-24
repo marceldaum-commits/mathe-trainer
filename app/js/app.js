@@ -26,7 +26,8 @@ import { elternView } from './eltern-ui.js';
 import { freischaltLink } from './prolink.js';
 import { umzugBeimStart } from './umzug.js';
 import { aufLernen } from './ort.js';
-import { torStarten } from './tor.js';
+import { torStarten, torOffen, elternTor } from './tor.js';
+import { hilfeKind, tippKl910, hinweiseStarten } from './hinweise.js';
 import { zaehle, zaehlungStarten, hinweiseBeobachten, linkMitHerkunft, alleAppsKnopf } from './zaehler.js';
 import { elternAutomatik } from './eltern.js';
 import { theorieKnopf, theorieKnoepfe, hatTheorie } from './theoriefenster.js';
@@ -379,7 +380,7 @@ function finish(u, i, res) {
     ${after !== before ? `<div class="note ok"><b>Neuer Titel:</b> ${esc(after)}</div>` : ''}
     ${unitDone && u.formeln?.length ? `<div class="note tip"><b>${u.formeln.length} ${u.formeln.length === 1 ? 'Formelkarte' : 'Formelkarten'} freigeschaltet.</b> <a href="#/formeln">Zur Formelsammlung</a></div>` : ''}
     <div class="gain"><span class="chip xp">${ICON.bolt}+${r.gain} Punkte</span>${store.ruhig ? '' : `<span class="chip fire">${ICON.fire}${r.streak} ${r.streak === 1 ? 'Tag' : 'Tage'} in Folge</span>`}</div>
-    ${(res.mistakes ?? 0) >= 3 ? `<div class="promo nur-web">Das Thema hakt noch? Das ist normal. In einer <a href="${CONFIG.probestunde}" target="_blank" rel="noopener">kostenlosen Probestunde</a> gehen wir es gemeinsam durch.</div>` : ''}
+    ${(res.mistakes ?? 0) >= 3 ? `${hilfeKind()}${tippKl910()}` : ''}
     <a class="btn block" id="sh-go" href="${nextI !== null ? `#/u/${u.id}/${nextI}` : u.area === 'pruefung' ? '#/pruefung' : `#/g/${u.area}`}">${nextI !== null ? `Weiter: ${esc(u.steps[nextI].title)}` : 'Zur Übersicht'}</a>
     ${nextI !== null ? `<a class="btn ghost block" href="#/u/${u.id}">Zur Übersicht</a>` : ''}
   </div>`;
@@ -409,7 +410,7 @@ function uebenView(area, nurGrund) {
         <small class="muted">${nurGrund ? 'Grundlagen' : esc(area.title)} · Schwierigkeit: ${LEVELS[store.level - 1]}</small>
         <h2>${right} von ${N} auf Anhieb</h2>
         <div class="gain"><span class="chip xp">${ICON.bolt}+${gain} Punkte</span></div>
-        ${mistakes >= 4 ? `<div class="promo nur-web">Da hakt noch etwas? In einer <a href="${CONFIG.probestunde}" target="_blank" rel="noopener">kostenlosen Probestunde</a> gehen wir es gemeinsam durch.</div>` : ''}
+        ${mistakes >= 4 ? `${hilfeKind()}${tippKl910()}` : ''}
         <button class="btn block" id="sh-go" type="button">Noch eine Runde</button>
         <a class="btn ghost block" href="${back}">Zur Übersicht</a></div>`;
       sheet.hidden = false; sfx('win'); if ((res.stars ?? 1) >= 2) confetti(32);
@@ -461,6 +462,12 @@ function routeBau() {
   cleanup?.(); cleanup = null; klang.pruefungLaeuft = false;   // eine Prüfung schaltet das beim Start selbst wieder ein
   $('#sheet').hidden = true;
   const hash = location.hash;
+  // Eltern-Tor (ELTERN-TOR.md): Elternbereich (Kopplung, Familie), Elternbericht und Klassen-Code/Kamera erst nach der Rechenaufgabe; Abbrechen führt zur Startseite.
+  if (/^#\/(eltern|klasse|bericht)\b/.test(hash) && !torOffen()) {
+    view.replaceChildren(h('<div class="view stack"><section class="card stack"><h2>Für Eltern</h2><p class="muted">Dieser Bereich ist für Eltern.</p></section></div>'));
+    elternTor('Dieser Bereich ist für Eltern.').then((ok) => { if (location.hash !== hash) return; if (ok) routeBau(); else location.replace('#/'); });
+    return;
+  }
   const m = hash.match(/^#\/u\/([\w-]+)(?:\/(\d+))?$/);
   const u = m && UNITS.find((x) => x.id === m[1]);
   const x = hash.match(/^#\/(abi|tag|duell|blitz|bericht|eltern|einstellungen|wiederholen|erfolge|formeln|klasse|lehrplan|einstufung|aufgabe|plan|zertifikat|abenteuer|karte|theorie|karten|kiaufgabe|pro|kopf|arbeit|dungeon)(?:\/([\w-]+))?$/);
@@ -527,11 +534,12 @@ document.addEventListener('visibilitychange', () => { if (document.visibilitySta
 elternAutomatik();   // gekoppeltes Eltern-Handy: Bericht und Sicherung nach jeder Lern-Sitzung (höchstens alle 10 Minuten)
 beiInstallWechsel(() => { if (['#/mehr', '', '#/', '#/einstellungen'].includes(location.hash)) route(); });   // „App installieren“ (install.js)
 // Anonyme Nutzungszählung (abschaltbar in den Einstellungen): „start“, Links mit Herkunft, Nachhilfe-Hinweise, Eltern-Seite, Theorie
+hinweiseStarten(window, (t) => toast(t));
 torStarten();   // Eltern-Tor vor Links nach außen und [data-tor] – vor der Zählung (Fenster, Erfassungsphase)
 zaehlungStarten(() => { const m = /^#\/(?:u|theorie)\/([\w-]+)/.exec(location.hash), u = m && ALLE_UNITS.find((x) => x.id === m[1].replace(/-lang$/, ''));
   return { klasse: store.jahrgang, unitTitel: u ? u.title : '', ober: istOber() }; });
-window.addEventListener('hashchange', () => { if (/^#\/eltern\b/.test(location.hash)) zaehle('elternbereich'); else if (/^#\/theorie\/[\w-]+/.test(location.hash)) zaehle('theorie'); });
-if (/^#\/eltern\b/.test(location.hash)) zaehle('elternbereich'); else if (/^#\/theorie\/[\w-]+/.test(location.hash)) zaehle('theorie');
+window.addEventListener('hashchange', () => { if (/^#\/theorie\/[\w-]+/.test(location.hash)) zaehle('theorie'); });
+if (/^#\/theorie\/[\w-]+/.test(location.hash)) zaehle('theorie');
 hinweiseBeobachten();
 freischaltLink((text) => toast(text));
 // Umzug auf lernen.mathenachhilfe-online.com/mathetrainer/ (19.11.2026): alte Adresse → einpacken und weiterleiten,

@@ -1,6 +1,7 @@
 // Freischalt-Link im Browser (Chromium und WebKit): #pro=CODE (neu) und ?pro=CODE (alte Mails) → eingelöst, Code sofort aus der Adresse weg,
 // Server-Anfragen tragen den Code nur im Body von POST /api/zugang (nie in einer Adresse). Aufruf: node tests/prolink.mjs
 import { createRequire } from 'node:module'; const { chromium, webkit } = createRequire(import.meta.url)('playwright');
+import { torFalls, einstellungenAuf } from './tor-hilfe.mjs';
 import http from 'node:http'; import fs from 'node:fs'; import path from 'node:path';
 const APP = new URL('../app/', import.meta.url).pathname, CODE = 'MT-AB12-CD34-EF56';
 const typ = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.json': 'application/json', '.svg': 'image/svg+xml', '.png': 'image/png', '.woff2': 'font/woff2', '.webmanifest': 'application/manifest+json' };
@@ -30,7 +31,7 @@ try {
     // Code-Eingabe von Hand geht immer – auch wenn der Server keine Zugänge meldet
     const c = await b.newContext({ serviceWorkers: 'block' }); const p = await c.newPage();
     await p.route('**/api/status', (r) => r.fulfill({ status: 503, body: '' }));
-    await p.goto(`${BASE}#/einstellungen`); await p.waitForSelector('#st-pro-code');
+    await p.goto(`${BASE}#/einstellungen`); await einstellungenAuf(p); await p.waitForSelector('#st-pro-code');
     ok(await p.locator('#st-pro').isVisible(), `${name}: Code-Feld sichtbar, auch ohne Antwort vom Server`);
     await c.close(); await b.close();
   }

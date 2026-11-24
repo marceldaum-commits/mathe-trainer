@@ -3,6 +3,7 @@
 // öffnet Theorie und Spiele und prüft: kein Skriptfehler, nie eine leere Seite, nichts ragt über den Rand.
 // Aufruf: node tests/webkit.mjs [Bilder-Ordner]   (braucht Playwright mit WebKit: npx playwright install webkit)
 import { createRequire } from 'node:module'; const { webkit, devices } = createRequire(import.meta.url)('playwright');
+import { torFalls, einstellungenAuf } from './tor-hilfe.mjs';
 import http from 'node:http'; import fs from 'node:fs'; import path from 'node:path';
 const APP = new URL('../app/', import.meta.url).pathname, shots = process.argv[2];
 const typ = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.json': 'application/json', '.svg': 'image/svg+xml', '.png': 'image/png', '.jpg': 'image/jpeg', '.woff2': 'font/woff2', '.webmanifest': 'application/manifest+json', '.mp3': 'audio/mpeg' };
@@ -48,7 +49,7 @@ try {
     }
     ok(ueb > 0, `${name}: Übungsaufgaben lassen sich beantworten (${ueb})`);
     // Zurücksetzen: die drei Wahl-Felder nutzen die volle Breite (vorher in eine schmale Spalte gequetscht)
-    await p.goto(`${BASE}#/einstellungen`); await p.waitForSelector('#st-reset'); await p.click('#st-reset');
+    await p.goto(`${BASE}#/einstellungen`); await einstellungenAuf(p); await p.waitForSelector('#st-reset'); await p.click('#st-reset');
     const rw = await p.evaluate(() => [...document.querySelectorAll('#st-reset-wahl button')].map((b) => { const t = b.querySelector('h3').getBoundingClientRect().width, w = b.getBoundingClientRect().width; return Math.round((t / w) * 100); }));
     ok(rw.length === 3 && rw.every((x) => x >= 80), `${name}: Zurücksetzen-Felder in voller Breite (${rw.join('/')} %)`);
     if (shots) await p.locator('#st-reset-wahl').screenshot({ path: `${shots}/reset-${name}.png` });

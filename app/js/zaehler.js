@@ -73,7 +73,7 @@ export function zaehlungStarten(kontext = () => ({}), w = globalThis.window) {
     const href = a.getAttribute('href') || '', ort = ortVon(a, w.location.hash);
     if (href === '#/pro' || href.startsWith('#/pro')) { zaehle('pro_ansehen', ['gesperrt', 'elternbereich', 'lernstand'].includes(ort) ? ort : 'lernstand'); return; }
     if (!/^https:\/\/(www\.)?mathenachhilfe-online\.com/.test(href)) return;
-    const k = kontext() || {}, thema = k.unitTitel ? themaVon(k.unitTitel, k.ober) : '';
+    const k = a.hasAttribute('data-anonym') ? {} : (kontext() || {}), thema = k.unitTitel ? themaVon(k.unitTitel, k.ober) : '';
     a.href = linkMitHerkunft(href, ort, { thema, klasse: k.klasse });   // vor dem Öffnen – der Browser nimmt die neue Adresse
     const ev = ereignisFuer(href); if (ev) zaehle(ev, ort, thema);
   }, true);

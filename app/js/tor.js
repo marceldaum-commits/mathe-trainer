@@ -1,5 +1,5 @@
 // Eltern-Tor nach dem gemeinsamen Standard aller Lern-Apps (ELTERN-TOR.md, AppZentrale 19.11.2026; Recht V10, UWG Anh. Nr. 28).
-// Malaufgabe 13–19 × 6–9 in Worten, Vorlese-Knopf, eigene Ziffern-Tasten, nach einem Fehler sofort eine neue Aufgabe,
+// Malaufgabe 13–19 × 6–9 in Worten (Vorlese-Knopf erst später mit Tonstudio-Sätzen, keine Gerätestimme – AppZentrale 21.11.), eigene Ziffern-Tasten, nach einem Fehler sofort eine neue Aufgabe,
 // kein Zeitdruck, jederzeit abbrechen. Gelöst bleibt das Tor 10 Minuten offen – nur im Arbeitsspeicher (nach dem Neuladen fragt es wieder).
 // Ein gelöstes Tor zählt als anonymes Ereignis „elternbereich“.
 // Steht vor: Shop, Kasse, Probestunde und fremden Seiten (eigene Website neutral, „← Alle Apps“, Impressum, Datenschutz: frei – Marcel 19.11.) und vor
@@ -58,7 +58,6 @@ export function elternTor(grund = 'Dieser Bereich ist für Eltern.', d = globalT
       <p id="tor-grund">${esc(grund)}</p>
       <p class="tor-frage">Bitte rechnen Sie:</p>
       <p class="tor-aufgabe" id="tor-aufgabe" aria-live="polite"></p>
-      ${'speechSynthesis' in globalThis ? '<button class="btn ghost small" type="button" id="tor-vorlesen">🔊 Vorlesen</button>' : ''}
       <output class="tor-anzeige" id="tor-anzeige" aria-label="Ihre Eingabe"></output>
       <p class="tor-fehler" id="tor-fehler" role="alert"></p>
       <div class="tor-tasten">${[1, 2, 3, 4, 5, 6, 7, 8, 9].map((z) => `<button type="button" class="tor-taste" data-z="${z}">${z}</button>`).join('')}
@@ -67,8 +66,9 @@ export function elternTor(grund = 'Dieser Bereich ist für Eltern.', d = globalT
     </div>`;
     const $ = (s) => hg.querySelector(s);
     const zeige = () => { $('#tor-aufgabe').textContent = `${auf.text[0].toUpperCase()}${auf.text.slice(1)}`; $('#tor-aufgabe').setAttribute('aria-label', auf.text); $('#tor-anzeige').textContent = eingabe || '–'; };
+    const weg = () => ende(false);   // Wer woanders hinnavigiert, lässt das Tor nicht als Sperre stehen
     const ende = (ok) => {
-      d.removeEventListener('keydown', taste, true); hg.remove(); try { globalThis.speechSynthesis?.cancel(); } catch { /* egal */ }
+      d.removeEventListener('keydown', taste, true); globalThis.removeEventListener?.('hashchange', weg); hg.remove(); 
       try { zurueck?.focus?.(); } catch { /* egal */ }
       fertig(ok);
     };
@@ -85,14 +85,13 @@ export function elternTor(grund = 'Dieser Bereich ist für Eltern.', d = globalT
     };
     function taste(e) {
       if (e.key === 'Escape') { e.preventDefault(); ende(false); } else if (/^[0-9]$/.test(e.key)) { e.preventDefault(); druecke(e.key); }
-      else if (e.key === 'Backspace') { e.preventDefault(); druecke('weg'); } else if (e.key === 'Enter' && !e.target?.closest?.('#tor-abbrechen, #tor-vorlesen')) { e.preventDefault(); druecke('ok'); }
+      else if (e.key === 'Backspace') { e.preventDefault(); druecke('weg'); } else if (e.key === 'Enter' && !e.target?.closest?.('#tor-abbrechen')) { e.preventDefault(); druecke('ok'); }
     }
     hg.addEventListener('click', (e) => {
       const t = e.target.closest('[data-z]'); if (t) { druecke(t.dataset.z); return; }
       if (e.target.closest('#tor-abbrechen')) ende(false);
-      else if (e.target.closest('#tor-vorlesen')) { try { const s = new globalThis.SpeechSynthesisUtterance(`Bitte rechnen Sie: ${auf.text}`); s.lang = 'de-DE'; globalThis.speechSynthesis.cancel(); globalThis.speechSynthesis.speak(s); } catch { /* ohne Sprachausgabe */ } }
     });
-    d.addEventListener('keydown', taste, true);
+    d.addEventListener('keydown', taste, true); globalThis.addEventListener?.('hashchange', weg);
     d.body.append(hg); zeige(); hg.querySelector('.tor-taste')?.focus();
   });
 }

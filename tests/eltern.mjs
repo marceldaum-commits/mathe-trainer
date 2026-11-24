@@ -4,6 +4,7 @@
 // → aufheben (DELETE) → Bericht und Sicherung weg, Kopplung im Gerät weg. Der Server ist hier nachgestellt, genau nach der Spezifikation des Leitstands.
 // Aufruf: node tests/eltern.mjs
 import { createRequire } from 'node:module'; const { chromium, webkit } = createRequire(import.meta.url)('playwright');
+import { torFalls, einstellungenAuf } from './tor-hilfe.mjs';
 import http from 'node:http'; import fs from 'node:fs'; import path from 'node:path'; import { webcrypto as wc } from 'node:crypto';
 const APP = new URL('../app/', import.meta.url).pathname;
 const typ = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.json': 'application/json', '.svg': 'image/svg+xml', '.png': 'image/png', '.woff2': 'font/woff2', '.webmanifest': 'application/manifest+json' };
@@ -41,7 +42,7 @@ try {
     const err = []; p.on('pageerror', (e) => err.push(String(e)));
     await c.addInitScript(() => { if (!localStorage.getItem('mathetrainer.v1')) localStorage.setItem('mathetrainer.v1', JSON.stringify({ jahrgangGewaehlt: true, jahrgang: 'os', stats: { Ableitung: { ok: 9, bad: 1 }, Binomialverteilung: { ok: 2, bad: 4 } }, xp: 420, geraet: 'GERAET-KENNUNG-ALT-12345', monate: { '2026-10': { ms: 1800000, aufgaben: 40, richtig: 30 } } })); });
     await p.goto(`${BASE}#/mehr`); await p.waitForSelector('a[href="#/eltern"]');
-    await p.click('a[href="#/eltern"]'); await p.waitForSelector('#el-los');
+    await p.click('a[href="#/eltern"]'); await torFalls(p); await p.waitForSelector('#el-los');
     await p.fill('#el-name', 'Lea'); await p.click('#el-los');
     await p.waitForSelector('#el-qr svg', { timeout: 10000 });
     await p.waitForFunction(() => /Zuletzt gesendet/.test(document.querySelector('#el-status')?.textContent || ''), null, { timeout: 10000 });
@@ -68,13 +69,13 @@ try {
     ok(log.filter((x) => x.art === 'S-PUT').length === vorher, `${name}: Sicherung nur bei Änderung`);
     // zweites Gerät (anderes Profil): Link einfügen → derselbe Lernstand → schreibt weiter
     const c2 = await b.newContext({ viewport: { width: 390, height: 844 }, serviceWorkers: 'block' }); const p2 = await c2.newPage(); p2.on('pageerror', (e) => err.push(`Gerät 2: ${e}`));
-    await p2.goto(`${BASE}#/eltern`); await p2.waitForSelector('#el-los'); await p2.click('.el-wieder summary');
+    await p2.goto(`${BASE}#/eltern`); await torFalls(p2); await p2.waitForSelector('#el-los'); await p2.click('.el-wieder summary');
     await p2.fill('#el-wieder-link', 'https://staging.mathenachhilfe-online.com/eltern-bericht/#AAAAAAAAAAAAAAAAAAAAAA.' + 'B'.repeat(43)); await p2.click('#el-wieder-los');
     await p2.waitForFunction(() => /Keine Sicherung gefunden/.test(document.querySelector('#el-wieder-note')?.textContent || ''));
     ok(true, `${name}: unbekannter Link → „Keine Sicherung gefunden“`);
     await p2.fill('#el-wieder-link', link); await p2.click('#el-wieder-los');
     await p2.waitForFunction(() => document.readyState === 'complete' && !!localStorage.getItem('mathetrainer.eltern') && /Eltern-Handy gekoppelt/.test(document.body.innerText), null, { timeout: 15000 }).catch(() => {});
-    await p2.waitForTimeout(1200); await p2.goto(`${BASE}#/eltern`); await p2.waitForSelector('#el-senden', { timeout: 10000 });
+    await p2.waitForTimeout(1200); await p2.goto(`${BASE}#/eltern`); await torFalls(p2); await p2.waitForSelector('#el-senden', { timeout: 10000 });
     const v2 = await p2.evaluate(() => ({ v: JSON.parse(localStorage.getItem('mathetrainer.v1')), e: JSON.parse(localStorage.getItem('mathetrainer.eltern')) }));
     ok(v2.v.stats?.Ableitung?.ok === 9 && v2.v.xp === 420 && v2.v.geraet !== 'GERAET-KENNUNG-ALT-12345' && v2.e.id === k.id && v2.e.schreib === k.schreib, `${name}: neues Gerät hat denselben Lernstand und ist wieder gekoppelt`);
     const puts = log.filter((x) => x.art === 'PUT').length; await p2.click('#el-senden');
@@ -89,9 +90,9 @@ try {
     await p.click('#el-weg'); await p.waitForSelector('#el-los', { timeout: 10000 });
     ok(log.some((x) => x.art === 'DELETE' && x.id === k.id) && !ablage.has(k.id) && !sicher.has(k.id) && !(await p.evaluate(() => localStorage.getItem('mathetrainer.eltern'))), `${name}: Kopplung aufheben löscht Bericht und Sicherung (DELETE) und die Schlüssel im Gerät`);
     // Einstellungen zeigen die Karte auch
-    await p.goto(`${BASE}#/einstellungen`); await p.waitForSelector('#eltern #el-los');
+    await p.goto(`${BASE}#/einstellungen`); await einstellungenAuf(p); await p.waitForSelector('#eltern #el-los');
     ok(!(await p.evaluate(() => document.documentElement.scrollWidth - innerWidth > 1)), `${name}: nichts ragt über den Rand`);
-    await p.setViewportSize({ width: 360, height: 800 }); await p.goto(`${BASE}#/eltern`); await p.waitForSelector('#el-los');
+    await p.setViewportSize({ width: 360, height: 800 }); await p.goto(`${BASE}#/eltern`); await torFalls(p); await p.waitForSelector('#el-los');
     ok(await p.evaluate(() => [...document.querySelectorAll('#eltern button')].every((b) => b.getBoundingClientRect().height < 2.2 * parseFloat(getComputedStyle(b).lineHeight) + 30)), `${name}: Knöpfe brechen bei 360 px nicht um`);
     ok(!err.length, `${name}: keine Skriptfehler (${err.slice(0, 2).join(' | ')})`);
     await b.close();

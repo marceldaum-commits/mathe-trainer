@@ -1075,3 +1075,9 @@ html.kinder .promo,html.kinder .cta,html.kinder .werbung{display:none!important}
 .tor-taste.ok{background:var(--orange,#f58220);border-color:transparent;color:#fff}
 .tor-taste:focus-visible,.tor .btn:focus-visible{outline:3px solid var(--orange,#f58220);outline-offset:2px}
 .unter18{display:block;margin-top:6px}
+
+html.kinder .site-top{display:none}
+.hilfe-kind,.tipp-910{border:1px solid var(--line);border-radius:14px;padding:12px;background:var(--soft);display:grid;gap:8px;margin-top:10px}
+.hilfe-kind p,.tipp-910 p{margin:0}
+.hilfe-kind .row,.tipp-910 .row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.elternhinweis p{margin:0}

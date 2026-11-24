@@ -74,7 +74,6 @@ export function arbeitView(onEnd) {
       ${heute}
       ${p.phase !== 'vorbei' && gens.length ? `<section class="stack"><h2>Wiederholen</h2><button class="card unit" id="ar-mix" type="button"><span class="num">8</span><span><h3>Themen-Mix</h3><small>Acht Aufgaben quer durch deine Themen – wie in der ${wort}.</small></span><span class="go">${ICON.right}</span></button>
         <a class="card unit" href="#/blatt"><span class="num">PDF</span><span><h3>Probe-Arbeit zum Ausdrucken</h3><small>Auf Papier üben, mit Lösungsblatt.</small></span><span class="go">${ICON.right}</span></a></section>` : ''}
-      ${p.phase === 'vorbei' ? '' : `<div class="promo nur-web" data-hinweis="klassenarbeit">Eine kostenlose Probestunde kann vor der Arbeit helfen. <a href="${esc(probeLink(p))}" target="_blank" rel="noopener">Probestunde anfragen</a></div>`}
       <button class="btn ghost block" id="ar-neu" type="button">${p.phase === 'vorbei' ? `Nächste ${wort} planen` : 'Termin oder Themen ändern'}</button>`;
     $('#ar-neu', el).onclick = () => { if (p.phase === 'vorbei') store.arbeit = null; formular(); };
     const mix = $('#ar-mix', el); if (mix) mix.onclick = () => mixRunde(gens);
