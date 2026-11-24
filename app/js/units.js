@@ -75,7 +75,7 @@ const OBER = [
     id: 'formen', area: 'analysis', title: 'Funktionen formen', sub: 'Was Parameter mit einem Graphen machen',
     steps: [
       { id: 'murmelbahn', kind: 'Entdecken', title: 'Murmelbahn', run: murmelbahn },
-      { id: 'flug', kind: 'Entdecken', title: 'Kurven-Flug', run: flug },
+      { id: 'flug', kind: 'Entdecken', title: 'Sinus-Slalom', run: flug },
       { id: 'sinus', kind: 'Benennen', title: 'Was a, b und d beim Sinus tun', run: info([
         { title: 'Die allgemeine Sinusfunktion', html: `${T('f(x)=a\\cdot\\sin(b\\,x)+d')}<p>${tex('a')} ist die <b>Amplitude</b>: so weit schwingt die Kurve nach oben und unten. ${tex('d')} verschiebt die Mittellinie.</p>` },
         { title: 'Die Periode', html: `${T('p=\\dfrac{2\\pi}{b}')}<p>${tex('b')} staucht oder streckt die Kurve in x-Richtung. Bei ${tex('b=2')} ist eine Welle nur noch halb so lang.</p>` },
@@ -185,7 +185,7 @@ const OBER = [
   {
     id: 'g-vektor', area: 'geometrie', title: 'Vektoren steuern', sub: 'Verbindungsvektor, Linearkombination, Länge',
     steps: [
-      { id: 'lotse', kind: 'Entdecken', title: 'Vektor-Lotse', run: lotse },
+      { id: 'lotse', kind: 'Entdecken', title: 'Vektor-Kompass', run: lotse },
       { id: 'regel', kind: 'Benennen', title: 'Was ein Vektor ist', run: info([
         { title: 'Ein Vektor ist eine Verschiebung.', html: `<p>Er sagt, wie weit es in jede Richtung geht. Vom Punkt ${tex('A')} zum Punkt ${tex('B')}:</p>${T('\\overrightarrow{AB}=B-A')}<p class="muted">Merke: Spitze minus Fuß.</p>` },
         { title: 'Linearkombination', html: `${T('r\\cdot\\vec u+s\\cdot\\vec v')}<p>Vektoren lassen sich strecken und aneinanderhängen. Ein negativer Faktor dreht die Richtung um – so hast du auch Ziele „hinter" dir erreicht.</p>` },
@@ -311,7 +311,7 @@ const OBER = [
   {
     id: 'g-gerade', area: 'geometrie', title: 'Geraden im Raum', sub: '3D-Ansicht, Punktprobe, Lagebeziehungen',
     steps: [
-      { id: 'raum', kind: 'Entdecken', title: 'Raum-Blick', run: raum },
+      { id: 'raum', kind: 'Entdecken', title: 'Geraden-Drehbühne', run: raum },
       { id: 'regel', kind: 'Benennen', title: 'Geraden beschreiben', run: info([
         { title: 'Stützpunkt und Richtung', html: `${T('g\\colon\\ \\vec x=\\vec p+t\\cdot\\vec u')}<p>${tex('\\vec p')} sagt, wo die Gerade liegt, ${tex('\\vec u')}, wohin sie läuft. Für jedes ${tex('t')} entsteht ein Punkt der Geraden.</p>` },
         { title: 'Punktprobe', html: `<p>Liegt ${tex('Q')} auf ${tex('g')}? Aus einer Zeile ${tex('t')} bestimmen, dann die anderen beiden Zeilen prüfen. Alle drei müssen mit demselben ${tex('t')} stimmen.</p>` },

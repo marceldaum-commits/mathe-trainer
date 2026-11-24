@@ -28,6 +28,7 @@ import { umzugBeimStart } from './umzug.js';
 import { aufLernen } from './ort.js';
 import { torStarten, torOffen, elternTor } from './tor.js';
 import { hilfeKind, tippKl910, hinweiseStarten } from './hinweise.js';
+import { spielHinweis } from './querverweise.js';
 import { familieAutomatik } from './familie-sync.js';
 import { zaehle, zaehlungStarten, hinweiseBeobachten, linkMitHerkunft, alleAppsKnopf } from './zaehler.js';
 import { elternAutomatik } from './eltern.js';
@@ -382,6 +383,7 @@ function finish(u, i, res) {
     ${unitDone && u.formeln?.length ? `<div class="note tip"><b>${u.formeln.length} ${u.formeln.length === 1 ? 'Formelkarte' : 'Formelkarten'} freigeschaltet.</b> <a href="#/formeln">Zur Formelsammlung</a></div>` : ''}
     <div class="gain"><span class="chip xp">${ICON.bolt}+${r.gain} Punkte</span>${store.ruhig ? '' : `<span class="chip fire">${ICON.fire}${r.streak} ${r.streak === 1 ? 'Tag' : 'Tage'} in Folge</span>`}</div>
     ${(res.mistakes ?? 0) >= 3 ? `${hilfeKind()}${tippKl910()}` : ''}
+    ${spielHinweis(s)}
     <a class="btn block" id="sh-go" href="${nextI !== null ? `#/u/${u.id}/${nextI}` : u.area === 'pruefung' ? '#/pruefung' : `#/g/${u.area}`}">${nextI !== null ? `Weiter: ${esc(u.steps[nextI].title)}` : 'Zur Übersicht'}</a>
     ${nextI !== null ? `<a class="btn ghost block" href="#/u/${u.id}">Zur Übersicht</a>` : ''}
   </div>`;

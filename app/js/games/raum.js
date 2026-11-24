@@ -1,4 +1,4 @@
-// Raum-Blick: ein drehbares 3D-Koordinatensystem. Geraden von allen Seiten ansehen.
+// Geraden-Drehbühne: ein drehbares 3D-Koordinatensystem. Geraden von allen Seiten ansehen.
 import { h, tex, cssVar, buzz, sfx, onLook } from '../ui.js';
 import { store } from '../store.js';
 

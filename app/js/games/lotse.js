@@ -1,4 +1,4 @@
-// Vektor-Lotse: Das Schiff mit Vektoren zum Stern steuern – erst direkt, dann als Linearkombination.
+// Vektor-Kompass: Das Schiff mit Vektoren zum Stern steuern – erst direkt, dann als Linearkombination.
 import { Plot } from '../plot.js';
 import { h, tex, cssVar, buzz, sfx } from '../ui.js';
 import { ft } from '../math.js';

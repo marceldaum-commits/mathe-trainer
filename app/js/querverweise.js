@@ -68,11 +68,11 @@ export const VERWEISE = {
   'g-mass': [['raumlicht', 'raumflug']],
 };
 
-/** Adresse einer App: auf der Test-Stufe die Test-Fassung, sonst die Live-Fassung. */
+/** Adresse einer App unter lernen.mathenachhilfe-online.com/<app>/: auf der Test-Stufe lernen-test., sonst lernen. */
 export function appAdresse(app, kennung, host = globalThis.location?.hostname || '') {
   const a = APPS[app]; if (!a) return '';
   const test = istTest(host);
-  return linkMitHerkunft(`https://${app}${test ? '-test' : ''}.mathenachhilfe-online.com${a.link(kennung)}`, 'theorie');
+  return linkMitHerkunft(`https://lernen${test ? '-test' : ''}.mathenachhilfe-online.com/${app}${a.link(kennung)}`, 'theorie');   // alle Apps liegen unter lernen.…/<app>/ (Leitstand 22.11.: alte Subdomains werden später umgeleitet)
 }
 
 /** Wissensgarten-Pakete (freie Pakete Kl. 5–10; das Analysis-Paket ist Plus und wird nicht verlinkt). */
@@ -100,4 +100,11 @@ export function verweisKasten(unitId, host) {
   const v = verweiseFuer(unitId); if (!v.length) return '';
   return `<section class="card stack noprint nur-web t-apps" id="t-apps"><h3>Passt dazu in anderen Apps</h3>${v.map(([app, k]) =>
     `<a class="t-app" data-ort="theorie" href="${esc(appAdresse(app, k, host))}"><b>${esc(APPS[app].name)}</b><small>${esc(APPS[app].text)}</small></a>`).join('')}</section>`;
+}
+
+/** Hinweis am Ende der „Entdecken“-Spiele (Marcel/AppZentrale: „Mehr davon in KurvenFlug/Raumlicht“; nur freie Ziele). */
+export const SPIEL_HINWEIS = { flug: ['kurvenflug', 'wellen'], lotse: ['raumlicht', 'raumflug'], raum: ['raumlicht', 'raumflug'] };
+export function spielHinweis(step, host) {
+  const z = step?.kind === 'Entdecken' && SPIEL_HINWEIS[step.id]; if (!z) return '';
+  const [app, k] = z; return `<div class="note tip spiel-mehr"><a data-ort="theorie" href="${esc(appAdresse(app, k, host))}">Mehr davon in ${esc(APPS[app].name)}</a></div>`;
 }

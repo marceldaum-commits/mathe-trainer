@@ -70,7 +70,7 @@ export const fuerEltern = () => '<a class="btn small line fuer-eltern" href="#/p
 export const schloss = (grund) => (oberstufe()
   ? `<b>${grund}</b>${kaufLinks()}${kaufLinks().includes('https://') ? ` <small class="muted unter18">${UNTER18}</small>` : ''}`
   : `<b>Das gehört zu Mathe-Trainer Pro.</b> ${fuerEltern()}`);
-export const ZUGANG_ART = { pass: 'Abi-Pass', tage30: '30-Tage-Pass', frei: 'Freier Zugang' };
+export const ZUGANG_ART = { pass: 'Abi-Pass (bis 31.07.)', tage30: '30-Tage-Pass', frei: 'Freier Zugang' };
 
 /** Übrige KI-Punkte von heute: der letzte Stand, den der Server gemeldet hat (null = heute noch keiner gemeldet). */
 const REST_KEY = 'mathetrainer.kirest', heute = () => new Date().toLocaleDateString('sv-SE');

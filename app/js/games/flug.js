@@ -1,4 +1,4 @@
-// Kurven-Flug: Den Flieger auf einer Sinus-Kurve durch alle Tore steuern – Amplitude, Periode und Verschiebung als Spielzug.
+// Sinus-Slalom: Den Flieger auf einer Sinus-Kurve durch alle Tore steuern – Amplitude, Periode und Verschiebung als Spielzug.
 import { Plot } from '../plot.js';
 import { h, tex, cssVar, buzz, sfx } from '../ui.js';
 import { fmt, ft } from '../math.js';

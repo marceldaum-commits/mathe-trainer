@@ -28,8 +28,8 @@ export const PREISE = [['Pro', '4,99 €', '19,99 €'], ['Pro + KI', '9,99 €'
 /** KI-Punkte pro Tag mit „Pro + KI“ (Marcel, 17.11.2026: 10). Die Grenze setzt der Server durch. */
 export const KI_PRO_TAG = 10;
 const preisTabelle = () => `<section class="card stack pro-preise nur-web" id="pro-preise"><h3>Preise</h3>
-  <table class="pro-tab"><thead><tr><th></th><th>30 Tage</th><th>Abi-Pass</th></tr></thead><tbody>${PREISE.map(([n, a, b]) => `<tr><th>${esc(n)}</th><td>${a}</td><td>${b}</td></tr>`).join('')}</tbody></table>
-  <small class="muted">Alle Preise inkl. 19 % MwSt. Alle Zugänge gelten in der Web-App (im Browser oder als installierte App). Der 30-Tage-Zugang läuft ab dem ersten Einlösen (einlösbar bis zum 31.12. des dritten Jahres nach dem Kauf, gut als Geschenk). Der Abi-Pass gilt bis zum 31.07. deines Abi-Jahres. „Pro + KI“ enthält ${KI_PRO_TAG} KI-Punkte pro Tag.</small></section>`;
+  <table class="pro-tab"><thead><tr><th></th><th>30 Tage</th><th>Abi-Pass (bis 31.07.)</th></tr></thead><tbody>${PREISE.map(([n, a, b]) => `<tr><th>${esc(n)}</th><td>${a}</td><td>${b}</td></tr>`).join('')}</tbody></table>
+  <small class="muted">Alle Preise inkl. 19 % MwSt. Alle Zugänge gelten in der Web-App (im Browser oder als installierte App). <b>Kein Abo – endet automatisch.</b> Der 30-Tage-Zugang läuft ab dem ersten Einlösen (einlösbar bis zum 31.12. des dritten Jahres nach dem Kauf, gut als Geschenk). Der Abi-Pass gilt bis zum 31.07. deines Abi-Jahres. „Pro + KI“ enthält ${KI_PRO_TAG} KI-Punkte pro Tag.</small></section>`;
 /** Ist eine Funktion dieser Stufe auf diesem Gerät freigeschaltet? */
 export const hat = (stufe) => stufe === 'frei' || (stufe === 'pro' && store.stufe !== '') || (stufe === 'ki' && store.stufe === 'proki');
 /** Kleine Marke für Knöpfe und Karten: zeigt die Stufe und – mit Haken – dass sie freigeschaltet ist. */
