@@ -561,6 +561,10 @@ umzugBeimStart({ toast: (t) => toast(t), warten: (an) => {
   document.body.append(box);
 } }).catch(() => {});   // #pro=CODE (neu) bzw. ?pro=CODE (alte Mails): sofort aus der Adresse, dann einlösen
 route();
+// Startanimation: sobald die erste Ansicht steht, zoomt das Logo heraus (höchstens 4 s – dann blendet das CSS von selbst aus); danach Element entfernen.
+{ const sp = document.getElementById('splash'), t0 = Date.now();
+  const raus = () => { if (!sp.isConnected) return; if (!aufgabenDa() && Date.now() - t0 < 3600) { setTimeout(raus, 100); return; } requestAnimationFrame(() => requestAnimationFrame(() => { sp.classList.add('ende'); setTimeout(() => sp.remove(), 1300); })); };
+  if (sp) raus(); }
 window.__mtGestartet?.();
 ladeAufgaben().catch(() => {});   // Aufgaben-Erzeuger (rund 1,5 MB) gleich nach dem ersten Bild im Hintergrund holen
 // Die Theorie-Kapitel (rund 150 kB) braucht der erste Bildschirm nicht: Sie werden erst danach in Ruhe geholt.

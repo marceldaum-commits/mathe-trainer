@@ -15,7 +15,8 @@
     "test:familie": "node tests/familie.mjs",
     "test:tor": "node tests/tor.mjs",
     "test:hinweise": "node tests/hinweise.mjs",
-    "test:familie-ui": "node tests/familie-ui.mjs"
+    "test:familie-ui": "node tests/familie-ui.mjs",
+    "test:start": "node tests/startanimation.mjs"
   },
   "devDependencies": {
     "esbuild": "0.28.2"
