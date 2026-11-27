@@ -103,7 +103,7 @@ const pdProbe = () => {
   const falsche = kand.slice(0, 3); if (falsche.length < 3) return null;
   const o = [T(`x=${r}`, true), ...falsche.map((c) => T(`x=${c}`, false, `Probe: ${tex(`f(${c})=${auswerten(p, c)}\\neq 0`)} – also keine Nullstelle.`))];
   if (!uniq(o)) return null;
-  return A('Eine der Zahlen ist eine Nullstelle von f. Welche? Probiere durch Einsetzen.', `f(x)=${polyT}`, o,
+  return A('Welche der Zahlen ist eine Nullstelle von f? Unter den Antworten ist es nur eine (die einzige in dieser Liste). Probiere durch Einsetzen.', `f(x)=${polyT}`, o,
     [`Eine ganzzahlige Nullstelle ist ein Teiler des Absolutglieds ${tex(`${p[3]}`)}. Probiere die Teiler.`, 'Setze die Zahlen nacheinander in f ein; die Nullstelle ergibt 0.'],
     `Das Absolutglied ist ${tex(`${p[3]}`)}; ganzzahlige Nullstellen sind Teiler davon. Einsetzen: ${tex(`f(${r})=${auswerten(p, r)}=0`)} ✓. Die anderen Zahlen ergeben ${falsche.map((c) => tex(`f(${c})=${auswerten(p, c)}`)).join(', ')} – nicht null.`,
     'pd-probe', { koef: p, sol: [r] });
