@@ -57,6 +57,7 @@ export const VERWEISE = {
   'expln': [['raumlicht', 'erleben']],
   'a-rotation': [['raumlicht', 'rotation']],
   'a-gauss': [['rechenblitz', 'lgs']],
+  'a-nullst': [['kurvenflug', 'nullstellen']],
   's-baum': [['raumlicht', 'zufall']],
   's-bedingt': [['raumlicht', 'zufall']],
   's-labor': [['raumlicht', 'zufall']],

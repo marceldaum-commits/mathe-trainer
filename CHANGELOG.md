@@ -2,6 +2,10 @@
 
 Kurzfassung für Nutzer und Leitstand. Einzelheiten: `docs/PLAN.md` (Baulog) und `MELDUNG_AN_LEITSTAND.md`.
 
+## 2.5.6 – 27.11.2026 (Freitag-Update)
+- **Neue Einheit Oberstufe: „Nullstellen finden“** (Analysis): Ausklammern mit Satz vom Nullprodukt, Substitution bei x⁴/x²/Zahl mit Rücksubstitution, Polynomdivision mit Horner-Schema. Mit Theorie (kurz und ausführlich), Formeln, Boss und fünf Schwierigkeitsstufen. Jede Aufgabe wird in einem eigenen Test unabhängig nachgerechnet.
+- Sonst unverändert gegenüber 2.5.5.
+
 ## 2.5.5 – 24.11.2026 (Dienstag-Update)
 - **Neue Inhalte:**
   - Oberstufe: Einheit „Gauß-Verfahren“ (drei Gleichungen, drei Unbekannte; Dreiecksform, Eliminieren, keine/eine/unendlich viele Lösungen) mit Theorie, Formeln und Boss.

@@ -42,6 +42,7 @@ import { haerter as H } from './a/gen10.js';
 import { genKoordPunkt, genKoordSpiegel, genParallelogramm, genGeradeGleich, genKollinear } from './a/gen11.js';
 import { genMittelwertFkt, genBestand, genBestandExtrem } from './a/gen12.js';
 import { genGauss } from './a/gen13.js';
+import { genNullAuskl, genNullSubst, genNullPoly } from './a/gen14.js';
 
 const T = (s) => `<div class="big">${tex(s, true)}</div>`;
 
@@ -606,9 +607,30 @@ const OBER = [
       { id: 'mix', kind: 'Festigen', title: 'Gauß-Verfahren gemischt', run: quiz([genGauss, genGauss, genGauss, genGauss, genGauss, genGauss]) },
     ],
   },
+  {
+    id: 'a-nullst', area: 'analysis', title: 'Nullstellen finden', sub: 'Ausklammern, Substitution, Polynomdivision',
+    steps: [
+      { id: 'auskl', kind: 'Benennen', title: 'Ausklammern', run: info([
+        { title: 'Ein Produkt ist null, wenn ein Faktor null ist', html: `${T('x^3-4x^2+3x=x\\,(x-1)(x-3)=0')}<p>Der <b>Satz vom Nullprodukt</b>: ${tex('a\\cdot b=0')} heißt ${tex('a=0')} oder ${tex('b=0')}. Fehlt im Term das Absolutglied, kannst du ${tex('x')} ausklammern. Dann sind ${tex('x=0')}, ${tex('x=1')} und ${tex('x=3')} die Nullstellen.</p>` },
+        { title: 'Nie durch x teilen', html: `<p>Wer ${tex('x^2=3x')} durch ${tex('x')} teilt, verliert die Lösung ${tex('x=0')}. Richtig: alles auf eine Seite, ausklammern.</p>${T('x^2-3x=x\\,(x-3)=0\\ \\Rightarrow\\ x=0\\ \\text{oder}\\ x=3')}` },
+      ]) },
+      { id: 'ausklu', kind: 'Brücke', title: 'Ausklammern üben', run: quiz([genNullAuskl, genNullAuskl, genNullAuskl, genNullAuskl]) },
+      { id: 'subst', kind: 'Benennen', title: 'Substitution', run: info([
+        { title: 'Aus x⁴ wird z²', html: `${T('x^4-5x^2+4=0\\ \\xrightarrow{z=x^2}\\ z^2-5z+4=0')}<p>Kommen nur ${tex('x^4')}, ${tex('x^2')} und eine Zahl vor, ersetzt du ${tex('x^2')} durch ${tex('z')}. Dann löst du die quadratische Gleichung: ${tex('z_1=1')}, ${tex('z_2=4')}.</p>` },
+        { title: 'Zurück zu x', html: `<p>${tex('x^2=1\\ \\Rightarrow\\ x=\\pm 1')} und ${tex('x^2=4\\ \\Rightarrow\\ x=\\pm 2')}. Vier Nullstellen. Ist ${tex('z')} <b>negativ</b>, gibt es dazu keine Nullstelle: Ein Quadrat ist nie negativ.</p>` },
+      ]) },
+      { id: 'substu', kind: 'Brücke', title: 'Substitution üben', run: quiz([genNullSubst, genNullSubst, genNullSubst, genNullSubst]) },
+      { id: 'poly', kind: 'Benennen', title: 'Polynomdivision', run: info([
+        { title: 'Eine Nullstelle erraten, dann teilen', html: `<p>Bei ${tex('x^3-6x^2+11x-6')} probierst du die Teiler des Absolutglieds ${tex('-6')}: ${tex('f(1)=0')} ✓. Dann teilst du durch ${tex('(x-1)')}.</p>${T('\\left(x^3-6x^2+11x-6\\right):(x-1)=x^2-5x+6')}<p>Aus ${tex('x^2-5x+6=0')} folgen ${tex('x=2')} und ${tex('x=3')}. Alle Nullstellen: ${tex('1;\\ 2;\\ 3')}.</p>` },
+        { title: 'Schnell mit dem Horner-Schema', html: `<p>Zahl links, Koeffizienten oben: Die erste Zahl herunterziehen, mit der Nullstelle malnehmen, zur nächsten addieren. Ganz rechts muss <b>Rest 0</b> stehen – sonst war die Nullstelle falsch.</p>` },
+      ]) },
+      { id: 'polyu', kind: 'Brücke', title: 'Polynomdivision üben', run: quiz([genNullPoly, genNullPoly, genNullPoly, genNullPoly]) },
+      { id: 'mix', kind: 'Festigen', title: 'Nullstellen gemischt', run: quiz([genNullAuskl, genNullSubst, genNullPoly, genNullAuskl, genNullSubst, genNullPoly]) },
+    ],
+  },
 ];
 const OBER_AREAS = [
-  { id: 'analysis', title: 'Analysis', soon: ['Nullstellen finden: Ausklammern, Substitution, Polynomdivision', 'Abi-Pflichtteil ohne Taschenrechner', 'Stetigkeit und Differenzierbarkeit', 'Wachstum und Differentialgleichungen', 'Integrationsverfahren'] },
+  { id: 'analysis', title: 'Analysis', soon: ['Abi-Pflichtteil ohne Taschenrechner', 'Stetigkeit und Differenzierbarkeit', 'Wachstum und Differentialgleichungen', 'Integrationsverfahren'] },
   { id: 'stochastik', title: 'Stochastik', soon: ['Satz von Bayes: Baum umdrehen', 'Normalverteilung rückwärts', 'Dichtefunktion: Wahrscheinlichkeit als Fläche', 'Prognose- und Konfidenzintervalle', 'Gütefunktion', 'Warten auf den ersten Treffer', 'Übergangsprozesse mit Matrizen'] },
   { id: 'geometrie', title: 'Analytische Geometrie', soon: ['Kreuzprodukt: Fläche und Volumen', 'Linear abhängig oder unabhängig?', 'Beweisen mit Vektoren', 'Matrizen und Abbildungen'] },
   { id: 'pruefung', title: 'Prüfung', soon: ['Musterlösungen lesen', 'Zeit einteilen'] },
@@ -686,6 +708,8 @@ const META = {
     formeln: [['Mittelwert einer Funktion', 'm=\\dfrac{1}{b-a}\\displaystyle\\int_a^b f(x)\\,dx'], ['Bestand aus der Änderungsrate', 'B(t)=B(0)+\\displaystyle\\int_0^t r(s)\\,ds'], ['Gesamtänderung', '\\int_{t_1}^{t_2}r(t)\\,dt=B(t_2)-B(t_1)'], ['Größter / kleinster Bestand', 'r:\\ +\\to -\\ \\text{(Maximum)},\\quad r:\\ -\\to +\\ \\text{(Minimum)},\\ \\text{Ränder prüfen}']] },
   'a-gauss': { boss: ['Gauß-Gnu', 'LGS', [genGauss]], why: 'Wer drei unbekannte Größen aus drei Messungen bestimmen muss, braucht das Gauß-Verfahren: die Mischung einer Legierung, die Stromstärken in einem Netz, die drei Zahlen einer Parabel durch drei Punkte (Steckbriefaufgaben im Abi). Auch Computer lösen große Gleichungssysteme so.',
     formeln: [['Dreiecksform', '\\begin{array}{l}a_{11}x+a_{12}y+a_{13}z=b_1\\\\a_{22}y+a_{23}z=b_2\\\\a_{33}z=b_3\\end{array}'], ['Eliminieren', '\\text{II}-f\\cdot\\text{I}\\quad\\text{mit}\\quad f=\\dfrac{a_{21}}{a_{11}}'], ['Keine Lösung', '0=c\\ (c\\neq 0)\\ \\Rightarrow\\ L=\\{\\ \\}'], ['Unendlich viele', '0=0\\ \\Rightarrow\\ \\text{eine Unbekannte frei wählbar}']] },
+  'a-nullst': { boss: ['Null-Nashorn', 'f=0', [genNullAuskl, genNullSubst, genNullPoly]], why: 'Nullstellen sind die Stellen, an denen ein Graph die x-Achse schneidet: der Aufprall eines Balls, der Break-even-Punkt einer Firma, der Zeitpunkt, an dem ein Becken leer ist. In jeder Kurvendiskussion im Abi steht als Erstes: Nullstellen bestimmen.',
+    formeln: [['Satz vom Nullprodukt', 'a\\cdot b=0\\ \\Rightarrow\\ a=0\\ \\text{oder}\\ b=0'], ['Ausklammern', 'x^3-4x^2+3x=x\\,(x^2-4x+3)'], ['Substitution', 'ax^4+bx^2+c=0\\ \\xrightarrow{z=x^2}\\ az^2+bz+c=0'], ['Rücksubstitution', 'x^2=z\\ \\Rightarrow\\ x=\\pm\\sqrt z\\ (z\\ge 0)'], ['Polynomdivision', 'f(x_0)=0\\ \\Rightarrow\\ f(x)=(x-x_0)\\cdot q(x)']] },
   's-test2': { boss: ['Histo-Hydra', 'H₀', [genBinomVerteilung, genMengen, genHistogramm, genRueckwaerts, genZweiseitig, genStetig]], why: 'Ob eine Münze fair ist, ein Medikament anders wirkt oder eine Maschine falsch eingestellt ist: Abweichungen in beide Richtungen prüft man zweiseitig. Histogramme und Dichten zeigen auf einen Blick, womit zu rechnen ist – in der Qualitätskontrolle genauso wie in Wahlumfragen.',
     formeln: [['Einzelwahrscheinlichkeit', 'P(X=k)=\\binom{n}{k}p^k(1-p)^{n-k}'], ['Kumuliert', 'P(X\\ge k)=1-P(X\\le k-1)'], ['Vereinigung', 'P(A\\cup B)=P(A)+P(B)-P(A\\cap B)'], ['Annahmebereich (5 %)', '[\\mu-1{,}96\\sigma;\\ \\mu+1{,}96\\sigma]'], ['Mindestens ein Treffer', '1-(1-p)^n\\ge s'], ['Dichte', 'P(a\\le X\\le b)=\\displaystyle\\int_a^b f(x)\\,dx']] },
   'g-abstand2': { boss: ['Lot-Leopard', '⊥', [genHesse, genSchnittgerade, genWindschief, genSpiegelung, genBewegung]], why: 'Flugsicherung, Robotik und jedes 3D-Spiel rechnen ständig Abstände aus: Wie nah kommen sich zwei Flugbahnen? Wo trifft ein Lichtstrahl sein Spiegelbild? Fast immer führt der Weg über eine Senkrechte.',
