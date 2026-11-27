@@ -2,6 +2,13 @@
 
 Neueste Meldung oben. Keine Geheimnisse, keine Personendaten (dieses Repo ist öffentlich, siehe Punkt 1).
 
+## 27.11.2026 (118) – 2.5.6 auf test: Einheit „Nullstellen finden“ (Freitag-Update)
+
+- **Neu:** Oberstufe, Analysis: „Nullstellen finden“ (Ausklammern, Substitution, Polynomdivision) mit Theorie, Formeln, Boss. Sonst gleich wie 2.5.5.
+- **Rechtsbezug: nein** (reiner Mathe-Inhalt). Der Rechtsbezug von 2.5.5 bleibt bestehen und ist dort gemeldet.
+- **Rückweg:** 2.5.5 = bdc31c6 (der Commit aus dem Freigabe-Antrag). Live ist weiterhin 2.5.2.
+- **Geprüft:** check grün, alle Browser-Tests, e2e auf allen fünf Stufen.
+
 ## 24.11.2026 (117) – 2.5.5 fertig auf `arbeit`: Dienstag-Update (Gauß, Gleichungen, Eltern-Tor, Familien-Speicher, PC-Vollbild)
 
 - **Stand:** `arbeit` enthält 2.5.5. Nach den vollständigen Prüfungen geht es auf main/test (siehe Antwort an die AppZentrale). Live setzt nur der Leitstand. 2.5.4 (Hotfix) liegt unverändert auf main/test.
